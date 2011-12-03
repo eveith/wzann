@@ -4,3 +4,5 @@
 *.idx
 *.sw?
 *.o
+Debug
+Release
