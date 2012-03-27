@@ -4,3 +4,8 @@
 *.idx
 *.sw?
 *.o
+Debug
+Release
+*.obj
+*.dll
+*.lib
