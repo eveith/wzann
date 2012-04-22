@@ -9,3 +9,5 @@ Release
 *.obj
 *.dll
 *.lib
+*.pdb
+*.idb
