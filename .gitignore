@@ -1,0 +1,7 @@
+Makefile
+*.pro.user
+*.o
+*.pdf
+*.out
+*.log
+*.sw?
