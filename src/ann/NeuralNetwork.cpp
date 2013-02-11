@@ -301,6 +301,7 @@ namespace Winzent
             for (int i = 0; i != layer->size(); ++i) {
                 int neuronIndex = biasIndex - layer->size() + i;
                 connectNeurons(biasIndex, neuronIndex);
+                weight(biasIndex, neuronIndex, 1.0);
             }
 
             return *this;

@@ -56,6 +56,7 @@ class NeuralNetworkTest: public QObject
 private slots:
 
     void testLayerAdditionRemoval();
+    void testCalculateLayer();
     void testCalculateLayerTransition();
     void testSerialization();
     void testInitialLayerSize();

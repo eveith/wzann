@@ -137,6 +137,26 @@ void NeuralNetworkTest::testCalculateLayerTransition()
         QCOMPARE(static_cast<int>(outVector[i]),
                 pattern->numNeuronsPerLayer/2);
     }
+
+    delete network;
+}
+
+
+void NeuralNetworkTest::testCalculateLayer()
+{
+    NeuralNetwork network;
+    Mock::NeuralNetworkTestDummyPattern pattern;
+    network.configure(&pattern);
+
+    ValueVector inVector(pattern.numNeuronsPerLayer, 1.0);
+    ValueVector outVector = network.calculateLayer(1, inVector);
+
+    QCOMPARE(outVector.size(), pattern.numNeuronsPerLayer);
+    QCOMPARE(outVector.size(), inVector.size());
+
+    foreach (double d, outVector) {
+        QCOMPARE(1.0 + d, 1.0 + SigmoidActivationFunction().calculate(2.0));
+    }
 }
 
 
