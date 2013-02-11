@@ -51,6 +51,7 @@ namespace Winzent
 
         double Neuron::activate(const double &sum)
         {
+            m_lastInput = sum;
             m_lastResult = m_activationFunction->calculate(sum);
             return m_lastResult;
         }

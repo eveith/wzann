@@ -41,7 +41,13 @@ namespace Winzent
 
 
             /*!
-             * Stores the result of the last activation
+             * Caches that last input that was presented to this neuron.
+             */
+            double m_lastInput;
+
+
+            /*!
+             * Caches the result of the last activation
              */
             double m_lastResult;
 
@@ -87,6 +93,12 @@ namespace Winzent
              * \sa #lastResult
              */
             Neuron* clone() const;
+
+
+            /*!
+             * Returns the last network input for this neuron
+             */
+            double lastInput() const;
 
 
             /*!
