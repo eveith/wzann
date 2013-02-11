@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       -= gui
+CONFIG += debug
 
 TARGET = winzentann
 TEMPLATE = lib
@@ -28,7 +29,8 @@ SOURCES += \
     ActivationFunction.cpp \
     ElmanNetworkPattern.cpp \
     ConstantActivationFunction.cpp \
-    Layer.cpp
+    Layer.cpp \
+    PerceptronNetworkPattern.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -44,7 +46,8 @@ HEADERS +=\
     ActivationFunction.h \
     ElmanNetworkPattern.h \
     ConstantActivationFunction.h \
-    Layer.h
+    Layer.h \
+    PerceptronNetworkPattern.h
 
 unix:!symbian {
     maemo5 {

@@ -3,13 +3,16 @@
 
 
 #include <QObject>
+
+#include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
+
 
 namespace Winzent {
     namespace ANN {
 
 
-        class NeuralNetwork;
+        class Neuron;
         class TrainingSet;
 
 
@@ -18,6 +21,21 @@ namespace Winzent {
             Q_OBJECT
 
         private:
+
+
+            /*!
+             * Calculates the error per neuron between the actual and the
+             * expected output of the neural net.
+             */
+            ValueVector outputError(
+                    const ValueVector &actual,
+                    const ValueVector &expected);
+
+
+            /*!
+             * Calculates the neuron delta for one given neuron.
+             */
+            double neuronDelta(const Neuron *neuron, const double &error);
 
 
             virtual void train(

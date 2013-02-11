@@ -30,7 +30,8 @@ HEADERS += \
     NeuralNetworkTest.h \
     NeuralNetworkPatternTest.h \
     ElmanNetworkPatternTest.h \
-    LayerTest.h
+    LayerTest.h \
+    PerceptronNetworkPatternTest.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -38,7 +39,8 @@ SOURCES += \
     NeuralNetworkTest.cpp \
     NeuralNetworkPatternTest.cpp \
     ElmanNetworkPatternTest.cpp \
-    LayerTest.cpp
+    LayerTest.cpp \
+    PerceptronNetworkPatternTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

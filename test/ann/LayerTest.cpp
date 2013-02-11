@@ -34,4 +34,5 @@ void LayerTest::testNeuronAddition()
         "Layer::size() should exclude the bias neuron");
     QVERIFY2(layer.biasNeuron() == layer.neurons.last(),
         "The bias neuron shall always be at the last index");
+    QVERIFY(layer.neurons.at(0)->parent() == &layer);
 }

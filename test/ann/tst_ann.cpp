@@ -9,6 +9,7 @@
 #include "NeuralNetworkTest.h"
 #include "NeuralNetworkPatternTest.h"
 #include "ElmanNetworkPatternTest.h"
+#include "PerceptronNetworkPatternTest.h"
 
 
 using std::cout;
@@ -35,6 +36,7 @@ int main (int argc, char *argv[])
             << new NeuronTest()
             << new NeuralNetworkTest()
             << new NeuralNetworkPatternTest()
+            << new PerceptronNetworkPatternTest()
             << new ElmanNetworkPatternTest();
 
     // Check command line parameters and run tests:

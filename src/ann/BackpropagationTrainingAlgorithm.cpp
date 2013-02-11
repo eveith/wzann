@@ -5,8 +5,11 @@
 
 #include <limits>
 
+#include "Neuron.h"
 #include "NeuralNetwork.h"
 #include "TrainingSet.h"
+#include "Exception.h"
+
 #include "BackpropagationTrainingAlgorithm.h"
 
 
@@ -167,6 +170,34 @@ namespace Winzent
     trainingSet.m_error = error / (numIterations+1);
     return trainingSet.error();
 #endif
+        }
+
+
+        ValueVector BackpropagationTrainingAlgorithm::outputError(
+                const ValueVector &actual,
+                const ValueVector &expected)
+        {
+            if (actual.size() != expected.size()) {
+                throw LayerSizeMismatchException(
+                        actual.size(),
+                        expected.size());
+            }
+
+            ValueVector error;
+
+            for (int i = 0; i != actual.size(); ++i) {
+                error[i] = expected[i] - actual[i];
+            }
+
+            return error;
+        }
+
+
+        double BackpropagationTrainingAlgorithm::neuronDelta(
+                const Neuron *neuron,
+                const double &error)
+        {
+            return neuron->lastResult() * (1 - neuron->lastResult()) * error;
         }
     }
 }
