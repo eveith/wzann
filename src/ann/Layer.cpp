@@ -39,6 +39,7 @@ namespace Winzent {
         {
             // Insert the neuron just before the bias neuron.
 
+            neuron->setParent(this);
             neurons.insert(neurons.size() - 1, neuron);
             return *this;
         }

@@ -17,6 +17,7 @@ namespace Winzent
         Neuron::Neuron(ActivationFunction *activationFunction, QObject *parent):
             QObject(parent),
             m_activationFunction(activationFunction),
+            m_lastInput(0.0),
             m_lastResult(0.0)
         {
         }
