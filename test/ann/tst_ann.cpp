@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QtTest>
 
+#include "LayerTest.h"
 #include "NeuronTest.h"
 #include "NeuralNetworkTest.h"
 #include "NeuralNetworkPatternTest.h"
@@ -30,6 +31,7 @@ int main (int argc, char *argv[])
 
     QList<QObject*> testClasses;
     testClasses
+            << new LayerTest()
             << new NeuronTest()
             << new NeuralNetworkTest()
             << new NeuralNetworkPatternTest()

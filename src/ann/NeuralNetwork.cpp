@@ -187,7 +187,7 @@ namespace Winzent
             int index = 0;
 
             for (int i = 0; i != layer; ++i) {
-                index += m_layers[i]->size();
+                index += m_layers[i]->neurons.size();
             }
 
             index += neuronIndex;
@@ -271,9 +271,9 @@ namespace Winzent
             m_layers << layer;
             layer->setParent(this);
 
-            // Grow weight matrix:
+            // Grow weight matrix; include the bias neuron in the calculation:
 
-            int newLayerSize = layer->size(); // Includes the bias neuron
+            int newLayerSize = layer->neurons.size();
             int weightMatrixTargetSize = m_weightMatrix.size() + newLayerSize;
 
             for (int i = 0; i != newLayerSize; ++i) {
@@ -296,10 +296,10 @@ namespace Winzent
 
             // Make sure the bias connection exists:
 
-            int biasIndex = translateIndex(m_layers.size() - 1, 0);
+            int biasIndex = findNeuron(layer->biasNeuron());
 
-            for (int i = 1; i != layer->size(); ++i) {
-                int neuronIndex = biasIndex + i;
+            for (int i = 0; i != layer->size(); ++i) {
+                int neuronIndex = biasIndex - layer->size() + i;
                 connectNeurons(biasIndex, neuronIndex);
             }
 
@@ -367,27 +367,27 @@ namespace Winzent
                 const ValueVector &input)
                     throw(LayerSizeMismatchException)
         {
-            if (layer->size() - 1 != input.size()) { // -1 to honor bias
-                throw LayerSizeMismatchException(input.size(), layer->size()-1);
+            if (layer->size() != input.size()) {
+                throw LayerSizeMismatchException(input.size(), layer->size());
             }
 
-            ValueVector output(layer->size());
+            ValueVector output;
+            output.fill(0.0, layer->size());
+
+            int biasIndex = findNeuron(layer->biasNeuron());
 
             for (int i = 0; i != input.size(); ++i) {
-                int j = i + 1;
                 double sum = input.at(i);
 
                 // Add bias neuron:
 
-                if (neuronConnectionExists(
-                        findNeuron(layer->neurons.at(0)),
-                        findNeuron(layer->neurons.at(j)))) {
-                    sum += layer->neurons.at(0)->activate(1.0) * weight(
-                            findNeuron(layer->neurons.at(0)),
-                            findNeuron(layer->neurons.at(j)))->value;
+                int neuronIndex = findNeuron((*layer)[i]);
+                if (neuronConnectionExists(biasIndex, neuronIndex)) {
+                    sum += layer->biasNeuron()->activate(1.0)
+                            * weight(biasIndex, neuronIndex)->value;
                 }
 
-                output[i] = layer->neurons.at(j)->activate(sum);
+                output[i] = (*layer)[i]->activate(sum);
             }
 
             return output;
@@ -412,18 +412,18 @@ namespace Winzent
             int fromLayerSize   = (*this)[fromLayer]->size();
             int toLayerSize     = (*this)[toLayer]->size();
 
-            if (input.size() != fromLayerSize - 1) { // -1 for bias neuron
+            if (input.size() != fromLayerSize) {
                 throw LayerSizeMismatchException(input.size(), fromLayerSize);
             }
 
             ValueVector output;
-            output.fill(0.0, toLayerSize - 1);
-            Q_ASSERT(output.size() == toLayerSize -1);
+            output.fill(0.0, toLayerSize);
+            Q_ASSERT(output.size() == toLayerSize);
 
-            for (int i = 1; i != fromLayerSize; ++i) {
+            for (int i = 0; i != fromLayerSize; ++i) {
                 int fromNeuronIndex = translateIndex(fromLayer, i);
 
-                for (int j = 1; j != toLayerSize; ++j) {
+                for (int j = 0; j != toLayerSize; ++j) {
                     int toNeuronIndex = translateIndex(toLayer, j);
 
                     if (!neuronConnectionExists(
@@ -432,8 +432,8 @@ namespace Winzent
                         continue;
                     }
 
-                    output[j-1] += *(weight(fromNeuronIndex, toNeuronIndex))
-                            * input.at(i-1);
+                    output[j] += *(weight(fromNeuronIndex, toNeuronIndex))
+                            * input.at(i);
                 }
             }
 
@@ -444,9 +444,9 @@ namespace Winzent
         ValueVector NeuralNetwork::calculate(const ValueVector &input)
                 throw(LayerSizeMismatchException)
         {
-            if (input.size() != m_layers[0]->size() - 1) {
+            if (input.size() != m_layers.first()->size()) {
                 throw LayerSizeMismatchException(
-                        m_layers.first()->size() - 1, // honor bias
+                        m_layers.first()->size(),
                         input.size());
             }
 

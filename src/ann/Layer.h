@@ -29,7 +29,7 @@ namespace Winzent {
 
             /*!
              * Returns the size of the layer, i.e. the number of
-             * neurons it holds.
+             * neurons it holds. Excludes the bias neuron.
              */
             int size() const;
 
@@ -50,7 +50,8 @@ namespace Winzent {
 
 
             /*!
-             * Adds a neuron to the layer.
+             * Adds a neuron to the layer ensuring that the bias neuron always
+             * remains the last one.
              */
             Layer& operator<<(Neuron *neuron);
 

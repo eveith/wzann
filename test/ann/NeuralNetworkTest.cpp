@@ -57,11 +57,11 @@ namespace Mock {
             for (int j = 0; j != numNeuronsPerLayer/2; ++j) {
                 for (int k = 0; k != numNeuronsPerLayer; ++k) {
                     network->connectNeurons(
-                            network->translateIndex(i-1, j+1),
-                            network->translateIndex(i, k+1));
+                            network->translateIndex(i-1, j),
+                            network->translateIndex(i, k));
                     network->weight(
-                            network->translateIndex(i-1, j+1),
-                            network->translateIndex(i, k+1),
+                            network->translateIndex(i-1, j),
+                            network->translateIndex(i, k),
                             1.0);
                 }
             }
@@ -114,7 +114,9 @@ void NeuralNetworkTest::testLayerAdditionRemoval()
     QVERIFY(network->inputLayer() == l1);
     QVERIFY(network->outputLayer() == l2);
 
-    QCOMPARE(network->m_weightMatrix.size(), l1->size() + l2->size());
+    QCOMPARE(
+            network->m_weightMatrix.size(),
+            l1->neurons.size() + l2->neurons.size());
 }
 
 

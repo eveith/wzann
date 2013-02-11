@@ -19,7 +19,7 @@ namespace Winzent {
 
         int Layer::size() const
         {
-            return neurons.size();
+            return neurons.size() - 1;
         }
 
 
@@ -31,13 +31,15 @@ namespace Winzent {
 
         Neuron*& Layer::biasNeuron()
         {
-            return neurons[0];
+            return neurons.last();
         }
 
 
         Layer& Layer::operator <<(Neuron *neuron)
         {
-            neurons << neuron;
+            // Insert the neuron just before the bias neuron.
+
+            neurons.insert(neurons.size() - 1, neuron);
             return *this;
         }
 

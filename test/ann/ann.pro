@@ -29,14 +29,16 @@ HEADERS += \
     NeuronTest.h \
     NeuralNetworkTest.h \
     NeuralNetworkPatternTest.h \
-    ElmanNetworkPatternTest.h
+    ElmanNetworkPatternTest.h \
+    LayerTest.h
     
 SOURCES += \
     tst_ann.cpp \
     NeuronTest.cpp \
     NeuralNetworkTest.cpp \
     NeuralNetworkPatternTest.cpp \
-    ElmanNetworkPatternTest.cpp
+    ElmanNetworkPatternTest.cpp \
+    LayerTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
