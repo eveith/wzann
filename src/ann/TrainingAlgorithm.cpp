@@ -2,6 +2,7 @@
 
 #include "Exception.h"
 #include "NeuralNetwork.h"
+#include "TrainingSet.h"
 
 #include "TrainingAlgorithm.h"
 
@@ -41,5 +42,20 @@ namespace Winzent
         {
         }
 
+
+        void TrainingAlgorithm::setFinalError(
+                TrainingSet &trainingSet,
+                double error) const
+        {
+            trainingSet.m_error = error;
+        }
+
+
+        void TrainingAlgorithm::setFinalNumEpochs(
+                TrainingSet &trainingSet,
+                int epochs) const
+        {
+            trainingSet.m_epochs = epochs;
+        }
     } // namespace ANN
 } // namespace Winzent

@@ -26,8 +26,9 @@ SOURCES += \
     Exception.cpp \
     BackpropagationTrainingAlgorithm.cpp \
     ActivationFunction.cpp \
-    AbstractTrainingStrategy.cpp \
-    ElmanNetworkPattern.cpp
+    ElmanNetworkPattern.cpp \
+    ConstantActivationFunction.cpp \
+    Layer.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -41,8 +42,9 @@ HEADERS +=\
     Exception.h \
     BackpropagationTrainingAlgorithm.h \
     ActivationFunction.h \
-    AbstractTrainingStrategy.h \
-    ElmanNetworkPattern.h
+    ElmanNetworkPattern.h \
+    ConstantActivationFunction.h \
+    Layer.h
 
 unix:!symbian {
     maemo5 {

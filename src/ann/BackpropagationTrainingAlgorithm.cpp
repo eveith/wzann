@@ -3,6 +3,8 @@
  */
 
 
+#include <limits>
+
 #include "NeuralNetwork.h"
 #include "TrainingSet.h"
 #include "BackpropagationTrainingAlgorithm.h"
@@ -24,6 +26,41 @@ namespace Winzent
                 NeuralNetwork *network,
                 TrainingSet *trainingSet)
         {
+            int epochs = 0;
+            double error = std::numeric_limits<double>::max();
+
+            for(; epochs <= trainingSet->maxEpochs()
+                        || error > trainingSet->targetError();
+                    ++epochs) {
+
+                // Begin this run with an error of 0:
+
+                error = 0.0;
+
+                // We present each training pattern once per epoch. An epoch
+                // is complete once we've presented the complete training set to
+                // the network. We then calculate the overall error and try to
+                // minimize it.
+
+                QList<TrainingItem>::const_iterator it =
+                        trainingSet->trainingData().constBegin();
+                for (; it != trainingSet->trainingData().constEnd(); it++) {
+                    network->calculate(it->input());
+                }
+
+                error /= 2;
+
+                if (error <= trainingSet->targetError()) {
+                    // This run showed minimal error, so there is no need for
+                    // training.
+                    break;
+                }
+            }
+
+            // Store final training results:
+
+            setFinalError(*trainingSet, error);
+            setFinalNumEpochs(*trainingSet, epochs);
 #if 0
     int numIterations = 0;
     QVector<TrainingItem>::const_iterator it =

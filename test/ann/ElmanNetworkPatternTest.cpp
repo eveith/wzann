@@ -53,12 +53,12 @@ void ElmanNetworkPatternTest::testConfigure()
 
     QCOMPARE(network.m_layers.size(), 4);
     QCOMPARE(network.m_weightMatrix.size(),
-             layers[0] + 2* layers[1] + layers[2]);
+             layers[0] +1 + 2* (layers[1]+1) + layers[2] +1);
 
     // Each input layer neuron has one context neuron: Check
 
-    for (int i = 0; i != layers.at(1); ++i) {
-        for (int j = 0; j != layers.at(1); ++j) {
+    for (int i = 1; i != layers.at(1); ++i) {
+        for (int j = 1; j != layers.at(1); ++j) {
             bool connection = network.neuronConnectionExists(
                    network.translateIndex(ElmanNetworkPattern::HIDDEN, i),
                    network.translateIndex(ElmanNetworkPattern::CONTEXT, j));

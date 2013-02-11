@@ -26,6 +26,7 @@ namespace Winzent
         typedef QVector<double> ValueVector;
 
         class NeuralNetworkPattern;
+        class Layer;
         class Neuron;
 
         class TrainingSet;
@@ -112,42 +113,6 @@ namespace Winzent
 
 
             double operator*(const double &rhs) const;
-        };
-
-
-        /*!
-         * Represents a layer within a neural network.
-         */
-        class Layer: public QObject
-        {
-            Q_OBJECT
-
-        public:
-
-
-            /*!
-             * A list of all neurons the make up this layer.
-             */
-            QList<Neuron*> neurons;
-
-
-            /*!
-             * Returns the size of the layer, i.e. the number of
-             * neurons it holds.
-             */
-            int size() const;
-
-
-            /*!
-             * Creates a new, empty layer.
-             */
-            Layer(QObject *parent = 0);
-
-
-            /*!
-             * Returns a deep copy (clone) of this layer.
-             */
-            Layer* clone() const;
         };
 
 

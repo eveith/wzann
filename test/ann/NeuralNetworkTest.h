@@ -58,6 +58,7 @@ private slots:
     void testLayerAdditionRemoval();
     void testCalculateLayerTransition();
     void testSerialization();
+    void testInitialLayerSize();
 };
 
 #endif /* NEURALNETWORKTEST_H_ */

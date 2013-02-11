@@ -12,6 +12,7 @@
 #define private public
 #include "SigmoidActivationFunction.h"
 #include "Neuron.h"
+#include "Layer.h"
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"
 
@@ -44,7 +45,7 @@ namespace Mock {
             Layer* l = new Layer();
 
             for (int j = 0; j != numNeuronsPerLayer; ++j) {
-                l->neurons << new Neuron(new SigmoidActivationFunction());
+                *l << new Neuron(new SigmoidActivationFunction());
             }
 
             *network << l;
@@ -56,11 +57,11 @@ namespace Mock {
             for (int j = 0; j != numNeuronsPerLayer/2; ++j) {
                 for (int k = 0; k != numNeuronsPerLayer; ++k) {
                     network->connectNeurons(
-                            network->translateIndex(i-1, j),
-                            network->translateIndex(i, k));
+                            network->translateIndex(i-1, j+1),
+                            network->translateIndex(i, k+1));
                     network->weight(
-                            network->translateIndex(i-1, j),
-                            network->translateIndex(i, k),
+                            network->translateIndex(i-1, j+1),
+                            network->translateIndex(i, k+1),
                             1.0);
                 }
             }
@@ -128,6 +129,8 @@ void NeuralNetworkTest::testCalculateLayerTransition()
     ValueVector inVector(pattern->numNeuronsPerLayer, 1.0);
     ValueVector outVector = network->calculateLayerTransition(0, 1, inVector);
 
+    QCOMPARE(outVector.size(), pattern->numNeuronsPerLayer);
+
     for (int i = 0; i != outVector.size(); ++i) {
         QCOMPARE(static_cast<int>(outVector[i]),
                 pattern->numNeuronsPerLayer/2);
@@ -149,4 +152,12 @@ void NeuralNetworkTest::testSerialization()
     testResultStream << network;
     testResultStream.flush();
     testResultFile.close();
+}
+
+
+void NeuralNetworkTest::testInitialLayerSize()
+{
+    Layer l;
+    QCOMPARE(l.neurons.size(), 1);
+    QCOMPARE(l.neurons.first()->activate(4123), 1.0);
 }

@@ -74,8 +74,11 @@ namespace Winzent
             int fromLayerSize = m_layerSizes.at(fromLayer);
             int toLayerSize = m_layerSizes.at(toLayer);
 
-            for (int i = 0; i != fromLayerSize; ++i) {
-                    for (int j = 0; j != toLayerSize; ++j) {
+            // Iterate over all neurons. Begin at index 1, because index 0
+            // is always the bias neuron.
+
+            for (int i = 1; i != fromLayerSize; ++i) {
+                    for (int j = 1; j != toLayerSize; ++j) {
                         network->connectNeurons(
                                 network->translateIndex(fromLayer, i),
                                 network->translateIndex(toLayer, j));

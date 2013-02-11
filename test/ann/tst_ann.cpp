@@ -37,7 +37,7 @@ int main (int argc, char *argv[])
 
     // Check command line parameters and run tests:
 
-    if (2 == argc) {
+    if (2 <= argc) {
         if(0 == strcmp(argv[1], "-h")) {
             printHelp();
             return EXIT_SUCCESS;

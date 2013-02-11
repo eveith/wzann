@@ -41,6 +41,18 @@ namespace Winzent
 
 
             /*!
+             * Sets the final error of a training set.
+             */
+            void setFinalError(TrainingSet &trainingSet, double error) const;
+
+
+            /*!
+             * Sets the final number of epochs needed for the training.
+             */
+            void setFinalNumEpochs(TrainingSet &trainingSet, int epochs) const;
+
+
+            /*!
              * Calculates the mean square error.
              *
              * The MSE is defined as the sum of all squared errors,

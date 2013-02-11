@@ -72,5 +72,34 @@ namespace Winzent
         {
         }
 
+
+        double TrainingSet::targetError() const
+        {
+            return m_targetError;
+        }
+
+
+        double TrainingSet::error() const
+        {
+            return m_error;
+        }
+
+
+        int TrainingSet::maxEpochs() const
+        {
+            return m_maxNumEpochs;
+        }
+
+
+        int TrainingSet::epochs() const
+        {
+            return m_epochs;
+        }
+
+
+        const QList<TrainingItem> TrainingSet::trainingData() const
+        {
+            return m_trainingData;
+        }
     }
 }

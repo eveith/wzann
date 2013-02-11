@@ -14,6 +14,7 @@
 #include "NeuralNetwork.h"
 #include "ActivationFunction.h"
 #include "RememberingActivationFunction.h"
+#include "Layer.h"
 #include "Neuron.h"
 #include "Exception.h"
 
@@ -107,8 +108,8 @@ namespace Winzent
                     case INPUT: {
                         fullyConnectNetworkLayers(network, lidx, HIDDEN);
 
-                        for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
-                            for (int j = 0; j != m_layerSizes.at(HIDDEN); ++j) {
+                        for (int i = 1; i != m_layerSizes.at(lidx); ++i) {
+                            for (int j = 1; j != m_layerSizes.at(HIDDEN); ++j) {
                                 network->weight(
                                         network->translateIndex(lidx, i),
                                         network->translateIndex(HIDDEN, j)
@@ -122,8 +123,8 @@ namespace Winzent
                     case CONTEXT: {
                         fullyConnectNetworkLayers(network, lidx, HIDDEN);
 
-                        for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
-                            for (int j = 0; j != m_layerSizes.at(HIDDEN); ++j) {
+                        for (int i = 1; i != m_layerSizes.at(lidx); ++i) {
+                            for (int j = 1; j != m_layerSizes.at(HIDDEN); ++j) {
                                 network->weight(
                                         network->translateIndex(lidx, i),
                                         network->translateIndex(HIDDEN, j)
@@ -137,7 +138,7 @@ namespace Winzent
                     case HIDDEN: {
                         fullyConnectNetworkLayers(network, lidx, OUTPUT);
 
-                        for (int i = 0; i != layerSize; ++i) {
+                        for (int i = 1; i != layerSize; ++i) {
                             network->connectNeurons(
                                     network->translateIndex(HIDDEN, i),
                                     network->translateIndex(CONTEXT, i));
@@ -148,8 +149,8 @@ namespace Winzent
                             w->fixed = true;
                         }
 
-                        for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
-                            for (int j = 0; j != m_layerSizes.at(OUTPUT); ++j) {
+                        for (int i = 1; i != m_layerSizes.at(lidx); ++i) {
+                            for (int j = 1; j != m_layerSizes.at(OUTPUT); ++j) {
                                 network->weight(
                                         network->translateIndex(lidx, i),
                                         network->translateIndex(OUTPUT, j)
@@ -173,7 +174,10 @@ namespace Winzent
             ValueVector output;
 
             layerInput = network->calculateLayer(INPUT, input);
-            layerInput = network->calculateLayerTransition(INPUT, HIDDEN, layerInput);
+            layerInput = network->calculateLayerTransition(
+                    INPUT,
+                    HIDDEN,
+                    layerInput);
 
             // Fetch remembered values from the context layer:
 
@@ -181,7 +185,7 @@ namespace Winzent
                 Layer* contextLayer = (*network)[CONTEXT];
                 ValueVector rememberedValues(contextLayer->size());
 
-                for (int i = 0; i != contextLayer->size(); ++i) {
+                for (int i = 1; i != contextLayer->size(); ++i) {
                     rememberedValues[i] = contextLayer->neurons.at(i)->lastResult();
                 }
 

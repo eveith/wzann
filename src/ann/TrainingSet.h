@@ -15,10 +15,12 @@
 #include "NeuralNetwork.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
+
+
+        class TrainingAlgorithm;
+
 
         /*!
          * \brief Represents one training input and expected output
@@ -30,7 +32,8 @@ namespace Winzent
          *
          * \sa #rootMeanSquareError
          */
-        class TrainingItem {
+        class TrainingItem
+        {
 
         private:
 
@@ -104,6 +107,8 @@ namespace Winzent
         {
             Q_OBJECT
 
+
+            friend class TrainingAlgorithm;
 
 
         private:
@@ -183,9 +188,7 @@ namespace Winzent
              * Returns the mean square error after the current
              * training epoch.
              */
-            double error() const {
-                return m_error;
-            }
+            double error() const;
 
 
             /*!
@@ -193,18 +196,24 @@ namespace Winzent
              *
              * \return The target error.
              */
-            double targetError() const {
-                return m_targetError;
-            }
+            double targetError() const;
+
+
+            /*!
+             * Returns the maximum number of epochs that are allowed during
+             * training.
+             */
+            int maxEpochs() const;
 
 
             /*!
              * Returns the number of epochs needed to complete
              * the training.
              */
-            double epochs() {
-                return m_epochs;
-            }
+            int epochs() const;
+
+
+            const QList<TrainingItem> trainingData() const;
         };
 
     } /* namespace ANN */

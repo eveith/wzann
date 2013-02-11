@@ -10,6 +10,7 @@
 
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"
+#include "Layer.h"
 #include "Neuron.h"
 #include "SigmoidActivationFunction.h"
 #include "NeuralNetworkPatternTest.h"
@@ -48,10 +49,10 @@ void NeuralNetworkPatternTestDummyPattern::configureNetwork(
         NeuralNetwork* network)
 {
     for (int i = 0; i != numLayers; ++i) {
-        Layer* l = new Layer(network);
+        Layer *l = new Layer(network);
 
         for (int j = 0; j != numNeuronsPerLayer; ++j) {
-            Neuron* n = new Neuron(
+            Neuron *n = new Neuron(
                     new SigmoidActivationFunction(),
                     network);
             l->neurons << n;
@@ -75,8 +76,8 @@ void NeuralNetworkPatternTest::testFullyConnectNetworkLayers()
 
     // Check fully connected state:
 
-    for (int i = 0; i != pattern.numLayers - 1; ++i) {
-        for (int j = 0; j != pattern.numNeuronsPerLayer; ++j) {
+    for (int i = 1; i != pattern.numLayers - 1; ++i) {
+        for (int j = 1; j != pattern.numNeuronsPerLayer; ++j) {
             QVERIFY2(network.neuronConnectionExists(
                         network.translateIndex(i, j),
                         network.translateIndex(i+1, j)),
