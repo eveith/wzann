@@ -12,6 +12,7 @@
 #include <QObject>
 #include <QList>
 #include <QVector>
+#include <QHash>
 
 #include "Exception.h"
 
@@ -382,7 +383,31 @@ namespace Winzent
              *
              * \sa #translateIndex
              */
-            Neuron* neuron(const int &index);
+            Neuron* neuron(const int &index) const;
+
+
+            /*!
+             * Finds all neurons to which a particular neuron is connected.
+             *
+             * \param index The absolute index of the neuron from which the
+             *  connections originate
+             *
+             * \return An hash containing the neurons to which the queried one
+             *  is connected plus the weight of the connection.
+             */
+            QHash<Neuron*, Weight*> connectedNeurons(const int &index) const;
+
+
+            /*!
+             * Finds all neurons to which a particular neuron is connected.
+             *
+             * \param neuron The neuron from which the connections originate
+             *
+             * \return An hash containing the neurons to which the queried one
+             *  is connected plus the weight of the connection.
+             */
+            QHash<Neuron*, Weight*> connectedNeurons(
+                    const Neuron *neuron) const;
 
 
             /*!

@@ -231,7 +231,7 @@ namespace Winzent
         }
 
 
-        Neuron* NeuralNetwork::neuron(const int &index)
+        Neuron* NeuralNetwork::neuron(const int &index) const
         {
             int i = 0;
 
@@ -247,6 +247,32 @@ namespace Winzent
             return NULL;
         }
 
+
+        QHash<Neuron*, Weight*> NeuralNetwork::connectedNeurons(
+                const int &index) const
+        {
+            Q_ASSERT(index > 0);
+            Q_ASSERT(index < m_weightMatrix.size());
+
+            QHash<Neuron*, Weight*> ret;
+
+            for (int i = 0; i != m_weightMatrix[index].size(); ++i) {
+                if (!neuronConnectionExists(index, i)) {
+                    continue;
+                }
+
+                ret.insert(neuron(i), m_weightMatrix[index][i]);
+            }
+
+            return ret;
+        }
+
+
+        QHash<Neuron*, Weight*> NeuralNetwork::connectedNeurons(
+                const Neuron *neuron) const
+        {
+            return connectedNeurons(findNeuron(neuron));
+        }
 
         void NeuralNetwork::connectNeurons(const int &i, const int &j)
         {
@@ -380,7 +406,14 @@ namespace Winzent
             for (int i = 0; i != input.size(); ++i) {
                 double sum = input.at(i);
 
-                // Add bias neuron:
+                // Add bias neuron. We ignore the bias neuron in the input layer
+                // even when it's there; it does not make sense to include the
+                // bias neuron in the input layer since its output would be
+                // overwritten by the input anyways.
+
+                if(m_layers.first() == layer) {
+                    continue;
+                }
 
                 int neuronIndex = findNeuron((*layer)[i]);
                 if (neuronConnectionExists(biasIndex, neuronIndex)) {

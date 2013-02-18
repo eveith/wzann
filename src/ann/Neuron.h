@@ -108,6 +108,12 @@ namespace Winzent
 
 
             /*!
+             * Returns the activation function this neuron instance uses.
+             */
+            ActivationFunction* activationFunction() const;
+
+
+            /*!
              * Activates the neuron given the input sum of all
              * weights that lead to this neuron. Also stores the
              * result, which can be re-retrievend using #lastResult.

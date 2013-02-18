@@ -5,7 +5,11 @@
 
 #include <limits>
 
+#include <QHash>
+
 #include "Neuron.h"
+#include "Layer.h"
+#include "ActivationFunction.h"
 #include "NeuralNetwork.h"
 #include "TrainingSet.h"
 #include "Exception.h"
@@ -20,7 +24,10 @@ namespace Winzent
 
 
         BackpropagationTrainingAlgorithm::BackpropagationTrainingAlgorithm(
-                QObject* parent): TrainingAlgorithm(parent)
+                QObject* parent):
+                    TrainingAlgorithm(parent),
+                    m_neuralNetwork(NULL),
+                    m_deltas(QHash<const Neuron*, double>())
         {
         }
 
@@ -29,6 +36,10 @@ namespace Winzent
                 NeuralNetwork *network,
                 TrainingSet *trainingSet)
         {
+            // Initialize the state variables:
+
+            m_neuralNetwork = network;
+            m_deltas.clear();
             int epochs = 0;
             double error = std::numeric_limits<double>::max();
 
@@ -48,16 +59,23 @@ namespace Winzent
                 QList<TrainingItem>::const_iterator it =
                         trainingSet->trainingData().constBegin();
                 for (; it != trainingSet->trainingData().constEnd(); it++) {
-                    network->calculate(it->input());
+                    ValueVector actualOutput = network->calculate(it->input());
+                    ValueVector expectedOutput = it->expectedOutput();
+                    ValueVector outputErrorVector = outputError(
+                            actualOutput,
+                            expectedOutput);
+
+                    // Add squared error for this run, and meanwhile calculate
+                    // the output delta.
+
+                    for (int i = 0; i != outputErrorVector.size(); ++i) {
+                        error += outputErrorVector[i];
+                    }
                 }
 
-                error /= 2;
+                // It's called MEAN square error for a reason:
 
-                if (error <= trainingSet->targetError()) {
-                    // This run showed minimal error, so there is no need for
-                    // training.
-                    break;
-                }
+                error /= trainingSet->trainingData().count();
             }
 
             // Store final training results:
@@ -193,11 +211,52 @@ namespace Winzent
         }
 
 
-        double BackpropagationTrainingAlgorithm::neuronDelta(
+        double BackpropagationTrainingAlgorithm::outputNeuronDelta(
                 const Neuron *neuron,
                 const double &error)
         {
-            return neuron->lastResult() * (1 - neuron->lastResult()) * error;
+            return neuron->activationFunction()->calculateDerivative(
+                    neuron->lastInput()) * error;
+        }
+
+
+        double BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
+                const Neuron *neuron)
+        {
+            QHash<Neuron*, Weight*> connectedNeurons =
+                    m_neuralNetwork->connectedNeurons(neuron);
+            double delta = 0.0;
+
+            foreach (Neuron *n, connectedNeurons.keys()) {
+                // weight(j,k) * delta(k):
+                delta += neuronDelta(n) * connectedNeurons[n]->value;
+            }
+
+            delta *= neuron->activationFunction()->calculateDerivative(delta);
+            return delta;
+        }
+
+
+        double BackpropagationTrainingAlgorithm::neuronDelta(
+                const Neuron *neuron)
+        {
+            // Memoization: If it is already there, retrieve it from the list.
+
+            if (m_deltas.contains(neuron)) {
+                return m_deltas[neuron];
+            }
+
+            // If it was not in the list, find out whether it's an output
+            // layer neuron or an hidden layer one, and get it's delta.
+
+            if (m_neuralNetwork->outputLayer()->neurons.contains(
+                    const_cast<Neuron*>(neuron))) {
+                m_deltas[neuron] = outputNeuronDelta(neuron, 0.0);
+            } else {
+                m_deltas[neuron] = hiddenNeuronDelta(neuron);
+            }
+
+            return m_deltas[neuron];
         }
     }
 }

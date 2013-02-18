@@ -3,6 +3,7 @@
 
 
 #include <QObject>
+#include <QHash>
 
 #include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
@@ -13,6 +14,7 @@ namespace Winzent {
 
 
         class Neuron;
+        class NeuralNetwork;
         class TrainingSet;
 
 
@@ -21,6 +23,20 @@ namespace Winzent {
             Q_OBJECT
 
         private:
+
+
+            /*!
+             * The neural network we are currently training.
+             */
+            NeuralNetwork* m_neuralNetwork;
+
+
+            /*!
+             * Delta values for the neurons, which are consecutively index
+             *
+             * \sa NeuralNetwork#m_weightMatrix
+             */
+            QHash<const Neuron*, double> m_deltas;
 
 
             /*!
@@ -33,9 +49,22 @@ namespace Winzent {
 
 
             /*!
-             * Calculates the neuron delta for one given neuron.
+             * Calculates the neuron delta for one given neuron, assuming it is
+             * an output layer neuron.
              */
-            double neuronDelta(const Neuron *neuron, const double &error);
+            double outputNeuronDelta(const Neuron *neuron, const double &error);
+
+
+            /*!
+             * Calculates the delta of a neuron.
+             */
+            double neuronDelta(const Neuron *neuron);
+
+
+            /*!
+             * Calculates the neuron delta for a neuron in an hidden layer.
+             */
+            double hiddenNeuronDelta(const Neuron *neuron);
 
 
             virtual void train(

@@ -50,6 +50,18 @@ namespace Winzent
         }
 
 
+        double Neuron::lastInput() const
+        {
+            return m_lastInput;
+        }
+
+
+        ActivationFunction* Neuron::activationFunction() const
+        {
+            return m_activationFunction;
+        }
+
+
         double Neuron::activate(const double &sum)
         {
             m_lastInput = sum;
