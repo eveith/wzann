@@ -1,4 +1,6 @@
 #include <QtTest>
+#include "TestCase.h"
+
 #include <QTextStream>
 
 #include <initializer_list>
@@ -76,3 +78,6 @@ void ElmanNetworkPatternTest::testConfigure()
         }
     }
 }
+
+
+TESTCASE(ElmanNetworkPatternTest)

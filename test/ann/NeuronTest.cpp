@@ -7,6 +7,7 @@
 
 
 #include <QtTest>
+#include "TestCase.h"
 
 #define private public
 #include "Neuron.h"
@@ -29,3 +30,6 @@ void NeuronTest::testClone()
     delete n1;
     QVERIFY(n2->activate(0.5));
 }
+
+
+TESTCASE(NeuronTest)

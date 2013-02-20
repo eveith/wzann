@@ -2,6 +2,8 @@
 #include <QtTest>
 #include <QDebug>
 
+#include "TestCase.h"
+
 #include "NeuralNetwork.h"
 #include "Layer.h"
 #include "SigmoidActivationFunction.h"
@@ -75,3 +77,6 @@ void PerceptronNetworkPatternTest::testCalculate()
     ValueVector output = network->calculate(input);
     qDebug() << output[0];
 }
+
+
+TESTCASE(PerceptronNetworkPatternTest)

@@ -6,6 +6,7 @@
  */
 
 
+#include "TestCase.h"
 #include <QtTest>
 #include <QObject>
 
@@ -183,3 +184,6 @@ void NeuralNetworkTest::testInitialLayerSize()
     QCOMPARE(l.neurons.size(), 1);
     QCOMPARE(l.neurons.first()->activate(4123), 1.0);
 }
+
+
+TESTCASE(NeuralNetworkTest)

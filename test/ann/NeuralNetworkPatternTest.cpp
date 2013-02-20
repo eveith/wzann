@@ -7,6 +7,7 @@
 
 
 #include <QtTest>
+#include "TestCase.h"
 
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"
@@ -85,3 +86,6 @@ void NeuralNetworkPatternTest::testFullyConnectNetworkLayers()
         }
     }
 }
+
+
+TESTCASE(NeuralNetworkPatternTest)

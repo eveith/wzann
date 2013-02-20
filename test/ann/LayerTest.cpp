@@ -1,3 +1,4 @@
+#include "TestCase.h"
 #include <QtTest>
 
 #include "Layer.h"
@@ -36,3 +37,6 @@ void LayerTest::testNeuronAddition()
         "The bias neuron shall always be at the last index");
     QVERIFY(layer.neurons.at(0)->parent() == &layer);
 }
+
+
+TESTCASE(LayerTest)
