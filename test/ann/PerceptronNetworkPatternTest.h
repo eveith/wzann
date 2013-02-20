@@ -1,8 +1,9 @@
 #ifndef PERCEPTRONNETWORKPATTERNTEST_H
 #define PERCEPTRONNETWORKPATTERNTEST_H
 
+
 #include <QObject>
-#include <QtTest>
+
 
 class PerceptronNetworkPatternTest : public QObject
 {

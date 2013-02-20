@@ -6,9 +6,7 @@
  */
 
 
-#include "TestCase.h"
-#include <QtTest>
-#include <QObject>
+#include "Testrunner.h"
 
 #define private public
 #include "SigmoidActivationFunction.h"

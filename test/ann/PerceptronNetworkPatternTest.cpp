@@ -1,8 +1,6 @@
-#include <QObject>
-#include <QtTest>
 #include <QDebug>
 
-#include "TestCase.h"
+#include "Testrunner.h"
 
 #include "NeuralNetwork.h"
 #include "Layer.h"

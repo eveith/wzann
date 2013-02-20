@@ -1,4 +1,4 @@
-#include <QtTest>
+#include "Testrunner.h"
 
 #include "ActivationFunctionTest.h"
 
@@ -11,7 +11,7 @@ using namespace Winzent::ANN;
 
 
 ActivationFunctionTest::ActivationFunctionTest(QObject *parent) :
-    TestCase(parent)
+    QObject(parent)
 {
 }
 

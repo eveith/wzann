@@ -6,8 +6,7 @@
  */
 
 
-#include <QtTest>
-#include "TestCase.h"
+#include "Testrunner.h"
 
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"

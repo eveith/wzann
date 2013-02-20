@@ -2,10 +2,10 @@
 #define ACTIVATIONFUNCTIONTEST_H
 
 
-#include "TestCase.h"
+#include <QObject>
 
 
-class ActivationFunctionTest: public TestCase
+class ActivationFunctionTest: public QObject
 {
     Q_OBJECT
 

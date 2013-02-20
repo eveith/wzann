@@ -1,5 +1,4 @@
-#include <QtTest>
-#include "TestCase.h"
+#include "Testrunner.h"
 
 #include <QTextStream>
 

@@ -1,5 +1,4 @@
-#include "TestCase.h"
-#include <QtTest>
+#include "Testrunner.h"
 
 #include "Layer.h"
 #include "Neuron.h"

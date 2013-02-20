@@ -33,8 +33,7 @@ HEADERS += \
     LayerTest.h \
     PerceptronNetworkPatternTest.h \
     ActivationFunctionTest.h \
-    tst_ann.h \
-    TestCase.h
+    Testrunner.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -44,7 +43,8 @@ SOURCES += \
     ElmanNetworkPatternTest.cpp \
     LayerTest.cpp \
     PerceptronNetworkPatternTest.cpp \
-    ActivationFunctionTest.cpp
+    ActivationFunctionTest.cpp \
+    Testrunner.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

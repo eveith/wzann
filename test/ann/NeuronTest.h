@@ -5,10 +5,13 @@
  * \author	eveith
  */
 
+
 #ifndef NEURONTEST_H_
 #define NEURONTEST_H_
 
+
 #include <qobject.h>
+
 
 class NeuronTest: public QObject
 {

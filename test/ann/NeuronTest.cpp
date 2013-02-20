@@ -1,13 +1,4 @@
-/*!
- * \file	NeuronTest.cpp
- * \brief
- * \date	11.01.2013
- * \author	eveith
- */
-
-
-#include <QtTest>
-#include "TestCase.h"
+#include "Testrunner.h"
 
 #define private public
 #include "Neuron.h"

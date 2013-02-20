@@ -2,7 +2,6 @@
 #define LAYERTEST_H
 
 #include <QObject>
-#include <QtTest>
 
 
 class LayerTest : public QObject
