@@ -32,6 +32,12 @@ namespace Winzent {
 
 
             /*!
+             * Caches the ouptut neuron errors (diffs) of the current epoch.
+             */
+            ValueVector m_outputError;
+
+
+            /*!
              * Delta values for the neurons, which are consecutively index
              *
              * \sa NeuralNetwork#m_weightMatrix

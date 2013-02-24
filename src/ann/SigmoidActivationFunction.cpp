@@ -34,7 +34,7 @@ namespace Winzent
 
         double SigmoidActivationFunction::calculate(const double& input)
         {
-            return (m_scalingFactor * (1.0 / (1.0 + std::exp(-input)))
+            return ((m_scalingFactor * (1.0 / (1.0 + std::exp(-input))))
                     + m_transposition);
         }
 
@@ -42,7 +42,9 @@ namespace Winzent
         double SigmoidActivationFunction::calculateDerivative(
                 const double &input)
         {
-            return (m_scalingFactor * input * (1.0 - input) + m_transposition);
+            return ((m_scalingFactor
+                    * calculate(input) * (1.0 - calculate(input)))
+                    + m_transposition);
         }
     }
 }

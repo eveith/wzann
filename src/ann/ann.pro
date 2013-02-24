@@ -30,7 +30,8 @@ SOURCES += \
     ElmanNetworkPattern.cpp \
     ConstantActivationFunction.cpp \
     Layer.cpp \
-    PerceptronNetworkPattern.cpp
+    PerceptronNetworkPattern.cpp \
+    Connection.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -47,7 +48,8 @@ HEADERS +=\
     ElmanNetworkPattern.h \
     ConstantActivationFunction.h \
     Layer.h \
-    PerceptronNetworkPattern.h
+    PerceptronNetworkPattern.h \
+    Connection.h
 
 unix:!symbian {
     maemo5 {

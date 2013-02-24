@@ -26,6 +26,7 @@ namespace Winzent
         Neuron::Neuron(const Neuron &rhs):
                 QObject(rhs.parent()),
                 m_activationFunction(rhs.m_activationFunction->clone()),
+                m_lastInput(rhs.m_lastInput),
                 m_lastResult(rhs.m_lastResult)
         {
         }
@@ -39,7 +40,11 @@ namespace Winzent
         Neuron* Neuron::clone() const
         {
             Neuron *n = new Neuron(m_activationFunction->clone());
+
             n->m_lastResult = m_lastResult;
+            n->m_lastInput = m_lastInput;
+            n->setParent(parent());
+
             return n;
         }
 

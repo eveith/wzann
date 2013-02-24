@@ -340,23 +340,9 @@ namespace Winzent
         }
 
 
-        void NeuralNetwork::inputLayer(Layer *layer)
-        {
-            m_layers.prepend(layer);
-
-            // TODO: Layer/weight/stuff modification!
-        }
-
-
         Layer* NeuralNetwork::inputLayer() const
         {
             return m_layers.first();
-        }
-
-
-        void NeuralNetwork::outputLayer(Layer *layer)
-        {
-            *this << layer;
         }
 
 

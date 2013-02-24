@@ -4,6 +4,7 @@
 
 
 #include <limits>
+#include <cmath>
 
 #include <QHash>
 
@@ -27,6 +28,7 @@ namespace Winzent
                 QObject* parent):
                     TrainingAlgorithm(parent),
                     m_neuralNetwork(NULL),
+                    m_outputError(ValueVector()),
                     m_deltas(QHash<const Neuron*, double>())
         {
         }
@@ -39,7 +41,6 @@ namespace Winzent
             // Initialize the state variables:
 
             m_neuralNetwork = network;
-            m_deltas.clear();
             int epochs = 0;
             double error = std::numeric_limits<double>::max();
 
@@ -47,9 +48,13 @@ namespace Winzent
                         || error > trainingSet->targetError();
                     ++epochs) {
 
-                // Begin this run with an error of 0:
+                // Begin this run with an error of 0, and clear the state
+                // variables:
 
                 error = 0.0;
+                m_deltas.clear();
+                m_outputError.clear();
+                m_outputError.fill(0.0, m_neuralNetwork->outputLayer()->size());
 
                 // We present each training pattern once per epoch. An epoch
                 // is complete once we've presented the complete training set to
@@ -59,135 +64,39 @@ namespace Winzent
                 QList<TrainingItem>::const_iterator it =
                         trainingSet->trainingData().constBegin();
                 for (; it != trainingSet->trainingData().constEnd(); it++) {
+
+                    // First step: Feed forward and compare the network's output
+                    // with the ideal teaching output:
+
                     ValueVector actualOutput = network->calculate(it->input());
                     ValueVector expectedOutput = it->expectedOutput();
-                    ValueVector outputErrorVector = outputError(
-                            actualOutput,
-                            expectedOutput);
+                    m_outputError = outputError(actualOutput, expectedOutput);
 
-                    // Add squared error for this run, and meanwhile calculate
-                    // the output delta.
+                    // Add squared error for this run:
 
-                    for (int i = 0; i != outputErrorVector.size(); ++i) {
-                        error += outputErrorVector[i];
+                    foreach (double d, m_outputError) {
+                        error += std::pow(d, 2);
+                    }
+
+                    // Now backpropagate the error from the output layer to
+                    // the input layer.
+
+                    for (int i = m_neuralNetwork->size() - 1; i != 1; --i) {
+
                     }
                 }
 
                 // It's called MEAN square error for a reason:
 
-                error /= trainingSet->trainingData().count();
+                error /= (trainingSet->trainingData().count()
+                        * trainingSet->trainingData().first()
+                            .expectedOutput().count());
             }
 
             // Store final training results:
 
             setFinalError(*trainingSet, error);
             setFinalNumEpochs(*trainingSet, epochs);
-#if 0
-    int numIterations = 0;
-    QVector<TrainingItem>::const_iterator it =
-            trainingSet.m_trainingData.constBegin();
-    double error = INFINITY;
-
-    while (numIterations < trainingSet.m_maxNumEpochs
-            && error / (numIterations+1) > trainingSet.m_targetError) {
-
-        // Wrap iterator if we've reached the end, and increase number of
-        // iterations:
-
-        if (trainingSet.m_trainingData.constEnd() == it) {
-            it = trainingSet.m_trainingData.constBegin();
-            ++numIterations;
-        }
-
-        const ValueVector input(it->input());
-        const ValueVector expectedOutput(it->expectedOutput());
-
-        // First step: feed-forward the current training input:
-
-        const ValueVector actualOutput = network->calculate(input);
-
-        // Second step: Calculate output layer error and also update the
-        // overall error in the training set:
-
-        error = this->calculateMeanSquaredError(
-                    actualOutput,
-                    expectedOutput);
-        QVector<double> outputError(m_numNeuronsPerLayer[INDEX_OUTPUT]);
-
-        for (int i = 0; i != actualOutput.size(); ++i) {
-            outputError[i] = (expectedOutput[i] - actualOutput[i])
-                    * m_activationFunctionOutput->calculateDerivative(
-                            actualOutput[i]);
-
-            error += std::pow(expectedOutput[i] - actualOutput[i], 2);
-        }
-        error *= 0.5;
-
-        // Third step: Calculate hidden layer error:
-
-        QVector<double> hiddenError(m_numNeuronsPerLayer[INDEX_HIDDEN]);
-
-        int* idxHidden = matrixIndices(INDEX_HIDDEN);
-        int* idxOutput = matrixIndices(INDEX_OUTPUT);
-
-        for (int i = idxHidden[0]; i <= idxHidden[1]; ++i){
-            int k = i - idxHidden[0];
-            hiddenError[k] = 0.0;
-
-            for(int j = idxOutput[0]; j <= idxOutput[1]; ++j) {
-                int l = j - idxOutput[0];
-
-                if(NULL != m_weightMatrix[i][j]) {
-                    hiddenError[k] += outputError[l] * *m_weightMatrix[i][j];
-                }
-            }
-            hiddenError[k] *= m_activationFunctionHidden->calculateDerivative(
-                    m_lastOutputs[i]);
-        }
-
-        // Fourth step: Update weights to output layer neurons:
-
-        for (int i = idxOutput[0]; i <= idxOutput[1]; ++i) {
-            int k = i - idxOutput[0];
-
-            for (int j = idxHidden[0]; j <= idxHidden[1]; ++j) {
-                if (NULL != m_weightMatrix[j][i]) {
-                    *m_weightMatrix[j][i] += (trainingSet.m_learningRate
-                            * outputError[k]
-                            * m_lastOutputs[j]);
-                }
-            }
-        }
-
-        // Fifth step: Update weights to hidden layer neurons:
-
-        int* idxInput = matrixIndices(INDEX_INPUT);
-
-        for (int i = idxHidden[0]; i <= idxHidden[1]; ++i) {
-            int k = i - idxHidden[0];
-
-            for (int j = idxInput[0]; j <= idxInput[1]; ++j) {
-                int l = j - idxInput[0];
-
-                if (NULL != m_weightMatrix[j][i]) {
-                    *m_weightMatrix[j][i] += (trainingSet.m_learningRate
-                            * hiddenError[k]
-                            * input[l]);
-                }
-            }
-        }
-
-        it++;
-
-        delete idxInput;
-        delete idxHidden;
-        delete idxOutput;
-    }
-
-    trainingSet.m_epochs = numIterations;
-    trainingSet.m_error = error / (numIterations+1);
-    return trainingSet.error();
-#endif
         }
 
 
@@ -240,6 +149,17 @@ namespace Winzent
         double BackpropagationTrainingAlgorithm::neuronDelta(
                 const Neuron *neuron)
         {
+            // Cast away constness for the list access methods to work...
+
+
+            Neuron *vneuron = const_cast<Neuron*>(neuron);
+
+            // No training for the input layer:
+
+            if(m_neuralNetwork->inputLayer()->neurons.contains(vneuron)) {
+                return 0.0;
+            }
+
             // Memoization: If it is already there, retrieve it from the list.
 
             if (m_deltas.contains(neuron)) {
@@ -249,9 +169,13 @@ namespace Winzent
             // If it was not in the list, find out whether it's an output
             // layer neuron or an hidden layer one, and get it's delta.
 
-            if (m_neuralNetwork->outputLayer()->neurons.contains(
-                    const_cast<Neuron*>(neuron))) {
-                m_deltas[neuron] = outputNeuronDelta(neuron, 0.0);
+            if (m_neuralNetwork->outputLayer()->neurons.contains(vneuron)) {
+                int neuronIndex =
+                        m_neuralNetwork->outputLayer()->
+                        neurons.indexOf(vneuron);
+                m_deltas[neuron] = outputNeuronDelta(
+                        neuron,
+                        m_outputError[neuronIndex]);
             } else {
                 m_deltas[neuron] = hiddenNeuronDelta(neuron);
             }

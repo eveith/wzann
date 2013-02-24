@@ -446,21 +446,9 @@ namespace Winzent
 
 
             /*!
-             * Explicitly set the input layer
-             */
-            void inputLayer(Layer *layer);
-
-
-            /*!
              * Returns the input layer
              */
             Layer* inputLayer() const;
-
-
-            /*!
-             * Explicitly sets the output layer
-             */
-            void outputLayer(Layer *layer);
 
 
             /*!
