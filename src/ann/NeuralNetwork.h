@@ -29,109 +29,10 @@ namespace Winzent
         class NeuralNetworkPattern;
         class Layer;
         class Neuron;
+        class Connection;
 
         class TrainingSet;
         class TrainingAlgorithm;
-
-
-        /*!
-         * Represents the weight of a connection between two neurons,
-         * together with its properties.
-         */
-        class Weight: public QObject
-        {
-            Q_OBJECT
-
-        public:
-
-
-            /*!
-             * The weight value
-             */
-            double value;
-
-
-            /*!
-             * Whether the value is fixed or not: Fixed values cannot
-             * be changed by training.
-             */
-            bool fixed;
-
-
-            /*!
-             * Standard constructor which initialies a variable weight
-             * with a weight value of 1.0.
-             *
-             * \sa #value
-             *
-             * \sa #fixed
-             */
-            Weight(QObject *parent = 0);
-
-
-            /*!
-             * Returns a clone of the current weight object, which acts
-             * as a prototype.
-             */
-            Weight* clone() const;
-
-
-            /*!
-             * Returns the current weight value.
-             */
-            double weight() const;
-
-
-            /*!
-             * Sets a new weight. Throws an instance of
-             * WeightFixedException if the weight is fixed.
-             *
-             * \param weight The new weight
-             *
-             * \throw WeightFixedException If the weight is fixed.
-             */
-            void weight(double weight) throw(WeightFixedException);
-
-
-            /*!
-             * Sets the weight to a random value between
-             * <code>min</code> and <code>max</code>.
-             *
-             * \input[in] min The minimum inclusive value
-             *
-             * \input[in] max The maximum inclusive value
-             *
-             * \throws WeightFixedException if the weight is fixed.
-             */
-            void setRandomWeight(const double &min, const double &max)
-                    throw(WeightFixedException);
-
-
-            /*!
-             * Directly returns the weight value (conversion operator)
-             */
-            operator double() const;
-
-
-            double operator*(const double &rhs) const;
-        };
-
-
-        /*!
-         * A list of list of <code>double*</code>, used to store the
-         * weights on connections between different neurons. If a
-         * connection between two neurons does not exist, the pointer
-         * is <code>NULL</code>. Otherwise, any double value is
-         * allowed.
-         *
-         * Remember that a weight of 0 does not mean that
-         * there is no connection, only that its weight is 0. While
-         * this might seem to be the same, remember that a weight
-         * of 0 can be modified to be of any other value, e.g. through
-         * training, while a non-existent connection cannot be
-         * intensified.
-         */
-        typedef QList<QList<Weight*> > WeightMatrix;
 
 
         /*!
@@ -190,9 +91,17 @@ namespace Winzent
 
 
             /*!
-             * Defines the weights between the
+             * An hash that indixes all connection originating from a certain
+             * neuron.
              */
-            WeightMatrix m_weightMatrix;
+            QHash<Neuron*, QList<Connection*> > m_connectionSources;
+
+
+            /*!
+             * An hash that indexes all connections that lead to a certain
+             * neuron.
+             */
+            QHash<Neuron*, QList<Connection*> > m_connectionDestinations;
 
 
             /*!
@@ -261,44 +170,6 @@ namespace Winzent
 
 
             /*!
-             * Find a neuron in the 2D weight matrix and returns its
-             * index. If the neuron is not part of this network, the
-             * return value is undefined.
-             *
-             * \param neuron Pointer to the neuron
-             *
-             * \return The index of the neuron in this network's
-             *  weight matrix
-             *
-             * \sa #containsNeuron
-             */
-            int findNeuron(const Neuron *neuron) const;
-
-
-            /*!
-             * Translates a neuron index identified by its layer's
-             * index and the neuron's index within the layer to the
-             * neuron's absolute index in the network's 2D weight
-             * matrix.
-             *
-             * If the layer index is out of bounds, <code>-1</code>
-             * is returned. If the neuron index is out of bounds,
-             * the result is undefined.
-             *
-             * \param layer The layer in which the neuron resides,
-             *  starting at index 0
-             *
-             * \param neuronIndex The index of the neuron within the
-             *  layer identified by <code>layer</code>, also starting
-             *  at index 0.
-             *
-             * \return The neuron's absolute index within the 2D
-             *  weight matrix of this network
-             */
-            int translateIndex(const int &layer, const int &neuronIndex) const;
-
-
-            /*!
              * Checks whether two neurons <code>i</code> and
              * <code>j</code> are connected or not. Please note that
              * this method is not transitive, i.e.
@@ -306,50 +177,45 @@ namespace Winzent
              * different than
              * <code>neuronConnectionExists(j, i)</code>.
              *
-             * \param[in] i The "from" neuron
-             * \param[in] j The "to" neuron
+             * \param[in] from The "from" neuron
+             * \param[in] to The "to" neuron
              *
              * \return <code>true</code> if a connection exists, false
              *  otherwise.
              */
-            bool neuronConnectionExists(const int &i, const int &j) const;
+            bool neuronConnectionExists(const Neuron *from, const Neuron *to)
+                    const;
 
 
             /*!
-             * Connects two neurons
+             * Connects two neurons. Does not set a weight.
              *
-             * \param i The index of the originating neuron
-             *  in the 2D weight matrix
+             * \param from The neuron the connection originates
              *
-             * \param j The index of the destination neuron in the
-             *  2D weight matrix
+             * \param to The destination neuron
+             *
+             * \return The new connection
              */
-            void connectNeurons(const int &i, const int &j);
+            Connection *connectNeurons(Neuron *from, Neuron *to)
+                    throw(UnknownNeuronException);
 
 
             /*!
-             * Connects two neurons with a random weight.
+             * Retrieves the connection between two neurons.
+             * If no weight exists, an exception is thrown.
              *
-             * \param i The neuron the connection originates
-             *
-             * \param j The destination neuron
-             */
-            void connectNeurons(Neuron *i, Neuron *j);
-
-
-            /*!
-             * Retrieves the weight on the connection between two
-             * neurons. If no weight exists, an exception is thrown.
-             *
-             * \param[in] i The neuron from which the connection
+             * \param[in] form The neuron from which the connection
              *  begins
-             * \param[in] j The neuron to which the connection leads
              *
-             * \return The weight as double
+             * \param[in] to The neuron to which the connection leads
+             *
+             * \return The connection, or NULL if no such connection exists
+             *  (in which case an exception is thrown anyways).
              *
              * \throw NoConnectionException
              */
-            Weight* weight(const int &i, const int &j) const
+            Connection* neuronConnection(const Neuron *from, const Neuron *to)
+                    const
                     throw(NoConnectionException);
 
 
@@ -366,48 +232,47 @@ namespace Winzent
              *
              * \throws NoConnectionException If the connection does
              *  not exist.
+             *
+             * \throws WeightFixedException If the weight has been flagged as
+             *  fixed.
+             *
+             * \sa Connection#weight
              */
-            void weight(const int &i, const int &j, double value)
-                    throw(NoConnectionException);
-
-
-            /*!
-             * Finds a neuron by its absolute index in this network's
-             * 2D weight matrix. If the neuron does not exist,
-             * <code>NULL</code> is returned instead.
-             *
-             * \param index The absolute index of the neuron
-             *
-             * \return The neuron if it has been found, or
-             *  <code>NULL</code> otherwise.
-             *
-             * \sa #translateIndex
-             */
-            Neuron* neuron(const int &index) const;
+            void weight(const Neuron *&from, const Neuron *&to, double value)
+                    throw(NoConnectionException, WeightFixedException);
 
 
             /*!
              * Finds all neurons to which a particular neuron is connected.
              *
-             * \param index The absolute index of the neuron from which the
-             *  connections originate
+             * The neuron is considered as the source of the connection.
              *
-             * \return An hash containing the neurons to which the queried one
-             *  is connected plus the weight of the connection.
+             * \param[in] neuron The neuron from which to find all available
+             *  connections.
+             *
+             * \return A list containing all connection where the specified
+             *  neuron is the source.
+             *
+             * \sa #neuronConnectionsTo
              */
-            QHash<Neuron*, Weight*> connectedNeurons(const int &index) const;
+            QList<Connection*> neuronConnectionsFrom(const Neuron *neuron)
+                const
+                throw(UnknownNeuronException);
 
 
             /*!
-             * Finds all neurons to which a particular neuron is connected.
+             * Finds all neurons which are the source of connections to the
+             * specified one.
              *
-             * \param neuron The neuron from which the connections originate
+             * \param[in] neuron The destination neuron
              *
-             * \return An hash containing the neurons to which the queried one
-             *  is connected plus the weight of the connection.
+             * \return A list containing all neurons that feed the specified
+             *  one.
+             *
+             * \sa #neuronConnectionsFrom
              */
-            QHash<Neuron*, Weight*> connectedNeurons(
-                    const Neuron *neuron) const;
+            QList<Connection*> neuronConnectionsTo(const Neuron *neuron) const
+                throw(UnknownNeuronException);
 
 
             /*!
@@ -440,9 +305,27 @@ namespace Winzent
 
 
             /*!
-             * Returns the operator at the designated index.
+             * Returns the layer at the designated index.
              */
-            Layer*& operator[](const int &i);
+            Layer*& layerAt(const int &index);
+
+
+            /*!
+             * <code>const</code> version of #layerAt
+             */
+            Layer* layerAt(const int &index) const;
+
+
+            /*!
+             * Returns the layer at the designated index.
+             */
+            Layer*& operator [](const int &index);
+
+
+            /*!
+             * <code>const</code> version of the index operator.
+             */
+            Layer *operator [](const int &i) const;
 
 
             /*!
@@ -542,8 +425,8 @@ namespace Winzent
              * \throw LayerSizeMismatchException
              */
             ValueVector calculateLayerTransition(
-                    const int &fromLayer,
-                    const int &toLayer,
+                    const int &from,
+                    const int &to,
                     const ValueVector &input)
                         throw(LayerSizeMismatchException);
 
@@ -597,8 +480,6 @@ namespace Winzent
          * designated data stream.
          */
         QTextStream& operator<<(QTextStream &out, const NeuralNetwork &network);
-
-
     } /* namespace ANN */
 } /* namespace Winzent */
 

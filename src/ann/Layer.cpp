@@ -23,9 +23,21 @@ namespace Winzent {
         }
 
 
-        Neuron*& Layer::operator [](const int &index)
+        bool Layer::contains(const Neuron *neuron) const
+        {
+            return neurons.contains(const_cast<Neuron*>(neuron));
+        }
+
+
+        Neuron*& Layer::neuronAt(const int &index)
         {
             return neurons[index];
+        }
+
+
+        Neuron*& Layer::operator [](const int &index)
+        {
+            return neuronAt(index);
         }
 
 

@@ -12,6 +12,7 @@
 #include "SigmoidActivationFunction.h"
 #include "Neuron.h"
 #include "Layer.h"
+#include "Connection.h"
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"
 
@@ -56,12 +57,17 @@ namespace Mock {
             for (int j = 0; j != numNeuronsPerLayer/2; ++j) {
                 for (int k = 0; k != numNeuronsPerLayer; ++k) {
                     network->connectNeurons(
-                            network->translateIndex(i-1, j),
-                            network->translateIndex(i, k));
-                    network->weight(
-                            network->translateIndex(i-1, j),
-                            network->translateIndex(i, k),
-                            1.0);
+                            network->layerAt(i-1)->neuronAt(j),
+                            network->layerAt(i)->neuronAt(k))
+                    ->weight(1.0);
+
+                    QVERIFY(true == network->neuronConnectionExists(
+                            network->layerAt(i-1)->neuronAt(j),
+                            network->layerAt(i)->neuronAt(k)));
+                    QCOMPARE(network->neuronConnection(
+                                network->layerAt(i-1)->neuronAt(j),
+                                network->layerAt(i)->neuronAt(k))->parent(),
+                            network);
                 }
             }
         }
@@ -85,16 +91,9 @@ namespace Mock {
 
 void NeuralNetworkTest::testLayerAdditionRemoval()
 {
-    int numNeuronsPerLayer = 3;
-
     NeuralNetwork* network = new NeuralNetwork(this);
 
     Layer* l1 = new Layer(this);
-
-    for (int i = 0; i != numNeuronsPerLayer; ++i) {
-        l1->neurons << new Neuron(new SigmoidActivationFunction);
-    }
-
     *network << l1;
 
     QVERIFY(network->inputLayer() == l1);
@@ -104,18 +103,13 @@ void NeuralNetworkTest::testLayerAdditionRemoval()
 
     Layer* l2 = new Layer(this);
 
-    for (int i = 0; i != numNeuronsPerLayer; ++i) {
-        l2->neurons << new Neuron(new SigmoidActivationFunction);
-    }
-
     *network << l2;
 
     QVERIFY(network->inputLayer() == l1);
     QVERIFY(network->outputLayer() == l2);
+    QVERIFY(2 == network->size());
 
-    QCOMPARE(
-            network->m_weightMatrix.size(),
-            l1->neurons.size() + l2->neurons.size());
+    delete network;
 }
 
 

@@ -8,11 +8,12 @@
 
 #include <initializer_list>
 
-#include <QDebug>
 #include <QObject>
 #include <QList>
 #include <QString>
 
+#include "NeuralNetwork.h"
+#include "Layer.h"
 #include "Exception.h"
 #include "ActivationFunction.h"
 #include "NeuralNetworkPattern.h"
@@ -71,8 +72,8 @@ namespace Winzent
                 const int &fromLayer,
                 const int &toLayer)
         {
-            int fromLayerSize = m_layerSizes.at(fromLayer);
-            int toLayerSize = m_layerSizes.at(toLayer);
+            int fromLayerSize   = m_layerSizes.at(fromLayer);
+            int toLayerSize     = m_layerSizes.at(toLayer);
 
             // Iterate over all neurons. Begin at index 1, because index 0
             // is always the bias neuron.
@@ -80,8 +81,8 @@ namespace Winzent
             for (int i = 0; i != fromLayerSize; ++i) {
                     for (int j = 0; j != toLayerSize; ++j) {
                         network->connectNeurons(
-                                network->translateIndex(fromLayer, i),
-                                network->translateIndex(toLayer, j));
+                                network->layerAt(fromLayer)->neuronAt(i),
+                                network->layerAt(toLayer)->neuronAt(j));
                     }
             }
         }

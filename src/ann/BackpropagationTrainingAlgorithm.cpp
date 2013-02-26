@@ -10,6 +10,7 @@
 
 #include "Neuron.h"
 #include "Layer.h"
+#include "Connection.h"
 #include "ActivationFunction.h"
 #include "NeuralNetwork.h"
 #include "TrainingSet.h"
@@ -132,16 +133,18 @@ namespace Winzent
         double BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
                 const Neuron *neuron)
         {
-            QHash<Neuron*, Weight*> connectedNeurons =
-                    m_neuralNetwork->connectedNeurons(neuron);
+            QList<Connection*> connections =
+                    m_neuralNetwork->neuronConnectionsFrom(neuron);
             double delta = 0.0;
 
-            foreach (Neuron *n, connectedNeurons.keys()) {
+            foreach (Connection *c, connections) {
                 // weight(j,k) * delta(k):
-                delta += neuronDelta(n) * connectedNeurons[n]->value;
+                delta += neuronDelta(c->destination()) * c->weight();
             }
 
-            delta *= neuron->activationFunction()->calculateDerivative(delta);
+            delta *= neuron
+                    ->activationFunction()
+                    ->calculateDerivative(neuron->lastInput());
             return delta;
         }
 

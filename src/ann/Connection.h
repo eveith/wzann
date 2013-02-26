@@ -71,6 +71,18 @@ namespace Winzent {
 
 
             /*!
+             * Copy constructor
+             */
+            Connection(const Connection &rhs);
+
+
+            /*!
+             * Creates a clone of this connection.
+             */
+            Connection *clone() const;
+
+
+            /*!
              * Returns the current weight attached to this connection.
              */
             double weight() const;
@@ -80,6 +92,22 @@ namespace Winzent {
              * Sets a new weight value.
              */
             void weight(double weight) throw(WeightFixedException);
+
+
+            /*!
+             * Sets the weight to a random value between
+             * <code>min</code> and <code>max</code>.
+             *
+             * \input[in] min The minimum inclusive value
+             *
+             * \input[in] max The maximum inclusive value
+             *
+             * \return The random value the weight was set to.
+             *
+             * \throws WeightFixedException if the weight is fixed.
+             */
+            double setRandomWeight(const double &min, const double &max)
+                    throw(WeightFixedException);
 
 
             /*!

@@ -79,8 +79,8 @@ void NeuralNetworkPatternTest::testFullyConnectNetworkLayers()
     for (int i = 1; i != pattern.numLayers - 1; ++i) {
         for (int j = 1; j != pattern.numNeuronsPerLayer; ++j) {
             QVERIFY2(network.neuronConnectionExists(
-                        network.translateIndex(i, j),
-                        network.translateIndex(i+1, j)),
+                        network.layerAt(i)->neuronAt(j),
+                        network.layerAt(i+1)->neuronAt(j)),
                     "All neurons must be connected to each other.");
         }
     }

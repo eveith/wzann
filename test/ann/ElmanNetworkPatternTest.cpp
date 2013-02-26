@@ -9,12 +9,15 @@
 #define private public
 #include "ElmanNetworkPattern.h"
 #include "NeuralNetwork.h"
+#include "Layer.h"
+#include "Neuron.h"
+#include "Connection.h"
 #include "ActivationFunction.h"
 #include "SigmoidActivationFunction.h"
 
 
 using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::Weight;
+using Winzent::ANN::Connection;
 using Winzent::ANN::ElmanNetworkPattern;
 using Winzent::ANN::ActivationFunction;
 using Winzent::ANN::SigmoidActivationFunction;
@@ -52,25 +55,25 @@ void ElmanNetworkPatternTest::testConfigure()
     testResultStream.flush();
     testResultFile.close();
 
-    QCOMPARE(network.m_layers.size(), 4);
-    QCOMPARE(network.m_weightMatrix.size(),
-             layers[0] +1 + 2* (layers[1]+1) + layers[2] +1);
+    QCOMPARE(network.size(), 4);
+    QCOMPARE(network.m_connectionSources.size(),
+             layers[0] + 2* (layers[1]+1) + layers[2] +1);
 
     // Each input layer neuron has one context neuron: Check
 
     for (int i = 1; i != layers.at(1); ++i) {
         for (int j = 1; j != layers.at(1); ++j) {
             bool connection = network.neuronConnectionExists(
-                   network.translateIndex(ElmanNetworkPattern::HIDDEN, i),
-                   network.translateIndex(ElmanNetworkPattern::CONTEXT, j));
+                   network.layerAt(ElmanNetworkPattern::HIDDEN)->neuronAt(i),
+                   network.layerAt(ElmanNetworkPattern::CONTEXT)->neuronAt(j));
 
             if (i == j) {
                 QCOMPARE(connection, true);
-                Weight *w = network.weight(
-                    network.translateIndex(ElmanNetworkPattern::HIDDEN, i),
-                    network.translateIndex(ElmanNetworkPattern::CONTEXT, j));
-                QCOMPARE(w->weight(), 1.0);
-                QCOMPARE(w->fixed, true);
+                Connection *c = network.neuronConnection(
+                    network.layerAt(ElmanNetworkPattern::HIDDEN)->neuronAt(i),
+                    network.layerAt(ElmanNetworkPattern::CONTEXT)->neuronAt(j));
+                QCOMPARE(c->weight(), 1.0);
+                QCOMPARE(c->fixedWeight(), true);
             } else {
                 QCOMPARE(connection, false);
             }

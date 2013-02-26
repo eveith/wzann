@@ -34,7 +34,8 @@ HEADERS += \
     PerceptronNetworkPatternTest.h \
     ActivationFunctionTest.h \
     Testrunner.h \
-    ConnectionTest.h
+    ConnectionTest.h \
+    mock/LinearNeuralNetworkPattern.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -46,7 +47,8 @@ SOURCES += \
     PerceptronNetworkPatternTest.cpp \
     ActivationFunctionTest.cpp \
     Testrunner.cpp \
-    ConnectionTest.cpp
+    ConnectionTest.cpp \
+    mock/LinearNeuralNetworkPattern.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

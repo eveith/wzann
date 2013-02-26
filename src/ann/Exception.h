@@ -10,10 +10,13 @@
 
 #include <qtconcurrentexception.h>
 
+
 namespace Winzent
 {
     namespace ANN
     {
+        class Neuron;
+
 
         /*!
          * Base class for all exceptions that happen within the
@@ -90,6 +93,27 @@ namespace Winzent
          */
         class WeightFixedException: public BasicException
         {
+        };
+
+
+        /*!
+         * Thrown whenever a neuron is unknown in the current context. For
+         * example, if a neuron should be connected to another one, but the
+         * neuron is not part of the particular neural network.
+         */
+        class UnknownNeuronException: public BasicException
+        {
+            public:
+
+
+            /*!
+             * The neuron that was not known in the current context.
+             */
+            const Neuron* neuron;
+
+
+            UnknownNeuronException(const Neuron *unknownNeuron):
+                    neuron(unknownNeuron) {}
         };
 
     } /* namespace ANN */

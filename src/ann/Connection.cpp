@@ -24,6 +24,28 @@ namespace Winzent {
         }
 
 
+        Connection::Connection(const Connection &rhs):
+                QObject(rhs.parent()),
+                m_weight(rhs.m_weight),
+                m_fixed(rhs.m_fixed),
+                m_sourceNeuron(rhs.m_sourceNeuron),
+                m_destinationNeuron(rhs.m_destinationNeuron)
+        {
+        }
+
+
+        Connection *Connection::clone() const
+        {
+            Connection *clone = new Connection(
+                    m_sourceNeuron,
+                    m_destinationNeuron,
+                    m_weight,
+                    parent());
+            clone->fixedWeight(fixedWeight());
+            return clone;
+        }
+
+
         double Connection::weight() const
         {
             return m_weight;
@@ -37,6 +59,16 @@ namespace Winzent {
             } else {
                 m_weight = weight;
             }
+        }
+
+
+
+        double Connection::setRandomWeight(const double &min, const double &max)
+                throw(WeightFixedException)
+        {
+            weight(min + (qrand() * abs(max-min)
+                    / static_cast<double>(RAND_MAX)));
+            return weight();
         }
 
 

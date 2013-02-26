@@ -22,7 +22,7 @@ namespace Winzent {
 
 
         double LinearActivationFunction::calculateDerivative(
-                const double &input)
+                const double&)
         {
             return m_scalingFactor;
         }

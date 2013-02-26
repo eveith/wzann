@@ -6,7 +6,6 @@
  */
 
 
-#include <QtDebug>
 #include <QObject>
 #include <QList>
 #include <QVector>
@@ -18,6 +17,7 @@
 
 #include "Layer.h"
 #include "Neuron.h"
+#include "Connection.h"
 #include "Exception.h"
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"
@@ -33,65 +33,11 @@ namespace Winzent
         const char NeuralNetwork::VERSION[] = "1.0";
 
 
-        Weight::Weight(QObject *parent):
-            QObject(parent),
-            value(0.0),
-            fixed(false)
-        {
-        }
-
-
-        Weight* Weight::clone() const
-        {
-            Weight* clone = new Weight();
-
-            clone->value = value;
-            clone->fixed = fixed;
-
-            return clone;
-        }
-
-
-        double Weight::weight() const
-        {
-            return value;
-        }
-
-
-        void Weight::weight(double weight) throw(WeightFixedException)
-        {
-            if (fixed) {
-                throw WeightFixedException();
-            } else {
-                value = weight;
-            }
-        }
-
-
-        void Weight::setRandomWeight(const double &min, const double &max)
-                throw(WeightFixedException)
-        {
-            weight(min + (qrand() * abs(max-min)
-                    / static_cast<double>(RAND_MAX)));
-        }
-
-
-        Weight::operator double() const
-        {
-            return value;
-        }
-
-
-        double Weight::operator*(const double& rhs) const
-        {
-            return value * rhs;
-        }
-
-
         NeuralNetwork::NeuralNetwork(QObject* parent):
                 QObject(parent),
                 m_layers(QList<Layer*>()),
-                m_weightMatrix(WeightMatrix()),
+                m_connectionSources(QHash<Neuron*, QList<Connection*> >()),
+                m_connectionDestinations(QHash<Neuron*, QList<Connection*> >()),
                 m_pattern(NULL)
         {
         }
@@ -100,7 +46,8 @@ namespace Winzent
         NeuralNetwork::NeuralNetwork(const NeuralNetwork& rhs):
                 QObject(rhs.parent()),
                 m_layers(QList<Layer*>(rhs.m_layers)),
-                m_weightMatrix(WeightMatrix()),
+                m_connectionSources(QHash<Neuron*, QList<Connection*> >()),
+                m_connectionDestinations(QHash<Neuron*, QList<Connection*> >()),
                 m_pattern(NULL)
         {
             // Clone layers:
@@ -111,20 +58,65 @@ namespace Winzent
                 m_layers << layerClone;
             }
 
-            // Clone weights, take care of unconnected neurons (weight == NULL):
+            // Clone connections. We have already cloned the neurons, which
+            // means that we cannot simply clone all connections because we'd
+            // end up with pointers to the original. Instead, we need to map
+            // via the index in the layer and create connections of our own:
 
-            foreach (QList<Weight*> i, rhs.m_weightMatrix) {
-                QList<Weight*> list;
+            foreach (Neuron *foreignNeuron, rhs.m_connectionSources.keys()) {
 
-                foreach (Weight *w, i) {
-                    if (NULL ==  w) { // Not connected
-                        list << NULL;
-                    } else {
-                        list << w->clone();
+                // First, find the index of the source neuron:
+
+                int srcLayerIndex = -1;
+                int srcNeuronIndex = -1;
+
+                for (int i = 0; i != rhs.size(); ++i) {
+                    if (!rhs[i]->contains(foreignNeuron)) {
+                        continue;
                     }
+
+                    srcLayerIndex = i;
+                    srcNeuronIndex = rhs[i]->neurons.indexOf(foreignNeuron);
+                    break;
                 }
 
-                m_weightMatrix << list;
+                Q_ASSERT(srcLayerIndex >= 0 && srcNeuronIndex >= 0);
+
+                // Then, find the index of the destination neurons:
+
+                QList<Connection*> connections =
+                        rhs.m_connectionDestinations[foreignNeuron];
+                foreach (Connection *c, connections) {
+                    int dstLayerIndex = -1;
+                    int dstNeuronIndex = -1;
+
+                    for (int i = 0; i != rhs.size(); ++i) {
+                        if (!rhs[i]->contains(c->destination())) {
+                            continue;
+                        }
+
+                        dstLayerIndex = i;
+                        dstNeuronIndex = rhs[i]->neurons.indexOf(
+                                c->destination());
+                        break;
+                    }
+
+                    Q_ASSERT(dstLayerIndex >= 0 && dstNeuronIndex >= 0);
+
+                    // Now, re-create the connection here:
+
+                    Neuron *srcNeuron =
+                            layerAt(srcLayerIndex)->neuronAt(srcNeuronIndex);
+                    Neuron *dstNeuron =
+                            layerAt(dstLayerIndex)->neuronAt(dstNeuronIndex);
+
+                    Connection *newConnection = connectNeurons(
+                            srcNeuron,
+                            dstNeuron);
+                    newConnection->weight(c->weight());
+                    newConnection->fixedWeight(c->fixedWeight());
+                    newConnection->setParent(this);
+                }
             }
 
             // Make sure the cloned pattern has the correct parent object:
@@ -148,10 +140,8 @@ namespace Winzent
             }
 
             foreach (Layer *l, m_layers) {
-                foreach (Neuron *n, l->neurons) {
-                    if (neuron == n) {
-                        return true;
-                    }
+                if (l->contains(neuron)) {
+                    return true;
                 }
             }
 
@@ -159,136 +149,117 @@ namespace Winzent
         }
 
 
-        int NeuralNetwork::findNeuron(const Neuron *neuron) const
-        {
-            int index = 0;
-
-            foreach (Layer *l, m_layers) {
-                foreach (Neuron *n, l->neurons) {
-                    if (neuron == n) {
-                        return index;
-                    }
-                    ++index;
-                }
-            }
-
-            return -1;
-        }
-
-
-        int NeuralNetwork::translateIndex(
-                const int &layer,
-                const int &neuronIndex) const
-        {
-            if (layer >= m_layers.size()) {
-                return -1;
-            }
-
-            int index = 0;
-
-            for (int i = 0; i != layer; ++i) {
-                index += m_layers[i]->neurons.size();
-            }
-
-            index += neuronIndex;
-            return index;
-        }
-
-
         bool NeuralNetwork::neuronConnectionExists(
-                const int &i,
-                const int &j) const
+                const Neuron *from,
+                const Neuron *to) const
         {
-            bool b = false;
-
-            if (i < m_weightMatrix.size() && j < m_weightMatrix.at(i).size()
-                    && NULL != m_weightMatrix.at(i).at(j)) {
-                b = true;
+            if (! m_connectionSources.contains(const_cast<Neuron*>(from))) {
+                return false;
             }
 
-            return b;
-        }
+            QList<Connection*> connections =
+                    m_connectionSources[const_cast<Neuron*>(from)];
 
-
-        Weight* NeuralNetwork::weight(const int &i, const int &j) const
-                throw(NoConnectionException)
-        {
-            if (!neuronConnectionExists(i, j)) {
-                throw NoConnectionException();
-            }
-
-            return m_weightMatrix.at(i).at(j);
-        }
-
-
-        void NeuralNetwork::weight(const int &i, const int &j, double value)
-                throw(NoConnectionException)
-        {
-            if (! neuronConnectionExists(i, j)) {
-                throw NoConnectionException();
-            }
-            m_weightMatrix[i][j]->value = value;
-        }
-
-
-        Neuron* NeuralNetwork::neuron(const int &index) const
-        {
-            int i = 0;
-
-            foreach (Layer *l, m_layers) {
-                foreach (Neuron *n, l->neurons) {
-                    if (index == i) {
-                        return n;
-                    }
-                    i++;
+            foreach (Connection *c, connections) {
+                if (c->destination() == const_cast<Neuron*>(to)) {
+                    return true;
                 }
             }
 
-            return NULL;
+            return false;
         }
 
 
-        QHash<Neuron*, Weight*> NeuralNetwork::connectedNeurons(
-                const int &index) const
+        Connection* NeuralNetwork::neuronConnection(
+                const Neuron *from,
+                const Neuron *to)
+                    const
+                    throw(NoConnectionException)
         {
-            Q_ASSERT(index > 0);
-            Q_ASSERT(index < m_weightMatrix.size());
+            if (!neuronConnectionExists(from, to)) {
+                throw NoConnectionException();
+            }
 
-            QHash<Neuron*, Weight*> ret;
+            Connection* result = NULL;
 
-            for (int i = 0; i != m_weightMatrix[index].size(); ++i) {
-                if (!neuronConnectionExists(index, i)) {
-                    continue;
+            QList<Connection*> connections =
+                    m_connectionSources[const_cast<Neuron*>(from)];
+            foreach(Connection *c, connections) {
+                if (c->destination() == const_cast<Neuron*>(to)) {
+                    result = c;
                 }
-
-                ret.insert(neuron(i), m_weightMatrix[index][i]);
             }
 
-            return ret;
+            return result;
         }
 
 
-        QHash<Neuron*, Weight*> NeuralNetwork::connectedNeurons(
-                const Neuron *neuron) const
+        void NeuralNetwork::weight(
+                const Neuron *&from,
+                const Neuron *&to,
+                double value)
+                    throw(NoConnectionException, WeightFixedException)
         {
-            return connectedNeurons(findNeuron(neuron));
+            neuronConnection(from, to)->weight(value);
         }
 
-        void NeuralNetwork::connectNeurons(const int &i, const int &j)
-        {
-            Q_ASSERT(m_weightMatrix.size() >= i);
-            Q_ASSERT(m_weightMatrix.size() == m_weightMatrix[i].size());
-            Q_ASSERT(m_weightMatrix[i].size() >= j);
 
-            if (! neuronConnectionExists(i, j)) {
-                m_weightMatrix[i][j] = new Weight();
+        QList<Connection*> NeuralNetwork::neuronConnectionsFrom(
+                const Neuron *neuron)
+                    const
+                    throw(UnknownNeuronException)
+        {
+            Q_ASSERT(NULL != neuron);
+
+            if (!containsNeuron(neuron)) {
+                throw UnknownNeuronException(neuron);
             }
+
+            return QList<Connection*>(
+                    m_connectionSources[const_cast<Neuron*>(neuron)]);
         }
 
 
-        void NeuralNetwork::connectNeurons(Neuron *i, Neuron *j)
+        QList<Connection*> NeuralNetwork::neuronConnectionsTo(
+                const Neuron *neuron)
+                    const
+                    throw(UnknownNeuronException)
         {
-            connectNeurons(findNeuron(i), findNeuron(j));
+            Q_ASSERT(NULL != neuron);
+
+            if (!containsNeuron(neuron)) {
+                throw UnknownNeuronException(neuron);
+            }
+
+            return QList<Connection*>(
+                    m_connectionDestinations[const_cast<Neuron*>(neuron)]);
+        }
+
+
+        Connection *NeuralNetwork::connectNeurons(Neuron *from, Neuron *to)
+                throw(UnknownNeuronException)
+        {
+            if (!containsNeuron(from)) {
+                throw UnknownNeuronException(from);
+            }
+
+            if (!containsNeuron(to)) {
+                throw UnknownNeuronException(to);
+            }
+
+            Connection *connection = new Connection(from, to, 0.0, this);
+
+            if (!m_connectionSources.contains(from)) {
+                m_connectionSources[from] = QList<Connection*>();
+            }
+            m_connectionSources[from] << connection;
+
+            if (!m_connectionDestinations.contains(to)) {
+                m_connectionDestinations[to] = QList<Connection*>();
+            }
+            m_connectionDestinations[to] << connection;
+
+            return connection;
         }
 
 
@@ -297,46 +268,39 @@ namespace Winzent
             m_layers << layer;
             layer->setParent(this);
 
-            // Grow weight matrix; include the bias neuron in the calculation:
-
-            int newLayerSize = layer->neurons.size();
-            int weightMatrixTargetSize = m_weightMatrix.size() + newLayerSize;
-
-            for (int i = 0; i != newLayerSize; ++i) {
-                QList<Weight*> list;
-                m_weightMatrix.append(list);
-            }
-
-            // Adjust row sizes:
-
-            for (int i = 0; i != m_weightMatrix.size(); ++i) {
-                if (m_weightMatrix[i].size() < weightMatrixTargetSize) {
-                    int size = m_weightMatrix[i].size();
-                    for (int j = 0; j != weightMatrixTargetSize - size; ++j) {
-                        (m_weightMatrix[i]) << NULL;
-                    }
-                }
-
-                Q_ASSERT(m_weightMatrix[i].size() == m_weightMatrix.size());
-            }
-
             // Make sure the bias connection exists:
 
-            int biasIndex = findNeuron(layer->biasNeuron());
+            Neuron *bias = layer->biasNeuron();
 
             for (int i = 0; i != layer->size(); ++i) {
-                int neuronIndex = biasIndex - layer->size() + i;
-                connectNeurons(biasIndex, neuronIndex);
-                weight(biasIndex, neuronIndex, 1.0);
+                connectNeurons(bias, layer->neuronAt(i))->weight(1.0);
             }
 
             return *this;
         }
 
 
-        Layer*& NeuralNetwork::operator[](const int &i)
+        Layer*& NeuralNetwork::layerAt(const int &index)
         {
-            return m_layers[i];
+            return m_layers[index];
+        }
+
+
+        Layer* NeuralNetwork::layerAt(const int &index) const
+        {
+            return m_layers.at(index);
+        }
+
+
+        Layer*& NeuralNetwork::operator [](const int &index)
+        {
+            return layerAt(index);
+        }
+
+
+        Layer *NeuralNetwork::operator [](const int &index) const
+        {
+            return layerAt(index);
         }
 
 
@@ -387,27 +351,25 @@ namespace Winzent
             ValueVector output;
             output.fill(0.0, layer->size());
 
-            int biasIndex = findNeuron(layer->biasNeuron());
+            Neuron *bias = layer->biasNeuron();
 
             for (int i = 0; i != input.size(); ++i) {
                 double sum = input.at(i);
+                Neuron *neuron = layer->neuronAt(i);
 
                 // Add bias neuron. We ignore the bias neuron in the input layer
                 // even when it's there; it does not make sense to include the
                 // bias neuron in the input layer since its output would be
                 // overwritten by the input anyways.
 
-                if(m_layers.first() == layer) {
-                    continue;
+                if(m_layers.first() != layer) {
+                    if (neuronConnectionExists(bias, neuron)) {
+                        sum += *(neuronConnection(bias, neuron))
+                                * bias->activate(1.0);
+                    }
                 }
 
-                int neuronIndex = findNeuron((*layer)[i]);
-                if (neuronConnectionExists(biasIndex, neuronIndex)) {
-                    sum += layer->biasNeuron()->activate(1.0)
-                            * weight(biasIndex, neuronIndex)->value;
-                }
-
-                output[i] = (*layer)[i]->activate(sum);
+                output[i] = neuron->activate(sum);
             }
 
             return output;
@@ -419,18 +381,20 @@ namespace Winzent
                 const ValueVector &input)
                     throw(LayerSizeMismatchException)
         {
-            return this->calculateLayer((*this)[layerIndex], input);
+            return this->calculateLayer(layerAt(layerIndex), input);
         }
 
 
         ValueVector NeuralNetwork::calculateLayerTransition(
-                const int &fromLayer,
-                const int &toLayer,
+                const int &from,
+                const int &to,
                 const ValueVector &input)
                     throw(LayerSizeMismatchException)
         {
-            int fromLayerSize   = (*this)[fromLayer]->size();
-            int toLayerSize     = (*this)[toLayer]->size();
+            Layer *fromLayer    = layerAt(from);
+            Layer *toLayer      = layerAt(to);
+            int fromLayerSize   = fromLayer->size();
+            int toLayerSize     = toLayer->size();
 
             if (input.size() != fromLayerSize) {
                 throw LayerSizeMismatchException(input.size(), fromLayerSize);
@@ -441,18 +405,18 @@ namespace Winzent
             Q_ASSERT(output.size() == toLayerSize);
 
             for (int i = 0; i != fromLayerSize; ++i) {
-                int fromNeuronIndex = translateIndex(fromLayer, i);
+                Neuron *fromNeuron = fromLayer->neuronAt(i);
+                QList<Connection*> connections =
+                        neuronConnectionsFrom(fromNeuron);
 
-                for (int j = 0; j != toLayerSize; ++j) {
-                    int toNeuronIndex = translateIndex(toLayer, j);
-
-                    if (!neuronConnectionExists(
-                            fromNeuronIndex,
-                            toNeuronIndex)) {
+                foreach (Connection *c, connections) {
+                    if (!toLayer->contains(c->destination())) {
                         continue;
                     }
 
-                    output[j] += *(weight(fromNeuronIndex, toNeuronIndex))
+                    int j = toLayer->neurons.indexOf(c->destination());
+                    output[j] +=
+                            *(neuronConnection(fromNeuron, c->destination()))
                             * input.at(i);
                 }
             }
@@ -509,30 +473,48 @@ namespace Winzent
 
             outList.insert("Layers", layersList);
 
-            QVariantMap weightMatrix;
+            QVariantList connections;
 
-            for (int i = 0; i != network.m_weightMatrix.size(); ++i) {
-                QVariantList row;
-                QList<Weight*> weights = network.m_weightMatrix.at(i);
+            for (int i = 0; i != network.size(); ++i) {
+                QVariantMap connection;
 
-                for (int j = 0; j != weights.size(); ++j) {
-                    Weight* w = weights.at(j);
-                    if (NULL == w) {
-                        row.append(0);
+                for (int j = 0; j != network[i]->size() + 1; ++j) {
+                    Neuron *srcNeuron = network.layerAt(i)->neuronAt(j);
+
+                    if (!network.m_connectionSources.contains(srcNeuron)) {
                         continue;
                     }
-                    QVariantMap weight;
 
-                    weight.insert("Value", w->value);
-                    weight.insert("Fixed", w->fixed);
+                    connection.insert("srcLayer", i);
+                    connection.insert("srcNeuron", j);
 
-                    row.append(weight);
+                    QList<Connection*> connections =
+                            network.m_connectionSources[srcNeuron];
+
+                    // Find destination neurons:
+
+                    foreach (Connection *c, connections) {
+                        Neuron *dstNeuron = c->destination();
+
+                        for (int k = 0; k != network.size(); ++k) {
+                            if (!network[k]->contains(dstNeuron)) {
+                                continue;
+                            }
+
+                            connection.insert("dstLayer", k);
+                            connection.insert(
+                                    "dstNeuron",
+                                    network[k]->neurons.indexOf(dstNeuron));
+                            connection.insert("weight", c->weight());
+                            connection.insert("fixed", c->fixedWeight());
+                        }
+                    }
                 }
 
-                weightMatrix.insert(QString::number(i), row);
+                connections.append(connection);
             }
 
-            outList.insert("WeightMatrix", weightMatrix);
+            outList.insert("Connections", connections);
 
             // Serialize:
 
@@ -543,9 +525,6 @@ namespace Winzent
             QByteArray json = serializer.serialize(outList, &ok);
 
             if (!ok) {
-                qCritical()
-                        << "Error during ANN serialization: "
-                        << serializer.errorMessage();
                 return out;
             }
 

@@ -53,7 +53,7 @@ namespace Winzent {
             virtual double calculate(const double &input);
 
 
-            virtual double calculateDerivative(const double &input);
+            virtual double calculateDerivative(const double &);
 
 
             virtual bool hasDerivative();

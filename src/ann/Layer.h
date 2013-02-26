@@ -35,8 +35,29 @@ namespace Winzent {
 
 
             /*!
-             * Returns the neuron at the specified index position, not including
-             * the bias neuron.
+             * Checks whether a particular neuron is part of this layer.
+             */
+            bool contains(const Neuron *neuron) const;
+
+
+            /*!
+             * Returns the neuron at the specified index position.
+             *
+             * Retrieves a neuron given its position (index) in the layer. One
+             * can access the bias neuron, too, using
+             * <code>layer[layer.size()]</code>.
+             *
+             * \sa #biasNeuron()
+             */
+            Neuron*& neuronAt(const int &index);
+
+
+            /*!
+             * Returns the neuron at the specified index position.
+             *
+             * Retrieves a neuron given its position (index) in the layer. One
+             * can access the bias neuron, too, using
+             * <code>layer[layer.size()]</code>.
              *
              * \sa #biasNeuron()
              */

@@ -31,7 +31,8 @@ SOURCES += \
     ConstantActivationFunction.cpp \
     Layer.cpp \
     PerceptronNetworkPattern.cpp \
-    Connection.cpp
+    Connection.cpp \
+    LinearActivationFunction.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -49,7 +50,8 @@ HEADERS +=\
     ConstantActivationFunction.h \
     Layer.h \
     PerceptronNetworkPattern.h \
-    Connection.h
+    Connection.h \
+    LinearActivationFunction.h
 
 unix:!symbian {
     maemo5 {

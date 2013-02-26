@@ -15,6 +15,7 @@
 #include "ActivationFunction.h"
 #include "RememberingActivationFunction.h"
 #include "Layer.h"
+#include "Connection.h"
 #include "Neuron.h"
 #include "Exception.h"
 
@@ -68,8 +69,8 @@ namespace Winzent
             QList<int> layerSizes(m_layerSizes);
             QList<ActivationFunction*> activationFunctions(m_activationFunctions);
 
-            // Delete the CONTEXT layer, as the constructor will try to add it and
-            // will fail if the network has more than three layers:
+            // Delete the CONTEXT layer, as the constructor will try to add it
+            // and fail if the network has more than three layers:
 
             layerSizes.removeAt(CONTEXT);
             activationFunctions.removeAt(CONTEXT);
@@ -96,7 +97,7 @@ namespace Winzent
                             layer);
                 }
 
-                (*network) << layer;
+                *network << layer;
             }
 
             // Set up connections:
@@ -110,9 +111,9 @@ namespace Winzent
 
                         for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
                             for (int j = 0; j != m_layerSizes.at(HIDDEN); ++j) {
-                                network->weight(
-                                        network->translateIndex(lidx, i),
-                                        network->translateIndex(HIDDEN, j)
+                                network->neuronConnection(
+                                        network->layerAt(lidx)->neuronAt(i),
+                                        network->layerAt(HIDDEN)->neuronAt(j)
                                 )->setRandomWeight(
                                         m_weightRandomMin, m_weightRandomMax);
                             }
@@ -125,9 +126,9 @@ namespace Winzent
 
                         for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
                             for (int j = 0; j != m_layerSizes.at(HIDDEN); ++j) {
-                                network->weight(
-                                        network->translateIndex(lidx, i),
-                                        network->translateIndex(HIDDEN, j)
+                                network->neuronConnection(
+                                        network->layerAt(lidx)->neuronAt(i),
+                                        network->layerAt(HIDDEN)->neuronAt(j)
                                 )->setRandomWeight(
                                         m_weightRandomMin, m_weightRandomMax);
                             }
@@ -140,20 +141,20 @@ namespace Winzent
 
                         for (int i = 0; i != layerSize; ++i) {
                             network->connectNeurons(
-                                    network->translateIndex(HIDDEN, i),
-                                    network->translateIndex(CONTEXT, i));
-                            Weight* w = network->weight(
-                                    network->translateIndex(HIDDEN, i),
-                                    network->translateIndex(CONTEXT, i));
-                            w->value = 1.0;
-                            w->fixed = true;
+                                    network->layerAt(HIDDEN)->neuronAt(i),
+                                    network->layerAt(CONTEXT)->neuronAt(i));
+                            Connection* connection = network->neuronConnection(
+                                    network->layerAt(HIDDEN)->neuronAt(i),
+                                    network->layerAt(CONTEXT)->neuronAt(i));
+                            connection->weight(1.0);
+                            connection->fixedWeight(true);
                         }
 
                         for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
                             for (int j = 0; j != m_layerSizes.at(OUTPUT); ++j) {
-                                network->weight(
-                                        network->translateIndex(lidx, i),
-                                        network->translateIndex(OUTPUT, j)
+                                network->neuronConnection(
+                                        network->layerAt(lidx)->neuronAt(i),
+                                        network->layerAt(OUTPUT)->neuronAt(j)
                                 )->setRandomWeight(
                                         m_weightRandomMin, m_weightRandomMax);
                             }

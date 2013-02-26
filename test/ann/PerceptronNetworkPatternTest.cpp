@@ -38,21 +38,21 @@ void PerceptronNetworkPatternTest::testConfigure()
         for (int j = 0; j != (*network)[i]->size(); ++j) {
             for (int k = 0; k != (*network)[i+1]->size(); ++k) {
                 QVERIFY(network->neuronConnectionExists(
-                    network->translateIndex(i, j),
-                    network->translateIndex(i+1, k)));
+                    network->layerAt(i)->neuronAt(j),
+                    network->layerAt(i+1)->neuronAt(k)));
             }
         }
     }
 
     QVERIFY(! network->neuronConnectionExists(
-            network->translateIndex(1, 0),
-            network->translateIndex(0, 0)));
+            network->layerAt(1)->neuronAt(0),
+            network->layerAt(0)->neuronAt(0)));
     QVERIFY(! network->neuronConnectionExists(
-            network->translateIndex(1, 0),
-            network->translateIndex(1, 0)));
+            network->layerAt(1)->neuronAt(0),
+            network->layerAt(1)->neuronAt(0)));
     QVERIFY(! network->neuronConnectionExists(
-            network->translateIndex(1, 0),
-            network->translateIndex(1, 1)));
+            network->layerAt(1)->neuronAt(0),
+            network->layerAt(1)->neuronAt(1)));
 }
 
 
