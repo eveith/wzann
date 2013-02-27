@@ -4,6 +4,7 @@
 
 #define protected public
 #include "SigmoidActivationFunction.h"
+#include "LinearActivationFunction.h"
 
 
 
@@ -39,6 +40,20 @@ void ActivationFunctionTest::testSigmoidActivationFunction()
             static_cast<SigmoidActivationFunction*>(c->clone());
     QCOMPARE(d->m_scalingFactor, c->m_scalingFactor);
     QCOMPARE(d->m_transposition, c->m_transposition);
+}
+
+
+void ActivationFunctionTest::testLinarActivationFunction()
+{
+    LinearActivationFunction a;
+
+    QVERIFY(a.hasDerivative());
+    QCOMPARE(a.calculate(1.5), 1.5);
+    QCOMPARE(a.calculate(-2.75), -2.75);
+
+    LinearActivationFunction b(2.0, 4.0);
+    QCOMPARE(b.calculate(1.5), 7.0);
+    QCOMPARE(b.calculate(-2.75), -1.5);
 }
 
 

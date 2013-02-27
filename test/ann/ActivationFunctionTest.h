@@ -20,6 +20,7 @@ private slots:
 
 
     void testSigmoidActivationFunction();
+    void testLinarActivationFunction();
 };
 
 

@@ -42,7 +42,7 @@ namespace Winzent {
              *
              * \sa NeuralNetwork#m_weightMatrix
              */
-            QHash<const Neuron*, double> m_deltas;
+            QHash<Neuron*, double> m_deltas;
 
 
             /*!
@@ -64,7 +64,7 @@ namespace Winzent {
             /*!
              * Calculates the delta of a neuron.
              */
-            double neuronDelta(const Neuron *neuron);
+            double neuronDelta(Winzent::ANN::Neuron *neuron);
 
 
             /*!

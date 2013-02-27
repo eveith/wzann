@@ -43,8 +43,7 @@ namespace Winzent
                 const double &input)
         {
             return ((m_scalingFactor
-                    * calculate(input) * (1.0 - calculate(input)))
-                    + m_transposition);
+                    * calculate(input) * (1.0 - calculate(input))));
         }
     }
 }

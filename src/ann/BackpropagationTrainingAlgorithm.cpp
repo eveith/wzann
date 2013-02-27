@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include <QHash>
+#include <QDebug>
 
 #include "Neuron.h"
 #include "Layer.h"
@@ -30,7 +31,7 @@ namespace Winzent
                     TrainingAlgorithm(parent),
                     m_neuralNetwork(NULL),
                     m_outputError(ValueVector()),
-                    m_deltas(QHash<const Neuron*, double>())
+                    m_deltas(QHash<Neuron*, double>())
         {
         }
 
@@ -45,17 +46,14 @@ namespace Winzent
             int epochs = 0;
             double error = std::numeric_limits<double>::max();
 
-            for(; epochs <= trainingSet->maxEpochs()
-                        || error > trainingSet->targetError();
+            for(; epochs < trainingSet->maxEpochs()
+                        && error > trainingSet->targetError();
                     ++epochs) {
 
                 // Begin this run with an error of 0, and clear the state
                 // variables:
 
                 error = 0.0;
-                m_deltas.clear();
-                m_outputError.clear();
-                m_outputError.fill(0.0, m_neuralNetwork->outputLayer()->size());
 
                 // We present each training pattern once per epoch. An epoch
                 // is complete once we've presented the complete training set to
@@ -65,6 +63,10 @@ namespace Winzent
                 QList<TrainingItem>::const_iterator it =
                         trainingSet->trainingData().constBegin();
                 for (; it != trainingSet->trainingData().constEnd(); it++) {
+
+                    // Reset memoization fields:
+
+                    m_deltas.clear();
 
                     // First step: Feed forward and compare the network's output
                     // with the ideal teaching output:
@@ -80,9 +82,45 @@ namespace Winzent
                     }
 
                     // Now backpropagate the error from the output layer to
-                    // the input layer.
+                    // the input layer, but do not touch the input layer itself
+                    // because there are no connections that lead to the input
+                    // layer:
 
-                    for (int i = m_neuralNetwork->size() - 1; i != 1; --i) {
+                    QHash<Connection*, double> connectionDeltas;
+
+                    for (int i = m_neuralNetwork->size() - 1; i > 0; --i) {
+                        Layer *layer = m_neuralNetwork->layerAt(i);
+
+                        for (int j = 0; j != layer->size(); ++j) {
+                            Neuron *n = layer->neuronAt(j);
+                            QList<Connection*> connections =
+                                    m_neuralNetwork->neuronConnectionsTo(n);
+
+                            foreach (Connection *c, connections) {
+                                if (c->fixedWeight()) {
+                                    continue;
+                                }
+
+                                Q_ASSERT(c->destination() == n);
+
+                                double dw = c->source()->lastResult()
+                                        * neuronDelta(c->destination())
+                                        * trainingSet->learningRate();
+                                connectionDeltas.insert(c, dw);
+                            }
+                        }
+                    }
+
+                    // Apply the deltas:
+
+                    foreach (Connection *c, connectionDeltas.keys()) {
+                        Q_ASSERT(! c->fixedWeight());
+
+                        c->weight(c->weight() + connectionDeltas[c]);
+
+                        qDebug() << "Adjusting weight of connection"
+                                << c << "by" << connectionDeltas[c]
+                                << "New weight:" << c->weight();
 
                     }
                 }
@@ -92,6 +130,7 @@ namespace Winzent
                 error /= (trainingSet->trainingData().count()
                         * trainingSet->trainingData().first()
                             .expectedOutput().count());
+                qDebug() << "Error:" << error << " Epochs:" << epochs;
             }
 
             // Store final training results:
@@ -114,7 +153,9 @@ namespace Winzent
             ValueVector error;
 
             for (int i = 0; i != actual.size(); ++i) {
-                error[i] = expected[i] - actual[i];
+                error << expected[i] - actual[i];
+                qDebug() << "Output error"
+                        << expected << "-" << actual << "=" << error;
             }
 
             return error;
@@ -149,17 +190,11 @@ namespace Winzent
         }
 
 
-        double BackpropagationTrainingAlgorithm::neuronDelta(
-                const Neuron *neuron)
+        double BackpropagationTrainingAlgorithm::neuronDelta(Neuron *neuron)
         {
-            // Cast away constness for the list access methods to work...
-
-
-            Neuron *vneuron = const_cast<Neuron*>(neuron);
-
             // No training for the input layer:
 
-            if(m_neuralNetwork->inputLayer()->neurons.contains(vneuron)) {
+            if(m_neuralNetwork->inputLayer()->neurons.contains(neuron)) {
                 return 0.0;
             }
 
@@ -172,10 +207,10 @@ namespace Winzent
             // If it was not in the list, find out whether it's an output
             // layer neuron or an hidden layer one, and get it's delta.
 
-            if (m_neuralNetwork->outputLayer()->neurons.contains(vneuron)) {
+            if (m_neuralNetwork->outputLayer()->neurons.contains(neuron)) {
                 int neuronIndex =
                         m_neuralNetwork->outputLayer()->
-                        neurons.indexOf(vneuron);
+                        neurons.indexOf(neuron);
                 m_deltas[neuron] = outputNeuronDelta(
                         neuron,
                         m_outputError[neuronIndex]);

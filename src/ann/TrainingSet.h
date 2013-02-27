@@ -213,6 +213,12 @@ namespace Winzent {
             int epochs() const;
 
 
+            /*!
+             * Returns the learning rate that should be applied.
+             */
+            double learningRate() const;
+
+
             const QList<TrainingItem> trainingData() const;
         };
 

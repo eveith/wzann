@@ -273,7 +273,9 @@ namespace Winzent
             Neuron *bias = layer->biasNeuron();
 
             for (int i = 0; i != layer->size(); ++i) {
-                connectNeurons(bias, layer->neuronAt(i))->weight(1.0);
+                Connection *c = connectNeurons(bias, layer->neuronAt(i));
+                c->weight(-1.0);
+                c->fixedWeight(true);
             }
 
             return *this;
@@ -364,7 +366,7 @@ namespace Winzent
 
                 if(m_layers.first() != layer) {
                     if (neuronConnectionExists(bias, neuron)) {
-                        sum += *(neuronConnection(bias, neuron))
+                        sum += neuronConnection(bias, neuron)->weight()
                                 * bias->activate(1.0);
                     }
                 }

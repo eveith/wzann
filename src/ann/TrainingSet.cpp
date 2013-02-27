@@ -101,5 +101,11 @@ namespace Winzent
         {
             return m_trainingData;
         }
+
+
+        double TrainingSet::learningRate() const
+        {
+            return m_learningRate;
+        }
     }
 }

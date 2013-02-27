@@ -70,7 +70,7 @@ namespace Winzent
         double Neuron::activate(const double &sum)
         {
             m_lastInput = sum;
-            m_lastResult = m_activationFunction->calculate(sum);
+            m_lastResult = m_activationFunction->calculate(m_lastInput);
             return m_lastResult;
         }
     }

@@ -35,7 +35,8 @@ HEADERS += \
     ActivationFunctionTest.h \
     Testrunner.h \
     ConnectionTest.h \
-    mock/LinearNeuralNetworkPattern.h
+    mock/LinearNeuralNetworkPattern.h \
+    BackpropagationTrainingAlgorithmTest.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -48,7 +49,8 @@ SOURCES += \
     ActivationFunctionTest.cpp \
     Testrunner.cpp \
     ConnectionTest.cpp \
-    mock/LinearNeuralNetworkPattern.cpp
+    mock/LinearNeuralNetworkPattern.cpp \
+    BackpropagationTrainingAlgorithmTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
