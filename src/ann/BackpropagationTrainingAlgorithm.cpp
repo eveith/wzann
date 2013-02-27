@@ -67,6 +67,7 @@ namespace Winzent
                     // Reset memoization fields:
 
                     m_deltas.clear();
+                    m_outputError.clear();
 
                     // First step: Feed forward and compare the network's output
                     // with the ideal teaching output:
@@ -95,6 +96,7 @@ namespace Winzent
                             Neuron *n = layer->neuronAt(j);
                             QList<Connection*> connections =
                                     m_neuralNetwork->neuronConnectionsTo(n);
+                            Q_ASSERT(connections.size() > 0);
 
                             foreach (Connection *c, connections) {
                                 if (c->fixedWeight()) {
@@ -174,9 +176,10 @@ namespace Winzent
         double BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
                 const Neuron *neuron)
         {
+            double delta = 0.0;
             QList<Connection*> connections =
                     m_neuralNetwork->neuronConnectionsFrom(neuron);
-            double delta = 0.0;
+            Q_ASSERT(connections.size() > 0);
 
             foreach (Connection *c, connections) {
                 // weight(j,k) * delta(k):
@@ -192,11 +195,7 @@ namespace Winzent
 
         double BackpropagationTrainingAlgorithm::neuronDelta(Neuron *neuron)
         {
-            // No training for the input layer:
-
-            if(m_neuralNetwork->inputLayer()->neurons.contains(neuron)) {
-                return 0.0;
-            }
+            Q_ASSERT(! m_neuralNetwork->inputLayer()->contains(neuron));
 
             // Memoization: If it is already there, retrieve it from the list.
 
@@ -211,14 +210,31 @@ namespace Winzent
                 int neuronIndex =
                         m_neuralNetwork->outputLayer()->
                         neurons.indexOf(neuron);
-                m_deltas[neuron] = outputNeuronDelta(
+                Q_ASSERT(neuronIndex < m_outputError.size());
+                m_deltas.insert(
                         neuron,
-                        m_outputError[neuronIndex]);
+                        outputNeuronDelta(neuron, m_outputError[neuronIndex]));
             } else {
-                m_deltas[neuron] = hiddenNeuronDelta(neuron);
+                m_deltas.insert(neuron, hiddenNeuronDelta(neuron));
             }
 
             return m_deltas[neuron];
+        }
+
+
+        double BackpropagationTrainingAlgorithm::clip(
+                const double &value,
+                const double &min,
+                const double &max)
+                    const
+        {
+            if (value < min) {
+                return min;
+            } else if (value > max) {
+                return max;
+            } else {
+                return value;
+            }
         }
     }
 }

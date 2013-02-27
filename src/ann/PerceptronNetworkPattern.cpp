@@ -55,9 +55,9 @@ namespace Winzent {
             // Add the layers & neurons:
 
             for (int i = 0; i != m_layerSizes.size(); ++i) {
-                int size = m_layerSizes.at(i);
                 Layer *layer = new Layer(network);
 
+                int size = m_layerSizes.at(i);
                 for (int j = 0; j != size; ++j) {
                     *layer << new Neuron(
                             m_activationFunctions[i]->clone(),
@@ -82,7 +82,7 @@ namespace Winzent {
             ValueVector output = input; // For the loop
 
             for (int i = 0; i != network->size(); ++i) {
-                output = network->calculateLayer((*network)[i], output);
+                output = network->calculateLayer(network->layerAt(i), output);
 
                 if (i < network->size() - 1) {
                     output = network->calculateLayerTransition(i, i+1, output);

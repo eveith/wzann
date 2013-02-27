@@ -6,6 +6,8 @@
  */
 
 
+#include <QDebug>
+
 #include <QObject>
 #include <QList>
 #include <QVector>
@@ -40,6 +42,8 @@ namespace Winzent
                 m_connectionDestinations(QHash<Neuron*, QList<Connection*> >()),
                 m_pattern(NULL)
         {
+            Q_ASSERT(m_connectionSources.size()
+                     == m_connectionDestinations.size());
         }
 
 
@@ -481,7 +485,6 @@ namespace Winzent
             QVariantList connections;
 
             for (int i = 0; i != network.size(); ++i) {
-                QVariantMap connection;
 
                 for (int j = 0; j != network[i]->size() + 1; ++j) {
                     Neuron *srcNeuron = network.layerAt(i)->neuronAt(j);
@@ -490,15 +493,12 @@ namespace Winzent
                         continue;
                     }
 
-                    connection.insert("srcLayer", i);
-                    connection.insert("srcNeuron", j);
-
-                    QList<Connection*> connections =
+                    QList<Connection*> networkConnections =
                             network.m_connectionSources[srcNeuron];
 
                     // Find destination neurons:
 
-                    foreach (Connection *c, connections) {
+                    foreach (Connection *c, networkConnections) {
                         Neuron *dstNeuron = c->destination();
 
                         for (int k = 0; k != network.size(); ++k) {
@@ -506,17 +506,22 @@ namespace Winzent
                                 continue;
                             }
 
+
+                            QVariantMap connection;
+                            connection.insert("srcLayer", i);
+                            connection.insert("srcNeuron", j);
                             connection.insert("dstLayer", k);
                             connection.insert(
                                     "dstNeuron",
                                     network[k]->neurons.indexOf(dstNeuron));
                             connection.insert("weight", c->weight());
                             connection.insert("fixed", c->fixedWeight());
+                            connections.append(connection);
+
+                            break;
                         }
                     }
                 }
-
-                connections.append(connection);
             }
 
             outList.insert("Connections", connections);
@@ -529,6 +534,7 @@ namespace Winzent
             bool ok;
             QByteArray json = serializer.serialize(outList, &ok);
 
+            Q_ASSERT(ok);
             if (!ok) {
                 return out;
             }

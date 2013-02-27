@@ -42,6 +42,9 @@ namespace Winzent
         double SigmoidActivationFunction::calculateDerivative(
                 const double &input)
         {
+            if (1.0 == 1.0 + input) {
+                return m_scalingFactor * 0.5;
+            }
             return m_scalingFactor * (input * (1.0 - input));
         }
     }

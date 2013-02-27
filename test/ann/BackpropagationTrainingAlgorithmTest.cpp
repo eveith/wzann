@@ -1,3 +1,5 @@
+#include <initializer_list>
+
 #include "NeuralNetwork.h"
 #include "PerceptronNetworkPattern.h"
 #include "LinearActivationFunction.h"
@@ -21,6 +23,8 @@ BackpropagationTrainingAlgorithmTest::BackpropagationTrainingAlgorithmTest(
 
 void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 {
+    qsrand(time(NULL));
+
     NeuralNetwork *network = new NeuralNetwork(this);
     PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern(
             {
@@ -42,14 +46,25 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
     trainingItems
             << TrainingItem(ValueVector({ 0.0, 0.0 }), ValueVector({ 0.0 }))
             << TrainingItem(ValueVector({ 0.0, 1.0 }), ValueVector({ 1.0 }))
-            << TrainingItem(ValueVector({ 1.0, 1.0 }), ValueVector({ 0.0 }))
-            << TrainingItem(ValueVector({ 1.0, 0.0 }), ValueVector({ 1.0 }));
+            << TrainingItem(ValueVector({ 1.0, 0.0 }), ValueVector({ 1.0 }))
+            << TrainingItem(ValueVector({ 1.0, 1.0 }), ValueVector({ 0.0 }));
 
     TrainingSet *trainingSet = new TrainingSet(
             trainingItems,
             0.7,
             0.001,
             50000);
+
+    QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
+    testResultFile.open(QIODevice::Text
+            | QIODevice::WriteOnly | QIODevice::Truncate);
+    QTextStream testResultStream(&testResultFile);
+
+    testResultStream << *network;
+
+    testResultStream.flush();
+    testResultFile.flush();
+    testResultFile.close();
 
     network->train(new BackpropagationTrainingAlgorithm(this), trainingSet);
 }

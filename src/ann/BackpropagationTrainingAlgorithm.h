@@ -73,6 +73,15 @@ namespace Winzent {
             double hiddenNeuronDelta(const Neuron *neuron);
 
 
+            /*!
+             * Makes sure a value is within certain boundaries.
+             */
+            double clip(
+                    const double &value,
+                    const double &min,
+                    const double &max) const;
+
+
             virtual void train(
                     NeuralNetwork *network,
                     TrainingSet *trainingSet);
