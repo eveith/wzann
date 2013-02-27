@@ -249,6 +249,9 @@ namespace Winzent
 
             Connection *connection = new Connection(from, to, 0.0, this);
 
+            Q_ASSERT(connection->source() == from);
+            Q_ASSERT(connection->destination() == to);
+
             if (!m_connectionSources.contains(from)) {
                 m_connectionSources[from] = QList<Connection*>();
             }
