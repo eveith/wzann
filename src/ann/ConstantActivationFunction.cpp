@@ -10,7 +10,7 @@ namespace Winzent {
         ConstantActivationFunction::ConstantActivationFunction(
                 double value,
                 QObject *parent):
-                    ActivationFunction(1.0, 0.0, parent),
+                    ActivationFunction(1.0, parent),
                     m_value(value)
         {
         }
@@ -28,7 +28,7 @@ namespace Winzent {
         }
 
 
-        bool ConstantActivationFunction::hasDerivative()
+        bool ConstantActivationFunction::hasDerivative() const
         {
             return true;
         }

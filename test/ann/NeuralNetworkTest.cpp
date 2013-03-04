@@ -178,4 +178,32 @@ void NeuralNetworkTest::testInitialLayerSize()
 }
 
 
+void NeuralNetworkTest::testConnectionsFromTo()
+{
+    NeuralNetwork *network = new NeuralNetwork(this);
+
+    Neuron *s = new Neuron(new SigmoidActivationFunction(), network);
+    Neuron *d = new Neuron(new SigmoidActivationFunction(), network);
+
+    Layer *l1 = new Layer(network);
+    Layer *l2 = new Layer(network);
+
+    *l1 << s;
+    *l2 << d;
+
+    *network << l1 << l2;
+
+    network->connectNeurons(s, d);
+
+    QCOMPARE(network->layerAt(0)->neuronAt(0), s);
+    QCOMPARE(network->layerAt(1)->neuronAt(0), d);
+
+    QCOMPARE(network->neuronConnectionsFrom(s).size(), 1);
+    QCOMPARE(network->neuronConnectionsTo(d).size(), 2);
+
+    QCOMPARE(network->neuronConnectionsFrom(s)[0]->destination(), d);
+    QCOMPARE(network->neuronConnectionsTo(d)[1]->source(), s);
+}
+
+
 TESTCASE(NeuralNetworkTest)

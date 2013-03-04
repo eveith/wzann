@@ -6,6 +6,8 @@
  */
 
 
+#include <QtDebug>
+
 #include "ActivationFunction.h"
 #include "SigmoidActivationFunction.h"
 
@@ -15,37 +17,38 @@ namespace Winzent
     namespace ANN
     {
         SigmoidActivationFunction::SigmoidActivationFunction(
-                double scale,
-                double transposition,
+                double steepness,
                 QObject *parent):
-                    ActivationFunction(scale, transposition, parent)
+                    ActivationFunction(steepness, parent)
         {
         }
 
 
         ActivationFunction* SigmoidActivationFunction::clone() const
         {
-            return new SigmoidActivationFunction(
-                m_scalingFactor,
-                m_transposition,
-                parent());
+            return new SigmoidActivationFunction(steepness(), parent());
         }
 
 
         double SigmoidActivationFunction::calculate(const double& input)
         {
-            return ((m_scalingFactor * (1.0 / (1.0 + std::exp(-input))))
-                    + m_transposition);
+            double in = clip(input, -45/steepness(), 45/steepness());
+            qDebug()
+                    << this
+                    << "input" << input << "in" << in
+                    << "="
+                    << 1.0 / (1.0 + std::exp(-1.0 * steepness() * in));
+            return 1.0 / (1.0 + std::exp(-1.0 * steepness() * in));
         }
 
 
         double SigmoidActivationFunction::calculateDerivative(
                 const double &input)
         {
-            if (1.0 == 1.0 + input) {
-                return m_scalingFactor * 0.5;
-            }
-            return m_scalingFactor * (input * (1.0 - input));
+            double in = clip(input, 0.01, 0.99);
+            qDebug() << this << "derivative" << input << "in" << in << "="
+                << steepness() * in * (1.0 - in);
+            return steepness() * in * (1.0 - in);
         }
     }
 }

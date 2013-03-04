@@ -28,8 +28,7 @@ namespace Winzent
 
 
             SigmoidActivationFunction(
-                    double scale = 1.0,
-                    double transposition = 0.0,
+                    double steepness = 1.0,
                     QObject *parent = 0);
 
 
@@ -51,7 +50,7 @@ namespace Winzent
              *
              * \return <code>true</code>, always.
              */
-            virtual bool hasDerivative() {
+            virtual bool hasDerivative() const {
                 return true;
             }
 

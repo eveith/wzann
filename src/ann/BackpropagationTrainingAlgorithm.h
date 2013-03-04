@@ -51,35 +51,38 @@ namespace Winzent {
              */
             ValueVector outputError(
                     const ValueVector &actual,
-                    const ValueVector &expected);
+                    const ValueVector &expected)
+                        const;
 
 
             /*!
              * Calculates the neuron delta for one given neuron, assuming it is
              * an output layer neuron.
              */
-            double outputNeuronDelta(const Neuron *neuron, const double &error);
-
-
-            /*!
-             * Calculates the delta of a neuron.
-             */
-            double neuronDelta(Winzent::ANN::Neuron *neuron);
+            double outputNeuronDelta(const Neuron *neuron, const double &error)
+                    const;
 
 
             /*!
              * Calculates the neuron delta for a neuron in an hidden layer.
              */
-            double hiddenNeuronDelta(const Neuron *neuron);
+            double hiddenNeuronDelta(
+                    NeuralNetwork *&network,
+                    Neuron *neuron,
+                    QHash<Neuron *, double> &neuronDeltas,
+                    const ValueVector &outputError)
+                        const;
 
 
             /*!
-             * Makes sure a value is within certain boundaries.
+             * Calculates the delta value of a neuron.
              */
-            double clip(
-                    const double &value,
-                    const double &min,
-                    const double &max) const;
+            double neuronDelta(
+                    NeuralNetwork *&network,
+                    Neuron *neuron,
+                    QHash<Neuron *, double> &neuronDeltas,
+                    const ValueVector &outputError)
+                        const;
 
 
             virtual void train(

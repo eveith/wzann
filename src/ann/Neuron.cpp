@@ -6,6 +6,8 @@
  */
 
 
+#include <QtDebug>
+
 #include "ActivationFunction.h"
 #include "Neuron.h"
 
@@ -71,6 +73,11 @@ namespace Winzent
         {
             m_lastInput = sum;
             m_lastResult = m_activationFunction->calculate(m_lastInput);
+
+            qDebug() << this
+                << "lastInput" << m_lastInput
+                << "lastResult" << m_lastResult;
+
             return m_lastResult;
         }
     }

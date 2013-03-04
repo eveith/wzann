@@ -282,7 +282,6 @@ namespace Winzent
             for (int i = 0; i != layer->size(); ++i) {
                 Connection *c = connectNeurons(bias, layer->neuronAt(i));
                 c->weight(-1.0);
-                c->fixedWeight(true);
             }
 
             return *this;
@@ -358,7 +357,6 @@ namespace Winzent
             }
 
             ValueVector output;
-            output.fill(0.0, layer->size());
 
             Neuron *bias = layer->biasNeuron();
 
@@ -378,7 +376,7 @@ namespace Winzent
                     }
                 }
 
-                output[i] = neuron->activate(sum);
+                output << neuron->activate(sum);
             }
 
             return output;
@@ -423,13 +421,14 @@ namespace Winzent
                         continue;
                     }
 
+                    Q_ASSERT(c->source() == fromNeuron);
+
                     int j = toLayer->neurons.indexOf(c->destination());
-                    output[j] +=
-                            *(neuronConnection(fromNeuron, c->destination()))
-                            * input.at(i);
+                    output[j] += input.at(i) * c->weight();
                 }
             }
 
+            qDebug() << "Layer Transition:" << input << output;
             return output;
         }
 
@@ -451,11 +450,11 @@ namespace Winzent
         {
             QVariantMap outList;
 
-            outList.insert("Version", NeuralNetwork::VERSION);
+            outList.insert("version", NeuralNetwork::VERSION);
 
             QList<QVariant> layersList;
 
-            outList.insert("Layers", layersList);
+            outList.insert("layers", layersList);
 
             for (int i = 0; i != network.m_layers.size(); ++i) {
                 QVariantMap layerMap;
@@ -466,21 +465,21 @@ namespace Winzent
                     QVariantMap neuronMap;
 
                     neuronMap.insert(
-                            "ActivationFunction",
+                            "activationFunction",
                             neurons[j]->m_activationFunction
                                 ->metaObject()->className());
                     neuronMap.insert(
-                            "LastResult",
+                            "lastResult",
                             neurons[j]->lastResult());
 
                     neuronsList.append(neuronMap);
                 }
 
-                layerMap.insert("Neurons", neuronsList);
+                layerMap.insert("neurons", neuronsList);
                 layersList.append(layerMap);
             }
 
-            outList.insert("Layers", layersList);
+            outList.insert("layers", layersList);
 
             QVariantList connections;
 
@@ -524,7 +523,7 @@ namespace Winzent
                 }
             }
 
-            outList.insert("Connections", connections);
+            outList.insert("connections", connections);
 
             // Serialize:
 

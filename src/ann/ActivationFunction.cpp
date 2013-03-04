@@ -13,13 +13,27 @@ namespace Winzent
     namespace ANN
     {
         ActivationFunction::ActivationFunction(
-                double scale,
-                double transpose,
+                double steepness,
                 QObject *parent):
                     QObject(parent),
-                    m_scalingFactor(scale),
-                    m_transposition(transpose)
+                    m_steepness(steepness)
         {
+        }
+
+
+        double ActivationFunction::steepness() const
+        {
+            return m_steepness;
+        }
+
+
+        double ActivationFunction::clip(
+                double value,
+                const double &min,
+                const double &max)
+                    const
+        {
+            return (value < min) ? min : ((value > max) ? max : value);
         }
     }
 }

@@ -52,8 +52,8 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
     TrainingSet *trainingSet = new TrainingSet(
             trainingItems,
             0.7,
-            0.001,
-            50000);
+            0.0001,
+            20000);
 
     QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
     testResultFile.open(QIODevice::Text
@@ -62,11 +62,28 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 
     testResultStream << *network;
 
+    network->train(new BackpropagationTrainingAlgorithm(this), trainingSet);
+
+    testResultStream << *network;
+
+    ValueVector output;
+    output = network->calculate(ValueVector({ 1, 1 }));
+    qDebug() << "(1, 1) =>" << output;
+    QCOMPARE(qRound(output[0]), 0);
+    output = network->calculate(ValueVector({ 1, 0 }));
+    qDebug() << "(1, 0) =>" << output;
+    QCOMPARE(qRound(output[0]), 1);
+    output = network->calculate(ValueVector({ 0, 0 }));
+    qDebug() << "(0, 0) =>" << output;
+    QCOMPARE(qRound(output[0]), 0);
+    output = network->calculate(ValueVector({ 0, 1 }));
+    qDebug() << "(0, 1) =>" << output;
+    QCOMPARE(qRound(output[0]), 1);
+
+
     testResultStream.flush();
     testResultFile.flush();
     testResultFile.close();
-
-    network->train(new BackpropagationTrainingAlgorithm(this), trainingSet);
 }
 
 

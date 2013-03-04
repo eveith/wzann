@@ -23,7 +23,7 @@ namespace Mock {
          * Fully connects each layer to the next one: input => hidden => output,
          * without shortcut paths or recurrency.
          */
-        virtual void configureNetwork(Winzent::ANN::NeuralNetwork *network);
+        virtual void configureNetwork(Winzent::ANN::NeuralNetwork *);
     };
     
 } // namespace Mock

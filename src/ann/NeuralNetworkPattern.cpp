@@ -30,7 +30,7 @@ namespace Winzent
 
 
         double NeuralNetworkPattern::weightRandomMin = -0.5;
-        double NeuralNetworkPattern::weightRandomMax = +0.5;
+        double NeuralNetworkPattern::weightRandomMax =  0.5;
 
 
         NeuralNetworkPattern::NeuralNetworkPattern(

@@ -47,7 +47,7 @@ namespace Winzent {
             virtual double calculateDerivative(const double &);
 
 
-            virtual bool hasDerivative();
+            virtual bool hasDerivative() const;
 
 
             virtual ActivationFunction* clone() const;

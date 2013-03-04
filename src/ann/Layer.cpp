@@ -53,6 +53,8 @@ namespace Winzent {
 
             neuron->setParent(this);
             neurons.insert(neurons.size() - 1, neuron);
+
+            Q_ASSERT(biasNeuron() == neurons.last());
             return *this;
         }
 

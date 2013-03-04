@@ -44,17 +44,9 @@ namespace Winzent
              * Constructs a new instance of this activation function
              * and initializes the remembered value with 0.0.
              */
-            RememberingActivationFunction(): m_remeberedValue(0.0) {}
-
-
-            /*!
-             * Constructs a new instance of this activation function
-             * and initializes the remembered value with a supplied
-             * one.
-             */
-            RememberingActivationFunction(double initialValue):
-                    m_remeberedValue(initialValue)
-            {}
+            RememberingActivationFunction(
+                    double steepness = 1.0,
+                    QObject *parent = 0);
 
 
             virtual ~RememberingActivationFunction();
@@ -64,13 +56,12 @@ namespace Winzent
 
 
             /*!
-             * The remembering activation function has no derivative.
-             * As a consequence, calling this function will throw an
-             * exception.
+             * Returns the derivative. A remembering activation function does
+             * not really have a derivative, so it is treated as if a simple
+             * <code>f'(x) = d/dx(ax)</code>.
              */
             virtual double calculateDerivative(const double&) {
-                throw "No derivative available";
-                return 0.0;
+                return steepness();
             }
 
 
@@ -78,10 +69,10 @@ namespace Winzent
              * Indicates that this activation function has no
              * derivative.
              *
-             * \return <code>false</code>, always.
+             * \return <code>true</code>, always.
              */
-            virtual bool hasDerivative() {
-                return false;
+            virtual bool hasDerivative() const {
+                return true;
             }
 
 

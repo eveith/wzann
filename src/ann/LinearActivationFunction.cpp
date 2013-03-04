@@ -7,28 +7,27 @@ namespace Winzent {
     namespace ANN {
         
         LinearActivationFunction::LinearActivationFunction(
-                double scale,
-                double transpose,
+                double steepness,
                 QObject *parent):
-                    ActivationFunction(scale, transpose, parent)
+                    ActivationFunction(steepness, parent)
         {
         }
 
 
         double LinearActivationFunction::calculate(const double &input)
         {
-            return m_scalingFactor * input + m_transposition;
+            return steepness() * input;
         }
 
 
         double LinearActivationFunction::calculateDerivative(
                 const double&)
         {
-            return m_scalingFactor;
+            return steepness();
         }
 
 
-        bool LinearActivationFunction::hasDerivative()
+        bool LinearActivationFunction::hasDerivative() const
         {
             return true;
         }
@@ -36,10 +35,7 @@ namespace Winzent {
 
         ActivationFunction *LinearActivationFunction::clone() const
         {
-            return new LinearActivationFunction(
-                        m_scalingFactor,
-                        m_transposition,
-                        parent());
+            return new LinearActivationFunction(steepness(), parent());
         }
         
     } // namespace ANN

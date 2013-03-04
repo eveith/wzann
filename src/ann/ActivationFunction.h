@@ -27,28 +27,33 @@ namespace Winzent
             Q_OBJECT
 
 
-        protected:
+        private:
 
 
             /*!
              * Factor by which the function is to be scaled.
              */
-            double m_scalingFactor;
-
-
-            /*!
-             * The value by which this function gets transposed on the Y-axis.
-             */
-            double m_transposition;
+            double m_steepness;
 
 
         public:
 
 
-            ActivationFunction(
-                    double scale = 1.0,
-                    double transpose = 0.0,
-                    QObject *parent = 0);
+            ActivationFunction(double steepness = 1.0, QObject *parent = 0);
+
+
+            /*!
+             * Returns the activation function's steepness.
+             */
+            double steepness() const;
+
+
+            /*!
+             * Sets a new steepness value for this activtion function.
+             *
+             * \return <code>this</code>, for method chaining.
+             */
+            ActivationFunction* steepness(double steepness);
 
 
             /*!
@@ -71,7 +76,7 @@ namespace Winzent
              * \return <code>true</code>, if a derivative of the
              *  activation function exists; false otherwise.
              */
-            virtual bool hasDerivative() = 0;
+            virtual bool hasDerivative() const = 0;
 
 
             /*!
@@ -85,6 +90,23 @@ namespace Winzent
              * \return A new activation function object.
              */
             virtual ActivationFunction* clone() const = 0;
+
+
+            /*!
+             * Clips a value when it exceeds a certain boundary.
+             *
+             * \param value The value is subject to clipping
+             *
+             * \param[in] min The minimum value the <code>value</code> parameter
+             *  may have
+             *
+             * \param[in] max The maximum value the <code>value</code> parameter
+             *  may have
+             *
+             * \param A value in the boundaries of min <= value <= max
+             */
+            double clip(double value, const double &min, const double &max)
+                    const;
         };
 
     } /* namespace ANN */

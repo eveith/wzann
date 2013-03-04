@@ -31,7 +31,7 @@ namespace Mock {
     }
 
 
-    void LinearNeuralNetworkPattern::configureNetwork(NeuralNetwork *network)
+    void LinearNeuralNetworkPattern::configureNetwork(NeuralNetwork *)
     {
     }
     

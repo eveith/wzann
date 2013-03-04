@@ -35,18 +35,14 @@ namespace Winzent {
              * Creates a new linear activation function with an optional scaling
              * and transposition.
              *
-             * \param scale Scales the function: f(x) = scale * x
-             *
-             * \param transposition Transposes the function:
-             *  f(x) = x + transpose
+             * \param steepness Steepness the function: f(x) = steepness * x
              *
              * \param parent The parent object.
              *
              * \sa QObject
              */
             LinearActivationFunction(
-                    double scale = 1.0,
-                    double transpose = 0.0,
+                    double steepness = 1.0,
                     QObject *parent = 0);
 
 
@@ -56,7 +52,7 @@ namespace Winzent {
             virtual double calculateDerivative(const double &);
 
 
-            virtual bool hasDerivative();
+            virtual bool hasDerivative() const;
 
 
             virtual ActivationFunction *clone() const;
