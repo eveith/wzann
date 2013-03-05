@@ -21,7 +21,8 @@ namespace Winzent {
 
 
         double LinearActivationFunction::calculateDerivative(
-                const double&)
+                const double&,
+                const double &)
         {
             return steepness();
         }

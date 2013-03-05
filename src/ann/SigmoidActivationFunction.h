@@ -35,20 +35,24 @@ namespace Winzent
             /*!
              * Calculates output using the sigmoid function.
              */
-            virtual double calculate(const double& input);
+            virtual double calculate(const double &input);
 
 
             /*!
              * Calculates the output of the derivative of the sigmoid
              * function.
+             *
+             * \sa ActivationFunction#calculateDerivative
              */
-            virtual double calculateDerivative(const double &input);
+            virtual double calculateDerivative(
+                    const double &,
+                    const double &result);
 
 
             /*!
              * Indicates that this function has a derivative.
              *
-             * \return <code>true</code>, always.
+             * \return `true`
              */
             virtual bool hasDerivative() const {
                 return true;

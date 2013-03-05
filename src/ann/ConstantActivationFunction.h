@@ -36,17 +36,28 @@ namespace Winzent {
              * Creates a new instance of this class with a constant value of
              * <code>1.0</code>, which is optionally configurable.
              *
-             * \param value The constant activation value, default to 1.0.
+             * \param value The constant activation value; defaults to 1.0.
              */
             ConstantActivationFunction(double value = 1.0, QObject *parent = 0);
 
 
+            /*!
+             * \return The constant value the function was created with
+             *
+             * \sa #m_value
+             */
             virtual double calculate(const double &);
 
 
-            virtual double calculateDerivative(const double &);
+            /*!
+             * \return 0.0
+             */
+            virtual double calculateDerivative(const double &, const double &);
 
 
+            /*!
+             * \return `true`
+             */
             virtual bool hasDerivative() const;
 
 

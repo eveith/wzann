@@ -46,12 +46,21 @@ namespace Winzent {
                     QObject *parent = 0);
 
 
+            /*!
+             * \return `input * steepness()`
+             */
             virtual double calculate(const double &input);
 
 
-            virtual double calculateDerivative(const double &);
+            /*!
+             * \return ActivationFunction#steepness()
+             */
+            virtual double calculateDerivative(const double &, const double &);
 
 
+            /*!
+             * \return `true`
+             */
             virtual bool hasDerivative() const;
 
 

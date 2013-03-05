@@ -22,7 +22,9 @@ namespace Winzent {
         }
 
 
-        double ConstantActivationFunction::calculateDerivative(const double &)
+        double ConstantActivationFunction::calculateDerivative(
+                const double &,
+                const double &)
         {
             return 0.0;
         }

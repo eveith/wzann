@@ -58,18 +58,23 @@ namespace Winzent
             /*!
              * Returns the derivative. A remembering activation function does
              * not really have a derivative, so it is treated as if a simple
-             * <code>f'(x) = d/dx(ax)</code>.
+             * \f$f'(x) = \frac{d}{dx}ax = a\f$, with _a_ being the
+             * ActivationFunction#steepness.
+             *
+             * \return ActivationFunction#steepness()
+             *
+             * \sa ActivationFunction#steepness
              */
-            virtual double calculateDerivative(const double&) {
+            virtual double calculateDerivative(const double &, const double &) {
                 return steepness();
             }
 
 
             /*!
-             * Indicates that this activation function has no
-             * derivative.
+             * Indicates that this activation function has a
+             * derivative, albeit not a very useful one.
              *
-             * \return <code>true</code>, always.
+             * \return `true`
              */
             virtual bool hasDerivative() const {
                 return true;

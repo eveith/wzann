@@ -178,9 +178,14 @@ namespace Winzent
                 const double &error)
                     const
         {
-            qDebug() << "Output neuron value" << neuron->lastInput();
+            qDebug() << neuron << "out"
+                    << "lastInput" << neuron->lastInput()
+                    << "lastResult" << neuron->lastResult();
+
             return neuron->activationFunction()->calculateDerivative(
-                    neuron->lastResult()) * error;
+                            neuron->lastInput(),
+                            neuron->lastResult())
+                    * error;
         }
 
 
@@ -192,6 +197,7 @@ namespace Winzent
                     const
         {
             double delta = 0.0;
+
             QList<Connection*> connections =
                     m_neuralNetwork->neuronConnectionsFrom(neuron);
             Q_ASSERT(connections.size() > 0);
@@ -207,9 +213,10 @@ namespace Winzent
                 delta += neuronDeltas[c->destination()] * c->weight();
             }
 
-            delta *= neuron
-                    ->activationFunction()
-                    ->calculateDerivative(neuron->lastResult());
+            delta *= neuron->activationFunction()->calculateDerivative(
+                    neuron->lastInput(),
+                    neuron->lastResult());
+
             return delta;
         }
 

@@ -39,6 +39,15 @@ namespace Winzent
         public:
 
 
+            /*!
+             * Constructs a new activation function with an optional steepness.
+             *
+             * \param steepness The function's steepness
+             *
+             * \param parent The parent object (for auto-destruction)
+             *
+             * \sa QObject
+             */
             ActivationFunction(double steepness = 1.0, QObject *parent = 0);
 
 
@@ -66,8 +75,36 @@ namespace Winzent
             /*!
              * Applies the derivative of the activation function
              * to a certain input value.
+             *
+             * Activation functions in neural networks need to be deriveable if
+             * you want to use them during training, e.g. with backpropagation.
+             * Although the derivation itself is a purely mathematic task, it
+             * has consequences for the activation function's derivation's input
+             * --- if the activation function, for example, contains the e
+             * function (exp(...)), it will recreate itself on deviation:
+             * \f$\frac{d}{dx}e^x = e^x\f$.
+             *
+             * This means that for some activation functions, the neuron's last
+             * input (i.e., \f$net_j\f$) needs to be used, and for some others,
+             * its last result (\f$\varphi{}(net_j)\f$). This is the reason for
+             * the two parameters <code>input</code> and <code>sum</code>.
+             *
+             * When implementing an activation function, choose whichever value
+             * you need. Both are supplied.
+             *
+             * \param sum The neuron's last input from the net (\f$net_j\f$)
+             *
+             * \param result The neuron's output (\f$\varphi{}(net_j)\f$)
+             *
+             * \return The derivation applied to the appropriate value.
+             *
+             * \sa Neuron#lastInput
+             *
+             * \sa Neuron#lastResult
              */
-            virtual double calculateDerivative(const double& input) = 0;
+            virtual double calculateDerivative(
+                    const double &sum,
+                    const double &result) = 0;
 
 
             /*!
