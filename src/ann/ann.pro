@@ -32,7 +32,9 @@ SOURCES += \
     Layer.cpp \
     PerceptronNetworkPattern.cpp \
     Connection.cpp \
-    LinearActivationFunction.cpp
+    LinearActivationFunction.cpp \
+    EvolutionaryTrainingAlgorithm.cpp \
+    SimulatedAnnealingTrainingAlgorithm.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -51,7 +53,9 @@ HEADERS +=\
     Layer.h \
     PerceptronNetworkPattern.h \
     Connection.h \
-    LinearActivationFunction.h
+    LinearActivationFunction.h \
+    EvolutionaryTrainingAlgorithm.h \
+    SimulatedAnnealingTrainingAlgorithm.h
 
 unix:!symbian {
     maemo5 {
