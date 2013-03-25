@@ -6,10 +6,12 @@
  */
 
 
+#include <QtDebug>
+
 #include "Testrunner.h"
 
 #define private public
-#include "SigmoidActivationFunction.h"
+#include "LinearActivationFunction.h"
 #include "Neuron.h"
 #include "Layer.h"
 #include "Connection.h"
@@ -22,15 +24,16 @@
 using namespace Winzent::ANN;
 
 
+const int Mock::NeuralNetworkTestDummyPattern::numLayers = 3;
+
 
 namespace Mock {
     NeuralNetworkTestDummyPattern::NeuralNetworkTestDummyPattern():
-            NeuralNetworkPattern(QList<int>(), QList<ActivationFunction*>()),
-            numLayers(3), numNeuronsPerLayer(13)
+            NeuralNetworkPattern(QList<int>(), QList<ActivationFunction*>())
     {
         for (int i = 0; i != numLayers; ++i) {
-            m_layerSizes << numNeuronsPerLayer;
-            m_activationFunctions << new SigmoidActivationFunction();
+            m_layerSizes << numNeuronsInLayer(i);
+            m_activationFunctions << new LinearActivationFunction();
         }
     }
 
@@ -44,18 +47,21 @@ namespace Mock {
         for (int i = 0; i != numLayers; ++i) {
             Layer* l = new Layer();
 
-            for (int j = 0; j != numNeuronsPerLayer; ++j) {
-                *l << new Neuron(new SigmoidActivationFunction());
+            for (int j = 0; j != numNeuronsInLayer(i); ++j) {
+                Neuron *n = new Neuron(
+                        new LinearActivationFunction(1.0, this));
+                n->cacheSize(1);
+                *l << n;
             }
 
             *network << l;
 
-            if (i == 0) {
+            if (0 == i) {
                 continue;
             }
 
-            for (int j = 0; j != numNeuronsPerLayer/2; ++j) {
-                for (int k = 0; k != numNeuronsPerLayer; ++k) {
+            for (int j = 0; j != numNeuronsInLayer(i-1); ++j) {
+                for (int k = 0; k != numNeuronsInLayer(i); ++k) {
                     network->connectNeurons(
                             network->layerAt(i-1)->neuronAt(j),
                             network->layerAt(i)->neuronAt(k))
@@ -115,23 +121,25 @@ void NeuralNetworkTest::testLayerAdditionRemoval()
 
 void NeuralNetworkTest::testCalculateLayerTransition()
 {
-    NeuralNetwork* network = new NeuralNetwork();
-    Mock::NeuralNetworkTestDummyPattern* pattern =
-            new Mock::NeuralNetworkTestDummyPattern();
+    NeuralNetwork network;
+    Mock::NeuralNetworkTestDummyPattern pattern;
 
-    network->configure(pattern);
+    network.configure(&pattern);
 
-    ValueVector inVector(pattern->numNeuronsPerLayer, 1.0);
-    ValueVector outVector = network->calculateLayerTransition(0, 1, inVector);
+    const int fromLayer = 0;
+    const int toLayer   = 1;
 
-    QCOMPARE(outVector.size(), pattern->numNeuronsPerLayer);
+    ValueVector inVector(pattern.numNeuronsInLayer(fromLayer), 1.0);
+    ValueVector outVector = network.calculateLayerTransition(
+            fromLayer,
+            toLayer,
+            inVector);
+
+    QCOMPARE(outVector.size(), pattern.numNeuronsInLayer(toLayer));
 
     for (int i = 0; i != outVector.size(); ++i) {
-        QCOMPARE(static_cast<int>(outVector[i]),
-                pattern->numNeuronsPerLayer/2);
+        QCOMPARE(outVector[i], 1.0);
     }
-
-    delete network;
 }
 
 
@@ -141,14 +149,20 @@ void NeuralNetworkTest::testCalculateLayer()
     Mock::NeuralNetworkTestDummyPattern pattern;
     network.configure(&pattern);
 
-    ValueVector inVector(pattern.numNeuronsPerLayer, 1.0);
-    ValueVector outVector = network.calculateLayer(1, inVector);
+    const qreal inValue = 1.0;
+    const int layer     = 2;
 
-    QCOMPARE(outVector.size(), pattern.numNeuronsPerLayer);
+    ValueVector inVector(pattern.numNeuronsInLayer(layer), inValue);
+    ValueVector outVector = network.calculateLayer(layer, inVector);
+
+    QCOMPARE(outVector.size(), pattern.numNeuronsInLayer(layer));
     QCOMPARE(outVector.size(), inVector.size());
 
     foreach (double d, outVector) {
-        QCOMPARE(1.0 + d, 1.0 + SigmoidActivationFunction().calculate(2.0));
+        QCOMPARE(
+                1.0 + d,
+                1.0 + LinearActivationFunction().calculate(inValue)
+                    + -1.0 * LinearActivationFunction().calculate(1.0));
     }
 }
 
@@ -182,8 +196,8 @@ void NeuralNetworkTest::testConnectionsFromTo()
 {
     NeuralNetwork *network = new NeuralNetwork(this);
 
-    Neuron *s = new Neuron(new SigmoidActivationFunction(), network);
-    Neuron *d = new Neuron(new SigmoidActivationFunction(), network);
+    Neuron *s = new Neuron(new LinearActivationFunction(), network);
+    Neuron *d = new Neuron(new LinearActivationFunction(), network);
 
     Layer *l1 = new Layer(network);
     Layer *l2 = new Layer(network);
@@ -203,6 +217,64 @@ void NeuralNetworkTest::testConnectionsFromTo()
 
     QCOMPARE(network->neuronConnectionsFrom(s)[0]->destination(), d);
     QCOMPARE(network->neuronConnectionsTo(d)[1]->source(), s);
+}
+
+
+void NeuralNetworkTest::testClone()
+{
+    NeuralNetwork *network = new NeuralNetwork();
+    Mock::NeuralNetworkTestDummyPattern *pattern =
+            new Mock::NeuralNetworkTestDummyPattern();
+
+    network->configure(pattern);
+
+    NeuralNetwork *clone = network->clone();
+
+    QCOMPARE(network->size(), clone->size());
+
+    for (int i = 0; i != network->size(); ++i) {
+        Layer *origLayer    = network->layerAt(i);
+        Layer *cloneLayer   = clone->layerAt(i);
+
+        QVERIFY(origLayer != cloneLayer);
+        QCOMPARE(origLayer->size(), cloneLayer->size());
+
+        QCOMPARE(origLayer->parent(), network);
+        QCOMPARE(cloneLayer->parent(), clone);
+
+        QVERIFY(NULL != cloneLayer->biasNeuron());
+        QVERIFY(origLayer->biasNeuron() != cloneLayer->biasNeuron());
+
+        QCOMPARE(origLayer->biasNeuron()->parent(), origLayer);
+        QCOMPARE(cloneLayer->biasNeuron()->parent(), cloneLayer);
+
+        for (int j = 0; j <= origLayer->size(); ++j) {
+            Neuron *origNeuron  = origLayer->neuronAt(j);
+            Neuron *cloneNeuron = cloneLayer->neuronAt(j);
+
+            QCOMPARE(origNeuron->parent(), origLayer);
+            QCOMPARE(cloneNeuron->parent(), cloneLayer);
+
+            QVERIFY(origLayer->contains(origNeuron));
+            QVERIFY(cloneLayer->contains(cloneNeuron));
+
+            QVERIFY(network->containsNeuron(origNeuron));
+            QVERIFY(clone->containsNeuron(cloneNeuron));
+
+            QVERIFY(origNeuron->activationFunction()
+                    != cloneNeuron->activationFunction());
+
+            QList<Connection *> origConnections =
+                    network->neuronConnectionsFrom(origNeuron);
+            QList<Connection *> cloneConnections =
+                    clone->neuronConnectionsFrom(cloneNeuron);
+
+            QCOMPARE(cloneConnections.size(), origConnections.size());
+        }
+    }
+
+    delete network;
+    delete clone;
 }
 
 

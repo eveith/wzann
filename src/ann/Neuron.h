@@ -10,6 +10,7 @@
 
 
 #include <QObject>
+#include <QVector>
 
 
 class QTextStream;
@@ -43,13 +44,25 @@ namespace Winzent
             /*!
              * Caches that last input that was presented to this neuron.
              */
-            double m_lastInput;
+            QVector<qreal> m_lastInputs;
 
 
             /*!
              * Caches the result of the last activation
              */
-            double m_lastResult;
+            QVector<qreal> m_lastResults;
+
+
+            /*!
+             * The maximum size of the input/results caches
+             */
+            int m_cacheSize;
+
+
+            /*!
+             * Calls `resize()` on all caches.
+             */
+            void trimCache();
 
 
         public:
@@ -76,14 +89,6 @@ namespace Winzent
 
 
             /*!
-             * The constructor does not call <code>delete</code>
-             * on the supplied activation function since it might be
-             * shared with other neurons.
-             */
-            virtual ~Neuron();
-
-
-            /*!
              * Clones this neuron by creating a new one with the
              * same activation function and the same last result.
              *
@@ -92,25 +97,51 @@ namespace Winzent
              * \sa ActivationFunction#clone
              * \sa #lastResult
              */
-            Neuron* clone() const;
+            Neuron *clone() const;
 
 
             /*!
              * Returns the last network input for this neuron
              */
-            double lastInput() const;
+            qreal lastInput() const;
+
+
+            /*!
+             * \return All cached inputs
+             */
+            const QVector<qreal> lastInputs() const;
 
 
             /*!
              * Returns the result of the last activation
              */
-            double lastResult() const;
+            qreal lastResult() const;
+
+
+            /*!
+             * \return All cached results
+             */
+            const QVector<qreal> lastResults() const;
+
+
+            /*!
+             * \return The current size of the last input/last result caches.
+             */
+            int cacheSize() const;
+
+
+            /*!
+             * Sets the new input/result cache size.
+             *
+             * \return `this`
+             */
+            Neuron *cacheSize(int cacheSize);
 
 
             /*!
              * Returns the activation function this neuron instance uses.
              */
-            ActivationFunction* activationFunction() const;
+            ActivationFunction *activationFunction() const;
 
 
             /*!
@@ -127,7 +158,7 @@ namespace Winzent
              * \sa #lastResult
              * \sa #m_activationFunction
              */
-            double activate(const double &sum);
+            qreal activate(const qreal &sum);
         };
 
     } /* namespace ANN */

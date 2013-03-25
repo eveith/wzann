@@ -46,6 +46,11 @@ namespace Winzent
             int epochs = 0;
             double error = std::numeric_limits<double>::max();
 
+            // Make sure the network caches the last result; this is important
+            // for the process to work.
+
+            setNeuronCacheSize(network, 1);
+
             for(; epochs < trainingSet->maxEpochs()
                         && error > trainingSet->targetError();
                     ++epochs) {
@@ -147,6 +152,10 @@ namespace Winzent
 
             setFinalError(*trainingSet, error);
             setFinalNumEpochs(*trainingSet, epochs);
+
+            // Restore previously modified cache sizes:
+
+            restoreNeuronCacheSize();
         }
 
 

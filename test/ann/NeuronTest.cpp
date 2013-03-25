@@ -12,7 +12,7 @@ using namespace Winzent::ANN;
 
 void NeuronTest::testClone()
 {
-    Neuron* n1 = new Neuron(new SigmoidActivationFunction());
+    Neuron* n1 = new Neuron(new SigmoidActivationFunction(1.0, this));
     Neuron* n2 = n1->clone();
 
     QVERIFY(n1 != n2);

@@ -28,12 +28,15 @@ namespace Mock {
 
     public:
 
-
-        int numLayers;
-        int numNeuronsPerLayer;
+        static const int numLayers;
 
 
         NeuralNetworkTestDummyPattern();
+
+
+        int numNeuronsInLayer(const int &layer) {
+            return layer+1;
+        }
 
 
         virtual void configureNetwork(NeuralNetwork* network);
@@ -61,6 +64,7 @@ private slots:
     void testSerialization();
     void testInitialLayerSize();
     void testConnectionsFromTo();
+    void testClone();
 };
 
 #endif /* NEURALNETWORKTEST_H_ */

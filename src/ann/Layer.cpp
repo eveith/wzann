@@ -17,6 +17,18 @@ namespace Winzent {
         }
 
 
+        Layer::Layer(const Layer &rhs):
+                QObject(rhs.parent()),
+                neurons(QList<Neuron *>())
+        {
+            foreach (Neuron *n, rhs.neurons) {
+                Neuron *neuronClone = n->clone();
+                neuronClone->setParent(this);
+                neurons << neuronClone;
+            }
+        }
+
+
         int Layer::size() const
         {
             return neurons.size() - 1;
@@ -61,15 +73,7 @@ namespace Winzent {
 
         Layer* Layer::clone() const
         {
-            Layer* layerClone = new Layer();
-
-            foreach (Neuron* n, neurons) {
-                Neuron* neuronClone = n->clone();
-                neuronClone->setParent(layerClone);
-                layerClone->neurons << neuronClone;
-            }
-
-            return layerClone;
+            return new Layer(*this);
         }
 
 

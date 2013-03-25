@@ -37,6 +37,19 @@ namespace Winzent
                     TrainingSet*);
 
 
+        private:
+
+
+            /*!
+             * Used for storing the current cache size of all network neurons.
+             *
+             * \sa #setNeuronCacheSize
+             *
+             * \sa #restoreNeuronCacheSize
+             */
+            QHash<Neuron *, int> m_cacheSizes;
+
+
         protected:
 
 
@@ -73,6 +86,28 @@ namespace Winzent
                     const ValueVector &actualOutput,
                     const ValueVector &expectedOutput)
                         throw(LayerSizeMismatchException);
+
+
+            /*!
+             * Sets the cache size of all neurons in the network to a certain
+             * value. The current cache sizes are stored and can be reset using
+             * #restoreNeuronCacheSize.
+             *
+             * \param network The network that contains the neurons.
+             *
+             * \param cacheSize The cache size
+             *
+             * \sa #restoreNeuronCacheSize
+             */
+            void setNeuronCacheSize(NeuralNetwork *network, int cacheSize);
+
+
+            /*!
+             * Restores the cache sizes of all network neurons.
+             *
+             * \sa #setNeuronCacheSize
+             */
+            void restoreNeuronCacheSize();
 
 
             /*!

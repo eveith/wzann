@@ -24,7 +24,7 @@ namespace Winzent
 {
     namespace ANN
     {
-        typedef QVector<double> ValueVector;
+        typedef QVector<qreal> ValueVector;
 
         class NeuralNetworkPattern;
         class Layer;
@@ -155,6 +155,12 @@ namespace Winzent
              * <code>delete</code> on all layers and neurons.
              */
             virtual ~NeuralNetwork();
+
+
+            /*!
+             * \return A clone of this current network.
+             */
+            NeuralNetwork *clone() const;
 
 
             /*!

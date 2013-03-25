@@ -27,10 +27,8 @@
 #include "TrainingAlgorithm.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
 
         const char NeuralNetwork::VERSION[] = "1.0";
 
@@ -47,9 +45,9 @@ namespace Winzent
         }
 
 
-        NeuralNetwork::NeuralNetwork(const NeuralNetwork& rhs):
+        NeuralNetwork::NeuralNetwork(const NeuralNetwork &rhs):
                 QObject(rhs.parent()),
-                m_layers(QList<Layer*>(rhs.m_layers)),
+                m_layers(QList<Layer*>()),
                 m_connectionSources(QHash<Neuron*, QList<Connection*> >()),
                 m_connectionDestinations(QHash<Neuron*, QList<Connection*> >()),
                 m_pattern(NULL)
@@ -68,6 +66,12 @@ namespace Winzent
             // via the index in the layer and create connections of our own:
 
             foreach (Neuron *foreignNeuron, rhs.m_connectionSources.keys()) {
+
+                // Ignore leftovers:
+
+                if (rhs.neuronConnectionsFrom(foreignNeuron).size() == 0) {
+                    continue;
+                }
 
                 // First, find the index of the source neuron:
 
@@ -89,7 +93,10 @@ namespace Winzent
                 // Then, find the index of the destination neurons:
 
                 QList<Connection*> connections =
-                        rhs.m_connectionDestinations[foreignNeuron];
+                        rhs.neuronConnectionsFrom(foreignNeuron);
+
+                Q_ASSERT(connections.size() > 0);
+
                 foreach (Connection *c, connections) {
                     int dstLayerIndex = -1;
                     int dstNeuronIndex = -1;
@@ -137,11 +144,15 @@ namespace Winzent
         }
 
 
+        NeuralNetwork *NeuralNetwork::clone() const
+        {
+            return new NeuralNetwork(*this);
+        }
+
+
         bool NeuralNetwork::containsNeuron(const Neuron *neuron) const
         {
-            if (NULL == neuron) {
-                return false;
-            }
+            Q_ASSERT(NULL != neuron);
 
             foreach (Layer *l, m_layers) {
                 if (l->contains(neuron)) {
@@ -468,9 +479,24 @@ namespace Winzent
                             "activationFunction",
                             neurons[j]->m_activationFunction
                                 ->metaObject()->className());
+
+                    QVariantList lastInputs;
+                    foreach (qreal r, neurons[j]->lastInputs()) {
+                        lastInputs << r;
+                    }
+
                     neuronMap.insert(
-                            "lastResult",
-                            neurons[j]->lastResult());
+                            "lastInputs",
+                            lastInputs);
+
+                    QVariantList lastResults;
+                    foreach (qreal r, neurons[j]->lastResults()) {
+                        lastResults << r;
+                    }
+
+                    neuronMap.insert(
+                            "lastResults",
+                            lastResults);
 
                     neuronsList.append(neuronMap);
                 }

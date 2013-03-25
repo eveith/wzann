@@ -53,6 +53,12 @@ namespace Winzent {
 
 
             /*!
+             * Nonmodifiable, `const` version of the neuronAt command.
+             */
+            const Neuron* neuronAt(const int &index) const;
+
+
+            /*!
              * Returns the neuron at the specified index position.
              *
              * Retrieves a neuron given its position (index) in the layer. One
@@ -81,6 +87,12 @@ namespace Winzent {
              * Creates a new, empty layer.
              */
             Layer(QObject *parent = 0);
+
+
+            /*!
+             * Copy constructor
+             */
+            Layer(const Layer &rhs);
 
 
             /*!

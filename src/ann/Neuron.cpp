@@ -19,8 +19,9 @@ namespace Winzent
         Neuron::Neuron(ActivationFunction *activationFunction, QObject *parent):
             QObject(parent),
             m_activationFunction(activationFunction),
-            m_lastInput(0.0),
-            m_lastResult(0.0)
+            m_lastInputs(QVector<qreal>()),
+            m_lastResults(QVector<qreal>()),
+            m_cacheSize(0)
         {
         }
 
@@ -28,38 +29,72 @@ namespace Winzent
         Neuron::Neuron(const Neuron &rhs):
                 QObject(rhs.parent()),
                 m_activationFunction(rhs.m_activationFunction->clone()),
-                m_lastInput(rhs.m_lastInput),
-                m_lastResult(rhs.m_lastResult)
+                m_lastInputs(QVector<qreal>(rhs.m_lastInputs)),
+                m_lastResults(QVector<qreal>(rhs.m_lastResults)),
+                m_cacheSize(rhs.m_cacheSize)
         {
         }
 
 
-        Neuron::~Neuron()
-        {
-        }
-
-
-        Neuron* Neuron::clone() const
+        Neuron *Neuron::clone() const
         {
             Neuron *n = new Neuron(m_activationFunction->clone());
 
-            n->m_lastResult = m_lastResult;
-            n->m_lastInput = m_lastInput;
+            n->m_lastInputs = QVector<qreal>(m_lastInputs);
+            n->m_lastResults = QVector<qreal>(m_lastResults);
+            n->m_cacheSize = m_cacheSize;
             n->setParent(parent());
 
             return n;
         }
 
 
-        double Neuron::lastResult() const
+        qreal Neuron::lastResult() const
         {
-            return m_lastResult;
+            return m_lastResults.first();
         }
 
 
-        double Neuron::lastInput() const
+        const QVector<qreal> Neuron::lastInputs() const
         {
-            return m_lastInput;
+            return m_lastInputs;
+        }
+
+
+        qreal Neuron::lastInput() const
+        {
+            return m_lastInputs.first();
+        }
+
+
+        const QVector<qreal> Neuron::lastResults() const
+        {
+            return m_lastResults;
+        }
+
+
+        int Neuron::cacheSize() const
+        {
+            return m_cacheSize;
+        }
+
+
+        Neuron *Neuron::cacheSize(int cacheSize)
+        {
+            int oldCacheSize = m_cacheSize;
+            m_cacheSize = cacheSize;
+            if (oldCacheSize > cacheSize) {
+                trimCache();
+            }
+
+            return this;
+        }
+
+
+        void Neuron::trimCache()
+        {
+            m_lastInputs.resize(cacheSize());
+            m_lastResults.resize(cacheSize());
         }
 
 
@@ -69,16 +104,24 @@ namespace Winzent
         }
 
 
-        double Neuron::activate(const double &sum)
+        qreal Neuron::activate(const qreal &sum)
         {
-            m_lastInput = sum;
-            m_lastResult = m_activationFunction->calculate(m_lastInput);
+            qreal result = m_activationFunction->calculate(sum);
 
-            qDebug() << this
-                << "lastInput" << m_lastInput
-                << "lastResult" << m_lastResult;
+            if (cacheSize() > 0) {
+                m_lastInputs.push_front(qreal(sum));
+                m_lastResults.push_front(qreal(result));
 
-            return m_lastResult;
+                if (m_lastInputs.size() > cacheSize()) {
+                    trimCache();
+                }
+
+                qDebug() << this
+                    << "lastInput" << m_lastInputs.first()
+                    << "lastResult" << m_lastResults.first();
+            }
+
+            return result;
         }
     }
 }
