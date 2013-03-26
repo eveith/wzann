@@ -60,7 +60,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
             trainingItems,
             0.7,
             0.1,
-            10);
+            100);
 
     QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
     testResultFile.open(QIODevice::Text
@@ -70,7 +70,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
     testResultStream << *network;
 
     network->train(
-            new SimulatedAnnealingTrainingAlgorithm(50000, 10, 1000, this),
+            new SimulatedAnnealingTrainingAlgorithm(50000, 10, 55000, this),
             trainingSet);
 
     testResultStream << *network;
