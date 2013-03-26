@@ -25,8 +25,8 @@ void ActivationFunctionTest::testSigmoidActivationFunction()
     QCOMPARE(a.calculate(8.0), 1 / (1 + std::exp(-8.0)));
     QCOMPARE(1.0 + a.calculate(0.0), 1.5);
     QCOMPARE(
-            a.calculateDerivative(5.0, 1.0),
-            a.calculate(1.0) * (1.0 - a.calculate(1.0)));
+            a.calculateDerivative(5.0, 0.5),
+            0.5 * (1.0 - 0.5));
 }
 
 
