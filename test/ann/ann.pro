@@ -37,7 +37,8 @@ HEADERS += \
     ConnectionTest.h \
     mock/LinearNeuralNetworkPattern.h \
     BackpropagationTrainingAlgorithmTest.h \
-    SimulatedAnnealingTrainingAlgorithmTest.h
+    SimulatedAnnealingTrainingAlgorithmTest.h \
+    NguyenWidrowWeightRandomizerTest.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -52,7 +53,8 @@ SOURCES += \
     ConnectionTest.cpp \
     mock/LinearNeuralNetworkPattern.cpp \
     BackpropagationTrainingAlgorithmTest.cpp \
-    SimulatedAnnealingTrainingAlgorithmTest.cpp
+    SimulatedAnnealingTrainingAlgorithmTest.cpp \
+    NguyenWidrowWeightRandomizerTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
