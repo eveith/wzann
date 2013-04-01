@@ -70,8 +70,7 @@ namespace Winzent {
                             continue;
                         }
 
-                        qreal add = CUT
-                                - qrand() / static_cast<qreal>(RAND_MAX);
+                        qreal add = CUT-qrand() / static_cast<qreal>(RAND_MAX);
                         add /= startTemperature();
                         add *= temperature;
 
@@ -110,9 +109,9 @@ namespace Winzent {
                     ValueVector actualOutput = network->calculate(item.input());
                     ValueVector expectedOutput = item.expectedOutput();
 
-                    for (int j = 0; j != expectedOutput.size(); ++j) {
+                    for (int k = 0; k != expectedOutput.size(); ++k) {
                         score += std::pow(
-                                expectedOutput[j] - actualOutput[j],
+                                expectedOutput[k] - actualOutput[k],
                                 2);
                     }
                 }
@@ -122,33 +121,35 @@ namespace Winzent {
                         * trainingSet->trainingData().first()
                             .expectedOutput().count());
 
-                // Accept the solution if its either better (score < bestScore)
-                // or, with a certain probability, accept a worse solution to
-                // break out of local minima:
+                // Accept the solution if its better (score < bestScore)
 
                 qDebug()
                         << "Score:" << score
                         << "bestScore:" << bestScore
                         << "Accept worse probability:"
-                        << std::exp(-((score-bestScore) / temperature));
+                        << std::exp(- ((score-bestScore) / temperature));
+
                 if (score < bestScore) {
                     if (NULL != best) {
                         delete best;
                     }
                     best = network->clone();
                     bestScore = score;
-                    qDebug() << "Accepted solution" << best;
+
+                    qDebug()
+                            << "Accepted solution" << best
+                            << "score:" << score;
                 }
 
                 randomize(network, temperature);
 
-                temperature *= std::exp(
-                        std::log(stopTemperature() / startTemperature())
-                        / (cycles() - 1));
-
                 qDebug()
                         << "Temperature:" << temperature
                         << "Cycles: " << i;
+
+                temperature *= std::exp(
+                        std::log(stopTemperature() / startTemperature())
+                        / (cycles() - 1));
             }
 
             network = best;
@@ -157,7 +158,7 @@ namespace Winzent {
 
 
         void SimulatedAnnealingTrainingAlgorithm::train(
-                NeuralNetwork *network,
+                NeuralNetwork *const network,
                 TrainingSet *trainingSet)
         {
             // We do not need any caching here:
@@ -177,9 +178,9 @@ namespace Winzent {
 
                 epoch++;
                 qDebug()
-                    << "error:" << error
-                    << "targetError:" << trainingSet->targetError()
-                    << "epoch:" << epoch;
+                        << "error:" << error
+                        << "targetError:" << trainingSet->targetError()
+                        << "epoch:" << epoch;
             }
 
             // Copy weights:

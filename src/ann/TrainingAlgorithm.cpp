@@ -16,7 +16,7 @@ namespace Winzent
 {
     namespace ANN
     {
-        double TrainingAlgorithm::calculateMeanSquaredError(
+        qreal TrainingAlgorithm::calculateMeanSquaredError(
                 const ValueVector &actualOutput,
                 const ValueVector &expectedOutput)
                     throw(LayerSizeMismatchException)
@@ -29,12 +29,13 @@ namespace Winzent
 
 
             double error = 0.0;
+            int n = 0;
 
-            for (int i = 0; i != actualOutput.size(); ++i) {
-                error += pow((actualOutput[i] - expectedOutput[i]), 2);
+            for (; n != actualOutput.size(); ++n) {
+                error += pow((actualOutput[n] - expectedOutput[n]), 2);
             }
 
-            error /= static_cast<double>(actualOutput.size());
+            error /= static_cast<qreal>(n);
             return error;
         }
 

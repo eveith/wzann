@@ -79,7 +79,7 @@ namespace Winzent {
 
 
             virtual void train(
-                    NeuralNetwork *network,
+                    NeuralNetwork *const network,
                     TrainingSet *trainingSet);
 
         public:

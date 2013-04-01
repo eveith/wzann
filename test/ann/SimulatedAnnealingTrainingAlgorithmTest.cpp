@@ -70,7 +70,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
     testResultStream << *network;
 
     network->train(
-            new SimulatedAnnealingTrainingAlgorithm(50000, 10, 55000, this),
+            new SimulatedAnnealingTrainingAlgorithm(10, 2, 100, this),
             trainingSet);
 
     testResultStream << *network;

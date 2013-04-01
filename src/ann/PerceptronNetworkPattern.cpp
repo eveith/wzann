@@ -7,6 +7,7 @@
 #include "Neuron.h"
 #include "ActivationFunction.h"
 #include "NeuralNetworkPattern.h"
+#include "NguyenWidrowWeightRandomizer.h"
 
 #include "PerceptronNetworkPattern.h"
 
@@ -72,6 +73,10 @@ namespace Winzent {
             for (int i = 0; i != network->size() -1; ++i) {
                 fullyConnectNetworkLayers(network, i, i+1);
             }
+
+            // Init weights:
+
+            NguyenWidrowWeightRandomizer().randomize(network);
         }
 
 

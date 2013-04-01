@@ -82,7 +82,7 @@ namespace Winzent
              * \throws LayerSizeMismatchException if the number of
              *  neurons in one input vector differs from the other.
              */
-            double calculateMeanSquaredError(
+            qreal calculateMeanSquaredError(
                     const ValueVector &actualOutput,
                     const ValueVector &expectedOutput)
                         throw(LayerSizeMismatchException);

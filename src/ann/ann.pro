@@ -34,7 +34,8 @@ SOURCES += \
     Connection.cpp \
     LinearActivationFunction.cpp \
     EvolutionaryTrainingAlgorithm.cpp \
-    SimulatedAnnealingTrainingAlgorithm.cpp
+    SimulatedAnnealingTrainingAlgorithm.cpp \
+    NguyenWidrowWeightRandomizer.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -55,7 +56,8 @@ HEADERS +=\
     Connection.h \
     LinearActivationFunction.h \
     EvolutionaryTrainingAlgorithm.h \
-    SimulatedAnnealingTrainingAlgorithm.h
+    SimulatedAnnealingTrainingAlgorithm.h \
+    NguyenWidrowWeightRandomizer.h
 
 unix:!symbian {
     maemo5 {

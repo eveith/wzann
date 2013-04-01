@@ -83,9 +83,7 @@ namespace Winzent
                         network->connectNeurons(
                                 network->layerAt(fromLayer)->neuronAt(i),
                                 network->layerAt(toLayer)->neuronAt(j))
-                                    ->setRandomWeight(
-                                            m_weightRandomMin,
-                                            m_weightRandomMax);
+                                        ->weight(0.0);
                     }
             }
         }
