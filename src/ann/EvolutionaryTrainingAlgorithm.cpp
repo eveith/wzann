@@ -46,8 +46,9 @@ namespace Winzent {
 
 
         EvolutionaryTrainingAlgorithm::EvolutionaryTrainingAlgorithm(
+                NeuralNetwork *const &network,
                 QObject *parent):
-                    Winzent::ANN::TrainingAlgorithm(parent)
+                    TrainingAlgorithm(network, parent)
         {
         }
 

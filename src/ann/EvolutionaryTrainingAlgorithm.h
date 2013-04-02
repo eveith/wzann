@@ -152,7 +152,9 @@ namespace Winzent {
             qreal mutate(const qreal &d) const;
 
 
-            explicit EvolutionaryTrainingAlgorithm(QObject *parent = 0);
+            explicit EvolutionaryTrainingAlgorithm(
+                    NeuralNetwork *const &network,
+                    QObject *parent = 0);
         };
         
     } // namespace ANN

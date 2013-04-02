@@ -46,6 +46,12 @@ namespace Winzent {
 
 
             /*!
+             * The learning rate applied to each weight change
+             */
+            qreal m_learningRate;
+
+
+            /*!
              * Calculates the error per neuron between the actual and the
              * expected output of the neural net.
              */
@@ -67,7 +73,6 @@ namespace Winzent {
              * Calculates the neuron delta for a neuron in an hidden layer.
              */
             double hiddenNeuronDelta(
-                    NeuralNetwork *&network,
                     Neuron *neuron,
                     QHash<Neuron *, double> &neuronDeltas,
                     const ValueVector &outputError)
@@ -78,20 +83,39 @@ namespace Winzent {
              * Calculates the delta value of a neuron.
              */
             double neuronDelta(
-                    NeuralNetwork *&network,
                     Neuron *neuron,
                     QHash<Neuron *, double> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
 
-            virtual void train(
-                    NeuralNetwork *network,
-                    TrainingSet *trainingSet);
-
-
         public:
-            BackpropagationTrainingAlgorithm(QObject *parent = 0);
+
+
+            /*!
+             * Constructs a new instance of the Backpropagation training
+             * algorithm.
+             *
+             * \param[in] network The network to be trained
+             *
+             * \param[in] learningRate The learning rate applied to each weight
+             *  change: Literature suggest `0.7` as a sensible starting value.
+             *
+             * \param parent The parent object
+             */
+            BackpropagationTrainingAlgorithm(
+                    NeuralNetwork *const &network,
+                    qreal learningRate,
+                    QObject *parent = 0);
+
+
+            /*!
+             * \return The learning rate applied to each weight change
+             */
+            inline qreal learningRate() const;
+
+
+            virtual void train(TrainingSet *const &trainingSet);
         };
 
 

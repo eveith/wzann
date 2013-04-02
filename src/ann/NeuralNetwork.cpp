@@ -350,14 +350,6 @@ namespace Winzent {
         }
 
 
-        void NeuralNetwork::train(
-                TrainingAlgorithm *trainingStrategy,
-                TrainingSet *trainingSet)
-        {
-            trainingStrategy->train(this, trainingSet);
-        }
-
-
         ValueVector NeuralNetwork::calculateLayer(
                 Layer *layer,
                 const ValueVector &input)

@@ -90,11 +90,9 @@ namespace Winzent {
 
         TrainingSet::TrainingSet(
                 QList<TrainingItem> trainingData,
-                double learningRate,
                 double targetError,
                 int maxNumEpochs):
                     m_trainingData(QList<TrainingItem>()),
-                    m_learningRate(learningRate),
                     m_targetError(targetError),
                     m_maxNumEpochs(maxNumEpochs),
                     m_error(INFINITY)
@@ -137,12 +135,6 @@ namespace Winzent {
         const QList<TrainingItem> TrainingSet::trainingData() const
         {
             return m_trainingData;
-        }
-
-
-        double TrainingSet::learningRate() const
-        {
-            return m_learningRate;
         }
     }
 }

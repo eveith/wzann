@@ -40,16 +40,22 @@ namespace Winzent
         }
 
 
-        TrainingAlgorithm::TrainingAlgorithm(QObject *parent) :
-                QObject(parent),
-                m_cacheSizes(QHash<Neuron *, int>())
+        TrainingAlgorithm::TrainingAlgorithm(
+                NeuralNetwork *const &network,
+                QObject *parent) :
+                    QObject(parent),
+                    m_cacheSizes(),
+                    m_network(network)
         {
+            if (0 == parent) {
+                setParent(network);
+            }
         }
 
 
         void TrainingAlgorithm::setNeuronCacheSize(
-                NeuralNetwork *network,
-                int cacheSize)
+                NeuralNetwork *const&network,
+                const int &cacheSize)
         {
             for (int i = 0; i != network->size(); ++i) {
                 Layer *layer = network->layerAt(i);
@@ -93,6 +99,12 @@ namespace Winzent
                 int epochs) const
         {
             trainingSet.m_epochs = epochs;
+        }
+
+
+        NeuralNetwork *TrainingAlgorithm::network() const
+        {
+            return m_network;
         }
     } // namespace ANN
 } // namespace Winzent

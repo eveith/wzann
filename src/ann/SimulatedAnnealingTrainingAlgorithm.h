@@ -78,14 +78,25 @@ namespace Winzent {
                     TrainingSet *trainingSet);
 
 
-            virtual void train(
-                    NeuralNetwork *const network,
-                    TrainingSet *trainingSet);
-
         public:
 
 
+            /*!
+             * Constructs a new instance of this training algorithm
+             *
+             * \param[in] network The network to be trained
+             *
+             * \param[in] startTemperature The temperature value at which the
+             *  training starts.
+             *
+             * \param[in] stopTemperature The temperature at which an epoch
+             *  ends.
+             *
+             * \param[in] cycles The number of cycles needed to reach the
+             *  stopTemperature
+             */
             explicit SimulatedAnnealingTrainingAlgorithm(
+                    NeuralNetwork *const &network,
                     qreal startTemperature,
                     qreal stopTemperature,
                     int cycles,
@@ -114,6 +125,14 @@ namespace Winzent {
              * \return The number of cycles per temperature
              */
             int cycles() const;
+
+
+            /*!
+             * Trains the neural network using simulated annealing.
+             *
+             * \param trainingSet A set of training data
+             */
+            virtual void train(TrainingSet *const &trainingSet);
         };
     }
 }

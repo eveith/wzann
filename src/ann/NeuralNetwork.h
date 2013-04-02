@@ -20,10 +20,8 @@
 class QTextStream;
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
         typedef QVector<qreal> ValueVector;
 
         class NeuralNetworkPattern;
@@ -60,12 +58,19 @@ namespace Winzent
          * accompanying pattern class.
          *
          * Neural networks need to be trained in order to produce
-         * good output. Training is done using training strategies.
-         * A network can be training using different strategies.
+         * good output. Training is done using training strategies;
+         * A network can be training using different strategies. Such classes
+         * are derived from the ::TrainingAlgorithm class, e.g. the
+         * ::BackpropagationTrainingAlgorithm or the
+         * ::SimulatedAnnealingTrainingAlgorithm. Have a look at them for
+         * training.
          *
          * \sa NeuralNetworkPattern
+         *
          * \sa AbstractTrainingStrategy
+         *
          * \sa Layer
+         *
          * \sa Neuron
          */
         class NeuralNetwork: public QObject
@@ -447,37 +452,6 @@ namespace Winzent
              */
             ValueVector calculate(const ValueVector &input)
                     throw(LayerSizeMismatchException);
-
-
-            /*!
-             * Trains the network using a certain strategy. This may,
-             * of course, occur several times with the same net; the
-             * new training uses the net as it is.
-             *
-             * Most training strategies operate on a set of training
-             * data, which is supplied via the
-             * <code>TrainingSet</code> container. This does not only
-             * store the training patterns, but also the error and
-             * defines the stopping point, either when a maximum
-             * number of iterations is reach or the training is
-             * successful because the training error drops below the
-             * designated error value.
-             *
-             * This is basically a shortcut for calling
-             * the <code>train()</code> method on a training strategy.
-             *
-             * \param trainigStrategy The training strategy to
-             *  employ.
-             *
-             * \param trainingSet The training data to operate on
-             *
-             * \sa AbstractTrainingStrategy
-             * \sa TrainingSet
-             */
-            void train(
-                    TrainingAlgorithm *trainingStrategy,
-                    TrainingSet *trainingSet);
-
         };
 
 

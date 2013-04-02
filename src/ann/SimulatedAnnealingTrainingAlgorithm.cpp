@@ -24,11 +24,12 @@ namespace Winzent {
 
 
         SimulatedAnnealingTrainingAlgorithm::SimulatedAnnealingTrainingAlgorithm(
+                NeuralNetwork *const &network,
                 qreal startTemperature,
                 qreal stopTemperature,
                 int cycles,
                 QObject *parent):
-                    TrainingAlgorithm(parent),
+                    TrainingAlgorithm(network, parent),
                     m_startTemperature(startTemperature),
                     m_stopTemperature(stopTemperature),
                     m_cycles(cycles)
@@ -158,19 +159,18 @@ namespace Winzent {
 
 
         void SimulatedAnnealingTrainingAlgorithm::train(
-                NeuralNetwork *const network,
-                TrainingSet *trainingSet)
+                TrainingSet *const &trainingSet)
         {
             // We do not need any caching here:
 
-            setNeuronCacheSize(network, 0);
+            setNeuronCacheSize(network(), 0);
 
 
             // Init state:
 
             qreal error = std::numeric_limits<double>::max();
             int epoch = 0;
-            NeuralNetwork *solution = network->clone();
+            NeuralNetwork *solution = network()->clone();
 
             while (error > trainingSet->targetError()
                    && epoch < trainingSet->maxEpochs()) {
@@ -185,8 +185,8 @@ namespace Winzent {
 
             // Copy weights:
 
-            for (int i = 0; i != network->size(); ++i) {
-                Layer *origLayer = network->layerAt(i);
+            for (int i = 0; i != network()->size(); ++i) {
+                Layer *origLayer = network()->layerAt(i);
                 Layer *newLayer = solution->layerAt(i);
 
                 for (int j = 0; j <= origLayer->size(); ++j) {
@@ -194,7 +194,7 @@ namespace Winzent {
                     Neuron *newNeuron = newLayer->neuronAt(j);
 
                     QList<Connection *> origConnections =
-                            network->neuronConnectionsFrom(origNeuron);
+                            network()->neuronConnectionsFrom(origNeuron);
                     QList<Connection *> newConnections =
                             solution->neuronConnectionsFrom(newNeuron);
                     Q_ASSERT(origConnections.size() == newConnections.size());

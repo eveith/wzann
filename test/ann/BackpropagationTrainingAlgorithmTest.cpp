@@ -44,14 +44,13 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 
     QList<TrainingItem> trainingItems;
     trainingItems
-            << TrainingItem(ValueVector({ 0.0, 0.0 }), ValueVector({ 0.0 }))
-            << TrainingItem(ValueVector({ 0.0, 1.0 }), ValueVector({ 1.0 }))
-            << TrainingItem(ValueVector({ 1.0, 0.0 }), ValueVector({ 1.0 }))
-            << TrainingItem(ValueVector({ 1.0, 1.0 }), ValueVector({ 0.0 }));
+            << TrainingItem({ 0.0, 0.0 }, { 0.0 })
+            << TrainingItem({ 0.0, 1.0 }, { 1.0 })
+            << TrainingItem({ 1.0, 0.0 }, { 1.0 })
+            << TrainingItem({ 1.0, 1.0 }, { 0.0 });
 
     TrainingSet *trainingSet = new TrainingSet(
             trainingItems,
-            0.7,
             0.1,
             5000);
 
@@ -62,21 +61,22 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 
     testResultStream << *network;
 
-    network->train(new BackpropagationTrainingAlgorithm(this), trainingSet);
+    (new BackpropagationTrainingAlgorithm(network, 0.7, this))->train(
+                trainingSet);
 
     testResultStream << *network;
 
     ValueVector output;
-    output = network->calculate(ValueVector({ 1, 1 }));
+    output = network->calculate({ 1, 1 });
     qDebug() << "(1, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 0);
-    output = network->calculate(ValueVector({ 1, 0 }));
+    output = network->calculate({ 1, 0 });
     qDebug() << "(1, 0) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
-    output = network->calculate(ValueVector({ 0, 0 }));
+    output = network->calculate({ 0, 0 });
     qDebug() << "(0, 0) =>" << output;
     QCOMPARE(qRound(output[0]), 0);
-    output = network->calculate(ValueVector({ 0, 1 }));
+    output = network->calculate({ 0, 1 });
     qDebug() << "(0, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
 

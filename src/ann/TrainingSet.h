@@ -160,12 +160,6 @@ namespace Winzent {
 
 
             /*!
-             * The learning rate applied to the net.
-             */
-            double m_learningRate;
-
-
-            /*!
              * The error we're trying to target.
              */
             double m_targetError;
@@ -202,9 +196,6 @@ namespace Winzent {
              *  <code>double[]</code>, where each array index
              *  corresponds to a neuron.
              *
-             * \param learningRate The learning rate applied to the
-             *  net
-             *
              * \param targetMSE The target mean square error after
              *  which the training stops
              *
@@ -215,7 +206,6 @@ namespace Winzent {
              */
             TrainingSet(
                     QList<TrainingItem> trainingData,
-                    double learningRate,
                     double targetError,
                     int maxNumEpochs);
 
@@ -250,12 +240,6 @@ namespace Winzent {
              * the training.
              */
             int epochs() const;
-
-
-            /*!
-             * Returns the learning rate that should be applied.
-             */
-            double learningRate() const;
 
 
             const QList<TrainingItem> trainingData() const;

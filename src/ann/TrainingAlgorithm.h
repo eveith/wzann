@@ -31,12 +31,6 @@ namespace Winzent
         {
             Q_OBJECT
 
-
-            friend void NeuralNetwork::train(
-                    TrainingAlgorithm*,
-                    TrainingSet*);
-
-
         private:
 
 
@@ -48,6 +42,12 @@ namespace Winzent
              * \sa #restoreNeuronCacheSize
              */
             QHash<Neuron *, int> m_cacheSizes;
+
+
+            /*!
+             * The network that is subject to the training.
+             */
+            NeuralNetwork *const m_network;
 
 
         protected:
@@ -99,7 +99,9 @@ namespace Winzent
              *
              * \sa #restoreNeuronCacheSize
              */
-            void setNeuronCacheSize(NeuralNetwork *network, int cacheSize);
+            void setNeuronCacheSize(
+                    NeuralNetwork *const &network,
+                    const int &cacheSize);
 
 
             /*!
@@ -108,6 +110,15 @@ namespace Winzent
              * \sa #setNeuronCacheSize
              */
             void restoreNeuronCacheSize();
+
+
+        public:
+
+
+            /*!
+             * \return The neural network that is to be trained
+             */
+            NeuralNetwork *network() const;
 
 
             /*!
@@ -123,8 +134,6 @@ namespace Winzent
              * internals of the calling interface stay hidden from the
              * outside world.
              *
-             * \param network The network that shall be trained
-             *
              * \param trainingSet A training set supplying training
              *  data and other information
              *
@@ -132,15 +141,21 @@ namespace Winzent
              *
              * \sa NeuralNetwork#train
              */
-            virtual void train(
-                    NeuralNetwork *network,
-                    TrainingSet *trainingSet) = 0;
+            virtual void train(TrainingSet *const &trainingSet) = 0;
 
 
-        public:
-
-
-            explicit TrainingAlgorithm(QObject *parent = 0);
+            /*!
+             * Creates a new instance of a particular training algorithm for
+             * training a particular network.
+             *
+             * \param network The network that shall be trained
+             *
+             * \param parent The parent object; if `0`, the target network
+             *  becomes the parent object.
+             */
+            explicit TrainingAlgorithm(
+                    NeuralNetwork *const &network,
+                    QObject *parent = 0);
         };
 
     } // namespace ANN
