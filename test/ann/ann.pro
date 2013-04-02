@@ -13,7 +13,7 @@ TARGET  = tst_ann
 CONFIG  += console
 CONFIG  -= app_bundle
 CONFIG  += testcase
-CONFIG  += debug
+CONFIG  += debug_and_release
 
 TEMPLATE = app
 
@@ -38,7 +38,8 @@ HEADERS += \
     mock/LinearNeuralNetworkPattern.h \
     BackpropagationTrainingAlgorithmTest.h \
     SimulatedAnnealingTrainingAlgorithmTest.h \
-    NguyenWidrowWeightRandomizerTest.h
+    NguyenWidrowWeightRandomizerTest.h \
+    TrainingSetTest.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -54,7 +55,8 @@ SOURCES += \
     mock/LinearNeuralNetworkPattern.cpp \
     BackpropagationTrainingAlgorithmTest.cpp \
     SimulatedAnnealingTrainingAlgorithmTest.cpp \
-    NguyenWidrowWeightRandomizerTest.cpp
+    NguyenWidrowWeightRandomizerTest.cpp \
+    TrainingSetTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

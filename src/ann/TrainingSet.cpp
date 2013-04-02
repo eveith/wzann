@@ -9,46 +9,83 @@
 
 #include <cmath>
 
+#include "Exception.h"
 #include "TrainingSet.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
 
 
         TrainingItem::TrainingItem(
-                ValueVector input,
-                ValueVector expectedOutput):
-                        m_input(ValueVector()),
-                        m_expectedOutput(ValueVector())
+                const ValueVector &input,
+                const ValueVector &expectedOutput):
+                    m_input(),
+                    m_expectedOutput(),
+                    m_outputRelevant(true)
         {
             // Copy all values so that we don't lose it and can modify them as
             // we wish:
 
-            foreach (double i, input) {
-                m_input.append(double(i));
+            foreach (qreal i, input) {
+                m_input.append(qreal(i));
             }
 
-            foreach (double i, expectedOutput) {
-                m_expectedOutput.append(double(i));
+            foreach (qreal i, expectedOutput) {
+                m_expectedOutput.append(qreal(i));
             }
         }
 
 
-         TrainingItem::TrainingItem(const TrainingItem &copy):
-                 m_input(ValueVector()),
-                 m_expectedOutput(ValueVector())
-         {
-                foreach (double i, copy.m_input) {
-                    m_input.append(double(i));
-                }
+        TrainingItem::TrainingItem(const ValueVector &input):
+                TrainingItem(input, ValueVector())
+        {
+            m_outputRelevant = false;
+        }
 
-                foreach (double i, copy.m_expectedOutput) {
-                    m_expectedOutput.append(double(i));
-                }
-         }
+
+        TrainingItem::TrainingItem(const TrainingItem &rhs):
+                TrainingItem(rhs.m_input, rhs.m_expectedOutput)
+        {
+            m_outputRelevant = rhs.outputRelevant();
+        }
+
+
+        const ValueVector TrainingItem::input() const
+        {
+            return m_input;
+        }
+
+
+        const ValueVector TrainingItem::expectedOutput() const
+        {
+            return m_expectedOutput;
+        }
+
+
+        bool TrainingItem::outputRelevant() const
+        {
+            return m_outputRelevant;
+        }
+
+
+        ValueVector TrainingItem::error(const ValueVector &actualOutput) const
+                throw(LayerSizeMismatchException)
+        {
+            if (actualOutput.size() == expectedOutput().size()) {
+                throw LayerSizeMismatchException(
+                        actualOutput.size(),
+                        expectedOutput().size());
+            }
+
+            ValueVector r(expectedOutput().size());
+
+            for (int i = 0; i != actualOutput.size(); ++i) {
+                r[i] = expectedOutput().at(i) - actualOutput.at(i);
+            }
+
+            return r;
+        }
 
 
         TrainingSet::TrainingSet(

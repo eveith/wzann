@@ -11,8 +11,6 @@
 
 #include "NguyenWidrowWeightRandomizerTest.h"
 
-#include <iostream>
-using namespace std;
 
 using namespace Winzent::ANN;
 
@@ -47,7 +45,6 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
             foreach (Connection *c,
                     network.neuronConnectionsFrom(neuron)) {
                 QVERIFY(1.0 != 1.0 + c->weight());
-                cout << c->weight() << endl;
             }
         }
 

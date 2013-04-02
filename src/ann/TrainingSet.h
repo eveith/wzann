@@ -50,6 +50,13 @@ namespace Winzent {
             ValueVector m_expectedOutput;
 
 
+            /*!
+             * Stores whether an expected output to the input exists (i.e., the
+             * output is relevant) or not.
+             */
+            bool m_outputRelevant;
+
+
         public:
 
 
@@ -58,8 +65,21 @@ namespace Winzent {
              * output.
              */
             TrainingItem(
-                    ValueVector input,
-                    ValueVector expectedOutput);
+                    const ValueVector &input,
+                    const ValueVector &expectedOutput);
+
+
+            /*!
+             * Constructs a new training item without an expected output: This
+             * Items is fed to the network during training, but its output is
+             * discarded and not added in during error calculation. Useful for
+             * recurrent networks.
+             *
+             * \param[in] input The input that is fed to the neural network.
+             *
+             * \sa #outputRelevant
+             */
+            TrainingItem(const ValueVector &input);
 
 
             /*!
@@ -75,23 +95,42 @@ namespace Winzent {
             /*!
              * Creates a copy of the other training item.
              */
-            TrainingItem(const TrainingItem& copy);
+            TrainingItem(const TrainingItem &rhs);
 
 
             /*!
              * \return The input for the net
              */
-            const ValueVector input() const {
-                return m_input;
-            }
+            const ValueVector input() const;
 
 
             /*!
              * \return The output that is expected of the net
              */
-            const ValueVector expectedOutput() const {
-                return m_expectedOutput;
-            }
+            const ValueVector expectedOutput() const;
+
+
+            /*!
+             * \return Whether an expected output exists and is relevant or not
+             */
+            bool outputRelevant() const;
+
+
+            /*!
+             * Calculates the error of each item in a vector. This method
+             * applies the simple formula `error[i] = expected[i]-actual[i]`.
+             *
+             * \param[in] actualOutput The output the network actually emitted
+             *
+             * \return The error between the output the network emitted and that
+             *  which is stored in the training item.
+             *
+             * \throw LayerSizeMismatchException If the two vectors
+             *  expectedOutput and actualOutput do not match; throws this also
+             *  if the output is not relevant for this training item.
+             */
+            ValueVector error(const ValueVector &actualOutput) const
+                    throw(LayerSizeMismatchException);
         };
 
 

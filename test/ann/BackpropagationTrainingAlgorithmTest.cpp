@@ -52,8 +52,8 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
     TrainingSet *trainingSet = new TrainingSet(
             trainingItems,
             0.7,
-            0.0001,
-            20000);
+            0.1,
+            5000);
 
     QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
     testResultFile.open(QIODevice::Text
