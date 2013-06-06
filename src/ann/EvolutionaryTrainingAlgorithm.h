@@ -155,6 +155,24 @@ namespace Winzent {
             explicit EvolutionaryTrainingAlgorithm(
                     NeuralNetwork *const &network,
                     QObject *parent = 0);
+
+
+        public:
+
+
+            /*!
+             * Implements a first-order delay circuit.
+             */
+            static qreal dc1(qreal y, const qreal &u, const qreal &t);
+
+
+            /*!
+             * Generates a random number between 0.0 (inclusive) and 1.0
+             * (exclusive).
+             *
+             * \return A random number within the interval (0.0, 1.0].
+             */
+            static qreal frandom();
         };
         
     } // namespace ANN

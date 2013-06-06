@@ -1,6 +1,8 @@
+#include <limits>
+#include <cstdlib>
+
 #include <QObject>
 #include <QList>
-#include <cstdlib>
 
 #include "NeuralNetwork.h"
 #include "Connection.h"
@@ -71,6 +73,27 @@ namespace Winzent {
                 TrainingSet *trainingSet)
         {
         }
+
+
+        qreal EvolutionaryTrainingAlgorithm::dc1(
+                qreal y,
+                const qreal &u,
+                const qreal &t)
+        {
+            if (t != 0) {
+                y += (u - y) / t;
+            } else {
+                y = u;
+            }
+
+            return y;
+        }
         
+
+        qreal EvolutionaryTrainingAlgorithm::frandom()
+        {
+            return (qrand() % std::numeric_limits<int>::max())
+                    / static_cast<qreal>(std::numeric_limits<int>::max() + 1);
+        }
     } // namespace ANN
 } // namespace Winzent
