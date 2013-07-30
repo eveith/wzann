@@ -5,7 +5,6 @@
 #-------------------------------------------------
 
 QT       -= gui
-CONFIG += debug
 
 TARGET = winzentann
 TEMPLATE = lib
