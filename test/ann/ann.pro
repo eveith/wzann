@@ -13,7 +13,6 @@ TARGET  = tst_ann
 CONFIG  += console
 CONFIG  -= app_bundle
 CONFIG  += testcase
-CONFIG  += debug_and_release
 
 TEMPLATE = app
 
