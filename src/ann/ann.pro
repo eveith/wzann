@@ -32,9 +32,9 @@ SOURCES += \
     PerceptronNetworkPattern.cpp \
     Connection.cpp \
     LinearActivationFunction.cpp \
-    EvolutionaryTrainingAlgorithm.cpp \
     SimulatedAnnealingTrainingAlgorithm.cpp \
-    NguyenWidrowWeightRandomizer.cpp
+    NguyenWidrowWeightRandomizer.cpp \
+    REvolutionaryTrainingAlgorithm.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -54,9 +54,9 @@ HEADERS +=\
     PerceptronNetworkPattern.h \
     Connection.h \
     LinearActivationFunction.h \
-    EvolutionaryTrainingAlgorithm.h \
     SimulatedAnnealingTrainingAlgorithm.h \
-    NguyenWidrowWeightRandomizer.h
+    NguyenWidrowWeightRandomizer.h \
+    REvolutionaryTrainingAlgorithm.h
 
 unix:!symbian {
     maemo5 {
