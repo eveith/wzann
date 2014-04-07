@@ -169,7 +169,7 @@ namespace Winzent {
              *  0 if they are equal, or 1 if this one is better than the other
              *  individual.
              */
-            int compare(const Individual *&other);
+            int compare(const Individual *other) const;
 
 
             /*!
@@ -179,7 +179,7 @@ namespace Winzent {
              *
              * \return true if the object is better, false otherwise.
              */
-            bool isBetterThan(const Individual *&other);
+            bool isBetterThan(const Individual *other) const;
         };
 
         
@@ -203,25 +203,47 @@ namespace Winzent {
 
 
             /*!
-             * \brief The current error
+             * \brief Weight of implicit gradient information.
              */
-            qreal m_error;
+            qreal m_gradientWeight;
 
 
             /*!
-             * \brief The target error value
+             * \brief Weight of the error returned for ANN training
              */
-            qreal m_targetError;
+            qreal m_errorWeight;
 
 
             /*!
-             * \brief Sets the current error
-             *
-             * \param error The current error
-             *
-             * \return `*this`
+             * \brief Smallest absolute delta; typically the smallest number we
+             *  can safe
              */
-            REvolutionaryTrainingAlgorithm &error(const qreal &error);
+            qreal m_eamin;
+
+
+            /*!
+             * \brief Smallest relative delta
+             */
+            qreal m_ebmin;
+
+
+            /*!
+             * \brief The biggest relative change
+             */
+            qreal m_ebmax;
+
+
+            /*!
+             * \brief Applies the bounds defined in ebmin, eamin and eamax given
+             *  another object's parameter
+             *
+             * \param dx The delta X that shall be checked and corrected
+             *
+             * \param parameter Another object's parameter
+             *
+             * \return The corrected delta X
+             */
+            qreal applyDxBounds(const qreal &dx, const qreal &parameter) const;
 
 
         public:
@@ -298,19 +320,113 @@ namespace Winzent {
 
 
             /*!
-             * \brief Returns the current error of the training
+             * \brief Returns the currently set gradient weight
              *
-             * \return The current error
+             * \return The gradient weight
              */
-            qreal error() const;
+            qreal gradientWeight() const;
 
 
             /*!
-             * \brief Retrieves the user-set target error
+             * \brief Sets the new gradient weight
              *
-             * \return The target error
+             * This weight factor sets the influence of the gradient information
+             * on the training process. Setting it to 0.0 completeley disables
+             * this feature. Values between [1.0, 3.0] typically yield the best
+             * results. Values > 5.0 are probably not useful.
+             *
+             * \param weight The new weight
+             *
+             * \return `*this`
              */
-            qreal targetError() const;
+            REvolutionaryTrainingAlgorithm &gradientWeight(const qreal &weight);
+
+
+            /*!
+             * \brief Retrieves the weight factor applied to the error metric
+             *
+             * \return The error weight
+             */
+            qreal errorWeight() const;
+
+
+            /*!
+             * \brief Sets the new error weight
+             *
+             * This value influences how much a given error is weighted in when
+             * creating a new offspring and its parameters.
+             *
+             * \param weight The new weight
+             *
+             * \return `*this`
+             */
+            REvolutionaryTrainingAlgorithm &errorWeight(const qreal &weight);
+
+
+            /*!
+             * \brief The smallest absolute change applied during object
+             *  creation
+             *
+             * \return The smallest absolute delta
+             */
+            qreal eamin() const;
+
+
+            /*!
+             * \brief Sets the smallest absolute delta for parameters or scatter
+             *
+             * This is the smallest absolute change we apply; smaller values
+             * are not accepted. Typically, this is the smallest floating
+             * point number the architecture accepts and acts as a safety net.
+             *
+             * \param eamin The new smallest absolute delta
+             *
+             * \return `*this`
+             */
+            REvolutionaryTrainingAlgorithm &eamin(const qreal &eamin);
+
+
+            /*!
+             * \brief Retrieves the current smallest relative change
+             *
+             * \return The smallest relative change for scatter/parameters
+             */
+            qreal ebmin() const;
+
+
+            /*!
+             * \brief Sets the new smallest relative delta applied to scatter
+             *  and parameters
+             *
+             * We default to an `ebmin` so that `|(1.0 + ebmin) > 1.0|`.
+             *
+             * \param ebmin The new relative minimum
+             *
+             * \return `*this`
+             */
+            REvolutionaryTrainingAlgorithm &ebmin(const qreal &ebmin);
+
+
+            /*!
+             * \brief The relative maximum delta for scatter and parameters
+             *
+             * \return The relative maximum
+             */
+            qreal ebmax() const;
+
+
+            /*!
+             * \brief Sets the new relative maximum delta for scatter and
+             *  parameter changes
+             *
+             * We default to an ebmax that does not lead to a too big spread
+             * of individuals through reproduction: `ebmax < 10.0`.
+             *
+             * \param ebmax The new maximum delta
+             *
+             * \return `*this`
+             */
+            REvolutionaryTrainingAlgorithm &ebmax(const qreal &ebmax);
 
 
             /*!
@@ -327,8 +443,9 @@ namespace Winzent {
              *
              * \return A newly generated ANN
              */
-            NeuralNetwork *generateIndividual(
-                    const QList<Individual *> &population);
+            Individual *generateIndividual(
+                    const QList<Individual *> &population,
+                    TrainingSet *const &trainingSet);
 
 
 
