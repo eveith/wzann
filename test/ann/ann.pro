@@ -17,7 +17,9 @@ CONFIG  += testcase
 TEMPLATE = app
 
 
-INCLUDEPATH += ../../src/ann
+INCLUDEPATH += \
+    ../../src/ann
+
 TEST_LIB_PATHS += ../../src/ann
 
 LIBS += -L../../src/ann -lwinzentann
@@ -38,7 +40,8 @@ HEADERS += \
     BackpropagationTrainingAlgorithmTest.h \
     SimulatedAnnealingTrainingAlgorithmTest.h \
     NguyenWidrowWeightRandomizerTest.h \
-    TrainingSetTest.h
+    TrainingSetTest.h \
+    REvolutionaryTrainingAlgorithmTest.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -55,7 +58,8 @@ SOURCES += \
     BackpropagationTrainingAlgorithmTest.cpp \
     SimulatedAnnealingTrainingAlgorithmTest.cpp \
     NguyenWidrowWeightRandomizerTest.cpp \
-    TrainingSetTest.cpp
+    TrainingSetTest.cpp \
+    REvolutionaryTrainingAlgorithmTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

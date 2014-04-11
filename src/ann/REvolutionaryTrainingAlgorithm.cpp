@@ -36,6 +36,12 @@ namespace Winzent {
         }
 
 
+        NeuralNetwork *Individual::neuralNetwork() const
+        {
+            return m_neuralNetwork;
+        }
+
+
         QList<qreal> Individual::scatter() const
         {
             return m_scatter;
@@ -107,6 +113,18 @@ namespace Winzent {
             return *this;
         }
 
+
+        Individual &Individual::age()
+        {
+            timeToLive(timeToLive() - 1);
+            return *this;
+        }
+
+
+        bool Individual::isAlive() const
+        {
+            return (timeToLive() > 0);
+        }
 
         QList<qreal> &Individual::errorVector()
         {
@@ -399,6 +417,13 @@ namespace Winzent {
             }
 
             return newIndividual;
+        }
+
+
+        void REvolutionaryTrainingAlgorithm::train(
+                TrainingSet *const &trainingSet)
+        {
+
         }
     } // namespace ANN
 } // namespace Winzent

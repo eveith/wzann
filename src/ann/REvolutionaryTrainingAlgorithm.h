@@ -145,6 +145,23 @@ namespace Winzent {
 
 
             /*!
+             * \brief Ages the individuum
+             *
+             * \return `*this`
+             */
+            Individual &age();
+
+
+            /*!
+             * \brief Checks whether this individual is still alive or not
+             *
+             * \return true if the Individual's TTL is greater than 0, false
+             *  otherwise.
+             */
+            bool isAlive() const;
+
+
+            /*!
              * \brief Allows access to the error vector
              *
              * \return A modifiable copy of the error vector
