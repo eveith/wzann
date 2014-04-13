@@ -65,6 +65,7 @@ private slots:
     void testInitialLayerSize();
     void testConnectionsFromTo();
     void testClone();
+    void testEachConnectionIterator();
 };
 
 #endif /* NEURALNETWORKTEST_H_ */

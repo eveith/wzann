@@ -14,6 +14,8 @@
 #include <QVector>
 #include <QHash>
 
+#include <functional>
+
 #include "Exception.h"
 
 
@@ -284,6 +286,14 @@ namespace Winzent {
              */
             QList<Connection*> neuronConnectionsTo(const Neuron *neuron) const
                 throw(UnknownNeuronException);
+
+
+            /*!
+             * \brief Iterates over all neuron connections in this network
+             *
+             * \param yield The lambda that is called for each neuron connection
+             */
+            void eachConnection(std::function<void(Connection *const&)> yield);
 
 
             /*!

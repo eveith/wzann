@@ -17,6 +17,8 @@
 #include <qjson/serializer.h>
 #include <qjson/qobjecthelper.h>
 
+#include <functional>
+
 #include "Layer.h"
 #include "Neuron.h"
 #include "Connection.h"
@@ -248,6 +250,17 @@ namespace Winzent {
 
             return QList<Connection*>(
                     m_connectionDestinations[const_cast<Neuron*>(neuron)]);
+        }
+
+
+        void NeuralNetwork::eachConnection(
+                std::function<void (Connection * const &)> yield)
+        {
+            foreach (Neuron *n, m_connectionSources.keys()) {
+                foreach (Connection *c, m_connectionSources[n]) {
+                    yield(c);
+                }
+            }
         }
 
 
