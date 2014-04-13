@@ -6,8 +6,6 @@
  */
 
 
-#include <QtDebug>
-
 #include "ActivationFunction.h"
 #include "SigmoidActivationFunction.h"
 
@@ -33,13 +31,6 @@ namespace Winzent
         double SigmoidActivationFunction::calculate(const double& input)
         {
             double in = clip(input, -45/steepness(), 45/steepness());
-
-            qDebug()
-                    << this
-                    << "input" << input << "in" << in
-                    << "="
-                    << 1.0 / (1.0 + std::exp(-1.0 * steepness() * in));
-
             return 1.0 / (1.0 + std::exp(-1.0 * steepness() * in));
         }
 
@@ -49,10 +40,6 @@ namespace Winzent
                 const double &result)
         {
             double in = clip(result, 0.01, 0.99);
-
-            qDebug() << this << "derivative" << result << "in" << in << "="
-                << steepness() * in * (1.0 - in);
-
             return steepness() * in * (1.0 - in);
         }
     }
