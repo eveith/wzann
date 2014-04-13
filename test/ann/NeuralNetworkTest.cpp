@@ -289,17 +289,14 @@ void NeuralNetworkTest::testEachConnectionIterator()
     for (int i = 0; i != network.size(); ++i) {
         Layer *l = network.layerAt(i);
 
-        for (int j = 0; j != l->size(); ++j) {
+        for (int j = 0; j != l->size() + 1; ++j) {
             Neuron *n = l->neuronAt(j);
-            connections.append(network.neuronConnectionsTo(n));
+            connections.append(network.neuronConnectionsFrom(n));
         }
     }
 
-    qDebug() << connections;
-
     int iterated = 0;
     network.eachConnection([&iterated, &connections](Connection *const &c) {
-        qDebug() << c;
         iterated++;
         QVERIFY(connections.contains(c));
     });

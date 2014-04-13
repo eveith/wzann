@@ -232,8 +232,7 @@ namespace Winzent {
                 throw UnknownNeuronException(neuron);
             }
 
-            return QList<Connection*>(
-                    m_connectionSources[const_cast<Neuron*>(neuron)]);
+            return m_connectionSources[const_cast<Neuron*>(neuron)];
         }
 
 
@@ -248,8 +247,7 @@ namespace Winzent {
                 throw UnknownNeuronException(neuron);
             }
 
-            return QList<Connection*>(
-                    m_connectionDestinations[const_cast<Neuron*>(neuron)]);
+            return m_connectionDestinations[const_cast<Neuron*>(neuron)];
         }
 
 
@@ -280,14 +278,7 @@ namespace Winzent {
             Q_ASSERT(connection->source() == from);
             Q_ASSERT(connection->destination() == to);
 
-            if (!m_connectionSources.contains(from)) {
-                m_connectionSources[from] = QList<Connection*>();
-            }
             m_connectionSources[from] << connection;
-
-            if (!m_connectionDestinations.contains(to)) {
-                m_connectionDestinations[to] = QList<Connection*>();
-            }
             m_connectionDestinations[to] << connection;
 
             return connection;
