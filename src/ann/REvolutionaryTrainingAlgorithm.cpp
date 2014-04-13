@@ -27,6 +27,13 @@ namespace Winzent {
                 m_neuralNetwork(neuralNetwork),
                 m_timeToLive(0)
         {
+            m_errorVector << std::numeric_limits<qreal>::infinity();
+
+            neuralNetwork->eachConnection([this](Connection *const &c) {
+                if (!c->fixedWeight()) {
+                    m_scatter << 0.0;
+                }
+            });
         }
 
 
@@ -59,20 +66,11 @@ namespace Winzent {
         {
             QList<qreal> r;
 
-            for (int i = 0; i != m_neuralNetwork->size(); ++i) {
-                Layer *layer = m_neuralNetwork->layerAt(i);
-
-                for (int j = 0; j != layer->size(); ++j) {
-                    Neuron *neuron = layer->neuronAt(j);
-                    QList<Connection *> connections =
-                            m_neuralNetwork->neuronConnectionsFrom(neuron);
-                    foreach (Connection *connection, connections) {
-                        if (!connection->fixedWeight()) {
-                            r << connection->weight();
-                        }
-                    }
+            neuralNetwork()->eachConnection([&r](Connection *const &c) {
+                if (!c->fixedWeight()) {
+                    r << c->weight();
                 }
-            }
+            });
 
             return r;
         }
@@ -80,22 +78,14 @@ namespace Winzent {
 
         Individual &Individual::parameters(QList<qreal> parameters)
         {
-            int w = 0;
-            for (int i = 0; i != m_neuralNetwork->size(); ++i) {
-                Layer *layer = m_neuralNetwork->layerAt(i);
-
-                for (int j = 0; j != layer->size(); ++j) {
-                    Neuron *neuron = layer->neuronAt(j);
-                    QList<Connection *> connections =
-                            m_neuralNetwork->neuronConnectionsFrom(neuron);
-                    foreach (Connection *connection, connections) {
-                        if (!connection->fixedWeight()) {
-                            connection->weight(parameters[w]);
-                            w++;
-                        }
-                    }
+            int i = 0;
+            neuralNetwork()->eachConnection([&parameters, &i](
+                    Connection *const &c) {
+                if (!c->fixedWeight()) {
+                    c->weight(parameters.at(i));
+                    i++;
                 }
-            }
+            });
 
             return *this;
         }

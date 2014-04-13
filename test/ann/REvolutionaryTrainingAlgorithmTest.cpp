@@ -12,6 +12,7 @@
 #include "SigmoidActivationFunction.h"
 #include "NguyenWidrowWeightRandomizer.h"
 #include "REvolutionaryTrainingAlgorithm.h"
+#include "TrainingSet.h"
 
 #include "REvolutionaryTrainingAlgorithmTest.h"
 
@@ -25,6 +26,7 @@ using Winzent::ANN::SigmoidActivationFunction;
 using Winzent::ANN::NguyenWidrowWeightRandomizer;
 using Winzent::ANN::Individual;
 using Winzent::ANN::REvolutionaryTrainingAlgorithm;
+using Winzent::ANN::TrainingSet;
 
 
 REvolutionaryTrainingAlgorithmTest::REvolutionaryTrainingAlgorithmTest(
@@ -57,6 +59,23 @@ NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 }
 
 
+void REvolutionaryTrainingAlgorithmTest::testIndividualInitialization()
+{
+    NeuralNetwork *network = createNeuralNetwork();
+    Individual i1(network);
+
+    int nConnections = 0;
+    network->eachConnection([&nConnections](Connection *const &c) {
+        if (!c->fixedWeight()) {
+            nConnections++;
+        }
+    });
+
+    QCOMPARE(i1.parameters().size(), nConnections);
+    QCOMPARE(i1.scatter().size(), nConnections);
+}
+
+
 void REvolutionaryTrainingAlgorithmTest::testAgeIndividual()
 {
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
@@ -83,7 +102,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     for (int i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
 
-        for (int j = 0; j != l->size(); ++j) {
+        for (int j = 0; j != l->size() + 1; ++j) {
             Neuron *n = l->neuronAt(j);
 
             foreach (Connection *c, neuralNetwork->neuronConnectionsFrom(n)) {
@@ -115,6 +134,32 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
                 }
             }
         }
+    }
+}
+
+
+void REvolutionaryTrainingAlgorithmTest::testGenerateIndividual()
+{
+    NeuralNetwork *n1 = createNeuralNetwork(), *n2 = createNeuralNetwork();
+    Individual i1(n1), i2(n2);
+
+    REvolutionaryTrainingAlgorithm trainingAlgorithm(n1);
+    trainingAlgorithm.eliteSize(1).populationSize(2);
+    TrainingSet trainingSet({ }, 1.0, 1000);
+
+    Individual *i3 = trainingAlgorithm.generateIndividual(
+            { &i1, &i2 }, &trainingSet);
+
+    QList<qreal> parametersI1 = i1.parameters();
+    QList<qreal> parametersI2 = i2.parameters();
+    QList<qreal> parametersI3 = i3->parameters();
+
+    QCOMPARE(parametersI3.size(), parametersI1.size());
+    QCOMPARE(parametersI3.size(), parametersI2.size());
+
+    for (int i = 0; i != parametersI3.size(); ++i) {
+        QVERIFY(parametersI3.at(i) != parametersI1.at(i));
+        QVERIFY(parametersI3.at(i) != parametersI2.at(i));
     }
 }
 

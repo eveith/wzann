@@ -26,8 +26,10 @@ public:
     explicit REvolutionaryTrainingAlgorithmTest(QObject *parent = 0);
 
 private slots:
+    void testIndividualInitialization();
     void testAgeIndividual();
     void testParametersSettingAndRetrieval();
+    void testGenerateIndividual();
 };
 
 #endif // REVOLUTIONARYTRAININGALGORITHMTEST_H
