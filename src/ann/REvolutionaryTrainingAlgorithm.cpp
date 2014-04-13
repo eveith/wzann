@@ -31,7 +31,7 @@ namespace Winzent {
 
             neuralNetwork->eachConnection([this](Connection *const &c) {
                 if (!c->fixedWeight()) {
-                    m_scatter << 0.0;
+                    m_scatter << 0.5;
                 }
             });
         }
@@ -50,6 +50,12 @@ namespace Winzent {
 
 
         QList<qreal> Individual::scatter() const
+        {
+            return m_scatter;
+        }
+
+
+        QList<qreal> &Individual::scatter()
         {
             return m_scatter;
         }
@@ -366,7 +372,9 @@ namespace Winzent {
 
             // Now modify the new individual:
 
-            for (int i = 0; i != newIndividual->parameters().size(); ++i) {
+            QList<qreal> newParameters = newIndividual->parameters();
+
+            for (int i = 0; i != newParameters.size(); ++i) {
                 qreal dx = eliteIndividual->scatter().at(i) * exp(
                         errorWeight() *
                             (trainingSet->error() -trainingSet->targetError()));
@@ -403,9 +411,10 @@ namespace Winzent {
                             - otherIndividual->parameters().at(i));
                 }
 
-                newIndividual->parameters()[i] = dx;
+                newParameters[i] = dx;
             }
 
+            newIndividual->parameters(newParameters);
             return newIndividual;
         }
 

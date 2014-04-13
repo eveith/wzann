@@ -157,6 +157,10 @@ void REvolutionaryTrainingAlgorithmTest::testGenerateIndividual()
     QCOMPARE(parametersI3.size(), parametersI1.size());
     QCOMPARE(parametersI3.size(), parametersI2.size());
 
+    qDebug() << parametersI1;
+    qDebug() << parametersI2;
+    qDebug() << parametersI3;
+
     for (int i = 0; i != parametersI3.size(); ++i) {
         QVERIFY(parametersI3.at(i) != parametersI1.at(i));
         QVERIFY(parametersI3.at(i) != parametersI2.at(i));

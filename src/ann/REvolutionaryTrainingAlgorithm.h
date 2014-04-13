@@ -95,6 +95,14 @@ namespace Winzent {
 
 
             /*!
+             * \brief Retrieves a modifiable copy of the current scatter vector.
+             *
+             * \return The scatter vector, modifiable
+             */
+            QList<qreal> &scatter();
+
+
+            /*!
              * \brief Sets the new scatter vector
              *
              * \param scatter The new scatter vector
