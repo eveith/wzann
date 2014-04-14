@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <cmath>
 
+#include <QtDebug>
+
 #include <QObject>
 #include <QList>
 
@@ -195,7 +197,7 @@ namespace Winzent {
 
             return r;
         }
-        
+
 
         qreal REvolutionaryTrainingAlgorithm::frandom()
         {
@@ -339,8 +341,8 @@ namespace Winzent {
                 TrainingSet *const &trainingSet)
         {
             Individual *newIndividual = new Individual(
-                        population.first()->neuralNetwork());
-            Individual *eliteIndividual = population.at(std::abs(
+                        population.first()->neuralNetwork()->clone());
+            Individual *eliteIndividual = population.at(abs(
                     qrand() % eliteSize() - qrand() % eliteSize()));
             Individual *otherIndividual = population.at(
                         qrand() % population.size());

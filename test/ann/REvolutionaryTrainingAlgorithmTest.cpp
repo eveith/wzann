@@ -140,30 +140,30 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
 
 void REvolutionaryTrainingAlgorithmTest::testGenerateIndividual()
 {
-    NeuralNetwork *n1 = createNeuralNetwork(), *n2 = createNeuralNetwork();
-    Individual i1(n1), i2(n2);
-
-    REvolutionaryTrainingAlgorithm trainingAlgorithm(n1);
-    trainingAlgorithm.eliteSize(1).populationSize(2);
+    REvolutionaryTrainingAlgorithm trainingAlgorithm(createNeuralNetwork());
+    trainingAlgorithm.eliteSize(2).populationSize(5);
     TrainingSet trainingSet({ }, 1.0, 1000);
 
+    QList<Individual *> population;
+    for (int i = 0; i != trainingAlgorithm.populationSize(); ++i) {
+        population << new Individual(createNeuralNetwork());
+    }
+
     Individual *i3 = trainingAlgorithm.generateIndividual(
-            { &i1, &i2 }, &trainingSet);
+            population,
+            &trainingSet);
 
-    QList<qreal> parametersI1 = i1.parameters();
-    QList<qreal> parametersI2 = i2.parameters();
-    QList<qreal> parametersI3 = i3->parameters();
+    QCOMPARE(i3->parameters().size(), population.first()->parameters().size());
 
-    QCOMPARE(parametersI3.size(), parametersI1.size());
-    QCOMPARE(parametersI3.size(), parametersI2.size());
+    foreach (Individual *i, population) {
+        for (int j = 0; j != i->parameters().size(); ++j) {
+            QVERIFY (i3->parameters().at(j) != i->parameters().at(j));
+        }
+    }
 
-    qDebug() << parametersI1;
-    qDebug() << parametersI2;
-    qDebug() << parametersI3;
-
-    for (int i = 0; i != parametersI3.size(); ++i) {
-        QVERIFY(parametersI3.at(i) != parametersI1.at(i));
-        QVERIFY(parametersI3.at(i) != parametersI2.at(i));
+    delete i3;
+    foreach (Individual *i, population) {
+        delete i;
     }
 }
 
