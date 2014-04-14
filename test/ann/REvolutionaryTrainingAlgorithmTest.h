@@ -29,6 +29,7 @@ private slots:
     void testIndividualInitialization();
     void testAgeIndividual();
     void testParametersSettingAndRetrieval();
+    void testCompareIndividuals();
     void testGenerateIndividual();
 };
 

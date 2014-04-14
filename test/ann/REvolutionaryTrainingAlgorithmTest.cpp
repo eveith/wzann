@@ -138,6 +138,40 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
 }
 
 
+void REvolutionaryTrainingAlgorithmTest::testCompareIndividuals()
+{
+    Individual *i1 = new Individual(createNeuralNetwork());
+    Individual *i2 = new Individual(createNeuralNetwork());
+
+    QCOMPARE(0, i1->compare(i2));
+
+    i2->timeToLive(3);
+    QCOMPARE(-1, i1->compare(i2));
+
+    i1->timeToLive(3);
+    QCOMPARE(0, i2->compare(i1));
+
+    i2->age();
+    QCOMPARE(1, i1->compare(i2));
+    QVERIFY(i1->isBetterThan(i2));
+
+    i1->age();
+    i1->errorVector()[0] = 1.0;
+    QVERIFY(i1->isBetterThan(i2));
+
+    i2->errorVector()[0] = 1.0;
+    QVERIFY(!i1->isBetterThan(i2));
+    QCOMPARE(0, i2->compare(i1));
+
+    i1->errorVector() << 1.0 << 2.0;
+    i2->errorVector() << 1.0 << 1.0;
+    QVERIFY(i2->isBetterThan(i1));
+
+    delete i1;
+    delete i2;
+}
+
+
 void REvolutionaryTrainingAlgorithmTest::testGenerateIndividual()
 {
     REvolutionaryTrainingAlgorithm trainingAlgorithm(createNeuralNetwork());
