@@ -9,6 +9,8 @@
 
 #include <QObject>
 
+#include <log4cxx/logger.h>
+
 #include "Exception.h"
 #include "NeuralNetwork.h"
 
@@ -51,6 +53,12 @@ namespace Winzent
 
 
         protected:
+
+
+            /*!
+             * \brief Internal logger
+             */
+            static log4cxx::LoggerPtr logger;
 
 
             /*!

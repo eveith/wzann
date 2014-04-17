@@ -14,6 +14,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += QJson
+unix: PKGCONFIG += liblog4cxx
 
 SOURCES += \
     TrainingSet.cpp \

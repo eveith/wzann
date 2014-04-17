@@ -1,5 +1,8 @@
 #include <cmath>
 
+#include <log4cxx/logger.h>
+#include <log4cxx/logmanager.h>
+
 #include "Exception.h"
 #include "NeuralNetwork.h"
 #include "Layer.h"
@@ -12,10 +15,14 @@
 using std::pow;
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
+
+
+        log4cxx::LoggerPtr TrainingAlgorithm::logger =
+                log4cxx::LogManager::getLogger("Winzent.ANN.TrainingAlgorithm");
+
+
         qreal TrainingAlgorithm::calculateMeanSquaredError(
                 const ValueVector &actualOutput,
                 const ValueVector &expectedOutput)
