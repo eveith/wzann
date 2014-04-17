@@ -7,6 +7,8 @@
 #include <QObject>
 #include <QList>
 
+#include <log4cxx/logger.h>
+
 #include "NeuralNetwork.h"
 #include "Layer.h"
 #include "Connection.h"
@@ -45,9 +47,21 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork *Individual::neuralNetwork() const
+        NeuralNetwork *const &Individual::neuralNetwork()
         {
             return m_neuralNetwork;
+        }
+
+
+        const NeuralNetwork *Individual::neuralNetwork() const
+        {
+            return m_neuralNetwork;
+        }
+
+
+        NeuralNetwork *Individual::neuralNetworkClone() const
+        {
+            return m_neuralNetwork->clone();
         }
 
 
@@ -74,7 +88,7 @@ namespace Winzent {
         {
             QList<qreal> r;
 
-            neuralNetwork()->eachConnection([&r](Connection *const &c) {
+            neuralNetwork()->eachConnection([&r](const Connection *const &c) {
                 if (!c->fixedWeight()) {
                     r << c->weight();
                 }
@@ -182,6 +196,14 @@ namespace Winzent {
         }
 
 
+        bool Individual::isIndividual1Better(
+                const Individual * const &i1,
+                const Individual * const &i2)
+        {
+            return i1->isBetterThan(i2);
+        }
+
+
         qreal REvolutionaryTrainingAlgorithm::dc1(
                 const qreal &y,
                 const qreal &u,
@@ -209,14 +231,30 @@ namespace Winzent {
                 NeuralNetwork *const &network,
                 QObject *parent):
                     TrainingAlgorithm(network, parent),
+                    m_maxNoSuccessEpochs(0),
                     m_populationSize(0),
                     m_eliteSize(0),
                     m_gradientWeight(1.8),
                     m_errorWeight(1.0),
                     m_eamin(1e-30),
                     m_ebmin(1e-7),
-                    m_ebmax(1e-1)
+                    m_ebmax(1e-1),
+                    m_startTTL(0)
         {
+        }
+
+
+        int REvolutionaryTrainingAlgorithm::maxNoSuccessEpochs() const
+        {
+            return m_maxNoSuccessEpochs;
+        }
+
+
+        REvolutionaryTrainingAlgorithm &
+        REvolutionaryTrainingAlgorithm::maxNoSuccessEpochs(const int &epochs)
+        {
+            m_maxNoSuccessEpochs = epochs;
+            return *this;
         }
 
 
@@ -317,6 +355,20 @@ namespace Winzent {
         }
 
 
+        int REvolutionaryTrainingAlgorithm::startTTL() const
+        {
+            return m_startTTL;
+        }
+
+
+        REvolutionaryTrainingAlgorithm &
+        REvolutionaryTrainingAlgorithm::startTTL(const int &ttl)
+        {
+            m_startTTL(ttl);
+            return *this;
+        }
+
+
         qreal REvolutionaryTrainingAlgorithm::applyDxBounds(
                 const qreal &dx,
                 const qreal &parameter)
@@ -333,6 +385,64 @@ namespace Winzent {
             }
 
             return cdx;
+        }
+
+
+        bool REvolutionaryTrainingAlgorithm::hasSensibleTrainingParameters()
+                const
+        {
+            bool ok = true;
+
+            if (0 >= populationSize()) {
+                LOG4CXX_ERROR(logger, "Population size is 0");
+                ok = false;
+            }
+
+            if (0 >= eliteSize()) {
+                LOG4CXX_ERROR(logger, "Elite size is 0");
+                ok = false;
+            }
+
+            if (eliteSize() >= populationSize()) {
+                LOG4CXX_ERROR(logger, "Elite is bigger or equal to population");
+                ok = false;
+            }
+
+            if (startTTL() <= 0) {
+                LOG4CXX_ERROR(logger, "No sensible start TTL (<= 0)");
+                ok = false;
+            }
+
+            return ok;
+        }
+
+
+        QList<Individual *>
+        REvolutionaryTrainingAlgorithm::generateInitialPopulation(
+                const NeuralNetwork * const &baseNetwork)
+        {
+            Individual *baseIndividual = new Individual(
+                        baseNetwork->clone());
+            QList <Individual *> population = { baseIndividual };
+
+            for (int i = 1; i < populationSize(); ++i) {
+                Individual *individual = new Individual(network()->clone());
+                QList<qreal> individualParameters = individual->parameters();
+
+                for (int j = 0; j != individualParameters.size(); ++j) {
+                    qreal r = individual->scatter().at(j) * exp(
+                            0.4 * (0.5 - frandom()));
+                    individual->scatter()[j] = r;
+                    individualParameters[j] = individualParameters.at(j) + r
+                            * (frandom() - frandom() + frandom() - frandom());
+                }
+
+                individual->parameters(individualParameters);
+                population.append(individual);
+            }
+
+            Q_ASSERT(population.size() == populationSize());
+            return population;
         }
 
 
@@ -417,6 +527,8 @@ namespace Winzent {
             }
 
             newIndividual->parameters(newParameters);
+            newIndividual->timeToLive(startTTL());
+
             return newIndividual;
         }
 
@@ -424,7 +536,101 @@ namespace Winzent {
         void REvolutionaryTrainingAlgorithm::train(
                 TrainingSet *const &trainingSet)
         {
+            if (0 == startTTL()) {
+                startTTL(std::ceil(trainingSet->maxEpochs() * 0.1));
+            }
 
+            if (!hasSensibleTrainingParameters()) {
+                LOG4CXX_ERROR(
+                        logger,
+                        "Training parameters have no sensible values, "
+                            "won't train.");
+                return;
+            }
+
+            int lastSuccess = 0;
+            int epoch       = 0;
+            QList<Individual *> population = generateInitialPopulation(
+                    network());
+
+            // Allocate error vector:
+
+            foreach (Individual *individual, population) {
+                individual->errorVector().reserve(
+                        1 + trainingSet->trainingData().size());
+            }
+
+            do {
+                // Create new individual that potentially joins the population:
+
+                Individual *newIndividual = generateIndividual(
+                        population,
+                        trainingSet);
+                population << newIndividual;
+
+
+                // Run current patterns through all networks
+                // and age individuals:
+
+                foreach (Individual *individual, population) {
+                    int errorPos    = 1;
+                    qreal totalMSE  = 0.0;
+
+                    foreach (TrainingItem item, trainingSet->trainingData()) {
+                        ValueVector output = individual->neuralNetwork()
+                                ->calculate(item.input());
+                        qreal sampleMSE = calculateMeanSquaredError(
+                                output,
+                                item.expectedOutput());
+
+                        individual->errorVector()[errorPos++] = sampleMSE;
+                        totalMSE += sampleMSE;
+                    }
+
+                    individual->errorVector()[0] =
+                            totalMSE / static_cast<qreal>(errorPos);
+                    individual->age();
+                }
+
+                // Check for global improvement & sort population:
+
+                if (newIndividual->isBetterThan(
+                            population.at(population.size() - 2))) {
+                    lastSuccess = epoch;
+                } else {
+
+                }
+
+                // Sort the list and remove the worst individual:
+
+                qSort(
+                        population.begin(),
+                        population.end(),
+                        &Individual::isIndividual1Better);
+                delete population.takeLast();
+
+                epoch++;
+                setFinalError(
+                        *trainingSet,
+                        population.first()->errorVector().first());
+            } while (population.first()->errorVector().first()
+                        > trainingSet->targetError()
+                    && epoch < trainingSet->maxEpochs()
+                    && epoch - lastSuccess < maxNoSuccessEpochs());
+
+            setFinalNumEpochs(*trainingSet, epoch);
+
+            QList<qreal> bestParameters = population.first()->parameters();
+            int i = 0;
+            NeuralNetwork *trainedNetwork = network();
+
+            trainedNetwork->eachConnection(
+                    [&i, &bestParameters, &trainedNetwork](
+                    Connection *const &c) {
+                if (!c->fixedWeight()) {
+                    c->weight(bestParameters.at(i++));
+                }
+            });
         }
     } // namespace ANN
 } // namespace Winzent

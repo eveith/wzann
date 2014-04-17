@@ -83,7 +83,27 @@ namespace Winzent {
              *
              * \return The underlying neural network
              */
-            NeuralNetwork *neuralNetwork() const;
+            NeuralNetwork *neuralNetworkClone() const;
+
+
+            /*!
+             * \brief Grants access to the underlying neural network
+             *
+             * \return A reference to the neural network
+             */
+            NeuralNetwork *const &neuralNetwork();
+
+
+            /*!
+             * \brief Allows read-only access to the underlying neural network
+             *
+             * Be careful that this returns a reference, i.e., any pointer
+             * retrieved through this method will be invalid once this object
+             * has been deleted.
+             *
+             * \return A const reference to the underlying neural network.
+             */
+            const NeuralNetwork *neuralNetwork() const;
 
 
             /*!
@@ -172,7 +192,7 @@ namespace Winzent {
             /*!
              * \brief Allows access to the error vector
              *
-             * \return A modifiable copy of the error vector
+             * \return A modifiable reference to the error vector
              */
             QList<qreal> &errorVector();
 
@@ -205,6 +225,11 @@ namespace Winzent {
              * \return true if the object is better, false otherwise.
              */
             bool isBetterThan(const Individual *other) const;
+
+
+            static bool isIndividual1Better(
+                    const Individual *const &i1,
+                    const Individual *const &i2);
         };
 
         
@@ -213,6 +238,13 @@ namespace Winzent {
             Q_OBJECT
 
         private:
+
+
+            /*!
+             * \brief Maximum number of epochs that may pass without a global
+             *  improvement
+             */
+            int m_maxNoSuccessEpochs;
 
 
             /*!
@@ -259,6 +291,12 @@ namespace Winzent {
 
 
             /*!
+             * \brief Initial Time-To-Live for new individuals
+             */
+            int m_startTTL;
+
+
+            /*!
              * \brief Applies the bounds defined in ebmin, eamin and eamax given
              *  another object's parameter
              *
@@ -269,6 +307,14 @@ namespace Winzent {
              * \return The corrected delta X
              */
             qreal applyDxBounds(const qreal &dx, const qreal &parameter) const;
+
+
+            /*!
+             * \brief Checks that all parameters are within safe bounds
+             *
+             * \return true iff all parameters are in sensible bounds
+             */
+            bool hasSensibleTrainingParameters() const;
 
 
         public:
@@ -306,6 +352,27 @@ namespace Winzent {
              * \return A random number between 0.0 and 1.0 (exclusive)
              */
             static qreal frandom();
+
+
+            /*!
+             * \brief Returns the maximum number of epochs that may pass without
+             *  a global improvement before the algorithm stops
+             *
+             * \return The number of epochs
+             */
+            int maxNoSuccessEpochs() const;
+
+
+            /*!
+             * \brief Sets the maximum number of epochs that may pass without
+             *  a global improvement
+             *
+             * \param[in] epochs The new maximum number of epochs
+             *
+             * \return `*this`
+             */
+            REvolutionaryTrainingAlgorithm &maxNoSuccessEpochs(
+                    const int &epochs);
 
 
             /*!
@@ -452,6 +519,41 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &ebmax(const qreal &ebmax);
+
+
+            /*!
+             * \brief The default start TTL for new Individuals
+             *
+             * This variable is used when generating new objects. It should
+             * be set before starting the training. A fail-safe default is
+             * applied if not set: `ceil(0.1 * maxEpochs)`.
+             *
+             * \return The initial Time-To-Live
+             */
+            int startTTL() const;
+
+
+            /*!
+             * \brief Sets the new initial TTL for new Individuals
+             *
+             * \param[in] ttl The new TTL
+             *
+             * \return `*this`
+             */
+            REvolutionaryTrainingAlgorithm &startTTL(const int &ttl);
+
+
+            /*!
+             * \brief Generates the initial population from the supplied base
+             *  network
+             *
+             * \param[in] baseNetwork The base network the user supplied for
+             *  training
+             *
+             * \return The population, including the elite
+             */
+            QList<Individual *> generateInitialPopulation(
+                    const NeuralNetwork *const &baseNetwork);
 
 
             /*!
