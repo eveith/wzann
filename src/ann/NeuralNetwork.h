@@ -297,6 +297,15 @@ namespace Winzent {
 
 
             /*!
+             * \brief Iterates over all neuron connections read-only
+             *
+             * \param[in] yield The iterator lambda called for each neuron
+             */
+            void eachConnection(
+                    std::function<void(const Connection *const &)> yield) const;
+
+
+            /*!
              * Adds a layer to the neural network. The layer is
              * appended to the end of the network and becomes the new
              * output layer. If it is the first layer, it also becomes

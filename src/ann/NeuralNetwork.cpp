@@ -262,6 +262,17 @@ namespace Winzent {
         }
 
 
+        void NeuralNetwork::eachConnection(
+                std::function<void (const Connection * const &)> yield) const
+        {
+            foreach (Neuron *n, m_connectionSources.keys()) {
+                foreach (const Connection *c, m_connectionSources[n]) {
+                    yield(c);
+                }
+            }
+        }
+
+
         Connection *NeuralNetwork::connectNeurons(Neuron *from, Neuron *to)
                 throw(UnknownNeuronException)
         {
