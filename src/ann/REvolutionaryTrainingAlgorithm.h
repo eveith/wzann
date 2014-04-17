@@ -297,6 +297,12 @@ namespace Winzent {
 
 
             /*!
+             * \brief Number of epochs to apply to the dc1 method
+             */
+            int m_measurementEpochs;
+
+
+            /*!
              * \brief Applies the bounds defined in ebmin, eamin and eamax given
              *  another object's parameter
              *
@@ -541,6 +547,25 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &startTTL(const int &ttl);
+
+
+            /*!
+             * \brief Mean number of epochs for application in the dc1 method.
+             *
+             * \return Number of epochs
+             */
+            int measurementEpochs() const;
+
+
+            /*!
+             * \brief Number of epochs applied to the dc1 method
+             *
+             * \param[in] epochs The number of epochs
+             *
+             * \return `*this`
+             */
+            REvolutionaryTrainingAlgorithm &measurementEpochs(
+                    const int &epochs);
 
 
             /*!

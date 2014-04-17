@@ -239,7 +239,8 @@ namespace Winzent {
                     m_eamin(1e-30),
                     m_ebmin(1e-7),
                     m_ebmax(1e-1),
-                    m_startTTL(0)
+                    m_startTTL(0),
+                    m_measurementEpochs(0)
         {
         }
 
@@ -268,6 +269,11 @@ namespace Winzent {
         REvolutionaryTrainingAlgorithm::populationSize(const int &size)
         {
             m_populationSize = size;
+
+            if (0 == eliteSize()) {
+                eliteSize(std::ceil(size * 0.1));
+            }
+
             return *this;
         }
 
@@ -364,7 +370,21 @@ namespace Winzent {
         REvolutionaryTrainingAlgorithm &
         REvolutionaryTrainingAlgorithm::startTTL(const int &ttl)
         {
-            m_startTTL(ttl);
+            m_startTTL = ttl;
+            return *this;
+        }
+
+
+        int REvolutionaryTrainingAlgorithm::measurementEpochs() const
+        {
+            return m_measurementEpochs;
+        }
+
+
+        REvolutionaryTrainingAlgorithm &
+        REvolutionaryTrainingAlgorithm::measurementEpochs(const int &epochs)
+        {
+            m_measurementEpochs = epochs;
             return *this;
         }
 
@@ -410,6 +430,14 @@ namespace Winzent {
 
             if (startTTL() <= 0) {
                 LOG4CXX_ERROR(logger, "No sensible start TTL (<= 0)");
+                ok = false;
+            }
+
+            if (0 >= measurementEpochs()) {
+                LOG4CXX_ERROR(
+                        logger,
+                        "Invalid number of epochs for measurement,"
+                            "must be > 0");
                 ok = false;
             }
 
@@ -540,6 +568,10 @@ namespace Winzent {
                 startTTL(std::ceil(trainingSet->maxEpochs() * 0.1));
             }
 
+            if (0 == measurementEpochs()) {
+                measurementEpochs(std::ceil(trainingSet->maxEpochs() / 200.0));
+            }
+
             if (!hasSensibleTrainingParameters()) {
                 LOG4CXX_ERROR(
                         logger,
@@ -592,13 +624,24 @@ namespace Winzent {
                     individual->age();
                 }
 
-                // Check for global improvement & sort population:
+                // Check for global improvement:
 
                 if (newIndividual->isBetterThan(
                             population.at(population.size() - 2))) {
                     lastSuccess = epoch;
+                    setFinalError(
+                            *trainingSet,
+                            dc1(
+                                trainingSet->error(),
+                                1.0,
+                                measurementEpochs()));
                 } else {
-
+                    setFinalError(
+                            *trainingSet,
+                            dc1(
+                                trainingSet->error(),
+                                -1.0,
+                                measurementEpochs()));
                 }
 
                 // Sort the list and remove the worst individual:
