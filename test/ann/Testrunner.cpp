@@ -1,4 +1,8 @@
 #include <cstdio>
+
+#include <log4cxx/logmanager.h>
+#include <log4cxx/basicconfigurator.h>
+
 #include "Testrunner.h"
 
 
@@ -51,6 +55,7 @@ void TestRunner::printHelp(const char *basename) const
 
 int TestRunner::run(int argc, char *argv[])
 {
+    log4cxx::BasicConfigurator::configure();
     int rc = 0;
 
     if (1 == argc) {

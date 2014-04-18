@@ -25,6 +25,9 @@ TEST_LIB_PATHS += ../../src/ann
 LIBS += -L../../src/ann -lwinzentann
 QMAKE_CXXFLAGS += -std=c++11
 
+CONFIG += link_pkgconfig
+unix: PKGCONFIG += liblog4cxx
+
 
 HEADERS += \
     NeuronTest.h \

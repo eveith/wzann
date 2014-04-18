@@ -6,16 +6,19 @@
  */
 
 
-#include <QDebug>
-
 #include <QObject>
+
 #include <QList>
 #include <QVector>
+
 #include <QByteArray>
 #include <QTextStream>
 
 #include <qjson/serializer.h>
 #include <qjson/qobjecthelper.h>
+
+#include <log4cxx/logger.h>
+#include <log4cxx/logmanager.h>
 
 #include <functional>
 
@@ -33,6 +36,10 @@ namespace Winzent {
     namespace ANN {
 
         const char NeuralNetwork::VERSION[] = "1.0";
+
+
+        log4cxx::LoggerPtr NeuralNetwork::logger =
+                log4cxx::LogManager::getLogger("Winzent.ANN.NeuralNetwork");
 
 
         NeuralNetwork::NeuralNetwork(QObject* parent):
@@ -446,7 +453,12 @@ namespace Winzent {
                 }
             }
 
-            qDebug() << "Layer Transition:" << input << output;
+            LOG4CXX_DEBUG(
+                    logger,
+                    "ANN Layer Transition: "
+                        << from << ": " << input
+                        << " => "
+                        << to << ": " << output);
             return output;
         }
 
@@ -574,5 +586,25 @@ namespace Winzent {
             out << json;
             return out;
         }
+    }
+}
+
+
+namespace std {
+    ostream &operator<<(
+            ostream &os,
+            const Winzent::ANN::ValueVector &valueVector)
+    {
+        os << "ValueVector(";
+
+        for (int i = 0; i < valueVector.size(); ++i) {
+            os << valueVector.at(i);
+            if (i < valueVector.size() - 1) {
+                os << ", ";
+            }
+        }
+
+        os << ")";
+        return os;
     }
 }

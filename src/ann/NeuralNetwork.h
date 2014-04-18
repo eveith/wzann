@@ -16,6 +16,8 @@
 
 #include <functional>
 
+#include <log4cxx/logger.h>
+
 #include "Exception.h"
 
 
@@ -88,7 +90,7 @@ namespace Winzent {
                     const NeuralNetwork &network);
 
 
-            private:
+        private:
 
 
             /*!
@@ -120,6 +122,15 @@ namespace Winzent {
              * works when values are calculated with it.
              */
             NeuralNetworkPattern *m_pattern;
+
+
+        protected:
+
+
+            /*!
+             * \brief Internal logger
+             */
+            static log4cxx::LoggerPtr logger;
 
 
         public:
@@ -481,6 +492,13 @@ namespace Winzent {
         QTextStream& operator<<(QTextStream &out, const NeuralNetwork &network);
     } /* namespace ANN */
 } /* namespace Winzent */
+
+
+namespace std {
+    ostream &operator<<(
+            ostream &os,
+            const Winzent::ANN::ValueVector &valueVector);
+}
 
 
 #endif /* NEURALNETWORK_H_ */

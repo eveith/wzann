@@ -11,6 +11,9 @@
 
 #include <QObject>
 
+#include <ostream>
+
+#include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
 
 
@@ -18,7 +21,6 @@ namespace Winzent {
     namespace ANN {
 
 
-        class NeuralNetwork;
         class Weight;
         class TrainingSet;
 
@@ -41,7 +43,7 @@ namespace Winzent {
             /*!
              * \brief The scatter vector of this individual
              */
-            QList<qreal> m_scatter;
+            ValueVector m_scatter;
 
 
             /*!
@@ -55,7 +57,7 @@ namespace Winzent {
              *  overall error, indices 1..n stores the results of the indivdual
              *  runs.
              */
-            QList<qreal> m_errorVector;
+            ValueVector m_errorVector;
 
 
         public:
@@ -111,7 +113,7 @@ namespace Winzent {
              *
              * \return The current scatter vector
              */
-            QList<qreal> scatter() const;
+            ValueVector scatter() const;
 
 
             /*!
@@ -119,7 +121,7 @@ namespace Winzent {
              *
              * \return The scatter vector, modifiable
              */
-            QList<qreal> &scatter();
+            ValueVector &scatter();
 
 
             /*!
@@ -129,7 +131,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Individual &scatter(QList<qreal> scatter);
+            Individual &scatter(ValueVector scatter);
 
 
             /*!
@@ -137,7 +139,7 @@ namespace Winzent {
              *
              * \return The current parameters
              */
-            QList<qreal> parameters() const;
+            ValueVector parameters() const;
 
 
             /*!
@@ -150,7 +152,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Individual &parameters(QList<qreal> parameters);
+            Individual &parameters(ValueVector parameters);
 
 
             /*!
@@ -194,7 +196,7 @@ namespace Winzent {
              *
              * \return A modifiable reference to the error vector
              */
-            QList<qreal> &errorVector();
+            ValueVector &errorVector();
 
 
             /*!
@@ -202,7 +204,7 @@ namespace Winzent {
              *
              * \return The error vector write-protected
              */
-            const QList<qreal> &errorVector() const;
+            const ValueVector &errorVector() const;
 
 
             /*!
@@ -300,6 +302,12 @@ namespace Winzent {
              * \brief Number of epochs to apply to the dc1 method
              */
             int m_measurementEpochs;
+
+
+            qreal m_success;
+
+
+            qreal m_targetSuccess;
 
 
             /*!
@@ -613,5 +621,13 @@ namespace Winzent {
         
     } // namespace ANN
 } // namespace Winzent
+
+
+namespace std {
+    ostream &operator<<(
+            ostream &os,
+            const Winzent::ANN::Individual &individual);
+}
+
 
 #endif // WINZENT_ANN_EVOLUTIONARYTRAININGALGORITHM_H

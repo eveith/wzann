@@ -87,4 +87,4 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 }
 
 
-TESTCASE(BackpropagationTrainingAlgorithmTest);
+TESTCASE(BackpropagationTrainingAlgorithmTest)
