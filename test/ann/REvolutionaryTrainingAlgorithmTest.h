@@ -31,6 +31,7 @@ private slots:
     void testParametersSettingAndRetrieval();
     void testCompareIndividuals();
     void testGenerateIndividual();
+    void testSortPopulation();
     void testTrainXOR();
 };
 

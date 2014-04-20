@@ -242,7 +242,23 @@ namespace Winzent {
             int epochs() const;
 
 
-            const QList<TrainingItem> trainingData() const;
+            /*!
+             * \brief Allows const access to all training items
+             *
+             * \return All training items.
+             */
+            const QList<TrainingItem> &trainingData() const;
+
+
+            /*!
+             * \brief Adds a copy of the given TrainingItem to the list of
+             *  training items
+             *
+             * \param[in] item The new item
+             *
+             * \return `*this`
+             */
+            TrainingSet &operator<<(const TrainingItem &item);
         };
 
     } /* namespace ANN */

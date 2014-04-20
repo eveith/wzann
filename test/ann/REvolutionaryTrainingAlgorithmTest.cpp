@@ -210,6 +210,26 @@ void REvolutionaryTrainingAlgorithmTest::testGenerateIndividual()
 }
 
 
+void REvolutionaryTrainingAlgorithmTest::testSortPopulation()
+{
+    Individual *i1 = new Individual(createNeuralNetwork());
+    Individual *i2 = new Individual(createNeuralNetwork());
+
+    i1->timeToLive(10);
+    i1->errorVector()[0] = 0.25;
+
+    i2->timeToLive(2);
+    i2->errorVector()[0] = 0.5;
+
+    QVERIFY(i1->isBetterThan(i2));
+
+    QList<Individual *> population = { i2, i1 };
+    REvolutionaryTrainingAlgorithm::sortPopulation(population);
+
+    QCOMPARE(population.first(), i1);
+}
+
+
 void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
 {
     qsrand(time(NULL));

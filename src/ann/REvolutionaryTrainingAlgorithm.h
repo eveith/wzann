@@ -347,6 +347,15 @@ namespace Winzent {
 
 
             /*!
+             * \brief Sorts the population so that the best individual comes
+             *  first.
+             *
+             * \param[inout] population The population.
+             */
+            static void sortPopulation(QList<Individual *> &population);
+
+
+            /*!
              * Creates a new instance of the evolutionary training algorithm for
              * training a particular network.
              *

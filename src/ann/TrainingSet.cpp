@@ -132,9 +132,16 @@ namespace Winzent {
         }
 
 
-        const QList<TrainingItem> TrainingSet::trainingData() const
+        const QList<TrainingItem> &TrainingSet::trainingData() const
         {
             return m_trainingData;
+        }
+
+
+        TrainingSet &TrainingSet::operator<<(const TrainingItem &item)
+        {
+            m_trainingData << item;
+            return *this;
         }
     }
 }
