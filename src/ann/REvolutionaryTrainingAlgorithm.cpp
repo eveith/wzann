@@ -88,7 +88,8 @@ namespace Winzent {
         {
             ValueVector r;
 
-            neuralNetwork()->eachConnection([&r](const Connection *const &c) {
+            neuralNetwork()->eachConnection([&r](
+                    const Connection *const &c) {
                 if (!c->fixedWeight()) {
                     r << c->weight();
                 }
@@ -160,13 +161,16 @@ namespace Winzent {
                 return 1;
             }
 
-            if (this->errorVector().size() > 1
-                    && other->errorVector().size() > 1) {
+            if (this->errorVector().at(0) < other->errorVector().at(0)) {
+                return 1;
+            } else if (this->errorVector().at(0) > other->errorVector().at(0)) {
+                return -1;
+            } else {
                 int size = (
                         this->errorVector().size() > other->errorVector().size()
                         ? other->errorVector().size()
                         : this->errorVector().size());
-                for (int i = 1; i != size; ++i) {
+                for (int i = 1; i < size; ++i) {
                     if (this->errorVector().at(i) < other->errorVector().at(i)){
                         return 1;
                     } else if (other->errorVector().at(i)
@@ -176,21 +180,7 @@ namespace Winzent {
                 }
             }
 
-            if (this->errorVector().at(0) == other->errorVector().at(0)) {
-                if (this->timeToLive() == other->timeToLive()) {
-                    return 0;
-                } else if (this->timeToLive() > other->timeToLive()) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            } else if (this->errorVector().at(0) < other->errorVector().at(0)) {
-                return 1;
-            } else {
-                return -1;
-            }
-
-            return 0; // only fall-through, won't be reached
+            return 0;
         }
 
 
@@ -237,7 +227,7 @@ namespace Winzent {
 
         qreal REvolutionaryTrainingAlgorithm::frandom()
         {
-            return ((qrand() % RAND_MAX) / static_cast<qreal>(RAND_MAX));
+            return ((qrand() % RAND_MAX - 1) / static_cast<qreal>(RAND_MAX));
         }
 
 
@@ -322,14 +312,14 @@ namespace Winzent {
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::errorWeight() const
+        qreal REvolutionaryTrainingAlgorithm::successWeight() const
         {
             return m_errorWeight;
         }
 
 
         REvolutionaryTrainingAlgorithm &
-        REvolutionaryTrainingAlgorithm::errorWeight(const qreal &weight)
+        REvolutionaryTrainingAlgorithm::successWeight(const qreal &weight)
         {
             m_errorWeight = weight;
             return *this;
@@ -507,7 +497,7 @@ namespace Winzent {
             Individual *newIndividual = new Individual(
                         population.first()->neuralNetwork()->clone());
             Individual *eliteIndividual = population.at(abs(
-                    qrand() % eliteSize() - qrand() % eliteSize()));
+                    (qrand() % eliteSize()) - (qrand() % eliteSize())));
             Individual *otherIndividual = population.at(
                         qrand() % population.size());
 
@@ -518,7 +508,7 @@ namespace Winzent {
             }
 
             qreal xlp = 0.0;
-            qreal errorRate = m_success / m_targetSuccess - 1.0;
+            qreal successRate = m_success / m_targetSuccess - 1.0;
             int gradientSwitch = qrand() % 3;
             qreal expvar = exp(frandom() - frandom());
 
@@ -532,7 +522,7 @@ namespace Winzent {
                     xlp *= 0.5;
                 }
 
-                xlp *= exp(3.0 * errorWeight() * (m_success - m_targetSuccess));
+                xlp *= exp(successWeight() * successRate);
             }
 
             // Now modify the new individual:
@@ -546,7 +536,7 @@ namespace Winzent {
 
             for (int i = 0; i != numParameters; ++i) {
                 qreal dx = eliteIndividual->scatter().at(i) * exp(
-                        errorWeight() * (m_success - m_targetSuccess));
+                        successWeight() * successRate);
 
                 dx = applyDxBounds(dx, eliteIndividual->parameters().at(i));
 
@@ -554,7 +544,9 @@ namespace Winzent {
 
                 eliteIndividual->scatter()[i] = dx;
 
-                if (frandom() >= 0.5) {
+                if (frandom() < 0.5) {
+                    dx = eliteIndividual->scatter().at(i);
+                } else {
                     dx = 0.5 * (eliteIndividual->scatter().at(i)
                             + otherIndividual->scatter().at(i));
                 }
@@ -566,12 +558,12 @@ namespace Winzent {
 
                 newIndividual->scatter()[i] = dx;
 
-                dx = newIndividual->scatter().at(i) * (frandom() + frandom()
+                dx = dx * (frandom() + frandom()
                         + frandom() + frandom() + frandom() - frandom()
                         - frandom() - frandom() - frandom() - frandom());
 
                 if (0 == gradientSwitch) { // Everything from the elite, p=2/3
-                    if (frandom() < 2.0/3.0) {
+                    if (qrand() % 3 < 2) {
                         dx += eliteIndividual->parameters().at(i);
                     } else {
                         dx += otherIndividual->parameters().at(i);
@@ -587,8 +579,17 @@ namespace Winzent {
                 newParameters << dx;
             }
 
+            Q_ASSERT(newParameters.size()
+                     == newIndividual->parameters().size());
             newIndividual->parameters(newParameters);
             newIndividual->timeToLive(startTTL());
+
+#ifdef      QT_DEBUG
+                for (int i = 0; i != newParameters.size(); ++i) {
+                    Q_ASSERT(newParameters.at(i)
+                             == newIndividual->parameters().at(i));
+                }
+#endif
 
             LOG4CXX_DEBUG(
                     logger,
@@ -701,7 +702,11 @@ namespace Winzent {
                 m_success = dc1(m_success, 0.0, measurementEpochs());
                 epoch++;
 
-                LOG4CXX_DEBUG(logger, "Epoch " << epoch);
+                LOG4CXX_DEBUG(
+                        logger,
+                        "Epoch(" << epoch << "), success(" << m_success
+                            << "), targetSuccess(" << m_targetSuccess
+                            << "), " << *this);
             } while (population.first()->errorVector().first()
                         > trainingSet->targetError()
                     && epoch < trainingSet->maxEpochs()
@@ -730,6 +735,8 @@ namespace Winzent {
             setFinalError(
                     *trainingSet,
                     population.first()->errorVector().at(0));
+
+            LOG4CXX_DEBUG(logger, population)
 
             // Cleanup:
 
@@ -773,6 +780,36 @@ namespace std {
         }
 
         os << ")";
+    }
+
+
+    ostream &operator<<(
+            ostream &os,
+            const Winzent::ANN::REvolutionaryTrainingAlgorithm &algorithm)
+    {
+        os
+                << "REvolutionaryTrainingAlgorithm("
+                << "maxNoSuccessEpochs = " << algorithm.maxNoSuccessEpochs()
+                << ", populationSize = " << algorithm.populationSize()
+                << ", eliteSize = " << algorithm.eliteSize()
+                << ", eamin = " << algorithm.eamin()
+                << ", ebmin = " << algorithm.ebmin()
+                << ", ebmax = " << algorithm.ebmax();
+        os << ")";
+        return os;
+    }
+
+    ostream &operator<<(
+            ostream &os,
+            const QList<Winzent::ANN::Individual *> population)
+    {
+        os << "Population(";
+
+        foreach (const Winzent::ANN::Individual *i, population) {
+            os << *i << ", ";
+        }
+
+        return os << ")";
     }
 }
 

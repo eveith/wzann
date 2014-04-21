@@ -112,10 +112,8 @@ namespace Winzent
                         int layerSize = (network()->inputLayer() == layer
                                 ? layer->size()
                                 : layer->size() + 1);
-                        qDebug() << layer << "neurons" << layerSize;
 
-                        for (int j = 0; j != layerSize; ++j)
-                        {
+                        for (int j = 0; j != layerSize; ++j) {
                             Neuron *neuron = layer->neuronAt(j);
 
                             QList<Connection *> connections =

@@ -462,20 +462,20 @@ namespace Winzent {
              *
              * \return The error weight
              */
-            qreal errorWeight() const;
+            qreal successWeight() const;
 
 
             /*!
              * \brief Sets the new error weight
              *
-             * This value influences how much a given error is weighted in when
-             * creating a new offspring and its parameters.
+             * This value influences how much a given reproduction success
+             * is weighted in when creating a new offspring and its parameters.
              *
              * \param weight The new weight
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &errorWeight(const qreal &weight);
+            REvolutionaryTrainingAlgorithm &successWeight(const qreal &weight);
 
 
             /*!
@@ -636,6 +636,12 @@ namespace std {
     ostream &operator<<(
             ostream &os,
             const Winzent::ANN::Individual &individual);
+    ostream &operator<<(
+            ostream &os,
+            const Winzent::ANN::REvolutionaryTrainingAlgorithm &algorithm);
+    ostream &operator<<(
+            ostream &os,
+            const QList<const Winzent::ANN::Individual *> &population);
 }
 
 

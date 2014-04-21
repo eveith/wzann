@@ -84,7 +84,7 @@ namespace Winzent {
         }
 
 
-        Neuron *Connection::source() const
+        const Neuron *Connection::source() const
         {
             return m_sourceNeuron;
         }

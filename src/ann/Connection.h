@@ -126,7 +126,7 @@ namespace Winzent {
             /*!
              * Returns the current source neuron.
              */
-            Neuron *source() const;
+            const Neuron *source() const;
 
 
             /*!

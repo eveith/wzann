@@ -214,19 +214,24 @@ void REvolutionaryTrainingAlgorithmTest::testSortPopulation()
 {
     Individual *i1 = new Individual(createNeuralNetwork());
     Individual *i2 = new Individual(createNeuralNetwork());
+    Individual *i3 = new Individual(createNeuralNetwork());
 
     i1->timeToLive(10);
     i1->errorVector()[0] = 0.25;
 
-    i2->timeToLive(2);
+    i2->timeToLive(10);
     i2->errorVector()[0] = 0.5;
+
+    i3->timeToLive(2);
+    i3->errorVector()[0] = 0.5;
 
     QVERIFY(i1->isBetterThan(i2));
 
-    QList<Individual *> population = { i2, i1 };
-    REvolutionaryTrainingAlgorithm::sortPopulation(population);
+    QList<Individual *> population = { i2, i1, i3 };
 
-    QCOMPARE(population.first(), i1);
+    QCOMPARE(population.first(), i2);
+    REvolutionaryTrainingAlgorithm::sortPopulation(population);
+    QCOMPARE(population, QList<Individual *>({ i1, i2, i3 }));
 }
 
 
@@ -268,9 +273,11 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
             .populationSize(50)
             .eliteSize(5)
             .maxNoSuccessEpochs(INT_MAX)
-            .measurementEpochs(1000)
-            .startTTL(500)
-            .gradientWeight(3.0)
+            .startTTL(333)
+            .gradientWeight(4.0)
+            .ebmin(1e-2)
+            .ebmax(3.0)
+            .successWeight(1.5)
             .train(trainingSet);
 
     ValueVector output;
