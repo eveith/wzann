@@ -2,6 +2,7 @@
 
 #include <log4cxx/logmanager.h>
 #include <log4cxx/basicconfigurator.h>
+#include <log4cxx/level.h>
 
 #include "Testrunner.h"
 
@@ -56,6 +57,13 @@ void TestRunner::printHelp(const char *basename) const
 int TestRunner::run(int argc, char *argv[])
 {
     log4cxx::BasicConfigurator::configure();
+
+#ifdef QT_DEBUG
+    log4cxx::LogManager::getRootLogger()->setLevel(log4cxx::Level::getDebug());
+#else
+    log4cxx::LogManager::getRootLogger()->setLevel(log4cxx::Level::getInfo());
+#endif
+
     int rc = 0;
 
     if (1 == argc) {
