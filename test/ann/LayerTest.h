@@ -15,7 +15,7 @@ signals:
 private slots:
     void testLayerCreation();
     void testNeuronAddition();
-    
+    void testNeuronIterator();
 };
 
 #endif // LAYERTEST_H

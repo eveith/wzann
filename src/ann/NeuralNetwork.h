@@ -96,7 +96,7 @@ namespace Winzent {
             /*!
              * All neurons that make up this neural network.
              */
-            QList<Layer*> m_layers;
+            QList<Layer *> m_layers;
 
 
             /*!
@@ -220,7 +220,7 @@ namespace Winzent {
              *
              * \return The new connection
              */
-            Connection *connectNeurons(Neuron *from, Neuron *to)
+            Connection *connectNeurons(Neuron *const &from, Neuron *const &to)
                     throw(UnknownNeuronException);
 
 
@@ -299,6 +299,30 @@ namespace Winzent {
                 throw(UnknownNeuronException);
 
 
+
+            /*!
+             * \brief Iterates over each layer, yielding to the supplied lambda
+             *  for each layer.
+             *
+             * \param yield The lambda that gets called for each connection.
+             */
+            void eachLayer(std::function<void(const Layer *const &)> yield)
+                    const;
+
+
+            /*!
+             * \brief Iterates over all layers.
+             *
+             * This is an overloaded method. It yields a modifiable reference
+             * to the layer.
+             *
+             * \param yield The lambda that is called for each layer, allowing
+             *  layer modification.
+             */
+            void eachLayer(std::function<void(Layer *const &)> yield);
+
+
+
             /*!
              * \brief Iterates over all neuron connections in this network
              *
@@ -348,13 +372,13 @@ namespace Winzent {
             /*!
              * Returns the layer at the designated index.
              */
-            Layer*& layerAt(const int &index);
+            Layer *&layerAt(const int &index);
 
 
             /*!
              * <code>const</code> version of #layerAt
              */
-            Layer* layerAt(const int &index) const;
+            Layer *const &layerAt(const int &index) const;
 
 
             /*!
@@ -372,13 +396,13 @@ namespace Winzent {
             /*!
              * Returns the input layer
              */
-            Layer* inputLayer() const;
+            Layer *const &inputLayer() const;
 
 
             /*!
              * Returns the output layer
              */
-            Layer* outputLayer() const;
+            Layer *const &outputLayer() const;
 
 
             /*!

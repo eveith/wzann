@@ -187,8 +187,8 @@ void NeuralNetworkTest::testSerialization()
 void NeuralNetworkTest::testInitialLayerSize()
 {
     Layer l;
-    QCOMPARE(l.neurons.size(), 1);
-    QCOMPARE(l.neurons.first()->activate(4123), 1.0);
+    QCOMPARE(l.m_neurons.size(), 1);
+    QCOMPARE(l.m_neurons.first()->activate(4123), 1.0);
 }
 
 
@@ -275,6 +275,35 @@ void NeuralNetworkTest::testClone()
 
     delete network;
     delete clone;
+}
+
+
+void NeuralNetworkTest::testEachLayerIterator()
+{
+    QList<const Layer *> layers;
+
+    NeuralNetwork network;
+    Mock::NeuralNetworkTestDummyPattern pattern;
+    network.configure(&pattern);
+
+    network.eachLayer([&layers](const Layer *const &layer) {
+        layers << layer;
+    });
+
+    QVERIFY(layers.size() == network.size());
+    QVERIFY(network.inputLayer() == layers.first());
+    QVERIFY(network.outputLayer() == layers.last());
+
+    layers.clear();
+
+    network.eachLayer([&layers, &network](const Layer *const &layer) {
+        if (network.inputLayer() == layer) {
+            layers << layer;
+        }
+    });
+
+    QCOMPARE(layers.size(), 1);
+    QVERIFY(network.inputLayer() == layers.first());
 }
 
 

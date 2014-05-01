@@ -187,7 +187,8 @@ namespace Winzent
                 ValueVector rememberedValues(contextLayer->size());
 
                 for (int i = 0; i != contextLayer->size(); ++i) {
-                    rememberedValues[i] = contextLayer->neurons.at(i)->lastResult();
+                    rememberedValues[i] = contextLayer->neuronAt(i)
+                            ->lastResult();
                 }
 
                 rememberedValues = network->calculateLayerTransition(

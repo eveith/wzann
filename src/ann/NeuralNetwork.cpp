@@ -32,6 +32,9 @@
 #include "TrainingAlgorithm.h"
 
 
+using std::function;
+
+
 namespace Winzent {
     namespace ANN {
 
@@ -44,10 +47,7 @@ namespace Winzent {
 
         NeuralNetwork::NeuralNetwork(QObject* parent):
                 QObject(parent),
-                m_layers(QList<Layer*>()),
-                m_connectionSources(QHash<Neuron*, QList<Connection*> >()),
-                m_connectionDestinations(QHash<Neuron*, QList<Connection*> >()),
-                m_pattern(NULL)
+                m_pattern(nullptr)
         {
             Q_ASSERT(m_connectionSources.size()
                      == m_connectionDestinations.size());
@@ -56,10 +56,7 @@ namespace Winzent {
 
         NeuralNetwork::NeuralNetwork(const NeuralNetwork &rhs):
                 QObject(rhs.parent()),
-                m_layers(QList<Layer*>()),
-                m_connectionSources(QHash<Neuron*, QList<Connection*> >()),
-                m_connectionDestinations(QHash<Neuron*, QList<Connection*> >()),
-                m_pattern(NULL)
+                m_pattern(nullptr)
         {
             // Clone layers:
 
@@ -93,7 +90,7 @@ namespace Winzent {
                     }
 
                     srcLayerIndex = i;
-                    srcNeuronIndex = rhs[i]->neurons.indexOf(foreignNeuron);
+                    srcNeuronIndex = rhs[i]->indexOf(foreignNeuron);
                     break;
                 }
 
@@ -116,8 +113,7 @@ namespace Winzent {
                         }
 
                         dstLayerIndex = i;
-                        dstNeuronIndex = rhs[i]->neurons.indexOf(
-                                c->destination());
+                        dstNeuronIndex = rhs[i]->indexOf(c->destination());
                         break;
                     }
 
@@ -161,7 +157,7 @@ namespace Winzent {
 
         bool NeuralNetwork::containsNeuron(const Neuron *neuron) const
         {
-            Q_ASSERT(NULL != neuron);
+            Q_ASSERT(nullptr != neuron);
 
             foreach (Layer *l, m_layers) {
                 if (l->contains(neuron)) {
@@ -258,6 +254,19 @@ namespace Winzent {
         }
 
 
+        void NeuralNetwork::eachLayer(
+                std::function<void (const Layer *const &)> yield) const
+        {
+            std::for_each(m_layers.begin(), m_layers.end(), yield);
+        }
+
+
+        void NeuralNetwork::eachLayer(function<void (Layer* const &)> yield)
+        {
+            std::for_each(m_layers.begin(), m_layers.end(), yield);
+        }
+
+
         void NeuralNetwork::eachConnection(
                 std::function<void (Connection * const &)> yield)
         {
@@ -280,8 +289,10 @@ namespace Winzent {
         }
 
 
-        Connection *NeuralNetwork::connectNeurons(Neuron *from, Neuron *to)
-                throw(UnknownNeuronException)
+        Connection *NeuralNetwork::connectNeurons(
+                Neuron *const &from,
+                Neuron *const &to)
+                    throw(UnknownNeuronException)
         {
             if (!containsNeuron(from)) {
                 throw UnknownNeuronException(from);
@@ -303,7 +314,7 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork& NeuralNetwork::operator<<(Layer *layer)
+        NeuralNetwork &NeuralNetwork::operator<<(Layer *layer)
         {
             m_layers << layer;
             layer->setParent(this);
@@ -321,19 +332,19 @@ namespace Winzent {
         }
 
 
-        Layer*& NeuralNetwork::layerAt(const int &index)
+        Layer *&NeuralNetwork::layerAt(const int &index)
         {
             return m_layers[index];
         }
 
 
-        Layer* NeuralNetwork::layerAt(const int &index) const
+        Layer *const &NeuralNetwork::layerAt(const int &index) const
         {
             return m_layers.at(index);
         }
 
 
-        Layer*& NeuralNetwork::operator [](const int &index)
+        Layer *&NeuralNetwork::operator [](const int &index)
         {
             return layerAt(index);
         }
@@ -345,13 +356,13 @@ namespace Winzent {
         }
 
 
-        Layer* NeuralNetwork::inputLayer() const
+        Layer *const &NeuralNetwork::inputLayer() const
         {
             return m_layers.first();
         }
 
 
-        Layer* NeuralNetwork::outputLayer() const
+        Layer *const &NeuralNetwork::outputLayer() const
         {
             return m_layers.last();
         }
@@ -361,7 +372,7 @@ namespace Winzent {
         {
             // Get rid of the old pattern, if one exists:
 
-            if (NULL != m_pattern) {
+            if (nullptr != m_pattern) {
                 delete m_pattern;
             }
 
@@ -448,7 +459,7 @@ namespace Winzent {
 
                     Q_ASSERT(c->source() == fromNeuron);
 
-                    int j = toLayer->neurons.indexOf(c->destination());
+                    int j = toLayer->indexOf(c->destination());
                     output[j] += input.at(i) * c->weight();
                 }
             }
@@ -490,17 +501,18 @@ namespace Winzent {
                 QVariantMap layerMap;
                 QVariantList neuronsList;
 
-                QList<Neuron*> neurons = network.m_layers[i]->neurons;
-                for (int j = 0; j != neurons.size(); ++j) {
+                for (int j = 0; j != network.layerAt(i)->size() + 1; ++j) {
                     QVariantMap neuronMap;
 
                     neuronMap.insert(
                             "activationFunction",
-                            neurons[j]->m_activationFunction
-                                ->metaObject()->className());
+                            network.layerAt(i)->neuronAt(j)
+                                ->m_activationFunction
+                                    ->metaObject()->className());
 
                     QVariantList lastInputs;
-                    foreach (qreal r, neurons[j]->lastInputs()) {
+                    foreach (qreal r,
+                             network.layerAt(i)->neuronAt(j)->lastInputs()) {
                         lastInputs << r;
                     }
 
@@ -509,7 +521,8 @@ namespace Winzent {
                             lastInputs);
 
                     QVariantList lastResults;
-                    foreach (qreal r, neurons[j]->lastResults()) {
+                    foreach (qreal r,
+                             network.layerAt(i)->neuronAt(j)->lastResults()) {
                         lastResults << r;
                     }
 
@@ -557,7 +570,7 @@ namespace Winzent {
                             connection.insert("dstLayer", k);
                             connection.insert(
                                     "dstNeuron",
-                                    network[k]->neurons.indexOf(dstNeuron));
+                                    network[k]->indexOf(dstNeuron));
                             connection.insert("weight", c->weight());
                             connection.insert("fixed", c->fixedWeight());
                             connections.append(connection);

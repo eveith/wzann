@@ -39,10 +39,10 @@ namespace Winzent {
             int n = 0;
 
             for (; n != actualOutput.size(); ++n) {
-                error += pow((actualOutput[n] - expectedOutput[n]), 2);
+                error += pow(expectedOutput[n] - actualOutput[n], 2);
             }
 
-            error /= static_cast<qreal>(n);
+            error /= static_cast<qreal>(++n);
             return error;
         }
 

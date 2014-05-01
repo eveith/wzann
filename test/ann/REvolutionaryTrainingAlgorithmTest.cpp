@@ -97,6 +97,69 @@ void REvolutionaryTrainingAlgorithmTest::testAgeIndividual()
 }
 
 
+void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
+{
+    Individual i1(createNeuralNetwork()), i2(createNeuralNetwork());
+
+    i1.neuralNetwork()->eachConnection([](Connection *const &c) {
+        if (!c->fixedWeight()) {
+            c->weight(0.0);
+        }
+    });
+
+    i2.neuralNetwork()->eachConnection([](Connection *const &c) {
+        if (!c->fixedWeight()) {
+            c->weight(0.0);
+        }
+    });
+
+    QVERIFY(i1 == i2);
+
+    i2.neuralNetwork()->eachConnection([](Connection *const &c) {
+        if (!c->fixedWeight()) {
+            c->weight(1.0);
+        }
+    });
+
+    QVERIFY(!(i1 == i2));
+
+    i2.neuralNetwork()->eachConnection([](Connection *const &c) {
+        if (!c->fixedWeight()) {
+            c->weight(0.0);
+        }
+    });
+
+    i1.scatter()[1] = 1.0;
+    i2.scatter()[1] = 1.1;
+
+    QVERIFY(!(i1 == i2));
+    i2.scatter()[1] = 1.0;
+    QVERIFY(i1 == i2);
+
+    i1.errorVector()[0] = 11.1;
+    QVERIFY(!(i1 == i2));
+    i2.errorVector()[0] = 11.1;
+    QVERIFY(i1 == i2);
+}
+
+
+void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorAssign()
+{
+    Individual i1(createNeuralNetwork()), i2(createNeuralNetwork());
+
+    if (i1 == i2) {
+        i1.errorVector()[0] = 421.43;
+    }
+
+    QVERIFY(!(i1 == i2));
+
+    i1 = i2;
+
+    QVERIFY(i1 == i2);
+    QVERIFY(&i1 != &i2);
+}
+
+
 void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
 {
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
@@ -152,17 +215,13 @@ void REvolutionaryTrainingAlgorithmTest::testCompareIndividuals()
     QCOMPARE(0, i1->compare(i2));
 
     i2->timeToLive(3);
-    QCOMPARE(-1, i1->compare(i2));
-
-    i1->timeToLive(3);
-    QCOMPARE(0, i2->compare(i1));
+    QCOMPARE(0, i1->compare(i2));
 
     i2->age();
-    QCOMPARE(1, i1->compare(i2));
-    QVERIFY(i1->isBetterThan(i2));
+    QCOMPARE(0, i1->compare(i2));
 
-    i1->age();
     i1->errorVector()[0] = 1.0;
+    QCOMPARE(1, i1->compare(i2));
     QVERIFY(i1->isBetterThan(i2));
 
     i2->errorVector()[0] = 1.0;
@@ -251,8 +310,10 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
                 new SigmoidActivationFunction()
             },
             this);
-
     network->configure(pattern);
+
+    NguyenWidrowWeightRandomizer randomizer;
+    randomizer.randomize(network);
 
     // Build training data:
 
@@ -265,20 +326,23 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
 
     TrainingSet *trainingSet = new TrainingSet(
             trainingItems,
-            0.1,
-            5000);
+            1e-3,
+            15000);
 
     REvolutionaryTrainingAlgorithm trainingAlgorithm(network);
     trainingAlgorithm
             .populationSize(50)
             .eliteSize(5)
             .maxNoSuccessEpochs(INT_MAX)
-            .startTTL(333)
-            .gradientWeight(4.0)
-            .ebmin(1e-2)
+            .startTTL(500)
+            .gradientWeight(3.0)
+            .ebmin(0.1)
             .ebmax(3.0)
-            .successWeight(1.5)
+            .successWeight(0.1)
             .train(trainingSet);
+
+    QTextStream outStream(stdout);
+    outStream << *network;
 
     ValueVector output;
     output = network->calculate({ 1, 1 });
@@ -294,6 +358,7 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
     qDebug() << "(0, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
 
+    delete trainingSet;
 }
 
 

@@ -245,8 +245,7 @@ namespace Winzent
             }
 
             if (network()->outputLayer()->contains(neuron)) {
-                int neuronIdx =
-                        network()->outputLayer()->neurons.indexOf(neuron);
+                int neuronIdx = network()->outputLayer()->indexOf(neuron);
                 neuronDeltas.insert(
                         neuron,
                         outputNeuronDelta(neuron, outputError.at(neuronIdx)));

@@ -232,6 +232,26 @@ namespace Winzent {
             static bool isIndividual1Better(
                     const Individual *const &i1,
                     const Individual *const &i2);
+
+
+            /*!
+             * \brief Compares two Individuals for equality in all vectors.
+             *
+             * \param[in] other The Individual to compare the current one to.
+             *
+             * \return true iff equal, false otherwise.
+             */
+            bool operator==(const Individual &other) const;
+
+
+            /*!
+             * \brief Deep copy operator
+             *
+             * \param[in] other The other Individual to copy
+             *
+             * \return A deep copy
+             */
+            Individual &operator=(const Individual &other);
         };
 
         
@@ -268,9 +288,9 @@ namespace Winzent {
 
 
             /*!
-             * \brief Weight of the error returned for ANN training
+             * \brief Weight of the reproduction success
              */
-            qreal m_errorWeight;
+            qreal m_successWeight;
 
 
             /*!
@@ -304,9 +324,16 @@ namespace Winzent {
             int m_measurementEpochs;
 
 
+            /*!
+             * \brief Success of reproduction
+             */
             qreal m_success;
 
 
+            /*!
+             * \brief Target value on which the population has reached
+             *  equilibrium
+             */
             qreal m_targetSuccess;
 
 

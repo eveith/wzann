@@ -28,6 +28,8 @@ public:
 private slots:
     void testIndividualInitialization();
     void testAgeIndividual();
+    void testIndividualOperatorEquals();
+    void testIndividualOperatorAssign();
     void testParametersSettingAndRetrieval();
     void testCompareIndividuals();
     void testGenerateIndividual();

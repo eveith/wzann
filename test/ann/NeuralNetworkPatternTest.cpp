@@ -55,7 +55,7 @@ void NeuralNetworkPatternTestDummyPattern::configureNetwork(
             Neuron *n = new Neuron(
                     new SigmoidActivationFunction(),
                     network);
-            l->neurons << n;
+            *l << n;
         }
 
         *network << l;

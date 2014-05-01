@@ -4,7 +4,12 @@
 #include <QObject>
 #include <QList>
 
+#include <functional>
+
 #include "Neuron.h"
+
+
+using std::function;
 
 
 namespace Winzent {
@@ -14,73 +19,20 @@ namespace Winzent {
         /*!
          * Represents a layer in a neural network
          */
-        class Layer : public QObject
+        class Layer: public QObject
         {
             Q_OBJECT
 
-        public:
+        private:
 
 
             /*!
              * A list of all neurons the make up this layer.
              */
-            QList<Neuron*> neurons;
+            QList<Neuron*> m_neurons;
 
 
-            /*!
-             * Returns the size of the layer, i.e. the number of
-             * neurons it holds. Excludes the bias neuron.
-             */
-            int size() const;
-
-
-            /*!
-             * Checks whether a particular neuron is part of this layer.
-             */
-            bool contains(const Neuron *neuron) const;
-
-
-            /*!
-             * Returns the neuron at the specified index position.
-             *
-             * Retrieves a neuron given its position (index) in the layer. One
-             * can access the bias neuron, too, using
-             * <code>layer[layer.size()]</code>.
-             *
-             * \sa #biasNeuron()
-             */
-            Neuron*& neuronAt(const int &index);
-
-
-            /*!
-             * Nonmodifiable, `const` version of the neuronAt command.
-             */
-            const Neuron* neuronAt(const int &index) const;
-
-
-            /*!
-             * Returns the neuron at the specified index position.
-             *
-             * Retrieves a neuron given its position (index) in the layer. One
-             * can access the bias neuron, too, using
-             * <code>layer[layer.size()]</code>.
-             *
-             * \sa #biasNeuron()
-             */
-            Neuron*& operator [](const int &index);
-
-
-            /*!
-             * Provides access to the bias neuron.
-             */
-            Neuron*& biasNeuron();
-
-
-            /*!
-             * Adds a neuron to the layer ensuring that the bias neuron always
-             * remains the last one.
-             */
-            Layer& operator<<(Neuron *neuron);
+        public:
 
 
             /*!
@@ -96,9 +48,100 @@ namespace Winzent {
 
 
             /*!
+             * Returns the size of the layer, i.e. the number of
+             * neurons it holds. Excludes the bias neuron.
+             */
+            int size() const;
+
+
+            /*!
+             * Checks whether a particular neuron is part of this layer.
+             */
+            bool contains(const Neuron *const &neuron) const;
+
+
+            /*!
+             * Returns the neuron at the specified index position.
+             *
+             * Retrieves a neuron given its position (index) in the layer. One
+             * can access the bias neuron, too, using
+             * <code>layer[layer.size()]</code>.
+             *
+             * \sa #biasNeuron()
+             */
+            Neuron *&neuronAt(const int &index);
+
+
+            /*!
+             * Nonmodifiable, `const` version of the neuronAt command.
+             */
+            const Neuron *neuronAt(const int &index) const;
+
+
+            /*!
+             * Returns the neuron at the specified index position.
+             *
+             * Retrieves a neuron given its position (index) in the layer. One
+             * can access the bias neuron, too, using
+             * <code>layer[layer.size()]</code>.
+             *
+             * \sa #biasNeuron()
+             */
+            Neuron*& operator [](const int &index);
+
+
+
+            /*!
+             * \brief Returns the index of a particular neuron
+             *
+             * \param[in] neuron The neuron
+             *
+             * \return The index position, or -1 if no item matched.
+             */
+            int indexOf(const Neuron *const &neuron) const;
+
+
+            /*!
+             * Provides access to the bias neuron.
+             */
+            Neuron *const &biasNeuron();
+
+
+            /*!
+             * \brief Allows const access to the bias neuron
+             *
+             * \return The bias neuron r/o
+             */
+            const Neuron *biasNeuron() const;
+
+
+            /*!
+             * \brief Iterator access to each neuron as a const reference
+             *
+             * \param yield The lambda called for each neuron.
+             */
+            void eachNeuron(function<void(const Neuron *const &)> yield) const;
+
+
+            /*!
+             * \brief Iterator access to each neuron as a modifiable reference
+             *
+             * \param yield The lambda that is called for each neuron.
+             */
+            void eachNeuron(function<void(Neuron *const &)> yield);
+
+
+            /*!
+             * Adds a neuron to the layer ensuring that the bias neuron always
+             * remains the last one.
+             */
+            Layer& operator<<(Neuron *neuron);
+
+
+            /*!
              * Returns a deep copy (clone) of this layer.
              */
-            Layer* clone() const;
+            Layer *clone() const;
         };
         
     } // namespace ANN

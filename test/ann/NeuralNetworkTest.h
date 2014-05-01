@@ -65,6 +65,7 @@ private slots:
     void testInitialLayerSize();
     void testConnectionsFromTo();
     void testClone();
+    void testEachLayerIterator();
     void testEachConnectionIterator();
 };
 
