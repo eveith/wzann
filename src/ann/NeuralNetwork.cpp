@@ -270,22 +270,50 @@ namespace Winzent {
         void NeuralNetwork::eachConnection(
                 std::function<void (Connection * const &)> yield)
         {
-            foreach (Neuron *n, m_connectionSources.keys()) {
-                foreach (Connection *c, m_connectionSources[n]) {
-                    yield(c);
-                }
-            }
+            eachLayer([this, &yield](Layer *const &layer) {
+                layer->eachNeuron([this, &yield](Neuron *const &neuron) {
+                    QList<Connection *> connections =
+                            neuronConnectionsFrom(neuron);
+                    std::for_each(
+                            connections.begin(),
+                            connections.end(),
+                            yield);
+                });
+
+                // Extra for the bias neuron:
+
+                QList<Connection *> connections = neuronConnectionsFrom(
+                        layer->biasNeuron());
+                std::for_each(
+                        connections.begin(),
+                        connections.end(),
+                        yield);
+            });
         }
 
 
         void NeuralNetwork::eachConnection(
-                std::function<void (const Connection * const &)> yield) const
+                std::function<void (const Connection *const &)> yield) const
         {
-            foreach (Neuron *n, m_connectionSources.keys()) {
-                foreach (const Connection *c, m_connectionSources[n]) {
-                    yield(c);
-                }
-            }
+            eachLayer([this, &yield](const Layer *const &layer) {
+                layer->eachNeuron([this, &yield](const Neuron *const &neuron) {
+                    QList<Connection *> connections =
+                            neuronConnectionsFrom(neuron);
+                    std::for_each(
+                            connections.begin(),
+                            connections.end(),
+                            yield);
+                });
+
+                // Extra for the bias neuron:
+
+                QList<Connection *> connections = neuronConnectionsFrom(
+                        layer->biasNeuron());
+                std::for_each(
+                        connections.begin(),
+                        connections.end(),
+                        yield);
+            });
         }
 
 
