@@ -135,7 +135,7 @@ namespace Winzent
              *
              * \return `this`
              */
-            Neuron *cacheSize(int cacheSize);
+            Neuron &cacheSize(const int &cacheSize);
 
 
             /*!

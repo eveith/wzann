@@ -12,10 +12,10 @@
 #include "Neuron.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
+
+
         Neuron::Neuron(ActivationFunction *activationFunction, QObject *parent):
             QObject(parent),
             m_activationFunction(activationFunction),
@@ -79,7 +79,7 @@ namespace Winzent
         }
 
 
-        Neuron *Neuron::cacheSize(int cacheSize)
+        Neuron &Neuron::cacheSize(const int &cacheSize)
         {
             int oldCacheSize = m_cacheSize;
             m_cacheSize = cacheSize;
@@ -87,7 +87,7 @@ namespace Winzent
                 trimCache();
             }
 
-            return this;
+            return *this;
         }
 
 
@@ -115,10 +115,6 @@ namespace Winzent
                 if (m_lastInputs.size() > cacheSize()) {
                     trimCache();
                 }
-
-                qDebug() << this
-                    << "lastInput" << m_lastInputs.first()
-                    << "lastResult" << m_lastResults.first();
             }
 
             return result;

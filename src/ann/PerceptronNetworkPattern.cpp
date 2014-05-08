@@ -81,7 +81,7 @@ namespace Winzent {
 
 
         ValueVector PerceptronNetworkPattern::calculate(
-                NeuralNetwork *network,
+                NeuralNetwork *const &network,
                 const ValueVector &input)
         {
             ValueVector output = input; // For the loop

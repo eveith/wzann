@@ -639,9 +639,9 @@ namespace Winzent {
              *
              * \return A newly generated ANN
              */
-            Individual *generateIndividual(
-                    const QList<Individual *> &population,
-                    TrainingSet *const &trainingSet);
+            Individual *modifyIndividual(
+                    Individual *const &individual,
+                    QList<Individual *> &population);
 
 
 

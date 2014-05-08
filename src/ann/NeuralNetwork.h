@@ -238,9 +238,11 @@ namespace Winzent {
              *
              * \throw NoConnectionException
              */
-            Connection* neuronConnection(const Neuron *from, const Neuron *to)
-                    const
-                    throw(NoConnectionException);
+            Connection *neuronConnection(
+                    const Neuron *const &from,
+                    const Neuron *const &to)
+                        const
+                        throw(NoConnectionException);
 
 
             /*!
@@ -262,8 +264,11 @@ namespace Winzent {
              *
              * \sa Connection#weight
              */
-            void weight(const Neuron *&from, const Neuron *&to, double value)
-                    throw(NoConnectionException, WeightFixedException);
+            void weight(
+                    const Neuron *const &from,
+                    const Neuron *const &to,
+                    double value)
+                        throw(NoConnectionException, WeightFixedException);
 
 
             /*!
@@ -279,9 +284,10 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsTo
              */
-            QList<Connection*> neuronConnectionsFrom(const Neuron *neuron)
-                const
-                throw(UnknownNeuronException);
+            const QList<Connection*> neuronConnectionsFrom(
+                    const Neuron *const &neuron)
+                        const
+                        throw(UnknownNeuronException);
 
 
             /*!
@@ -295,8 +301,10 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsFrom
              */
-            QList<Connection*> neuronConnectionsTo(const Neuron *neuron) const
-                throw(UnknownNeuronException);
+            QList<Connection*> neuronConnectionsTo(
+                    const Neuron *const &neuron)
+                        const
+                        throw(UnknownNeuronException);
 
 
 
@@ -436,8 +444,10 @@ namespace Winzent {
              *
              * \sa #calculateLayer
              */
-            ValueVector calculateLayer(Layer *layer, const ValueVector &input)
-                    throw(LayerSizeMismatchException);
+            ValueVector calculateLayer(
+                    Layer *const &layer,
+                    const ValueVector &input)
+                        throw(LayerSizeMismatchException);
 
 
             /*!

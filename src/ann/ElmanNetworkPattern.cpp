@@ -168,7 +168,7 @@ namespace Winzent
 
 
         ValueVector ElmanNetworkPattern::calculate(
-                NeuralNetwork *network,
+                NeuralNetwork *const &network,
                 const ValueVector &input)
         {
             ValueVector layerInput;

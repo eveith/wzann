@@ -32,7 +32,7 @@ private slots:
     void testIndividualOperatorAssign();
     void testParametersSettingAndRetrieval();
     void testCompareIndividuals();
-    void testGenerateIndividual();
+    void testModifyIndividual();
     void testSortPopulation();
     void testTrainXOR();
 };

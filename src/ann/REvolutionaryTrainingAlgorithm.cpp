@@ -516,7 +516,7 @@ namespace Winzent {
                         baseNetwork->clone());
             QList <Individual *> population = { baseIndividual };
 
-            for (int i = 1; i < populationSize(); ++i) {
+            for (int i = 1; i < populationSize() + 1; ++i) {
                 Individual *individual = new Individual(baseNetwork->clone());
                 ValueVector individualParameters = individual->parameters();
 
@@ -539,17 +539,22 @@ namespace Winzent {
                         "Created " << *individual);
             }
 
-            Q_ASSERT(population.size() == populationSize());
+            Q_ASSERT(population.size() == populationSize() + 1);
             return population;
         }
 
 
-        Individual *REvolutionaryTrainingAlgorithm::generateIndividual(
-                const QList<Individual *> &population,
-                TrainingSet *const &)
+        Individual *REvolutionaryTrainingAlgorithm::modifyIndividual(
+                Individual *const &individual,
+                QList<Individual *> &population)
         {
-            Individual *newIndividual = new Individual(
-                        population.first()->neuralNetwork()->clone());
+            bool populationContainedIndividual = false;
+
+            if (population.contains(individual)) {
+                population.removeAll(individual);
+                populationContainedIndividual = true;
+            }
+
             Individual *eliteIndividual = population.at(abs(
                     (qrand() % eliteSize()) - (qrand() % eliteSize())));
             Individual *otherIndividual = population.at(
@@ -612,7 +617,7 @@ namespace Winzent {
 
                 // Generate new scatter:
 
-                newIndividual->scatter()[i] = dx;
+                individual->scatter()[i] = dx;
 
                 dx = dx * (frandom() + frandom()
                         + frandom() + frandom() + frandom() - frandom()
@@ -636,22 +641,27 @@ namespace Winzent {
             }
 
             Q_ASSERT(newParameters.size()
-                     == newIndividual->parameters().size());
-            newIndividual->parameters(newParameters);
-            newIndividual->timeToLive(startTTL());
+                     == individual->parameters().size());
+            individual->parameters(newParameters);
+            individual->timeToLive(startTTL());
+            individual->errorVector().clear();
+            individual->errorVector().append(
+                    std::numeric_limits<qreal>::infinity());
 
 #ifdef      QT_DEBUG
                 for (int i = 0; i != newParameters.size(); ++i) {
                     Q_ASSERT(newParameters.at(i)
-                             == newIndividual->parameters().at(i));
+                             == individual->parameters().at(i));
                 }
 #endif
 
-            LOG4CXX_DEBUG(
-                    logger,
-                    "Created " << *newIndividual);
+            LOG4CXX_DEBUG(logger, "Created " << *individual);
 
-            return newIndividual;
+            if (populationContainedIndividual) {
+                population.append(individual);
+            }
+
+            return individual;
         }
 
 
@@ -681,13 +691,10 @@ namespace Winzent {
             Individual *bestIndividual = population.first();
 
             do {
-                // Create new individual that potentially joins the population:
+                // Modify the worst individual:
 
                 if (0 != epoch) {
-                    Individual *newIndividual = generateIndividual(
-                            population,
-                            trainingSet);
-                    population << newIndividual;
+                    modifyIndividual(population.last(), population);
                 }
 
                 // Run current patterns through all networks
@@ -740,10 +747,6 @@ namespace Winzent {
                                     -1.0,
                                     measurementEpochs());
                         }
-
-                        delete population.takeAt(population.size() - 2);
-                    } else {
-                        delete population.takeLast();
                     }
                 }
 

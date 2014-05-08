@@ -191,8 +191,8 @@ namespace Winzent {
 
 
         Connection* NeuralNetwork::neuronConnection(
-                const Neuron *from,
-                const Neuron *to)
+                const Neuron *const &from,
+                const Neuron *const &to)
                     const
                     throw(NoConnectionException)
         {
@@ -215,8 +215,8 @@ namespace Winzent {
 
 
         void NeuralNetwork::weight(
-                const Neuron *&from,
-                const Neuron *&to,
+                const Neuron *const &from,
+                const Neuron *const &to,
                 double value)
                     throw(NoConnectionException, WeightFixedException)
         {
@@ -224,8 +224,8 @@ namespace Winzent {
         }
 
 
-        QList<Connection*> NeuralNetwork::neuronConnectionsFrom(
-                const Neuron *neuron)
+        const QList<Connection *> NeuralNetwork::neuronConnectionsFrom(
+                const Neuron *const &neuron)
                     const
                     throw(UnknownNeuronException)
         {
@@ -240,7 +240,7 @@ namespace Winzent {
 
 
         QList<Connection*> NeuralNetwork::neuronConnectionsTo(
-                const Neuron *neuron)
+                const Neuron *const &neuron)
                     const
                     throw(UnknownNeuronException)
         {
@@ -412,7 +412,7 @@ namespace Winzent {
 
 
         ValueVector NeuralNetwork::calculateLayer(
-                Layer *layer,
+                Layer *const &layer,
                 const ValueVector &input)
                     throw(LayerSizeMismatchException)
         {

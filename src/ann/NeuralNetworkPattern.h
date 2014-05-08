@@ -110,7 +110,7 @@ namespace Winzent
              * \return The result of the calculation
              */
             virtual ValueVector calculate(
-                    NeuralNetwork *network,
+                    NeuralNetwork *const &network,
                     const ValueVector &input) = 0;
 
 

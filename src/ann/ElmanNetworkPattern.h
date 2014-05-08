@@ -59,7 +59,7 @@ namespace Winzent
              * Feed-forward calculation of an Elman network.
              */
             virtual ValueVector calculate(
-                    NeuralNetwork *network,
+                    NeuralNetwork *const &network,
                     const ValueVector &input);
 
 

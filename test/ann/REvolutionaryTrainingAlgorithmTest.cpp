@@ -237,7 +237,7 @@ void REvolutionaryTrainingAlgorithmTest::testCompareIndividuals()
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testGenerateIndividual()
+void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
 {
     qsrand(time(NULL));
 
@@ -250,19 +250,18 @@ void REvolutionaryTrainingAlgorithmTest::testGenerateIndividual()
         population << new Individual(createNeuralNetwork());
     }
 
-    Individual *i3 = trainingAlgorithm.generateIndividual(
-            population,
-            &trainingSet);
+    Individual *i3 = trainingAlgorithm.modifyIndividual(
+            population.last(),
+            population);
 
     QCOMPARE(i3->parameters().size(), population.first()->parameters().size());
 
-    foreach (Individual *i, population) {
+    std::for_each(population.begin(), population.end() - 1, [&](Individual *i) {
         for (int j = 0; j != i->parameters().size(); ++j) {
             QVERIFY (i3->parameters().at(j) != i->parameters().at(j));
         }
-    }
+    });
 
-    delete i3;
     foreach (Individual *i, population) {
         delete i;
     }
@@ -336,13 +335,10 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
             .maxNoSuccessEpochs(INT_MAX)
             .startTTL(500)
             .gradientWeight(3.0)
-            .ebmin(0.1)
-            .ebmax(3.0)
+            .ebmin(1e-2)
+            .ebmax(2.0)
             .successWeight(0.1)
             .train(trainingSet);
-
-    QTextStream outStream(stdout);
-    outStream << *network;
 
     ValueVector output;
     output = network->calculate({ 1, 1 });
