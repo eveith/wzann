@@ -28,7 +28,10 @@
 #include "Exception.h"
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"
+
 #include "ActivationFunction.h"
+#include "ConstantActivationFunction.h"
+
 #include "TrainingAlgorithm.h"
 
 
@@ -47,6 +50,9 @@ namespace Winzent {
 
         NeuralNetwork::NeuralNetwork(QObject* parent):
                 QObject(parent),
+                m_biasNeuron(new Neuron(
+                    new ConstantActivationFunction(),
+                    this)),
                 m_pattern(nullptr)
         {
             Q_ASSERT(m_connectionSources.size()
@@ -56,8 +62,11 @@ namespace Winzent {
 
         NeuralNetwork::NeuralNetwork(const NeuralNetwork &rhs):
                 QObject(rhs.parent()),
+                m_biasNeuron(rhs.m_biasNeuron->clone()),
                 m_pattern(nullptr)
         {
+            m_biasNeuron->setParent(this);
+
             // Clone layers:
 
             foreach(Layer *l, rhs.m_layers) {
@@ -73,35 +82,39 @@ namespace Winzent {
 
             foreach (Neuron *foreignNeuron, rhs.m_connectionSources.keys()) {
 
-                // Ignore leftovers:
+                // Ignore unconnected neurons:
 
                 if (rhs.neuronConnectionsFrom(foreignNeuron).size() == 0) {
                     continue;
                 }
 
-                // First, find the index of the source neuron:
+                QList<Connection *> connections;
+                int srcLayerIndex   = -1;
+                int srcNeuronIndex  = -1;
 
-                int srcLayerIndex = -1;
-                int srcNeuronIndex = -1;
+                if (rhs.biasNeuron() == foreignNeuron) {
+                    connections = rhs.neuronConnectionsFrom(foreignNeuron);
+                } else {
+                    // First, find the index of the source neuron:
 
-                for (int i = 0; i != rhs.size(); ++i) {
-                    if (!rhs[i]->contains(foreignNeuron)) {
-                        continue;
+                    for (int i = 0; i != rhs.size(); ++i) {
+                        if (!rhs[i]->contains(foreignNeuron)) {
+                            continue;
+                        }
+
+                        srcLayerIndex = i;
+                        srcNeuronIndex = rhs[i]->indexOf(foreignNeuron);
+                        break;
                     }
 
-                    srcLayerIndex = i;
-                    srcNeuronIndex = rhs[i]->indexOf(foreignNeuron);
-                    break;
+                    Q_ASSERT(srcLayerIndex >= 0 && srcNeuronIndex >= 0);
+
+                    connections = rhs.neuronConnectionsFrom(foreignNeuron);
                 }
 
-                Q_ASSERT(srcLayerIndex >= 0 && srcNeuronIndex >= 0);
-
-                // Then, find the index of the destination neurons:
-
-                QList<Connection*> connections =
-                        rhs.neuronConnectionsFrom(foreignNeuron);
-
                 Q_ASSERT(connections.size() > 0);
+
+                // Find the index of the destination neurons and re-create:
 
                 foreach (Connection *c, connections) {
                     int dstLayerIndex = -1;
@@ -121,8 +134,9 @@ namespace Winzent {
 
                     // Now, re-create the connection here:
 
-                    Neuron *srcNeuron =
-                            layerAt(srcLayerIndex)->neuronAt(srcNeuronIndex);
+                    Neuron *srcNeuron = (rhs.biasNeuron() == foreignNeuron
+                            ? biasNeuron()
+                            : layerAt(srcLayerIndex)->neuronAt(srcNeuronIndex));
                     Neuron *dstNeuron =
                             layerAt(dstLayerIndex)->neuronAt(dstNeuronIndex);
 
@@ -137,7 +151,7 @@ namespace Winzent {
 
             // Make sure the cloned pattern has the correct parent object:
 
-            if (NULL != rhs.m_pattern) {
+            if (nullptr != rhs.m_pattern) {
                 m_pattern = rhs.m_pattern->clone();
                 m_pattern->setParent(this);
             }
@@ -155,9 +169,32 @@ namespace Winzent {
         }
 
 
+        const Neuron *NeuralNetwork::biasNeuron() const
+        {
+            return m_biasNeuron;
+        }
+
+
+        Neuron *const &NeuralNetwork::biasNeuron()
+        {
+            return m_biasNeuron;
+        }
+
+
+        NeuralNetwork &NeuralNetwork::biasNeuron(Neuron *neuron)
+        {
+            m_biasNeuron = neuron;
+            return *this;
+        }
+
+
         bool NeuralNetwork::containsNeuron(const Neuron *neuron) const
         {
             Q_ASSERT(nullptr != neuron);
+
+            if (biasNeuron() == neuron) {
+                return true;
+            }
 
             foreach (Layer *l, m_layers) {
                 if (l->contains(neuron)) {
@@ -200,13 +237,14 @@ namespace Winzent {
                 throw NoConnectionException();
             }
 
-            Connection* result = NULL;
+            Connection *result = nullptr;
 
             QList<Connection*> connections =
                     m_connectionSources[const_cast<Neuron*>(from)];
             foreach(Connection *c, connections) {
                 if (c->destination() == const_cast<Neuron*>(to)) {
                     result = c;
+                    break;
                 }
             }
 
@@ -229,7 +267,7 @@ namespace Winzent {
                     const
                     throw(UnknownNeuronException)
         {
-            Q_ASSERT(NULL != neuron);
+            Q_ASSERT(nullptr != neuron);
 
             if (!containsNeuron(neuron)) {
                 throw UnknownNeuronException(neuron);
@@ -279,16 +317,14 @@ namespace Winzent {
                             connections.end(),
                             yield);
                 });
-
-                // Extra for the bias neuron:
-
-                QList<Connection *> connections = neuronConnectionsFrom(
-                        layer->biasNeuron());
-                std::for_each(
-                        connections.begin(),
-                        connections.end(),
-                        yield);
             });
+
+            QList<Connection *> biasNeuronConnections =
+                    neuronConnectionsFrom(biasNeuron());
+            std::for_each(
+                    biasNeuronConnections.begin(),
+                    biasNeuronConnections.end(),
+                    yield);
         }
 
 
@@ -304,16 +340,15 @@ namespace Winzent {
                             connections.end(),
                             yield);
                 });
-
-                // Extra for the bias neuron:
-
-                QList<Connection *> connections = neuronConnectionsFrom(
-                        layer->biasNeuron());
-                std::for_each(
-                        connections.begin(),
-                        connections.end(),
-                        yield);
             });
+
+            QList<Connection *> biasNeuronConnections =
+                    neuronConnectionsFrom(biasNeuron());
+            std::for_each(
+                    biasNeuronConnections.begin(),
+                    biasNeuronConnections.end(),
+                    yield);
+
         }
 
 
@@ -322,7 +357,7 @@ namespace Winzent {
                 Neuron *const &to)
                     throw(UnknownNeuronException)
         {
-            if (!containsNeuron(from)) {
+            if (from != biasNeuron() && !containsNeuron(from)) {
                 throw UnknownNeuronException(from);
             }
 
@@ -347,13 +382,14 @@ namespace Winzent {
             m_layers << layer;
             layer->setParent(this);
 
-            // Make sure the bias connection exists:
+            // Connect all neurons to the bias neuron, but only if the new layer
+            // is not the input layer.
 
-            Neuron *bias = layer->biasNeuron();
-
-            for (int i = 0; i != layer->size(); ++i) {
-                Connection *c = connectNeurons(bias, layer->neuronAt(i));
-                c->weight(-1.0);
+            if (m_layers.first() != layer) {
+                layer->eachNeuron([this](Neuron *const &n) {
+                    Connection *c = connectNeurons(biasNeuron(), n);
+                    c->weight(-1.0);
+                });
             }
 
             return *this;
@@ -421,8 +457,7 @@ namespace Winzent {
             }
 
             ValueVector output;
-
-            Neuron *bias = layer->biasNeuron();
+            output.reserve(layer->size());
 
             for (int i = 0; i != input.size(); ++i) {
                 double sum = input.at(i);
@@ -433,11 +468,10 @@ namespace Winzent {
                 // bias neuron in the input layer since its output would be
                 // overwritten by the input anyways.
 
-                if(m_layers.first() != layer) {
-                    if (neuronConnectionExists(bias, neuron)) {
-                        sum += neuronConnection(bias, neuron)->weight()
-                                * bias->activate(1.0);
-                    }
+                if (inputLayer() != layer
+                        && neuronConnectionExists(biasNeuron(), neuron)) {
+                    sum += neuronConnection(biasNeuron(), neuron)->weight()
+                            * biasNeuron()->activate(1.0);
                 }
 
                 output << neuron->activate(sum);
@@ -529,7 +563,7 @@ namespace Winzent {
                 QVariantMap layerMap;
                 QVariantList neuronsList;
 
-                for (int j = 0; j != network.layerAt(i)->size() + 1; ++j) {
+                for (int j = 0; j != network.layerAt(i)->size(); ++j) {
                     QVariantMap neuronMap;
 
                     neuronMap.insert(
@@ -571,7 +605,7 @@ namespace Winzent {
 
             for (int i = 0; i != network.size(); ++i) {
 
-                for (int j = 0; j != network[i]->size() + 1; ++j) {
+                for (int j = 0; j != network[i]->size(); ++j) {
                     Neuron *srcNeuron = network.layerAt(i)->neuronAt(j);
 
                     if (!network.m_connectionSources.contains(srcNeuron)) {

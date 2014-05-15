@@ -81,7 +81,7 @@ namespace Mock {
 
 
     ValueVector NeuralNetworkTestDummyPattern::calculate(
-            NeuralNetwork*,
+            NeuralNetwork *const &,
             const ValueVector& input)
     {
         return input;
@@ -187,8 +187,7 @@ void NeuralNetworkTest::testSerialization()
 void NeuralNetworkTest::testInitialLayerSize()
 {
     Layer l;
-    QCOMPARE(l.m_neurons.size(), 1);
-    QCOMPARE(l.m_neurons.first()->activate(4123), 1.0);
+    QCOMPARE(l.m_neurons.size(), 0);
 }
 
 
@@ -231,6 +230,8 @@ void NeuralNetworkTest::testClone()
     NeuralNetwork *clone = network->clone();
 
     QCOMPARE(network->size(), clone->size());
+    QVERIFY(network->biasNeuron() != clone->biasNeuron());
+    QCOMPARE(clone->biasNeuron()->parent(), clone);
 
     for (int i = 0; i != network->size(); ++i) {
         Layer *origLayer    = network->layerAt(i);
@@ -242,13 +243,7 @@ void NeuralNetworkTest::testClone()
         QCOMPARE(origLayer->parent(), network);
         QCOMPARE(cloneLayer->parent(), clone);
 
-        QVERIFY(NULL != cloneLayer->biasNeuron());
-        QVERIFY(origLayer->biasNeuron() != cloneLayer->biasNeuron());
-
-        QCOMPARE(origLayer->biasNeuron()->parent(), origLayer);
-        QCOMPARE(cloneLayer->biasNeuron()->parent(), cloneLayer);
-
-        for (int j = 0; j <= origLayer->size(); ++j) {
+        for (int j = 0; j < origLayer->size(); ++j) {
             Neuron *origNeuron  = origLayer->neuronAt(j);
             Neuron *cloneNeuron = cloneLayer->neuronAt(j);
 
@@ -318,11 +313,13 @@ void NeuralNetworkTest::testEachConnectionIterator()
     for (int i = 0; i != network.size(); ++i) {
         Layer *l = network.layerAt(i);
 
-        for (int j = 0; j != l->size() + 1; ++j) {
+        for (int j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
             connections.append(network.neuronConnectionsFrom(n));
         }
     }
+
+    connections.append(network.neuronConnectionsFrom(network.biasNeuron()));
 
     int iterated = 0;
     network.eachConnection([&iterated, &connections](Connection *const &c) {

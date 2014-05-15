@@ -49,7 +49,7 @@ namespace Winzent {
 
             /*!
              * Returns the size of the layer, i.e. the number of
-             * neurons it holds. Excludes the bias neuron.
+             * neurons it holds.
              */
             int size() const;
 
@@ -63,11 +63,7 @@ namespace Winzent {
             /*!
              * Returns the neuron at the specified index position.
              *
-             * Retrieves a neuron given its position (index) in the layer. One
-             * can access the bias neuron, too, using
-             * <code>layer[layer.size()]</code>.
-             *
-             * \sa #biasNeuron()
+             * Retrieves a neuron given its position (index) in the layer.
              */
             Neuron *&neuronAt(const int &index);
 
@@ -81,11 +77,7 @@ namespace Winzent {
             /*!
              * Returns the neuron at the specified index position.
              *
-             * Retrieves a neuron given its position (index) in the layer. One
-             * can access the bias neuron, too, using
-             * <code>layer[layer.size()]</code>.
-             *
-             * \sa #biasNeuron()
+             * Retrieves a neuron given its position (index) in the layer.
              */
             Neuron*& operator [](const int &index);
 
@@ -99,20 +91,6 @@ namespace Winzent {
              * \return The index position, or -1 if no item matched.
              */
             int indexOf(const Neuron *const &neuron) const;
-
-
-            /*!
-             * Provides access to the bias neuron.
-             */
-            Neuron *const &biasNeuron();
-
-
-            /*!
-             * \brief Allows const access to the bias neuron
-             *
-             * \return The bias neuron r/o
-             */
-            const Neuron *biasNeuron() const;
 
 
             /*!

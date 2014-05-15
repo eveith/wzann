@@ -36,7 +36,8 @@ SOURCES += \
     SimulatedAnnealingTrainingAlgorithm.cpp \
     NguyenWidrowWeightRandomizer.cpp \
     REvolutionaryTrainingAlgorithm.cpp \
-    Vector.cpp
+    Vector.cpp \
+    RpropTrainingAlgorithm.cpp
 
 HEADERS +=\
         Winzent-ANN_global.h \
@@ -59,7 +60,8 @@ HEADERS +=\
     SimulatedAnnealingTrainingAlgorithm.h \
     NguyenWidrowWeightRandomizer.h \
     REvolutionaryTrainingAlgorithm.h \
-    Vector.h
+    Vector.h \
+    RpropTrainingAlgorithm.h
 
 unix:!symbian {
     maemo5 {

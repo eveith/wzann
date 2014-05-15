@@ -20,9 +20,7 @@ LayerTest::LayerTest(QObject *parent) :
 void LayerTest::testLayerCreation()
 {
     Layer layer;
-    QVERIFY2(layer.m_neurons.size() == 1,
-            "A layer shall include a bias neuron by default");
-    QCOMPARE(layer.biasNeuron(), layer.m_neurons.last());
+    QCOMPARE(layer.size(), 0);
 }
 
 
@@ -32,11 +30,8 @@ void LayerTest::testNeuronAddition()
     layer << new Neuron(NULL, this);
     layer << new Neuron(NULL, this);
 
-    QVERIFY2(layer.size() == layer.m_neurons.size() - 1,
-        "Layer::size() should exclude the bias neuron");
-    QVERIFY2(layer.biasNeuron() == layer.m_neurons.last(),
-        "The bias neuron shall always be at the last index");
-    QVERIFY(layer.m_neurons.at(0)->parent() == &layer);
+    QCOMPARE(layer.size(), 2);
+    QVERIFY(layer.neuronAt(0)->parent() == &layer);
 }
 
 
@@ -53,7 +48,6 @@ void LayerTest::testNeuronIterator()
     });
 
     QCOMPARE(neurons.size(), layer.size());
-    QVERIFY(!neurons.contains(layer.biasNeuron()));
 }
 
 

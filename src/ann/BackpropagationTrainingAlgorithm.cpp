@@ -20,19 +20,14 @@
 #include "BackpropagationTrainingAlgorithm.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
-
+namespace Winzent {
+    namespace ANN {
 
         BackpropagationTrainingAlgorithm::BackpropagationTrainingAlgorithm(
-                NeuralNetwork *const&network,
+                NeuralNetwork *const &network,
                 qreal learningRate,
                 QObject* parent):
                     TrainingAlgorithm(network, parent),
-                    m_outputError(),
-                    m_deltas(),
                     m_learningRate(learningRate)
         {
         }
@@ -45,12 +40,12 @@ namespace Winzent
 
 
         void BackpropagationTrainingAlgorithm::train(
-                TrainingSet *const&trainingSet)
+                TrainingSet *const &trainingSet)
         {
             // Initialize the state variables:
 
-            int epochs = 0;
-            double error = std::numeric_limits<double>::max();
+            int epochs  = 0;
+            qreal error = std::numeric_limits<qreal>::max();
 
             // Make sure the network caches the last result; this is important
             // for the process to work.
@@ -82,13 +77,12 @@ namespace Winzent
 
                     // Set up state storage:
 
-                    QHash<Neuron*, double> neuronDeltas;
-                    QHash<Connection*, double> connectionDeltas;
+                    QHash<Neuron*, qreal> neuronDeltas;
+                    QHash<Connection*, qreal> connectionDeltas;
 
                     // First step: Feed forward and compare the network's output
                     // with the ideal teaching output:
 
-                    qDebug() << "Input:" << it->input();
                     ValueVector actualOutput =
                             network()->calculate(it->input());
                     ValueVector expectedOutput = it->expectedOutput();
@@ -98,7 +92,7 @@ namespace Winzent
 
                     // Add squared error for this run:
 
-                    foreach (double d, errorOutput) {
+                    foreach (qreal d, errorOutput) {
                         error += d*d;
                     }
 
@@ -107,39 +101,18 @@ namespace Winzent
                     // weight deltas are calculated, then the deltas are
                     // applied.
 
-                    for (int i = 0; i != network()->size() - 1; ++i) {
-                        Layer *layer = network()->layerAt(i);
-                        int layerSize = (network()->inputLayer() == layer
-                                ? layer->size()
-                                : layer->size() + 1);
-
-                        for (int j = 0; j != layerSize; ++j) {
-                            Neuron *neuron = layer->neuronAt(j);
-
-                            QList<Connection *> connections =
-                                    network()->neuronConnectionsFrom(neuron);
-
-                            foreach (Connection *c, connections) {
-                                double dn = neuronDelta(
-                                        c->destination(),
-                                        neuronDeltas,
-                                        errorOutput);
-
-                                connectionDeltas.insert(
-                                    c,
-                                    learningRate()
-                                    * dn
+                    network()->eachConnection([&](Connection *const &c) {
+                        qreal dn = neuronDelta(
+                                c->destination(),
+                                neuronDeltas,
+                                errorOutput);
+                        connectionDeltas.insert(
+                                c,
+                                learningRate() * dn
                                     * c->source()->lastResult());
-                            }
-                        }
-                    }
+                    });
 
                     foreach (Connection *c, connectionDeltas.keys()) {
-                        qDebug()
-                            << c
-                            << "w" << c->weight()
-                            << "dw" << connectionDeltas[c]
-                            << "w" << c->weight() + connectionDeltas[c];
                         c->weight(c->weight() + connectionDeltas[c]);
                     }
                 }
@@ -149,7 +122,6 @@ namespace Winzent
                 error /= (trainingSet->trainingData().count()
                         * trainingSet->trainingData().first()
                             .expectedOutput().count());
-                qDebug() << "Error:" << error << " Epochs:" << epochs;
             }
 
             // Store final training results:
@@ -180,21 +152,15 @@ namespace Winzent
                 error << expected[i] - actual[i];
             }
 
-            qDebug() << "Output error"
-                    << expected << "-" << actual << "=" << error;
             return error;
         }
 
 
-        double BackpropagationTrainingAlgorithm::outputNeuronDelta(
+        qreal BackpropagationTrainingAlgorithm::outputNeuronDelta(
                 const Neuron *neuron,
-                const double &error)
+                const qreal &error)
                     const
         {
-            qDebug() << neuron << "out"
-                    << "lastInput" << neuron->lastInput()
-                    << "lastResult" << neuron->lastResult();
-
             return neuron->activationFunction()->calculateDerivative(
                             neuron->lastInput(),
                             neuron->lastResult())
@@ -202,13 +168,13 @@ namespace Winzent
         }
 
 
-        double BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
+        qreal BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
                 Neuron *neuron,
-                QHash<Neuron *, double> &neuronDeltas,
+                QHash<Neuron *, qreal> &neuronDeltas,
                 const ValueVector &outputError)
                     const
         {
-            double delta = 0.0;
+            qreal delta = 0.0;
 
             QList<Connection*> connections =
                     network()->neuronConnectionsFrom(neuron);
@@ -232,9 +198,9 @@ namespace Winzent
         }
 
 
-        double BackpropagationTrainingAlgorithm::neuronDelta(
+        qreal BackpropagationTrainingAlgorithm::neuronDelta(
                 Neuron *neuron,
-                QHash<Neuron *, double> &neuronDeltas,
+                QHash<Neuron *, qreal> &neuronDeltas,
                 const ValueVector &outputError)
                     const
         {
@@ -258,11 +224,6 @@ namespace Winzent
                                 outputError));
             }
 
-            qDebug()
-                << neuron
-                << (network()->outputLayer()->contains(neuron) ? "out" : "hid")
-                << "d" << neuronDeltas[neuron]
-                << "(size:" << neuronDeltas.size() << ")";
             return neuronDeltas[neuron];
         }
     }

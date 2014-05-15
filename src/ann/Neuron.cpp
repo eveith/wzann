@@ -19,8 +19,6 @@ namespace Winzent {
         Neuron::Neuron(ActivationFunction *activationFunction, QObject *parent):
             QObject(parent),
             m_activationFunction(activationFunction),
-            m_lastInputs(QVector<qreal>()),
-            m_lastResults(QVector<qreal>()),
             m_cacheSize(0)
         {
         }
@@ -29,8 +27,8 @@ namespace Winzent {
         Neuron::Neuron(const Neuron &rhs):
                 QObject(rhs.parent()),
                 m_activationFunction(rhs.m_activationFunction->clone()),
-                m_lastInputs(QVector<qreal>(rhs.m_lastInputs)),
-                m_lastResults(QVector<qreal>(rhs.m_lastResults)),
+                m_lastInputs(rhs.m_lastInputs),
+                m_lastResults(rhs.m_lastResults),
                 m_cacheSize(rhs.m_cacheSize)
         {
         }
@@ -40,8 +38,8 @@ namespace Winzent {
         {
             Neuron *n = new Neuron(m_activationFunction->clone());
 
-            n->m_lastInputs = QVector<qreal>(m_lastInputs);
-            n->m_lastResults = QVector<qreal>(m_lastResults);
+            n->m_lastInputs = m_lastInputs;
+            n->m_lastResults = m_lastResults;
             n->m_cacheSize = m_cacheSize;
             n->setParent(parent());
 

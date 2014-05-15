@@ -57,7 +57,7 @@ void ElmanNetworkPatternTest::testConfigure()
 
     QCOMPARE(network.size(), 4);
     QCOMPARE(network.m_connectionSources.size(),
-             layers[0] + 2* (layers[1]+1) + layers[2] +1);
+             layers[0] + 2 * layers[1] + layers[2]);
 
     // Each input layer neuron has one context neuron: Check
 

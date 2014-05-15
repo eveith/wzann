@@ -33,7 +33,7 @@ NeuralNetworkPatternTestDummyPattern::NeuralNetworkPatternTestDummyPattern():
 
 
 ValueVector NeuralNetworkPatternTestDummyPattern::calculate(
-        NeuralNetwork*, const ValueVector& input)
+        NeuralNetwork *const &, const ValueVector &input)
 {
     return input;
 }

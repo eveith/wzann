@@ -28,7 +28,7 @@ namespace Winzent {
             /*!
              * The neural network we are currently training.
              */
-            NeuralNetwork* m_neuralNetwork;
+            NeuralNetwork *m_neuralNetwork;
 
 
             /*!
@@ -42,7 +42,7 @@ namespace Winzent {
              *
              * \sa NeuralNetwork#m_weightMatrix
              */
-            QHash<Neuron*, double> m_deltas;
+            QHash<Neuron *, qreal> m_deltas;
 
 
             /*!
@@ -65,16 +65,16 @@ namespace Winzent {
              * Calculates the neuron delta for one given neuron, assuming it is
              * an output layer neuron.
              */
-            double outputNeuronDelta(const Neuron *neuron, const double &error)
+            qreal outputNeuronDelta(const Neuron *neuron, const qreal &error)
                     const;
 
 
             /*!
              * Calculates the neuron delta for a neuron in an hidden layer.
              */
-            double hiddenNeuronDelta(
+            qreal hiddenNeuronDelta(
                     Neuron *neuron,
-                    QHash<Neuron *, double> &neuronDeltas,
+                    QHash<Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
@@ -82,9 +82,9 @@ namespace Winzent {
             /*!
              * Calculates the delta value of a neuron.
              */
-            double neuronDelta(
+            qreal neuronDelta(
                     Neuron *neuron,
-                    QHash<Neuron *, double> &neuronDeltas,
+                    QHash<Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
@@ -115,6 +115,12 @@ namespace Winzent {
             inline qreal learningRate() const;
 
 
+            /*!
+             * \brief Trains the neural network with the given trainingSet.
+             *
+             * \param[in] trainingSet A set of sample inputs and expected
+             *  outputs.
+             */
             virtual void train(TrainingSet *const &trainingSet);
         };
 

@@ -92,8 +92,7 @@ namespace Winzent {
         {
             ValueVector r;
 
-            neuralNetwork()->eachConnection([&r](
-                    const Connection *const &c) {
+            neuralNetwork()->eachConnection([&r](const Connection *const &c) {
                 if (!c->fixedWeight()) {
                     r << c->weight();
                 }
@@ -109,8 +108,7 @@ namespace Winzent {
             neuralNetwork()->eachConnection([&parameters, &i](
                     Connection *const &c) {
                 if (!c->fixedWeight()) {
-                    c->weight(parameters.at(i));
-                    i++;
+                    c->weight(parameters.at(i++));
                 }
             });
 

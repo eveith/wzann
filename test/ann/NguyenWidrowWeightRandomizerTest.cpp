@@ -49,7 +49,7 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
         }
 
         foreach (Connection *c,
-                network.neuronConnectionsFrom(layer->biasNeuron())) {
+                network.neuronConnectionsFrom(network.biasNeuron())) {
             QCOMPARE(c->weight(), -1.0);
         }
     }

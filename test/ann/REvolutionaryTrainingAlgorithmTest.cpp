@@ -171,7 +171,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     for (int i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
 
-        for (int j = 0; j != l->size() + 1; ++j) {
+        for (int j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
 
             foreach (Connection *c, neuralNetwork->neuronConnectionsFrom(n)) {
@@ -179,6 +179,14 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
                     connections << c;
                 }
             }
+        }
+    }
+
+    QList<Connection *> biasConnections =
+            neuralNetwork->neuronConnectionsFrom(neuralNetwork->biasNeuron());
+    foreach (Connection *c, biasConnections) {
+        if (!c->fixedWeight()) {
+            connections << c;
         }
     }
 
@@ -337,8 +345,13 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
             .gradientWeight(3.0)
             .ebmin(1e-2)
             .ebmax(2.0)
-            .successWeight(0.1)
-            .train(trainingSet);
+            .successWeight(0.1);
+
+    QDateTime dt1 = QDateTime::currentDateTime();
+    trainingAlgorithm.train(trainingSet);
+    QDateTime dt2 = QDateTime::currentDateTime();
+
+    qDebug() << "Trained XOR(x, y) in" << dt1.msecsTo(dt2) << "msec";
 
     ValueVector output;
     output = network->calculate({ 1, 1 });

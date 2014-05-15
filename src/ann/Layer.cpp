@@ -10,9 +10,6 @@ namespace Winzent {
         Layer::Layer(QObject *parent):
                 QObject(parent)
         {
-            // Add the initial bias neuron:
-
-            m_neurons << new Neuron(new ConstantActivationFunction(), this);
         }
 
 
@@ -30,7 +27,7 @@ namespace Winzent {
 
         int Layer::size() const
         {
-            return m_neurons.size() - 1;
+            return m_neurons.size();
         }
 
 
@@ -64,39 +61,25 @@ namespace Winzent {
         }
 
 
-        Neuron *const &Layer::biasNeuron()
-        {
-            return m_neurons.last();
-        }
-
-
-        const Neuron *Layer::biasNeuron() const
-        {
-            return m_neurons.last();
-        }
-
 
         void Layer::eachNeuron(function<void (const Neuron * const &)> yield)
                 const
         {
-            std::for_each(m_neurons.begin(), (m_neurons.end() - 1), yield);
+            std::for_each(m_neurons.begin(), m_neurons.end(), yield);
         }
 
 
-        void Layer::eachNeuron(function<void (Neuron * const &)> yield)
+        void Layer::eachNeuron(function<void (Neuron *const &)> yield)
         {
-            std::for_each(m_neurons.begin(), (m_neurons.end() - 1), yield);
+            std::for_each(m_neurons.begin(), m_neurons.end(), yield);
         }
 
 
         Layer &Layer::operator <<(Neuron *neuron)
         {
-            // Insert the neuron just before the bias neuron.
-
             neuron->setParent(this);
-            m_neurons.insert(m_neurons.size() - 1, neuron);
+            m_neurons.append(neuron);
 
-            Q_ASSERT(biasNeuron() == m_neurons.last());
             return *this;
         }
 
@@ -105,7 +88,5 @@ namespace Winzent {
         {
             return new Layer(*this);
         }
-
-
     } // namespace ANN
 } // namespace Winzent

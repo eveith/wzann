@@ -71,13 +71,6 @@ namespace Winzent {
                     m_cacheSizes.insert(neuron, neuron->cacheSize());
                     neuron->cacheSize(cacheSize);
                 }
-
-                // Make sure the bias neuron is also saved:
-
-                m_cacheSizes.insert(
-                        layer->biasNeuron(),
-                        layer->biasNeuron()->cacheSize());
-                layer->biasNeuron()->cacheSize(cacheSize);
             }
         }
 
@@ -109,7 +102,7 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork *TrainingAlgorithm::network() const
+        NeuralNetwork *const &TrainingAlgorithm::network() const
         {
             return m_network;
         }

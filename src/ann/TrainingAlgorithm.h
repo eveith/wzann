@@ -126,7 +126,7 @@ namespace Winzent
             /*!
              * \return The neural network that is to be trained
              */
-            NeuralNetwork *network() const;
+            NeuralNetwork *const &network() const;
 
 
             /*!

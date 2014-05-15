@@ -62,7 +62,7 @@ namespace Winzent {
             for (int i = 0; i != network->size(); ++i) {
                 Layer *layer = network->layerAt(i);
 
-                for (int j = 0; j <= layer->size(); ++j) {
+                for (int j = 0; j < layer->size(); ++j) {
                     Neuron *neuron = layer->neuronAt(j);
                     QList<Connection *> connections =
                             network->neuronConnectionsFrom(neuron);
@@ -189,7 +189,7 @@ namespace Winzent {
                 Layer *origLayer = network()->layerAt(i);
                 Layer *newLayer = solution->layerAt(i);
 
-                for (int j = 0; j <= origLayer->size(); ++j) {
+                for (int j = 0; j < origLayer->size(); ++j) {
                     Neuron *origNeuron = origLayer->neuronAt(j);
                     Neuron *newNeuron = newLayer->neuronAt(j);
 

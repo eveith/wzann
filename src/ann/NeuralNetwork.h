@@ -94,6 +94,12 @@ namespace Winzent {
 
 
             /*!
+             * \brief The bias neuron, connected to each neuron in each layer.
+             */
+            Neuron *m_biasNeuron;
+
+
+            /*!
              * All neurons that make up this neural network.
              */
             QList<Layer *> m_layers;
@@ -179,6 +185,32 @@ namespace Winzent {
              * \return A clone of this current network.
              */
             NeuralNetwork *clone() const;
+
+
+            /*!
+             * \brief Returns this network's bias neuron
+             *
+             * \return The bias neuron of this Neural Network
+             */
+            const Neuron *biasNeuron() const;
+
+
+            /*!
+             * \brief Returns a modifiable version of the network's bias neuron
+             *
+             * \return The bias neuron, modifiable
+             */
+            Neuron *const &biasNeuron();
+
+
+            /*!
+             * \brief Sets a new bias neuron
+             *
+             * \param[in] neuron The new bias neuron
+             *
+             * \return `*this`
+             */
+            NeuralNetwork &biasNeuron(Neuron *neuron);
 
 
             /*!
