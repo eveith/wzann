@@ -45,6 +45,64 @@ namespace Winzent {
 
 
             /*!
+             * \brief Tolerance within which a value is still considered to be
+             *  equal to 0.
+             */
+            const static qreal ZERO_TOLERANCE;
+
+
+            /*!
+             * \brief Returns the sign of a number, taking the zero tolerance
+             *  into account
+             *
+             * \param[in] x The number we want to retrieve the sign of
+             *
+             * \return -1 on negative sign, 0 on 0, +1 on positive sign
+             */
+            static int sgn(const qreal &x);
+
+
+            /*!
+             * \brief Calculates the error at the output layer
+             *
+             * \param[in] expected The output that was expected from the network
+             *
+             * \param[in] actual The actual output the network emitted
+             *
+             * \return The error vector
+             */
+            ValueVector outputError(
+                    const ValueVector &expected,
+                    const ValueVector &actual)
+                        const;
+
+
+
+            /*!
+             * Calculates the neuron delta for a neuron in an hidden layer.
+             *
+             * The delta is calculated by applying the derivative of the
+             * neuron's activation function. So the neuron's activation function
+             * must be differentiable.
+             *
+             * \param[in] neuron The hidden layer neuron
+             *
+             * \param[in] neuronDeltas A memoization hash for the deltas of
+             *  other neurons.
+             *
+             * \param[in] outputError The definitive error values at the output
+             *  layer
+             *
+             * \see #outputError
+             */
+            qreal hiddenNeuronDelta(
+                    Neuron *const &neuron,
+                    QHash<Neuron *, qreal> &neuronDeltas,
+                    const ValueVector &outputError)
+                        const;
+
+
+            /*!
              * \brief Calculates the delta of a Neuron in the output layer
              *
              * The delta is calculated by applying the derivative of the
@@ -62,6 +120,27 @@ namespace Winzent {
             qreal outputNeuronDelta(
                     const Neuron *const &neuron,
                     const qreal &error) const;
+
+
+            /*!
+             * \brief Transparently computes the delta of a neuron
+             *
+             * \param[in] neuron A hidden or output layer neuron
+             *
+             * \param[inout] neuronDeltas Memoization hash for storing
+             *  computations.
+             *
+             * \param[in] outputError The error at the output layer
+             *
+             * \return The neuron's delta
+             *
+             * \see #outputError
+             */
+            qreal neuronDelta(
+                    const Neuron *const &neuron,
+                    QHash<Neuron *, qreal> &neuronDeltas,
+                    const ValueVector &outputError)
+                        const;
 
 
             /*!
