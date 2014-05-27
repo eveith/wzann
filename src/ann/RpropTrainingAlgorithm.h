@@ -45,6 +45,26 @@ namespace Winzent {
 
 
             /*!
+             * \brief Calculates the delta of a Neuron in the output layer
+             *
+             * The delta is calculated by applying the derivative of the
+             * neuron's activation function. So the neuron's activation function
+             * must be differentiable.
+             *
+             * \param[in] neuron The output layer neuron
+             *
+             * \param[in] error The neuron's error, i.e. the difference between
+             *  the expected output value of that particular neuron and the
+             *  actual value: $error = expected - actual$
+             *
+             * \return The delta
+             */
+            qreal outputNeuronDelta(
+                    const Neuron *const &neuron,
+                    const qreal &error) const;
+
+
+            /*!
              * \brief Creates a new training algorithm instance for the given
              *  neural network.
              *

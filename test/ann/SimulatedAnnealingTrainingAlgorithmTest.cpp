@@ -58,8 +58,8 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
 
     TrainingSet *trainingSet = new TrainingSet(
             trainingItems,
-            0.1,
-            100);
+            1e-3,
+            1000);
 
     QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
     testResultFile.open(QIODevice::Text

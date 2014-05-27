@@ -5,6 +5,9 @@
 #include "NeuralNetwork.h"
 #include "TrainingSet.h"
 
+#include "Neuron.h"
+#include "ActivationFunction.h"
+
 #include "TrainingAlgorithm.h"
 #include "RpropTrainingAlgorithm.h"
 
@@ -24,6 +27,17 @@ namespace Winzent {
                 QObject *parent):
                     TrainingAlgorithm(network, parent)
         {
+        }
+
+
+        qreal RpropTrainingAlgorithm::outputNeuronDelta(
+                const Neuron *const &neuron,
+                const qreal &error)
+                const
+        {
+            return error * neuron->activationFunction()->calculateDerivative(
+                    neuron->lastInput(),
+                    neuron->lastResult());
         }
 
 
