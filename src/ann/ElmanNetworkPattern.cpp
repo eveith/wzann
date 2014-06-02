@@ -126,11 +126,12 @@ namespace Winzent
 
                         for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
                             for (int j = 0; j != m_layerSizes.at(HIDDEN); ++j) {
-                                network->neuronConnection(
+                                Connection *c = network->neuronConnection(
                                         network->layerAt(lidx)->neuronAt(i),
-                                        network->layerAt(HIDDEN)->neuronAt(j)
-                                )->setRandomWeight(
+                                        network->layerAt(HIDDEN)->neuronAt(j));
+                                c->setRandomWeight(
                                         m_weightRandomMin, m_weightRandomMax);
+                                c->fixedWeight(true);
                             }
                         }
 
