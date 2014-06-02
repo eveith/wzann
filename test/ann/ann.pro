@@ -44,7 +44,8 @@ HEADERS += \
     SimulatedAnnealingTrainingAlgorithmTest.h \
     NguyenWidrowWeightRandomizerTest.h \
     TrainingSetTest.h \
-    REvolutionaryTrainingAlgorithmTest.h
+    REvolutionaryTrainingAlgorithmTest.h \
+    RpropTrainingAlgorithmTest.h
     
 SOURCES += \
     tst_ann.cpp \
@@ -62,7 +63,8 @@ SOURCES += \
     SimulatedAnnealingTrainingAlgorithmTest.cpp \
     NguyenWidrowWeightRandomizerTest.cpp \
     TrainingSetTest.cpp \
-    REvolutionaryTrainingAlgorithmTest.cpp
+    REvolutionaryTrainingAlgorithmTest.cpp \
+    RpropTrainingAlgorithmTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 

@@ -96,8 +96,8 @@ namespace Winzent {
              * \see #outputError
              */
             qreal hiddenNeuronDelta(
-                    Neuron *const &neuron,
-                    QHash<Neuron *, qreal> &neuronDeltas,
+                    const Neuron *const &neuron,
+                    QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
@@ -138,7 +138,7 @@ namespace Winzent {
              */
             qreal neuronDelta(
                     const Neuron *const &neuron,
-                    QHash<Neuron *, qreal> &neuronDeltas,
+                    QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 

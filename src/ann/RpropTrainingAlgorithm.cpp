@@ -6,6 +6,7 @@
 #include "TrainingSet.h"
 
 #include "Layer.h"
+#include "Connection.h"
 
 #include "Neuron.h"
 #include "ActivationFunction.h"
@@ -77,14 +78,14 @@ namespace Winzent {
 
 
         qreal RpropTrainingAlgorithm::hiddenNeuronDelta(
-                Neuron *const &neuron,
-                QHash<Neuron *, qreal> &neuronDeltas,
+                const Neuron *const &neuron,
+                QHash<const Neuron *, qreal> &neuronDeltas,
                 const ValueVector &outputError)
                 const
         {
             qreal delta = 0.0;
 
-            QList<Connection*> connections =
+            QList<Connection *> connections =
                     network()->neuronConnectionsFrom(neuron);
             Q_ASSERT(connections.size() > 0);
 
@@ -108,7 +109,7 @@ namespace Winzent {
 
         qreal RpropTrainingAlgorithm::neuronDelta(
                 const Neuron *const &neuron,
-                QHash<Neuron *, qreal> &neuronDeltas,
+                QHash<const Neuron *, qreal> &neuronDeltas,
                 const ValueVector &outputError)
                     const
         {
@@ -153,15 +154,35 @@ namespace Winzent {
 
                 // Forward pass:
 
-                lastError = error;
-                error = 0;
+                lastError   = error;
+                error       = 0.0;
+                QList<QHash<const Neuron *, qreal>> patternDeltas;
 
                 foreach (TrainingItem item, trainingSet->trainingData()) {
                     ValueVector actual   = network()->calculate(item.input());
                     ValueVector expected = item.expectedOutput();
-                    ValueVector outputError = outputError(expected, actual);
-
                     error += calculateMeanSquaredError(actual, expected);
+
+                    ValueVector errorVector = outputError(expected, actual);
+                    QHash<const Neuron *, qreal> neuronDeltas;
+
+                    // Calculate error delta of all neurons in the forward pass:
+
+                    network()->eachConnection(
+                            [this, &neuronDeltas, &errorVector]
+                            (const Connection *c) {
+                        const Neuron *neuron = c->destination();
+                        if (!network()->inputLayer()->contains(neuron)) {
+                            neuronDeltas.insert(
+                                    neuron,
+                                    neuronDelta(
+                                        neuron,
+                                        neuronDeltas,
+                                        errorVector));
+                        }
+                    });
+
+                    patternDeltas << neuronDeltas;
                 }
 
                 error /= trainingSet->trainingData().size();
