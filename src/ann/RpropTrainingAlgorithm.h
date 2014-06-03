@@ -4,6 +4,8 @@
 
 #include <QObject>
 
+#include "TrainingSet.h"
+
 #include "TrainingAlgorithm.h"
 
 
@@ -52,6 +54,24 @@ namespace Winzent {
 
 
             /*!
+             * \brief The initial value for weight changes
+             */
+            const static qreal DEFAULT_INITIAL_UPDATE;
+
+
+            /*!
+             * \brief The minimum delta value applied during weight change
+             */
+            const static qreal DELTA_MIN;
+
+
+            /*!
+             * \brief Maximum value for a delta during weight change
+             */
+            const static qreal MAX_STEP;
+
+
+            /*!
              * \brief Returns the sign of a number, taking the zero tolerance
              *  into account
              *
@@ -60,6 +80,21 @@ namespace Winzent {
              * \return -1 on negative sign, 0 on 0, +1 on positive sign
              */
             static int sgn(const qreal &x);
+
+
+            /*!
+             * \brief Runs a sample through the network and calculates the error
+             *  at the output layer.
+             *
+             * \param[in] network The neural network
+             *
+             * \param[in] trainingItem The sample that is fed to the network
+             *
+             * \return A vector of errors at the output layer.
+             */
+            ValueVector feedForward(
+                    NeuralNetwork *const &network,
+                    TrainingItem const &trainingItem) const;
 
 
             /*!
