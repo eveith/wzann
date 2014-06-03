@@ -61,7 +61,7 @@ namespace Winzent {
 
 
         void TrainingAlgorithm::setNeuronCacheSize(
-                NeuralNetwork *const&network,
+                NeuralNetwork *const &network,
                 const int &cacheSize)
         {
             for (int i = 0; i != network->size(); ++i) {
@@ -72,6 +72,13 @@ namespace Winzent {
                     neuron->cacheSize(cacheSize);
                 }
             }
+
+            // Include the network's bias neuron:
+
+            m_cacheSizes.insert(
+                    network->biasNeuron(),
+                    network->biasNeuron()->cacheSize());
+            network->biasNeuron()->cacheSize(cacheSize);
         }
 
 

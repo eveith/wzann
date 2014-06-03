@@ -227,7 +227,7 @@ namespace Winzent {
         }
 
 
-        Connection* NeuralNetwork::neuronConnection(
+        Connection *NeuralNetwork::neuronConnection(
                 const Neuron *const &from,
                 const Neuron *const &to)
                     const
