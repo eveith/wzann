@@ -72,8 +72,6 @@ namespace Winzent
 
             NeuralNetworkPattern(QObject *parent = 0):
                     QObject(parent),
-                    m_layerSizes(QList<int>()),
-                    m_activationFunctions(QList<ActivationFunction*>()),
                     m_weightRandomMin(weightRandomMin),
                     m_weightRandomMax(weightRandomMax)
             {
@@ -188,7 +186,7 @@ namespace Winzent
              */
             NeuralNetworkPattern(
                     initializer_list<int> layerSizes,
-                    initializer_list<ActivationFunction*> activationFunctions,
+                    initializer_list<ActivationFunction *> activationFunctions,
                     QObject *parent = 0);
 
 

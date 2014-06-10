@@ -35,7 +35,7 @@ namespace Winzent
 
         NeuralNetworkPattern::NeuralNetworkPattern(
                 QList<int> layerSizes,
-                QList<ActivationFunction*> activationFunctions,
+                QList<ActivationFunction *> activationFunctions,
                 QObject *parent):
                         QObject(parent),
                         m_layerSizes(layerSizes),
