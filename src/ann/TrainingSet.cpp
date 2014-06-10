@@ -143,5 +143,11 @@ namespace Winzent {
             m_trainingData << item;
             return *this;
         }
+
+
+        TrainingItem &TrainingSet::operator [](const int &index)
+        {
+            return m_trainingData[index];
+        }
     }
 }

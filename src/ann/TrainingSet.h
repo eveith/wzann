@@ -259,6 +259,17 @@ namespace Winzent {
              * \return `*this`
              */
             TrainingSet &operator<<(const TrainingItem &item);
+
+
+            /*!
+             * \brief Allows read-write access to the training item at a certain
+             *  index
+             *
+             * \param[in] index Index of the training item
+             *
+             * \return The Training Item, modifiable
+             */
+            TrainingItem &operator[](const int &index);
         };
 
     } /* namespace ANN */
