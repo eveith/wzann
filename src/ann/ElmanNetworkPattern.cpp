@@ -189,7 +189,7 @@ namespace Winzent
 
                 for (int i = 0; i != contextLayer->size(); ++i) {
                     rememberedValues[i] = contextLayer->neuronAt(i)
-                            ->lastResult();
+                            ->activate(0.0);
                 }
 
                 rememberedValues = network->calculateLayerTransition(
