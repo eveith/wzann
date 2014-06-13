@@ -44,8 +44,8 @@ namespace Winzent {
 
         void NguyenWidrowWeightRandomizer::randomizeSynapse(
                 NeuralNetwork *const &network,
-                Layer *const&from,
-                Layer *const&to)
+                Layer *const &from,
+                Layer *const &to)
                 const
         {
             int fromCount   = from->size();
@@ -56,6 +56,10 @@ namespace Winzent {
 
                 foreach (Connection *connection,
                          network->neuronConnectionsFrom(neuron)) {
+                    if (connection->fixedWeight()) {
+                        continue;
+                    }
+
                     if (!to->contains(connection->destination())) {
                         continue;
                     }
