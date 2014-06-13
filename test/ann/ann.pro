@@ -72,5 +72,3 @@ QMAKE_CLEAN += *.out *.png *.svg *.pdf */*.out
 QMAKE_CLEAN += -r *Test/
 
 check.commands = ../../src/test-common/testrunner.sh -l ../../src/ann --
-
-include( ../../3rdparty/QMakeTestRunner/testtarget.pri )
