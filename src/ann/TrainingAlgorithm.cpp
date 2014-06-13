@@ -30,8 +30,8 @@ namespace Winzent {
         {
             if (actualOutput.size() != expectedOutput.size()) {
                 throw LayerSizeMismatchException(
-                            actualOutput.size(),
-                            expectedOutput.size());
+                        actualOutput.size(),
+                        expectedOutput.size());
             }
 
 

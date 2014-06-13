@@ -708,6 +708,11 @@ namespace Winzent {
                     foreach (TrainingItem item, trainingSet->trainingData()) {
                         ValueVector output = individual->neuralNetwork()
                                 ->calculate(item.input());
+
+                        if (! item.outputRelevant()) {
+                            continue;
+                        }
+
                         qreal sampleMSE = calculateMeanSquaredError(
                                 output,
                                 item.expectedOutput());
