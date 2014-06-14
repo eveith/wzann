@@ -44,8 +44,8 @@ void LayerTest::testNeuronIterator()
     QList<Neuron *> neurons;
 
     Layer layer;
-    layer << new Neuron(NULL, this);
-    layer << new Neuron(NULL, this);
+    layer << new Neuron(new LinearActivationFunction(), this);
+    layer << new Neuron(new LinearActivationFunction(), this);
 
     layer.eachNeuron([&](Neuron *const &neuron) {
         neurons << neuron;
