@@ -66,8 +66,9 @@ namespace Winzent
 
         NeuralNetworkPattern* ElmanNetworkPattern::clone() const
         {
-            QList<int> layerSizes(m_layerSizes);
-            QList<ActivationFunction*> activationFunctions(m_activationFunctions);
+            QList<int> layerSizes = m_layerSizes;
+            QList<ActivationFunction *> activationFunctions =
+                    m_activationFunctions;
 
             // Delete the CONTEXT layer, as the constructor will try to add it
             // and fail if the network has more than three layers:
@@ -78,7 +79,7 @@ namespace Winzent
             return new ElmanNetworkPattern(
                         layerSizes,
                         activationFunctions,
-                        this->parent());
+                        parent());
         }
 
 
@@ -92,9 +93,7 @@ namespace Winzent
                 int layerSize = m_layerSizes.at(lidx);
 
                 for (int i = 0; i != layerSize; ++i) {
-                    *layer << new Neuron(
-                            m_activationFunctions[lidx]->clone(),
-                            layer);
+                    *layer << new Neuron(m_activationFunctions[lidx]->clone());
                 }
 
                 *network << layer;
