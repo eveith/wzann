@@ -31,41 +31,41 @@ namespace Winzent {
     namespace ANN {
 
 
-        Individual::Individual(NeuralNetwork *neuralNetwork):
-                m_neuralNetwork(neuralNetwork),
+
+        Individual::Individual():
                 m_timeToLive(0)
+        {
+        }
+
+
+        Individual::Individual(const NeuralNetwork *const &neuralNetwork):
+                Individual()
         {
             m_errorVector << std::numeric_limits<qreal>::infinity();
 
-            neuralNetwork->eachConnection([this](const Connection *const &c) {
-                if (!c->fixedWeight()) {
-                    m_scatter << 0.2;
-                }
-            });
+            m_parameters = parameters(neuralNetwork);
+            m_scatter.reserve(m_parameters.size());
+
+            for (int i = 0; i != m_parameters.size(); ++i) {
+                m_scatter << 0.2;
+            }
+        }
+
+
+        Individual::Individual(const ValueVector &parameters):
+                Individual()
+        {
+            m_parameters = parameters;
+            m_scatter.reserve(m_parameters.size());
+
+            for (int i = 0; i != m_parameters.size(); ++i) {
+                m_scatter << 0.2;
+            }
         }
 
 
         Individual::~Individual()
         {
-            delete m_neuralNetwork;
-        }
-
-
-        NeuralNetwork *const &Individual::neuralNetwork()
-        {
-            return m_neuralNetwork;
-        }
-
-
-        const NeuralNetwork *Individual::neuralNetwork() const
-        {
-            return m_neuralNetwork;
-        }
-
-
-        NeuralNetwork *Individual::neuralNetworkClone() const
-        {
-            return m_neuralNetwork->clone();
         }
 
 
@@ -88,11 +88,32 @@ namespace Winzent {
         }
 
 
-        ValueVector Individual::parameters() const
+        const ValueVector &Individual::parameters() const
+        {
+            return m_parameters;
+        }
+
+
+        ValueVector &Individual::parameters()
+        {
+            return m_parameters;
+        }
+
+
+        Individual &Individual::parameters(const ValueVector &parameters)
+        {
+            m_parameters = parameters;
+            return *this;
+        }
+
+
+        ValueVector Individual::parameters(
+                const NeuralNetwork *const &neuralNetwork)
+                const
         {
             ValueVector r;
 
-            neuralNetwork()->eachConnection([&r](const Connection *const &c) {
+            neuralNetwork->eachConnection([&r](const Connection *const &c) {
                 if (!c->fixedWeight()) {
                     r << c->weight();
                 }
@@ -102,17 +123,17 @@ namespace Winzent {
         }
 
 
-        Individual &Individual::parameters(ValueVector parameters)
+        void Individual::applyParameters(
+                NeuralNetwork *const &neuralNetwork)
+                const
         {
             int i = 0;
-            neuralNetwork()->eachConnection([&parameters, &i](
+            neuralNetwork->eachConnection([this, &i](
                     Connection *const &c) {
                 if (!c->fixedWeight()) {
-                    c->weight(parameters.at(i++));
+                    c->weight(m_parameters.at(i++));
                 }
             });
-
-            return *this;
         }
 
 
@@ -140,6 +161,7 @@ namespace Winzent {
         {
             return (timeToLive() > 0);
         }
+
 
         ValueVector &Individual::errorVector()
         {
@@ -225,14 +247,9 @@ namespace Winzent {
             }
 
             m_timeToLive    = other.m_timeToLive;
-            m_errorVector   = other.m_errorVector;
+            m_parameters    = other.m_parameters;
             m_scatter       = other.m_scatter;
-
-            if (nullptr != m_neuralNetwork) {
-                delete m_neuralNetwork;
-            }
-
-            m_neuralNetwork = other.neuralNetworkClone();
+            m_errorVector   = other.m_errorVector;
 
             return *this;
         }
@@ -508,27 +525,29 @@ namespace Winzent {
 
         QList<Individual *>
         REvolutionaryTrainingAlgorithm::generateInitialPopulation(
-                const NeuralNetwork * const &baseNetwork)
+                const NeuralNetwork *const &baseNetwork)
         {
-            Individual *baseIndividual = new Individual(
-                        baseNetwork->clone());
+            Individual *baseIndividual = new Individual(baseNetwork);
+            baseIndividual->timeToLive(startTTL());
+
             QList <Individual *> population = { baseIndividual };
+            int numParameters = baseIndividual->parameters().size();
 
             for (int i = 1; i < populationSize() + 1; ++i) {
-                Individual *individual = new Individual(baseNetwork->clone());
-                ValueVector individualParameters = individual->parameters();
+                Individual *individual = new Individual();
+                individual->timeToLive(startTTL());
+                individual->parameters().reserve(numParameters);
+                individual->scatter().reserve(numParameters);
 
-                for (int j = 0; j != individualParameters.size(); ++j) {
+                for (int j = 0; j != numParameters; ++j) {
                     qreal r = baseIndividual->scatter().at(j) * exp(
                             0.4 * (0.5 - frandom()));
-                    individual->scatter()[j] = r;
-                    individualParameters[j] = baseIndividual->parameters().at(j)
-                            + r * (frandom() - frandom()
-                                + frandom() - frandom());
+                    individual->scatter() << r;
+                    individual->parameters()
+                            << baseIndividual->parameters().at(j)
+                                + r * (frandom() - frandom()
+                                    + frandom() - frandom());
                 }
-
-                individual->parameters(individualParameters);
-                individual->timeToLive(startTTL());
 
                 population.append(individual);
 
@@ -706,8 +725,8 @@ namespace Winzent {
                             1 + trainingSet->trainingData().size());
 
                     foreach (TrainingItem item, trainingSet->trainingData()) {
-                        ValueVector output = individual->neuralNetwork()
-                                ->calculate(item.input());
+                        individual->applyParameters(network());
+                        ValueVector output = network()->calculate(item.input());
 
                         if (! item.outputRelevant()) {
                             continue;
@@ -770,29 +789,16 @@ namespace Winzent {
                     && epoch < trainingSet->maxEpochs()
                     && epoch - lastSuccess < maxNoSuccessEpochs());
 
+            bestIndividual->applyParameters(network());
             setFinalNumEpochs(*trainingSet, epoch);
+            setFinalError(
+                    *trainingSet,
+                    bestIndividual->errorVector().at(0));
 
             LOG4CXX_DEBUG(
                     logger,
                     "Training ended after " << epoch << " epochs; "
                         << *(population.first()));
-
-            ValueVector bestParameters = bestIndividual->parameters();
-            int i = 0;
-            NeuralNetwork *trainedNetwork = network();
-
-            trainedNetwork->eachConnection(
-                    [&i, &bestParameters, &trainedNetwork](
-                    Connection *const &c) {
-                if (!c->fixedWeight()) {
-                    c->weight(bestParameters.at(i++));
-                }
-            });
-
-            setFinalError(
-                    *trainingSet,
-                    bestIndividual->errorVector().at(0));
-
             LOG4CXX_DEBUG(logger, population)
 
             // Cleanup:

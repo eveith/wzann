@@ -35,9 +35,9 @@ namespace Winzent {
 
 
             /*!
-             * \brief The ANN represented by this individual
+             * \brief The parameters vector of this individual
              */
-            NeuralNetwork *m_neuralNetwork;
+            ValueVector m_parameters;
 
 
             /*!
@@ -64,48 +64,31 @@ namespace Winzent {
 
 
             /*!
+             * \brief Constructs an empty Individual
+             *
+             * Initializes the Individual's TTL to 0.
+             */
+            Individual();
+
+
+            /*!
              * \brief Creates a new individual given a neural network
              *
-             * \param neuralNetwork The underlying ANN
+             * \param neuralNetwork The ANN from which we initialize paremters
+             *  and scatter
              */
-            explicit Individual(NeuralNetwork *neuralNetwork);
+            explicit Individual(const NeuralNetwork *const &neuralNetwork);
 
 
             /*!
-             * \brief Destructs the underlying ANN.
+             * \brief Constructs a new individual using a parameter Vector
              *
-             * The destructor also destroys the underlying ANN. However,
-             * the #neuralNetwork() accessor creates a clone that is returned.
+             * \param[in] parameters A parameter vector
              */
+            explicit Individual(const ValueVector &parameters);
+
+
             virtual ~Individual();
-
-
-            /*!
-             * \brief Retrives a clone of the underlying neural network
-             *
-             * \return The underlying neural network
-             */
-            NeuralNetwork *neuralNetworkClone() const;
-
-
-            /*!
-             * \brief Grants access to the underlying neural network
-             *
-             * \return A reference to the neural network
-             */
-            NeuralNetwork *const &neuralNetwork();
-
-
-            /*!
-             * \brief Allows read-only access to the underlying neural network
-             *
-             * Be careful that this returns a reference, i.e., any pointer
-             * retrieved through this method will be invalid once this object
-             * has been deleted.
-             *
-             * \return A const reference to the underlying neural network.
-             */
-            const NeuralNetwork *neuralNetwork() const;
 
 
             /*!
@@ -139,20 +122,51 @@ namespace Winzent {
              *
              * \return The current parameters
              */
-            ValueVector parameters() const;
+            const ValueVector &parameters() const;
+
+
+            /*!
+             * \brief Allows access to the parameter vector of this Individual
+             *
+             * \return A modifiable reference to the parameter vector
+             */
+            ValueVector &parameters();
+
+
+            /*!
+             * \brief Retrieves parameters from the supplied ANN
+             *
+             * \param[in] neuralNetwork The ANN from which the parameters
+             *  shall be retrieved
+             *
+             * \return The parameters vector
+             */
+            ValueVector parameters(const NeuralNetwork *const &neuralNetwork)
+                    const;
 
 
             /*!
              * \brief Sets new parameters to this individual
              *
-             * Sets new parameters to the individual. It modifies the underlying
-             * ANN, too.
+             * Sets new parameters to the individual.
              *
              * \param parameters The new set of parameters
              *
              * \return `*this`
              */
-            Individual &parameters(ValueVector parameters);
+            Individual &parameters(const ValueVector &parameters);
+
+
+            /*!
+             * \brief Applies the parameters of this individual to the supplied
+             *  ANN
+             *
+             * \param[inout] neuralNetwork The Artificial Neural Network to
+             *  which the parameters stored in the Individual shall be applied
+             *
+             * \return `*this`
+             */
+            void applyParameters(NeuralNetwork *const &neuralNetwork) const;
 
 
             /*!

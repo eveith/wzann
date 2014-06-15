@@ -99,34 +99,26 @@ void REvolutionaryTrainingAlgorithmTest::testAgeIndividual()
 
 void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
 {
-    Individual i1(createNeuralNetwork()), i2(createNeuralNetwork());
+    NeuralNetwork *network = createNeuralNetwork();
 
-    i1.neuralNetwork()->eachConnection([](Connection *const &c) {
+    network->eachConnection([](Connection *const &c) {
         if (!c->fixedWeight()) {
             c->weight(0.0);
         }
     });
 
-    i2.neuralNetwork()->eachConnection([](Connection *const &c) {
-        if (!c->fixedWeight()) {
-            c->weight(0.0);
-        }
-    });
+    Individual i1(network), i2(network);
 
     QVERIFY(i1 == i2);
 
-    i2.neuralNetwork()->eachConnection([](Connection *const &c) {
-        if (!c->fixedWeight()) {
-            c->weight(1.0);
-        }
+    std::for_each(i2.parameters().begin(), i2.parameters().end(), [](qreal &w) {
+        w = 1.0;
     });
 
     QVERIFY(!(i1 == i2));
 
-    i2.neuralNetwork()->eachConnection([](Connection *const &c) {
-        if (!c->fixedWeight()) {
-            c->weight(0.0);
-        }
+    std::for_each(i2.parameters().begin(), i2.parameters().end(), [](qreal &w) {
+        w = 0.0;
     });
 
     i1.scatter()[1] = 1.0;
@@ -198,6 +190,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     }
 
     individual.parameters(parameters);
+    individual.applyParameters(neuralNetwork);
 
     for (int i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
