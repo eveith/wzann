@@ -69,21 +69,26 @@ namespace Winzent
 
 
             /*!
-             * Creates a new neuron with a specific activation
-             * function
+             * \brief Creates a new neuron with a specific activation
+                 * function
              *
-             * \param activationFunction The activation function to
-             *  use
+             * \param activationFunction The activation function that is used to
+             *  calculation the neuron's activation. The Neuron object takes
+             *  ownership of the activation function object.
+             *
              * \param parent The parent object
              *
              * \sa #activate
+             *
              * \sa QObject#setParent
              */
             Neuron(ActivationFunction *activationFunction, QObject *parent = 0);
 
 
             /*!
-             * Copy constructor
+             * \brief Copy constructor
+             *
+             * \param[in] rhs The right-hand side assignment operand
              */
             Neuron(const Neuron &rhs);
 

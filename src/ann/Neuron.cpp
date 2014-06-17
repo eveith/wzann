@@ -17,10 +17,11 @@ namespace Winzent {
 
 
         Neuron::Neuron(ActivationFunction *activationFunction, QObject *parent):
-            QObject(parent),
-            m_activationFunction(activationFunction),
-            m_cacheSize(0)
+                QObject(parent),
+                m_activationFunction(activationFunction),
+                m_cacheSize(0)
         {
+            m_activationFunction->setParent(this);
         }
 
 
@@ -31,6 +32,7 @@ namespace Winzent {
                 m_lastResults(rhs.m_lastResults),
                 m_cacheSize(rhs.m_cacheSize)
         {
+            m_activationFunction->setParent(this);
         }
 
 
