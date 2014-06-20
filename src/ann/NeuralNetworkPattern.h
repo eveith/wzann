@@ -199,6 +199,10 @@ namespace Winzent
             virtual NeuralNetworkPattern* clone() const = 0;
 
 
+            /*!
+             * \brief The destructor will also delete all ActivationFunction
+             *  objects supplied for configuring the network.
+             */
             virtual ~NeuralNetworkPattern();
 
 

@@ -65,6 +65,9 @@ namespace Winzent
 
         NeuralNetworkPattern::~NeuralNetworkPattern()
         {
+            foreach (ActivationFunction *f, m_activationFunctions) {
+                delete f;
+            }
         }
 
 
