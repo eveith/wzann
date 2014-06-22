@@ -2,9 +2,11 @@
 
 #include <limits>
 #include <cmath>
+#include <algorithm>
+
+#include <log4cxx/logger.h>
 
 #include <QtDebug>
-#include <cstdio>
 #include <QTextStream>
 
 #include "TrainingAlgorithm.h"
@@ -14,6 +16,10 @@
 #include "Connection.h"
 #include "TrainingSet.h"
 #include "SimulatedAnnealingTrainingAlgorithm.h"
+
+
+using std::exp;
+using std::log;
 
 
 namespace Winzent {
@@ -55,105 +61,122 @@ namespace Winzent {
         }
 
 
+        ValueVector SimulatedAnnealingTrainingAlgorithm::getParameters(
+                const NeuralNetwork *const &neuralNetwork)
+        {
+            ValueVector r;
+
+            neuralNetwork->eachConnection([&r](const Connection *const &c) {
+                if (!c->fixedWeight()) {
+                    r << c->weight();
+                }
+            });
+
+            return r;
+        }
+
+
+        void SimulatedAnnealingTrainingAlgorithm::applyParameters(
+                const ValueVector &parameters,
+                NeuralNetwork *const &neuralNetwork)
+        {
+            int i = 0;
+            neuralNetwork->eachConnection([&i, &parameters](
+                    Connection *const &c) {
+                if (!c->fixedWeight()) {
+                    c->weight(parameters.at(i++));
+                }
+            });
+        }
+
+
         void SimulatedAnnealingTrainingAlgorithm::randomize(
-                NeuralNetwork *network,
+                ValueVector &parameters,
                 const qreal &temperature)
         {
-            for (int i = 0; i != network->size(); ++i) {
-                Layer *layer = network->layerAt(i);
 
-                for (int j = 0; j < layer->size(); ++j) {
-                    Neuron *neuron = layer->neuronAt(j);
-                    QList<Connection *> connections =
-                            network->neuronConnectionsFrom(neuron);
-                    foreach (Connection *connection, connections) {
-                        if (connection->fixedWeight()) {
-                            continue;
-                        }
+            std::for_each(parameters.begin(), parameters.end(),
+                        [this, &temperature](qreal &w) {
+                qreal add = CUT - qrand() / static_cast<qreal>(RAND_MAX);
+                add /= startTemperature();
+                add *= temperature;
 
-                        qreal add = CUT-qrand() / static_cast<qreal>(RAND_MAX);
-                        add /= startTemperature();
-                        add *= temperature;
+                w += add;
 
-                        qDebug() << "randomize() add:" << add;
-
-                        connection->weight(connection->weight() + add);
-                        qDebug()
-                                << connection
-                                << "old weight:" << connection->weight() - add
-                                << "new weight:" << connection->weight();
-                    }
-
-                }
-            }
+                LOG4CXX_DEBUG(
+                        logger,
+                         "w = "
+                            << w - add
+                            << " + "
+                            << add
+                            << " = "
+                            << w);
+            });
         }
 
 
         qreal SimulatedAnnealingTrainingAlgorithm::iterate(
-                NeuralNetwork *&network,
-                TrainingSet *trainingSet)
+                NeuralNetwork *const &network,
+                TrainingSet const &trainingSet)
         {
             // Initialze state: Safe the best known network configuration and
             // the score (i. e., error value) of that network:
 
-            NeuralNetwork *best = NULL;
-            qreal bestScore = std::numeric_limits<qreal>::max();
-            qreal temperature = startTemperature();
+            ValueVector bestParameters;
+            qreal bestScore     = std::numeric_limits<qreal>::max();
+            qreal temperature   = startTemperature();
 
             // Execute all circles, plus one to get the score of the current
             // solution:
 
-            for (int i = 0; i <= cycles(); ++i) {
-                qreal score = 0.0;
+            for (int i = 0; i < cycles(); ++i) {
+                qreal score         = 0.0;
+                int trainingItems   = 0;
 
-                foreach (TrainingItem item, trainingSet->trainingData()) {
+                ValueVector parameters = getParameters(network);
+                randomize(parameters, temperature);
+                applyParameters(parameters, network);
+
+                foreach (TrainingItem item, trainingSet.trainingData()) {
                     ValueVector actualOutput = network->calculate(item.input());
-                    ValueVector expectedOutput = item.expectedOutput();
 
-                    for (int k = 0; k != expectedOutput.size(); ++k) {
-                        score += std::pow(
-                                expectedOutput[k] - actualOutput[k],
-                                2);
+                    if (!item.outputRelevant()) {
+                        continue;
                     }
+
+                    ValueVector expectedOutput = item.expectedOutput();
+                    score += calculateMeanSquaredError(
+                            actualOutput,
+                            expectedOutput);
+                    ++trainingItems;
                 }
 
-                score /= static_cast<qreal>(
-                        trainingSet->trainingData().count()
-                        * trainingSet->trainingData().first()
-                            .expectedOutput().count());
+                score /= static_cast<qreal>(trainingItems);
 
                 // Accept the solution if its better (score < bestScore)
 
-                qDebug()
-                        << "Score:" << score
-                        << "bestScore:" << bestScore
-                        << "Accept worse probability:"
-                        << std::exp(- ((score-bestScore) / temperature));
+                LOG4CXX_DEBUG(
+                        logger,
+                        "Score: "
+                            << score
+                            << ", bestScore: "
+                            << bestScore);
 
                 if (score < bestScore) {
-                    if (NULL != best) {
-                        delete best;
-                    }
-                    best = network->clone();
-                    bestScore = score;
+                    bestParameters  = parameters;
+                    bestScore       = score;
 
-                    qDebug()
-                            << "Accepted solution" << best
-                            << "score:" << score;
+                    LOG4CXX_DEBUG(
+                            logger,
+                            "Accepted solution " << bestParameters
+                                << ", score:" << score);
                 }
 
-                randomize(network, temperature);
-
-                qDebug()
-                        << "Temperature:" << temperature
-                        << "Cycles: " << i;
-
-                temperature *= std::exp(
-                        std::log(stopTemperature() / startTemperature())
-                        / (cycles() - 1));
+                temperature *= exp(log(stopTemperature() / startTemperature())
+                        / static_cast<qreal>(cycles() - 1));
             }
 
-            network = best;
+            applyParameters(bestParameters, network);
             return bestScore;
         }
 
@@ -168,45 +191,19 @@ namespace Winzent {
 
             // Init state:
 
-            qreal error = std::numeric_limits<double>::max();
-            int epoch = 0;
-            NeuralNetwork *solution = network()->clone();
+            qreal error     = std::numeric_limits<qreal>::max();
+            int epoch       = -1;
 
             while (error > trainingSet->targetError()
-                   && epoch < trainingSet->maxEpochs()) {
-                error = iterate(solution, trainingSet);
+                   && ++epoch < trainingSet->maxEpochs()) {
+                error = iterate(network(), *trainingSet);
 
-                epoch++;
-                qDebug()
-                        << "error:" << error
-                        << "targetError:" << trainingSet->targetError()
-                        << "epoch:" << epoch;
-            }
+                LOG4CXX_DEBUG(
+                        logger,
+                        "Epoch #" << epoch << ": "
+                            << "error: " << error
+                            << " targetError: " << trainingSet->targetError());
 
-            // Copy weights:
-
-            for (int i = 0; i != network()->size(); ++i) {
-                Layer *origLayer = network()->layerAt(i);
-                Layer *newLayer = solution->layerAt(i);
-
-                for (int j = 0; j < origLayer->size(); ++j) {
-                    Neuron *origNeuron = origLayer->neuronAt(j);
-                    Neuron *newNeuron = newLayer->neuronAt(j);
-
-                    QList<Connection *> origConnections =
-                            network()->neuronConnectionsFrom(origNeuron);
-                    QList<Connection *> newConnections =
-                            solution->neuronConnectionsFrom(newNeuron);
-                    Q_ASSERT(origConnections.size() == newConnections.size());
-
-                    for (int k = 0; k != origConnections.size(); ++k) {
-                        if (origConnections[k]->fixedWeight()) {
-                            continue;
-                        }
-
-                        origConnections[k]->weight(newConnections[k]->weight());
-                    }
-                }
             }
 
             // We're done, restore the cache size:

@@ -54,12 +54,38 @@ namespace Winzent {
 
 
             /*!
+             * \brief Extracts all weights as parameter vector from the given
+             *  Neural Network
+             *
+             * \param[in] network The network to extract all trainable weights
+             *  from
+             *
+             * \return The parameter vector
+             */
+            static ValueVector getParameters(
+                    const NeuralNetwork *const &network);
+
+
+            /*!
+             * \brief Applies the given parameters vector (i. e., weights) to
+             *  the supplied neural network
+             *
+             * \param[in] parameters The vector of weights
+             *
+             * \param[inout] network The ANN to apply the parameters to
+             */
+            static void applyParameters(
+                    const ValueVector &parameters,
+                    NeuralNetwork *const &network);
+
+
+            /*!
              * Randomizes the weights of a given neural network according to the
              * current state/temperature of the algorithm.
              *
              * \param[inout] network The neural network to randomize.
              */
-            void randomize(NeuralNetwork *network, const qreal &temperature);
+            void randomize(ValueVector &parameters, const qreal &temperature);
 
 
             /*!
@@ -74,8 +100,8 @@ namespace Winzent {
              * \return The error at the end of the iteration
              */
             qreal iterate(
-                    NeuralNetwork *&network,
-                    TrainingSet *trainingSet);
+                    NeuralNetwork *const &network,
+                    TrainingSet const &trainingSet);
 
 
         public:
