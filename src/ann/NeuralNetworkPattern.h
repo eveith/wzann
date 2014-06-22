@@ -35,8 +35,9 @@ namespace Winzent
             Q_OBJECT
 
 
-            friend ValueVector NeuralNetwork::calculate(const ValueVector&);
-            friend void NeuralNetwork::configure(const NeuralNetworkPattern*);
+            friend ValueVector NeuralNetwork::calculate(const ValueVector &);
+            friend NeuralNetwork &NeuralNetwork::configure(
+                    const NeuralNetworkPattern *const &);
 
 
         protected:

@@ -452,8 +452,11 @@ namespace Winzent {
              *  network up. We create our own clone of the pattern
              *  in the process since the pattern is also used for
              *  calculation.
+             *
+             * \return `*this`
              */
-            void configure(const NeuralNetworkPattern *pattern);
+            NeuralNetwork &configure(
+                    const NeuralNetworkPattern *const &pattern);
 
 
             /*!

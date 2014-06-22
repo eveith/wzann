@@ -33,7 +33,7 @@ namespace Winzent
                 QList<int> layerSizes,
                 QList<ActivationFunction*> activationFunctions,
                 QObject* parent):
-                        NeuralNetworkPattern(layerSizes,
+                    NeuralNetworkPattern(layerSizes,
                                 activationFunctions,
                                 parent)
         {
@@ -56,10 +56,7 @@ namespace Winzent
                 initializer_list<int> layerSizes,
                 initializer_list<ActivationFunction*> activationFunctions,
                 QObject *parent):
-                        ElmanNetworkPattern(
-                                QList<int>(layerSizes),
-                                QList<ActivationFunction*>(activationFunctions),
-                                parent)
+                    ElmanNetworkPattern(layerSizes, activationFunctions, parent)
         {
         }
 
@@ -67,8 +64,11 @@ namespace Winzent
         NeuralNetworkPattern* ElmanNetworkPattern::clone() const
         {
             QList<int> layerSizes = m_layerSizes;
-            QList<ActivationFunction *> activationFunctions =
-                    m_activationFunctions;
+            QList<ActivationFunction *> activationFunctions;
+
+            foreach (ActivationFunction *f, m_activationFunctions) {
+                activationFunctions << f->clone();
+            }
 
             // Delete the CONTEXT layer, as the constructor will try to add it
             // and fail if the network has more than three layers:

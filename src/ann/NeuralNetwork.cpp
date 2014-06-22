@@ -432,7 +432,8 @@ namespace Winzent {
         }
 
 
-        void NeuralNetwork::configure(const NeuralNetworkPattern *pattern)
+        NeuralNetwork &NeuralNetwork::configure(
+                const NeuralNetworkPattern *const &pattern)
         {
             // Get rid of the old pattern, if one exists:
 
@@ -444,6 +445,8 @@ namespace Winzent {
             m_pattern->setParent(this);
 
             m_pattern->configureNetwork(this);
+
+            return *this;
         }
 
 

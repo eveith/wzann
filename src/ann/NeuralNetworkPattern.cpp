@@ -37,11 +37,11 @@ namespace Winzent
                 QList<int> layerSizes,
                 QList<ActivationFunction *> activationFunctions,
                 QObject *parent):
-                        QObject(parent),
-                        m_layerSizes(layerSizes),
-                        m_activationFunctions(activationFunctions),
-                        m_weightRandomMin(weightRandomMin),
-                        m_weightRandomMax(weightRandomMax)
+                    QObject(parent),
+                    m_layerSizes(layerSizes),
+                    m_activationFunctions(activationFunctions),
+                    m_weightRandomMin(weightRandomMin),
+                    m_weightRandomMax(weightRandomMax)
         {
             if (m_layerSizes.size() != m_activationFunctions.size()) {
                 throw LayerSizeMismatchException(
@@ -55,10 +55,10 @@ namespace Winzent
                 initializer_list<int> layerSizes,
                 initializer_list<ActivationFunction*> activationFunctions,
                 QObject *parent):
-                        NeuralNetworkPattern(
-                                QList<int>(layerSizes),
-                                QList<ActivationFunction*>(activationFunctions),
-                                parent)
+                    NeuralNetworkPattern(
+                        layerSizes,
+                        activationFunctions,
+                        parent)
         {
         }
 
@@ -66,7 +66,9 @@ namespace Winzent
         NeuralNetworkPattern::~NeuralNetworkPattern()
         {
             foreach (ActivationFunction *f, m_activationFunctions) {
-                delete f;
+                if (f->parent() == 0) {
+                    delete f;
+                }
             }
         }
 
