@@ -59,7 +59,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
     TrainingSet *trainingSet = new TrainingSet(
             trainingItems,
             1e-3,
-            1000);
+            10000);
 
     QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
     testResultFile.open(QIODevice::Text
@@ -68,7 +68,17 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
 
     testResultStream << *network;
 
-    SimulatedAnnealingTrainingAlgorithm(network, 10, 2, 100).train(trainingSet);
+    QDateTime dt1 = QDateTime::currentDateTime();
+
+    SimulatedAnnealingTrainingAlgorithm(
+            network,
+            10,
+            2,
+            100)
+        .train(trainingSet);
+
+    QDateTime dt2 = QDateTime::currentDateTime();
+    qDebug() << "Trained XOR(x, y) in" << dt1.msecsTo(dt2) << "msec";
 
     testResultStream << *network;
 

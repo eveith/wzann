@@ -35,8 +35,9 @@ namespace Winzent
             Q_OBJECT
 
 
-            friend ValueVector NeuralNetwork::calculate(const ValueVector&);
-            friend void NeuralNetwork::configure(const NeuralNetworkPattern*);
+            friend ValueVector NeuralNetwork::calculate(const ValueVector &);
+            friend NeuralNetwork &NeuralNetwork::configure(
+                    const NeuralNetworkPattern *const &);
 
 
         protected:
@@ -199,6 +200,10 @@ namespace Winzent
             virtual NeuralNetworkPattern* clone() const = 0;
 
 
+            /*!
+             * \brief The destructor will also delete all ActivationFunction
+             *  objects supplied for configuring the network.
+             */
             virtual ~NeuralNetworkPattern();
 
 

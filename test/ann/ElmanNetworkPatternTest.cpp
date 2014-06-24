@@ -24,9 +24,7 @@ using Winzent::ANN::SigmoidActivationFunction;
 
 
 ElmanNetworkPatternTest::ElmanNetworkPatternTest(QObject *parent) :
-    QObject(parent),
-    layers(QList<int>()),
-    activationFunctions(QList<ActivationFunction*>())
+    QObject(parent)
 {
     layers
             << 1
