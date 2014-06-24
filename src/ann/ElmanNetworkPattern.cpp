@@ -56,7 +56,10 @@ namespace Winzent
                 initializer_list<int> layerSizes,
                 initializer_list<ActivationFunction*> activationFunctions,
                 QObject *parent):
-                    ElmanNetworkPattern(layerSizes, activationFunctions, parent)
+                    ElmanNetworkPattern(
+                        QList<int>(layerSizes), // Cast necessary!
+                        QList<ActivationFunction *>(activationFunctions),
+                        parent)
         {
         }
 
