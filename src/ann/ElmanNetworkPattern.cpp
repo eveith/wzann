@@ -56,7 +56,10 @@ namespace Winzent
                 initializer_list<int> layerSizes,
                 initializer_list<ActivationFunction*> activationFunctions,
                 QObject *parent):
-                    ElmanNetworkPattern(layerSizes, activationFunctions, parent)
+                    ElmanNetworkPattern(
+                        QList<int>(layerSizes), // Cast necessary!
+                        QList<ActivationFunction *>(activationFunctions),
+                        parent)
         {
         }
 
@@ -104,7 +107,7 @@ namespace Winzent
             for (int lidx = INPUT; lidx < OUTPUT; ++lidx) {
                 int layerSize = m_layerSizes.at(lidx);
 
-                switch(lidx) {
+                switch (lidx) {
                     case INPUT: {
                         fullyConnectNetworkLayers(network, lidx, HIDDEN);
 
@@ -130,7 +133,6 @@ namespace Winzent
                                         network->layerAt(HIDDEN)->neuronAt(j));
                                 c->setRandomWeight(
                                         m_weightRandomMin, m_weightRandomMax);
-                                c->fixedWeight(true);
                             }
                         }
 
