@@ -450,6 +450,13 @@ namespace Winzent {
         }
 
 
+        NeuralNetwork &NeuralNetwork::configure(
+                const NeuralNetworkPattern *const &pattern)
+        {
+            return configure(*pattern);
+        }
+
+
         ValueVector NeuralNetwork::calculateLayer(
                 Layer *const &layer,
                 const ValueVector &input)

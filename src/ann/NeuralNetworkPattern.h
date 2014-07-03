@@ -37,7 +37,7 @@ namespace Winzent
 
             friend ValueVector NeuralNetwork::calculate(const ValueVector &);
             friend NeuralNetwork &NeuralNetwork::configure(
-                    const NeuralNetworkPattern *const &);
+                    const NeuralNetworkPattern &);
 
 
         protected:
