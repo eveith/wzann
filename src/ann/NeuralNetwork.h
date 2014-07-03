@@ -455,6 +455,12 @@ namespace Winzent {
              *
              * \return `*this`
              */
+            NeuralNetwork &configure(const NeuralNetworkPattern &pattern);
+
+
+            /*!
+             * \deprecated
+             */
             NeuralNetwork &configure(
                     const NeuralNetworkPattern *const &pattern);
 

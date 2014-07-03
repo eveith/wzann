@@ -433,7 +433,7 @@ namespace Winzent {
 
 
         NeuralNetwork &NeuralNetwork::configure(
-                const NeuralNetworkPattern *const &pattern)
+                const NeuralNetworkPattern &pattern)
         {
             // Get rid of the old pattern, if one exists:
 
@@ -441,7 +441,7 @@ namespace Winzent {
                 delete m_pattern;
             }
 
-            m_pattern = pattern->clone();
+            m_pattern = pattern.clone();
             m_pattern->setParent(this);
 
             m_pattern->configureNetwork(this);
