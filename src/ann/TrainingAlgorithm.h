@@ -46,12 +46,6 @@ namespace Winzent
             QHash<Neuron *, int> m_cacheSizes;
 
 
-            /*!
-             * The network that is subject to the training.
-             */
-            NeuralNetwork *const m_network;
-
-
         protected:
 
 
@@ -124,12 +118,6 @@ namespace Winzent
 
 
             /*!
-             * \return The neural network that is to be trained
-             */
-            NeuralNetwork *const &network() const;
-
-
-            /*!
              * Commences the training of the neural network.
              *
              * How this training is being done is up to the training
@@ -142,6 +130,8 @@ namespace Winzent
              * internals of the calling interface stay hidden from the
              * outside world.
              *
+             * \param ann The artificial neural network we want to train
+             *
              * \param trainingSet A training set supplying training
              *  data and other information
              *
@@ -149,21 +139,19 @@ namespace Winzent
              *
              * \sa NeuralNetwork#train
              */
-            virtual void train(TrainingSet *const &trainingSet) = 0;
+            virtual void train(
+                    NeuralNetwork *const &ann,
+                    TrainingSet &trainingSet) = 0;
 
 
             /*!
              * Creates a new instance of a particular training algorithm for
              * training a particular network.
              *
-             * \param network The network that shall be trained
-             *
              * \param parent The parent object; if `0`, the target network
              *  becomes the parent object.
              */
-            explicit TrainingAlgorithm(
-                    NeuralNetwork *const &network,
-                    QObject *parent = 0);
+            explicit TrainingAlgorithm(QObject *parent = 0);
         };
 
     } // namespace ANN

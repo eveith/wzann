@@ -122,7 +122,6 @@ namespace Winzent {
              *  stopTemperature
              */
             explicit SimulatedAnnealingTrainingAlgorithm(
-                    NeuralNetwork *const &network,
                     qreal startTemperature,
                     qreal stopTemperature,
                     int cycles,
@@ -158,7 +157,9 @@ namespace Winzent {
              *
              * \param trainingSet A set of training data
              */
-            virtual void train(TrainingSet *const &trainingSet);
+            virtual void train(
+                    NeuralNetwork *const &ann,
+                    TrainingSet &trainingSet);
         };
     }
 }

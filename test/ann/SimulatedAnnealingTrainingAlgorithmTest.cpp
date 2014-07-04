@@ -33,7 +33,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
     qsrand(time(NULL));
 
     NeuralNetwork *network = new NeuralNetwork(this);
-    PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern(
+    PerceptronNetworkPattern pattern(
             {
                 2,
                 3,
@@ -42,8 +42,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
                 new LinearActivationFunction(),
                 new SigmoidActivationFunction(),
                 new SigmoidActivationFunction()
-            },
-            this);
+            });
 
     network->configure(pattern);
 
@@ -56,7 +55,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
             << TrainingItem({ 1.0, 0.0 }, { 1.0 })
             << TrainingItem({ 1.0, 1.0 }, { 0.0 });
 
-    TrainingSet *trainingSet = new TrainingSet(
+    TrainingSet trainingSet(
             trainingItems,
             1e-3,
             10000);
@@ -70,12 +69,8 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
 
     QDateTime dt1 = QDateTime::currentDateTime();
 
-    SimulatedAnnealingTrainingAlgorithm(
-            network,
-            10,
-            2,
-            100)
-        .train(trainingSet);
+    SimulatedAnnealingTrainingAlgorithm(10, 2, 100)
+        .train(network, trainingSet);
 
     QDateTime dt2 = QDateTime::currentDateTime();
     qDebug() << "Trained XOR(x, y) in" << dt1.msecsTo(dt2) << "msec";

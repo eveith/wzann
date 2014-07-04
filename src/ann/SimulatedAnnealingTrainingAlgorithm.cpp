@@ -30,12 +30,11 @@ namespace Winzent {
 
 
         SimulatedAnnealingTrainingAlgorithm::SimulatedAnnealingTrainingAlgorithm(
-                NeuralNetwork *const &network,
                 qreal startTemperature,
                 qreal stopTemperature,
                 int cycles,
                 QObject *parent):
-                    TrainingAlgorithm(network, parent),
+                    TrainingAlgorithm(parent),
                     m_startTemperature(startTemperature),
                     m_stopTemperature(stopTemperature),
                     m_cycles(cycles)
@@ -182,33 +181,35 @@ namespace Winzent {
 
 
         void SimulatedAnnealingTrainingAlgorithm::train(
-                TrainingSet *const &trainingSet)
+                NeuralNetwork *const &ann,
+                TrainingSet &trainingSet)
         {
             // We do not need any caching here:
 
-            setNeuronCacheSize(network(), 0);
-
+            setNeuronCacheSize(ann, 0);
 
             // Init state:
 
             qreal error     = std::numeric_limits<qreal>::max();
             int epoch       = -1;
 
-            while (error > trainingSet->targetError()
-                   && ++epoch < trainingSet->maxEpochs()) {
-                error = iterate(network(), *trainingSet);
+            while (error > trainingSet.targetError()
+                   && ++epoch < trainingSet.maxEpochs()) {
+                error = iterate(ann, trainingSet);
 
                 LOG4CXX_DEBUG(
                         logger,
                         "Epoch #" << epoch << ": "
                             << "error: " << error
-                            << " targetError: " << trainingSet->targetError());
+                            << " targetError: " << trainingSet.targetError());
 
             }
 
-            // We're done, restore the cache size:
+            // We're done, restore the cache size and save information:
 
             restoreNeuronCacheSize();
+            setFinalNumEpochs(trainingSet, epoch);
+            setFinalError(trainingSet, error);
         }
     }
 }

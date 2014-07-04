@@ -405,9 +405,7 @@ namespace Winzent {
              * \param parent The parent object; if `0`, the target network
              *  becomes the parent object.
              */
-            explicit REvolutionaryTrainingAlgorithm(
-                    NeuralNetwork *const &network,
-                    QObject *parent = 0);
+            explicit REvolutionaryTrainingAlgorithm(QObject *parent = 0);
 
 
             /*!
@@ -665,7 +663,9 @@ namespace Winzent {
              *
              * \param trainingSet
              */
-            virtual void train(TrainingSet *const &trainingSet);
+            virtual void train(
+                    NeuralNetwork *const &ann,
+                    TrainingSet &trainingSet);
 
         };
         

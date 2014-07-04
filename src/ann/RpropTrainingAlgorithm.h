@@ -131,6 +131,7 @@ namespace Winzent {
              * \see #outputError
              */
             qreal hiddenNeuronDelta(
+                    NeuralNetwork *const &ann,
                     const Neuron *const &neuron,
                     QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
@@ -172,6 +173,7 @@ namespace Winzent {
              * \see #outputError
              */
             qreal neuronDelta(
+                    NeuralNetwork *const &ann,
                     const Neuron *const &neuron,
                     QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
@@ -186,9 +188,7 @@ namespace Winzent {
              *
              * \param parent The parent object
              */
-            explicit RpropTrainingAlgorithm(
-                    NeuralNetwork *const &network,
-                    QObject *parent = 0);
+            explicit RpropTrainingAlgorithm(QObject *parent = 0);
 
 
             /*!
@@ -196,7 +196,9 @@ namespace Winzent {
              *
              * \param[in] trainingSet A set of training data
              */
-            virtual void train(TrainingSet *const &trainingSet);
+            virtual void train(
+                    NeuralNetwork *const &ann,
+                    TrainingSet &trainingSet);
         };
     } // namespace ANN
 } // namespace Winzent

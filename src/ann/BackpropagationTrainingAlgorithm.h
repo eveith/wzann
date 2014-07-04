@@ -73,6 +73,7 @@ namespace Winzent {
              * Calculates the neuron delta for a neuron in an hidden layer.
              */
             qreal hiddenNeuronDelta(
+                    NeuralNetwork *const &ann,
                     Neuron *neuron,
                     QHash<Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
@@ -83,6 +84,7 @@ namespace Winzent {
              * Calculates the delta value of a neuron.
              */
             qreal neuronDelta(
+                    NeuralNetwork *const &ann,
                     Neuron *neuron,
                     QHash<Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
@@ -104,8 +106,7 @@ namespace Winzent {
              * \param parent The parent object
              */
             BackpropagationTrainingAlgorithm(
-                    NeuralNetwork *const &network,
-                    qreal learningRate,
+                    qreal learningRate = 0.7,
                     QObject *parent = 0);
 
 
@@ -116,12 +117,25 @@ namespace Winzent {
 
 
             /*!
+             * \brief Sets the learning rate of the Backpropagation training
+             *  algorithm
+             *
+             * \param[in] rate The new rate
+             *
+             * \return `*this`
+             */
+            BackpropagationTrainingAlgorithm &learningRate(const qreal &rate);
+
+
+            /*!
              * \brief Trains the neural network with the given trainingSet.
              *
              * \param[in] trainingSet A set of sample inputs and expected
              *  outputs.
              */
-            virtual void train(TrainingSet *const &trainingSet);
+            virtual void train(
+                    NeuralNetwork *const &ann,
+                    TrainingSet &trainingSet);
         };
 
 

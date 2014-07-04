@@ -295,7 +295,7 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
     qsrand(time(NULL));
 
     NeuralNetwork *network = new NeuralNetwork(this);
-    PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern(
+    PerceptronNetworkPattern pattern(
             {
                 2,
                 3,
@@ -304,8 +304,7 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
                 new LinearActivationFunction(),
                 new SigmoidActivationFunction(),
                 new SigmoidActivationFunction()
-            },
-            this);
+            });
     network->configure(pattern);
 
     // Build training data:
@@ -317,12 +316,12 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
             << TrainingItem({ 1.0, 0.0 }, { 1.0 })
             << TrainingItem({ 1.0, 1.0 }, { 0.0 });
 
-    TrainingSet *trainingSet = new TrainingSet(
+    TrainingSet trainingSet(
             trainingItems,
             1e-3,
             15000);
 
-    REvolutionaryTrainingAlgorithm trainingAlgorithm(network);
+    REvolutionaryTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm
             .populationSize(50)
             .eliteSize(5)
@@ -334,7 +333,7 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
             .successWeight(0.1);
 
     QDateTime dt1 = QDateTime::currentDateTime();
-    trainingAlgorithm.train(trainingSet);
+    trainingAlgorithm.train(network, trainingSet);
     QDateTime dt2 = QDateTime::currentDateTime();
 
     qDebug() << "Trained XOR(x, y) in" << dt1.msecsTo(dt2) << "msec";
@@ -352,8 +351,6 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
     output = network->calculate({ 0, 1 });
     qDebug() << "(0, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
-
-    delete trainingSet;
 }
 
 

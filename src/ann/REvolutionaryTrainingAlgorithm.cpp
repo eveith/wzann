@@ -289,9 +289,8 @@ namespace Winzent {
 
 
         REvolutionaryTrainingAlgorithm::REvolutionaryTrainingAlgorithm(
-                NeuralNetwork *const &network,
                 QObject *parent):
-                    TrainingAlgorithm(network, parent),
+                    TrainingAlgorithm(parent),
                     m_maxNoSuccessEpochs(0),
                     m_populationSize(0),
                     m_eliteSize(0),
@@ -683,14 +682,15 @@ namespace Winzent {
 
 
         void REvolutionaryTrainingAlgorithm::train(
-                TrainingSet *const &trainingSet)
+                NeuralNetwork *const &ann,
+                TrainingSet &trainingSet)
         {
             if (0 == startTTL()) {
-                startTTL(std::ceil(trainingSet->maxEpochs() * 0.1));
+                startTTL(std::ceil(trainingSet.maxEpochs() * 0.1));
             }
 
             if (0 == measurementEpochs()) {
-                measurementEpochs(std::ceil(trainingSet->maxEpochs() / 200.0));
+                measurementEpochs(std::ceil(trainingSet.maxEpochs() / 200.0));
             }
 
             if (!hasSensibleTrainingParameters()) {
@@ -703,8 +703,7 @@ namespace Winzent {
 
             int lastSuccess = 0;
             int epoch       = 0;
-            QList<Individual *> population = generateInitialPopulation(
-                    network());
+            QList<Individual *> population = generateInitialPopulation(ann);
             Individual *bestIndividual = population.first();
 
             do {
@@ -722,11 +721,11 @@ namespace Winzent {
                     qreal totalMSE  = 0.0;
 
                     individual->errorVector().resize(
-                            1 + trainingSet->trainingData().size());
+                            1 + trainingSet.trainingData().size());
 
-                    foreach (TrainingItem item, trainingSet->trainingData()) {
-                        individual->applyParameters(network());
-                        ValueVector output = network()->calculate(item.input());
+                    foreach (TrainingItem item, trainingSet.trainingData()) {
+                        individual->applyParameters(ann);
+                        ValueVector output = ann->calculate(item.input());
 
                         if (! item.outputRelevant()) {
                             continue;
@@ -785,15 +784,13 @@ namespace Winzent {
                             << ", targetSuccess = " << m_targetSuccess
                             << ", bestIndividual = " << *bestIndividual << ")");
             } while (population.first()->errorVector().first()
-                        > trainingSet->targetError()
-                    && epoch < trainingSet->maxEpochs()
+                        > trainingSet.targetError()
+                    && epoch < trainingSet.maxEpochs()
                     && epoch - lastSuccess < maxNoSuccessEpochs());
 
-            bestIndividual->applyParameters(network());
-            setFinalNumEpochs(*trainingSet, epoch);
-            setFinalError(
-                    *trainingSet,
-                    bestIndividual->errorVector().at(0));
+            bestIndividual->applyParameters(ann);
+            setFinalNumEpochs(trainingSet, epoch);
+            setFinalError(trainingSet, bestIndividual->errorVector().at(0));
 
             LOG4CXX_DEBUG(
                     logger,

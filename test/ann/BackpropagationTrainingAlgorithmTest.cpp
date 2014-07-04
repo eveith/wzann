@@ -26,7 +26,7 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
     qsrand(time(NULL));
 
     NeuralNetwork *network = new NeuralNetwork(this);
-    PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern(
+    PerceptronNetworkPattern pattern(
             {
                 2,
                 3,
@@ -35,8 +35,7 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
                 new LinearActivationFunction(),
                 new SigmoidActivationFunction(),
                 new SigmoidActivationFunction()
-            },
-            this);
+            });
 
     network->configure(pattern);
 
@@ -49,7 +48,7 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
             << TrainingItem({ 1.0, 0.0 }, { 1.0 })
             << TrainingItem({ 1.0, 1.0 }, { 0.0 });
 
-    TrainingSet *trainingSet = new TrainingSet(
+    TrainingSet trainingSet(
             trainingItems,
             1e-3,
             50000);
@@ -61,8 +60,7 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 
     testResultStream << *network;
 
-    (new BackpropagationTrainingAlgorithm(network, 0.7, this))->train(
-                trainingSet);
+    BackpropagationTrainingAlgorithm().train(network, trainingSet);
 
     testResultStream << *network;
 

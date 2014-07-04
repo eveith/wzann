@@ -26,7 +26,7 @@ RpropTrainingAlgorithmTest::RpropTrainingAlgorithmTest(QObject *parent) :
 void RpropTrainingAlgorithmTest::testTrainXOR()
 {
     NeuralNetwork *network = new NeuralNetwork(this);
-    PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern(
+    PerceptronNetworkPattern pattern(
             { 2, 3, 1 },
             {
                 new LinearActivationFunction(1.0, this),
@@ -45,8 +45,8 @@ void RpropTrainingAlgorithmTest::testTrainXOR()
             },
             1e-3,
             2000);
-    RpropTrainingAlgorithm trainingAlgorithm(network);
-    trainingAlgorithm.train(&ts);
+    RpropTrainingAlgorithm trainingAlgorithm;
+    trainingAlgorithm.train(network, ts);
 
     ValueVector output;
     output = network->calculate({ 1, 1 });

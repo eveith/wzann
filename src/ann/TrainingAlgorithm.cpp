@@ -47,16 +47,9 @@ namespace Winzent {
         }
 
 
-        TrainingAlgorithm::TrainingAlgorithm(
-                NeuralNetwork *const &network,
-                QObject *parent) :
-                    QObject(parent),
-                    m_cacheSizes(),
-                    m_network(network)
+        TrainingAlgorithm::TrainingAlgorithm(QObject *parent):
+                QObject(parent)
         {
-            if (0 == parent) {
-                setParent(network);
-            }
         }
 
 
@@ -106,12 +99,6 @@ namespace Winzent {
                 int epochs) const
         {
             trainingSet.m_epochs = epochs;
-        }
-
-
-        NeuralNetwork *const &TrainingAlgorithm::network() const
-        {
-            return m_network;
         }
     } // namespace ANN
 } // namespace Winzent
