@@ -8,13 +8,13 @@
 #ifndef BASICEXCEPTION_H_
 #define BASICEXCEPTION_H_
 
-#include <qtconcurrentexception.h>
+#include <QException>
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
+
+
         class Neuron;
 
 
@@ -22,7 +22,7 @@ namespace Winzent
          * Base class for all exceptions that happen within the
          * <code>ANN</code> namespace.
          */
-        class BasicException: public QtConcurrent::Exception
+        class BasicException: public QException
         {
 
         public:
@@ -33,7 +33,7 @@ namespace Winzent
             }
 
 
-            Exception *clone() const {
+            BasicException *clone() const {
                 return new BasicException(*this);
             }
         };

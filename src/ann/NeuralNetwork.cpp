@@ -14,8 +14,10 @@
 #include <QByteArray>
 #include <QTextStream>
 
-#include <qjson/serializer.h>
-#include <qjson/qobjecthelper.h>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/logmanager.h>
@@ -561,47 +563,41 @@ namespace Winzent {
 
         QTextStream& operator<<(QTextStream &out, const NeuralNetwork &network)
         {
-            QVariantMap outList;
+            QJsonDocument jsonDocument;
+            QJsonObject outList;
 
-            outList.insert("version", NeuralNetwork::VERSION);
+            outList.insert("version", QString(NeuralNetwork::VERSION));
 
-            QList<QVariant> layersList;
-
-            outList.insert("layers", layersList);
+            QJsonArray layersList;
 
             for (int i = 0; i != network.m_layers.size(); ++i) {
-                QVariantMap layerMap;
-                QVariantList neuronsList;
+                QJsonObject layerMap;
+                QJsonArray neuronsList;
 
                 for (int j = 0; j != network.layerAt(i)->size(); ++j) {
-                    QVariantMap neuronMap;
+                    QJsonObject neuronMap;
 
                     neuronMap.insert(
                             "activationFunction",
-                            network.layerAt(i)->neuronAt(j)
+                            QString(network.layerAt(i)->neuronAt(j)
                                 ->m_activationFunction
-                                    ->metaObject()->className());
+                                    ->metaObject()->className()));
 
-                    QVariantList lastInputs;
+                    QJsonArray lastInputs;
                     foreach (qreal r,
                              network.layerAt(i)->neuronAt(j)->lastInputs()) {
-                        lastInputs << r;
+                        lastInputs.append(r);
                     }
 
-                    neuronMap.insert(
-                            "lastInputs",
-                            lastInputs);
+                    neuronMap.insert("lastInputs", lastInputs);
 
-                    QVariantList lastResults;
+                    QJsonArray lastResults;
                     foreach (qreal r,
                              network.layerAt(i)->neuronAt(j)->lastResults()) {
-                        lastResults << r;
+                        lastResults.append(r);
                     }
 
-                    neuronMap.insert(
-                            "lastResults",
-                            lastResults);
-
+                    neuronMap.insert("lastResults", lastResults);
                     neuronsList.append(neuronMap);
                 }
 
@@ -611,10 +607,9 @@ namespace Winzent {
 
             outList.insert("layers", layersList);
 
-            QVariantList connections;
+            QJsonArray connections;
 
             for (int i = 0; i != network.size(); ++i) {
-
                 for (int j = 0; j != network[i]->size(); ++j) {
                     Neuron *srcNeuron = network.layerAt(i)->neuronAt(j);
 
@@ -636,7 +631,7 @@ namespace Winzent {
                             }
 
 
-                            QVariantMap connection;
+                            QJsonObject connection;
                             connection.insert("srcLayer", i);
                             connection.insert("srcNeuron", j);
                             connection.insert("dstLayer", k);
@@ -657,18 +652,8 @@ namespace Winzent {
 
             // Serialize:
 
-            QJson::Serializer serializer;
-            serializer.setIndentMode(QJson::IndentFull);
-
-            bool ok;
-            QByteArray json = serializer.serialize(outList, &ok);
-
-            Q_ASSERT(ok);
-            if (!ok) {
-                return out;
-            }
-
-            out << json;
+            jsonDocument.setObject(outList);
+            out << jsonDocument.toJson();
             return out;
         }
     }
