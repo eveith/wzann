@@ -734,7 +734,7 @@ namespace Winzent {
                         qreal sampleMSE = calculateMeanSquaredError(
                                 output,
                                 item.expectedOutput());
- 
+
                         individual->errorVector()[errorPos++] = sampleMSE;
                         totalMSE += sampleMSE;
                     }
@@ -782,7 +782,13 @@ namespace Winzent {
                         "Iteration(epoch = " << epoch
                             << ", success = " << m_success
                             << ", targetSuccess = " << m_targetSuccess
-                            << ", bestIndividual = " << *bestIndividual << ")");
+                            << ", bestIndividual = " << *bestIndividual
+                            << ")");
+
+                emit iterationFinished(
+                        epoch,
+                        population.first()->errorVector().first(),
+                        population);
             } while (population.first()->errorVector().first()
                         > trainingSet.targetError()
                     && epoch < trainingSet.maxEpochs()

@@ -2,6 +2,11 @@
 
 #include <QObject>
 
+#include <QFile>
+#include <QTextStream>
+
+#include <iostream>
+
 #include "Testrunner.h"
 
 #include "NeuralNetwork.h"
@@ -31,6 +36,7 @@ using Winzent::ANN::REvolutionaryTrainingAlgorithm;
 using Winzent::ANN::TrainingSet;
 using Winzent::ANN::TrainingItem;
 using Winzent::ANN::ValueVector;
+using Winzent::ANN::Individual;
 
 
 REvolutionaryTrainingAlgorithmTest::REvolutionaryTrainingAlgorithmTest(
@@ -57,6 +63,31 @@ NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
     net->configure(&pattern);
 
     return net;
+}
+
+
+void REvolutionaryTrainingAlgorithmTest::recordIteration(
+        const int &epoch,
+        const qreal &,
+        const QList<Winzent::ANN::Individual *> &population)
+{
+    QFile outFile(QString("./%1.out").arg(QTest::currentTestFunction()));
+    QTextStream stream(&outFile);
+    outFile.open(QFile::ReadWrite|QFile::Append);
+
+    foreach (Individual *i, population) {
+        stream << epoch << " " << i->errorVector().first()
+                << " " << i->timeToLive();
+
+        foreach (qreal p, i->parameters()) {
+            stream << " " << p;
+        }
+
+        stream << "\n";
+    }
+
+    stream.flush();
+    outFile.close();
 }
 
 
@@ -331,6 +362,12 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
             .ebmin(1e-2)
             .ebmax(2.0)
             .successWeight(0.1);
+
+    connect(
+            &trainingAlgorithm,
+            SIGNAL(iterationFinished(int,qreal,QList<Individual*>)),
+            this,
+            SLOT(recordIteration(int,qreal,QList<Individual*>)));
 
     QDateTime dt1 = QDateTime::currentDateTime();
     trainingAlgorithm.train(network, trainingSet);
