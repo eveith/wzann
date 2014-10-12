@@ -46,7 +46,7 @@ HEADERS += \
     TrainingSetTest.h \
     REvolutionaryTrainingAlgorithmTest.h \
     RpropTrainingAlgorithmTest.h
-    
+
 SOURCES += \
     tst_ann.cpp \
     NeuronTest.cpp \
@@ -71,4 +71,7 @@ DEFINES += SRCDIR=\\\"$$PWD/\\\"
 QMAKE_CLEAN += *.out *.png *.svg *.pdf */*.out
 QMAKE_CLEAN += -r *Test/
 
-check.commands = ../../src/test-common/testrunner.sh -l ../../src/ann --
+check_opts =
+check.commands = \
+    $$_PRO_FILE_PWD_/../../src/test-common/testrunner.sh \
+        -l../../src/ann -- ./tst_ann
