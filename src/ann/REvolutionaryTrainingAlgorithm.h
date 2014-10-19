@@ -268,7 +268,7 @@ namespace Winzent {
             Individual &operator=(const Individual &other);
         };
 
-        
+
         class REvolutionaryTrainingAlgorithm: public TrainingAlgorithm
         {
             Q_OBJECT
@@ -667,8 +667,25 @@ namespace Winzent {
                     NeuralNetwork *const &ann,
                     TrainingSet &trainingSet);
 
+        signals:
+
+
+            /*!
+             * \brief Fired whenever an iteration is complete
+             *
+             * \param epoch The current epoch (i.e., nth iteration)
+             *
+             * \param error The current error
+             *
+             * \param population The complete population
+             */
+            void iterationFinished(
+                    const int &epoch,
+                    const qreal &error,
+                    const QList<Individual *> &population);
+
         };
-        
+
     } // namespace ANN
 } // namespace Winzent
 

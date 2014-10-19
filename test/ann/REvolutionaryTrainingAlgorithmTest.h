@@ -3,16 +3,19 @@
 
 
 #include <QObject>
+#include <QList>
 
 
 namespace Winzent {
     namespace ANN {
         class NeuralNetwork;
+        class Individual;
     }
 }
 
 
 using Winzent::ANN::NeuralNetwork;
+using Winzent::ANN::Individual;
 
 
 class REvolutionaryTrainingAlgorithmTest: public QObject
@@ -35,6 +38,11 @@ private slots:
     void testModifyIndividual();
     void testSortPopulation();
     void testTrainXOR();
+
+    void recordIteration(
+            const int &epoch,
+            const qreal &error,
+            const QList<Individual *> &population);
 };
 
 #endif // REVOLUTIONARYTRAININGALGORITHMTEST_H
