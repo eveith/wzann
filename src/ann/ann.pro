@@ -66,7 +66,7 @@ unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib
     } else {
-        target.path = /usr/lib
+        target.path = /usr/lib64
     }
     INSTALLS += target
 }
