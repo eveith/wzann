@@ -63,6 +63,7 @@ add_dependencies(tst_ann
     winzent-common
     winzent-ann)
 target_link_libraries(tst_ann
+    stdc++
     Qt5::Core
     Qt5::Test
     log4cxx
