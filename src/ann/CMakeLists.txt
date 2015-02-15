@@ -54,7 +54,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Core REQUIRED)
-pkg_check_modules(log4cxx REQUIRED)
+find_package(Qt5Sql REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
+pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
 
 # Tweak for C++11:
@@ -70,6 +72,8 @@ add_dependencies(winzent-ann
     winzent-common)
 target_link_libraries(winzent-ann
     Qt5::Core
+    Qt5::Sql
+    Qt5::Concurrent
     log4cxx
     winzent-common)
 set_target_properties(winzent-ann

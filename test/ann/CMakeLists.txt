@@ -43,6 +43,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Test REQUIRED)
+find_package(Qt5Sql REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
 
 
 # Tweak for C++11:
@@ -66,6 +68,8 @@ target_link_libraries(tst_ann
     stdc++
     Qt5::Core
     Qt5::Test
+    Qt5::Sql
+    Qt5::Concurrent
     log4cxx
     winzent-ann)
 
