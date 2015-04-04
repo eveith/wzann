@@ -1,6 +1,14 @@
 project(winzent-ann)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
+set(winzent-ann_VERSION_MAJOR ${WINZENT_VERSION_MAJOR})
+set(winzent-ann_VERSION_MINOR 1)
+set(winzent-ann_VERSION_PATCHLEVEL 0)
+set(winzent-ann_VERSION 
+    "${winzent-ann_VERSION_MAJOR}.${winzent_ann_VERSION_MINOR}.${winzent_ann_VERSION_PATCHLEVEL}")
+set(winzent-ann_SOVERSION
+    "${winzent-ann_VERSION_MAJOR}.${winzent-ann_VERSION_MINOR}")
+
 
 set(winzent-ann_SOURCES
     ActivationFunction.cpp
@@ -59,7 +67,7 @@ find_package(Qt5Concurrent REQUIRED)
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
 
-# Tweak for C++11:
+# Tweak for C++14:
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     add_compile_options(-std=c++1y)
@@ -77,4 +85,4 @@ target_link_libraries(winzent-ann
     log4cxx
     winzent-common)
 set_target_properties(winzent-ann
-    PROPERTIES SOVERSION 0)
+    PROPERTIES SOVERSION ${winzent-ann_SOVERSION})
