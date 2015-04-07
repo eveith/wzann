@@ -86,3 +86,6 @@ target_link_libraries(winzent-ann
     winzent-common)
 set_target_properties(winzent-ann
     PROPERTIES SOVERSION ${winzent-ann_SOVERSION})
+
+install(TARGETS winzent-ann LIBRARY DESTINATION lib)
+install(FILES ${winzent-ann_HEADERS} DESTINATION include)
