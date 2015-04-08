@@ -87,5 +87,5 @@ target_link_libraries(winzent-ann
 set_target_properties(winzent-ann
     PROPERTIES SOVERSION ${winzent-ann_SOVERSION})
 
-install(TARGETS winzent-ann LIBRARY DESTINATION lib)
+install(TARGETS winzent-ann LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${winzent-ann_HEADERS} DESTINATION include/winzent/ann)
