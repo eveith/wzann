@@ -739,7 +739,8 @@ namespace Winzent {
                         totalMSE += sampleMSE;
                     }
 
-                    individual->errorVector()[0] = totalMSE / errorPos;
+                    individual->errorVector()[0] =
+                            totalMSE / static_cast<qreal>(errorPos);
                     individual->age();
                 }
 
