@@ -10,6 +10,8 @@
 
 #include <log4cxx/logger.h>
 
+#include <boost/random.hpp>
+
 #include "NeuralNetwork.h"
 #include "Layer.h"
 #include "Connection.h"
@@ -284,7 +286,8 @@ namespace Winzent {
 
         qreal REvolutionaryTrainingAlgorithm::frandom()
         {
-            return ((qrand() % RAND_MAX - 1) / static_cast<qreal>(RAND_MAX));
+            //return ((qrand() % RAND_MAX - 1) / static_cast<qreal>(RAND_MAX));
+            return m_uniformDistribution(m_randomNumberGenerator);
         }
 
 

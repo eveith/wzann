@@ -13,6 +13,8 @@
 
 #include <ostream>
 
+#include <boost/random.hpp>
+
 #include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
 
@@ -352,6 +354,19 @@ namespace Winzent {
 
 
             /*!
+             * \brief Our Random Number Generator
+             */
+            boost::random::mt11213b m_randomNumberGenerator;
+
+
+            /*!
+             * \brief A uniform distribution `[0; 1)` from which we draw
+             *  random numbers
+             */
+            boost::random::uniform_01<qreal> m_uniformDistribution;
+
+
+            /*!
              * \brief Applies the bounds defined in ebmin, eamin and eamax given
              *  another object's parameter
              *
@@ -413,7 +428,7 @@ namespace Winzent {
              *
              * \return A random number between 0.0 and 1.0 (exclusive)
              */
-            static qreal frandom();
+            qreal frandom();
 
 
             /*!
@@ -685,7 +700,6 @@ namespace Winzent {
                     const QList<Individual *> &population);
 
         };
-
     } // namespace ANN
 } // namespace Winzent
 
