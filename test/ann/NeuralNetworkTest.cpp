@@ -187,7 +187,7 @@ void NeuralNetworkTest::testSerialization()
 void NeuralNetworkTest::testInitialLayerSize()
 {
     Layer l;
-    QCOMPARE(l.m_neurons.size(), 0);
+    QCOMPARE(l.m_neurons.size(), 0ul);
 }
 
 
@@ -231,7 +231,6 @@ void NeuralNetworkTest::testClone()
 
     QCOMPARE(network->size(), clone->size());
     QVERIFY(network->biasNeuron() != clone->biasNeuron());
-    QCOMPARE(clone->biasNeuron()->parent(), clone);
 
     for (int i = 0; i != network->size(); ++i) {
         Layer *origLayer    = network->layerAt(i);
@@ -243,7 +242,7 @@ void NeuralNetworkTest::testClone()
         QCOMPARE(origLayer->parent(), network);
         QCOMPARE(cloneLayer->parent(), clone);
 
-        for (int j = 0; j < origLayer->size(); ++j) {
+        for (size_t j = 0; j < origLayer->size(); ++j) {
             Neuron *origNeuron  = origLayer->neuronAt(j);
             Neuron *cloneNeuron = cloneLayer->neuronAt(j);
 

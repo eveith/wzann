@@ -6,9 +6,9 @@
  */
 
 
-#include <QtDebug>
-
+#include "Layer.h"
 #include "ActivationFunction.h"
+
 #include "Neuron.h"
 
 
@@ -16,21 +16,11 @@ namespace Winzent {
     namespace ANN {
 
 
-        Neuron::Neuron(ActivationFunction *activationFunction, QObject *parent):
-                QObject(parent),
-                m_activationFunction(activationFunction),
-                m_cacheSize(0)
-        {
-            m_activationFunction->setParent(this);
-        }
-
-
-        Neuron::Neuron(const Neuron &rhs):
-                QObject(rhs.parent()),
-                m_activationFunction(rhs.m_activationFunction->clone()),
-                m_lastInputs(rhs.m_lastInputs),
-                m_lastResults(rhs.m_lastResults),
-                m_cacheSize(rhs.m_cacheSize)
+        Neuron::Neuron(
+                ActivationFunction *activationFunction,
+                QObject *parent):
+                    QObject(parent),
+                    m_activationFunction(activationFunction)
         {
             m_activationFunction->setParent(this);
         }
@@ -40,65 +30,58 @@ namespace Winzent {
         {
             Neuron *n = new Neuron(m_activationFunction->clone());
 
-            n->m_lastInputs = m_lastInputs;
-            n->m_lastResults = m_lastResults;
-            n->m_cacheSize = m_cacheSize;
-            n->setParent(parent());
+            n->m_lastInput = m_lastInput;
+            n->m_lastResult = m_lastResult;
+            n->m_parent = m_parent;
 
             return n;
         }
 
 
+        Layer *Neuron::parent() const
+        {
+            return m_parent;
+        }
+
+
         qreal Neuron::lastResult() const
         {
-            return m_lastResults.first();
+            return m_lastResult;
         }
 
 
         const QVector<qreal> Neuron::lastInputs() const
         {
-            return m_lastInputs;
+            return QVector<qreal>({ m_lastInput });
         }
 
 
         qreal Neuron::lastInput() const
         {
-            return m_lastInputs.first();
+            return m_lastInput;
         }
 
 
         const QVector<qreal> Neuron::lastResults() const
         {
-            return m_lastResults;
+            return QVector<qreal>({ m_lastResult });
         }
 
 
         int Neuron::cacheSize() const
         {
-            return m_cacheSize;
+            return 1;
         }
 
 
-        Neuron &Neuron::cacheSize(const int &cacheSize)
+        Neuron &Neuron::cacheSize(const int &)
         {
-            int oldCacheSize = m_cacheSize;
-            m_cacheSize = cacheSize;
-            if (oldCacheSize > cacheSize) {
-                trimCache();
-            }
-
             return *this;
         }
 
 
-        void Neuron::trimCache()
-        {
-            m_lastInputs.resize(cacheSize());
-            m_lastResults.resize(cacheSize());
-        }
 
-
-        ActivationFunction* Neuron::activationFunction() const
+        ActivationFunction *Neuron::activationFunction() const
         {
             return m_activationFunction;
         }
@@ -106,18 +89,9 @@ namespace Winzent {
 
         qreal Neuron::activate(const qreal &sum)
         {
-            qreal result = m_activationFunction->calculate(sum);
-
-            if (cacheSize() > 0) {
-                m_lastInputs.push_front(qreal(sum));
-                m_lastResults.push_front(qreal(result));
-
-                if (m_lastInputs.size() > cacheSize()) {
-                    trimCache();
-                }
-            }
-
-            return result;
+            m_lastInput = sum;
+            m_lastResult = m_activationFunction->calculate(sum);
+            return m_lastResult;
         }
     }
 }

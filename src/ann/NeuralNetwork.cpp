@@ -637,7 +637,8 @@ namespace Winzent {
                             connection.insert("dstLayer", k);
                             connection.insert(
                                     "dstNeuron",
-                                    network[k]->indexOf(dstNeuron));
+                                    static_cast<qint64>(
+                                        network[k]->indexOf(dstNeuron)));
                             connection.insert("weight", c->weight());
                             connection.insert("fixed", c->fixedWeight());
                             connections.append(connection);

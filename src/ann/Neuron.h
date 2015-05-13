@@ -20,49 +20,45 @@ namespace Winzent
 {
     namespace ANN
     {
-        class ActivationFunction;
+        class Layer;
         class NeuralNetwork;
+        class ActivationFunction;
 
 
         class Neuron: public QObject
         {
             Q_OBJECT
 
+            friend class Layer;
             friend QTextStream& operator<<(QTextStream&, const NeuralNetwork&);
 
         private:
 
 
             /*!
-             * The activation function used for neuron activation
+             * \brief Our parent layer
+             */
+            Layer *m_parent;
+
+
+            /*!
+             * \brief The activation function used for neuron activation
              *
-             * \sa #activate
+             * \sa #activate()
              */
             ActivationFunction *m_activationFunction;
 
 
             /*!
-             * Caches that last input that was presented to this neuron.
+             * \brief Caches the input that was presented to #activate().
              */
-            QVector<qreal> m_lastInputs;
+            qreal m_lastInput;
 
 
             /*!
-             * Caches the result of the last activation
+             * \brief Caches the result of the last activation
              */
-            QVector<qreal> m_lastResults;
-
-
-            /*!
-             * The maximum size of the input/results caches
-             */
-            int m_cacheSize;
-
-
-            /*!
-             * Calls `resize()` on all caches.
-             */
-            void trimCache();
+            qreal m_lastResult;
 
 
         public:
@@ -86,11 +82,16 @@ namespace Winzent
 
 
             /*!
-             * \brief Copy constructor
+             * \brief Deleted copy constructor
              *
-             * \param[in] rhs The right-hand side assignment operand
+             * No copy constructor exists for the Neuron class. If you need
+             * a deep copy of a neuron, call #clone() instead.
+             *
+             * \sa Neuron#clone()
              */
-            Neuron(const Neuron &rhs);
+            Neuron(const Neuron &) = delete;
+
+            Neuron(Neuron &&) = delete;
 
 
             /*!
@@ -103,6 +104,17 @@ namespace Winzent
              * \sa #lastResult
              */
             Neuron *clone() const;
+
+
+            /*!
+             * \brief Returns the parent Layer
+             *
+             * \return The parent layer, or `nullptr` if the Neuron does not
+             *  belong to any Layer
+             *
+             * \sa Layer#addNeuron()
+             */
+            Layer *parent() const;
 
 
             /*!
@@ -165,7 +177,6 @@ namespace Winzent
              */
             qreal activate(const qreal &sum);
         };
-
     } /* namespace ANN */
 } /* namespace Winzent */
 

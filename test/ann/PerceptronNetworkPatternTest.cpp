@@ -35,8 +35,8 @@ void PerceptronNetworkPatternTest::testConfigure()
     network->configure(pattern);
 
     for (int i = 0; i != network->size() - 1; ++i) {
-        for (int j = 0; j != (*network)[i]->size(); ++j) {
-            for (int k = 0; k != (*network)[i+1]->size(); ++k) {
+        for (size_t j = 0; j != (*network)[i]->size(); ++j) {
+            for (size_t k = 0; k != (*network)[i+1]->size(); ++k) {
                 QVERIFY(network->neuronConnectionExists(
                     network->layerAt(i)->neuronAt(j),
                     network->layerAt(i+1)->neuronAt(k)));

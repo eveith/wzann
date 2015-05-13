@@ -2,9 +2,12 @@
 #define WINZENT_ANN_LAYER_H
 
 #include <QObject>
-#include <QList>
 
+#include <cstddef>
 #include <functional>
+
+#include <boost/ptr_container/ptr_vector.hpp>
+
 
 #include "Neuron.h"
 
@@ -14,7 +17,7 @@ using std::function;
 
 namespace Winzent {
     namespace ANN {
-        
+
 
         /*!
          * Represents a layer in a neural network
@@ -27,59 +30,62 @@ namespace Winzent {
 
 
             /*!
-             * A list of all neurons the make up this layer.
+             * \brief A list of all neurons the make up this layer.
              */
-            QList<Neuron*> m_neurons;
+            boost::ptr_vector<Neuron> m_neurons;
 
 
         public:
 
 
             /*!
-             * Creates a new, empty layer.
+             * \brief Creates a new, empty layer.
              */
             Layer(QObject *parent = 0);
 
 
             /*!
-             * Copy constructor
+             * \brief Copy constructor
              */
             Layer(const Layer &rhs);
 
 
             /*!
-             * Returns the size of the layer, i.e. the number of
-             * neurons it holds.
+             * \brief Returns the size of the layer, i.e. the number of
+             *  neurons it holds.
              */
-            int size() const;
+            size_t size() const;
 
 
             /*!
-             * Checks whether a particular neuron is part of this layer.
+             * \brief Checks whether a particular neuron is part
+             *  of this layer.
              */
             bool contains(const Neuron *const &neuron) const;
 
 
             /*!
-             * Returns the neuron at the specified index position.
+             * \brief Returns the neuron at the specified index position.
              *
-             * Retrieves a neuron given its position (index) in the layer.
+             * Requires `index < size()`.
+             *
+             * \param[in] The index
+             *
+             * \return The neuron at the given position
              */
-            Neuron *&neuronAt(const int &index);
+            Neuron *neuronAt(const size_t &index) const;
 
 
             /*!
-             * Nonmodifiable, `const` version of the neuronAt command.
-             */
-            const Neuron *neuronAt(const int &index) const;
-
-
-            /*!
-             * Returns the neuron at the specified index position.
+             * \brief Returns the neuron at the specified index position.
              *
-             * Retrieves a neuron given its position (index) in the layer.
+             * Requires `index < size()`.
+             *
+             * \param[in] The index
+             *
+             * \return The neuron at the given position
              */
-            Neuron*& operator [](const int &index);
+            Neuron *operator [](const size_t &index);
 
 
 
@@ -90,7 +96,7 @@ namespace Winzent {
              *
              * \return The index position, or -1 if no item matched.
              */
-            int indexOf(const Neuron *const &neuron) const;
+            size_t indexOf(const Neuron *const &neuron) const;
 
 
             /*!
@@ -110,18 +116,35 @@ namespace Winzent {
 
 
             /*!
-             * Adds a neuron to the layer ensuring that the bias neuron always
-             * remains the last one.
+             * \brief Adds a neuron to the layer
+             *
+             * The takes ownership of the neuron, which will be deleted when
+             * the Layer is deleted.
+             *
+             * \return `this`
              */
-            Layer& operator<<(Neuron *neuron);
+            Layer& operator<<(Neuron *const &neuron);
 
 
             /*!
-             * Returns a deep copy (clone) of this layer.
+             * \brief Adds a neuron to the layer
+             *
+             * The takes ownership of the neuron, which will be deleted when
+             * the Layer is deleted.
+             *
+             * \return `this`
+             */
+            Layer &addNeuron(Neuron *const &neuron);
+
+
+            /*!
+             * \brief Returns a deep copy (clone) of this layer.
+             *
+             * \return The clone
              */
             Layer *clone() const;
         };
-        
+
     } // namespace ANN
 } // namespace Winzent
 

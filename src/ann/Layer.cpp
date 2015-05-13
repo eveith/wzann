@@ -1,31 +1,31 @@
 #include <QObject>
-#include <QList>
+
+#include <cstddef>
+#include <functional>
+
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "Neuron.h"
-#include "ConstantActivationFunction.h"
 #include "Layer.h"
+
 
 namespace Winzent {
     namespace ANN {
-        Layer::Layer(QObject *parent):
-                QObject(parent)
+        Layer::Layer(QObject *parent): QObject(parent)
         {
         }
 
 
-        Layer::Layer(const Layer &rhs):
-                QObject(rhs.parent()),
-                m_neurons(QList<Neuron *>())
+        Layer::Layer(const Layer &rhs): QObject(rhs.parent())
         {
-            foreach (Neuron *n, rhs.m_neurons) {
-                Neuron *neuronClone = n->clone();
-                neuronClone->setParent(this);
-                m_neurons << neuronClone;
+            for (const auto &n: rhs.m_neurons) {
+                Neuron *neuronClone = n.clone();
+                neuronClone->m_parent = this;
+                m_neurons.push_back(neuronClone);
             }
         }
 
-
-        int Layer::size() const
+        size_t Layer::size() const
         {
             return m_neurons.size();
         }
@@ -33,31 +33,34 @@ namespace Winzent {
 
         bool Layer::contains(const Neuron *const &neuron) const
         {
-            return m_neurons.contains(const_cast<Neuron*>(neuron));
+            return (neuron->parent() == this);
         }
 
 
-        Neuron *&Layer::neuronAt(const int &index)
+        Neuron *Layer::neuronAt(const size_t &index) const
         {
-            return m_neurons[index];
+            return const_cast<Neuron *>(&(m_neurons.at(index)));
         }
 
 
-        const Neuron *Layer::neuronAt(const int &index) const
+        Neuron *Layer::operator [](const size_t &index)
         {
-            return m_neurons.at(index);
+            return &(m_neurons[index]);
         }
 
 
-        Neuron *&Layer::operator [](const int &index)
+        size_t Layer::indexOf(const Neuron *const &neuron) const
         {
-            return neuronAt(index);
-        }
+            size_t index = -1;
 
+            for (size_t i = 0; i != m_neurons.size(); ++i) {
+                if (&(m_neurons.at(i)) == neuron) {
+                    index = i;
+                    break;
+                }
+            }
 
-        int Layer::indexOf(const Neuron *const &neuron) const
-        {
-            return m_neurons.indexOf(const_cast<Neuron *>(neuron));
+            return index;
         }
 
 
@@ -65,20 +68,30 @@ namespace Winzent {
         void Layer::eachNeuron(function<void (const Neuron * const &)> yield)
                 const
         {
-            std::for_each(m_neurons.begin(), m_neurons.end(), yield);
+            for (const Neuron &n: m_neurons) {
+                yield(&n);
+            }
         }
 
 
         void Layer::eachNeuron(function<void (Neuron *const &)> yield)
         {
-            std::for_each(m_neurons.begin(), m_neurons.end(), yield);
+            for (Neuron &n: m_neurons) {
+                yield(&n);
+            }
         }
 
 
-        Layer &Layer::operator <<(Neuron *neuron)
+        Layer &Layer::operator <<(Neuron *const &neuron)
         {
-            neuron->setParent(this);
-            m_neurons.append(neuron);
+            return addNeuron(neuron);
+        }
+
+
+        Layer &Layer::addNeuron(Neuron *const &neuron)
+        {
+            neuron->m_parent = this;
+            m_neurons.push_back(neuron);
 
             return *this;
         }
