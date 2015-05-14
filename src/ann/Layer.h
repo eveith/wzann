@@ -2,9 +2,12 @@
 #define WINZENT_ANN_LAYER_H
 
 #include <QObject>
-#include <QList>
 
+#include <cstddef>
 #include <functional>
+
+#include <boost/ptr_container/ptr_vector.hpp>
+
 
 #include "Neuron.h"
 
@@ -14,7 +17,7 @@ using std::function;
 
 namespace Winzent {
     namespace ANN {
-        
+
 
         /*!
          * Represents a layer in a neural network
@@ -23,63 +26,82 @@ namespace Winzent {
         {
             Q_OBJECT
 
+        public:
+
+
+            typedef boost::ptr_vector<Neuron>::iterator iterator;
+            typedef boost::ptr_vector<Neuron>::const_iterator const_iterator;
+
+
         private:
 
 
             /*!
-             * A list of all neurons the make up this layer.
+             * \brief A list of all neurons the make up this layer.
              */
-            QList<Neuron*> m_neurons;
+            boost::ptr_vector<Neuron> m_neurons;
 
 
         public:
 
 
             /*!
-             * Creates a new, empty layer.
+             * \brief Creates a new, empty layer.
              */
             Layer(QObject *parent = 0);
 
 
             /*!
-             * Copy constructor
+             * \brief Copy constructor
              */
             Layer(const Layer &rhs);
 
 
+
             /*!
-             * Returns the size of the layer, i.e. the number of
-             * neurons it holds.
+             * \brief Returns a deep copy (clone) of this layer.
+             *
+             * \return The clone
              */
-            int size() const;
+            Layer *clone() const;
 
 
             /*!
-             * Checks whether a particular neuron is part of this layer.
+             * \brief Returns the size of the layer, i.e. the number of
+             *  neurons it holds.
+             */
+            size_t size() const;
+
+
+            /*!
+             * \brief Checks whether a particular neuron is part
+             *  of this layer.
              */
             bool contains(const Neuron *const &neuron) const;
 
 
             /*!
-             * Returns the neuron at the specified index position.
+             * \brief Returns the neuron at the specified index position.
              *
-             * Retrieves a neuron given its position (index) in the layer.
+             * Requires `index < size()`.
+             *
+             * \param[in] The index
+             *
+             * \return The neuron at the given position
              */
-            Neuron *&neuronAt(const int &index);
+            Neuron *neuronAt(const size_t &index) const;
 
 
             /*!
-             * Nonmodifiable, `const` version of the neuronAt command.
-             */
-            const Neuron *neuronAt(const int &index) const;
-
-
-            /*!
-             * Returns the neuron at the specified index position.
+             * \brief Returns the neuron at the specified index position.
              *
-             * Retrieves a neuron given its position (index) in the layer.
+             * Requires `index < size()`.
+             *
+             * \param[in] The index
+             *
+             * \return The neuron at the given position
              */
-            Neuron*& operator [](const int &index);
+            Neuron *operator [](const size_t &index);
 
 
 
@@ -90,7 +112,7 @@ namespace Winzent {
              *
              * \return The index position, or -1 if no item matched.
              */
-            int indexOf(const Neuron *const &neuron) const;
+            size_t indexOf(const Neuron *const &neuron) const;
 
 
             /*!
@@ -110,19 +132,71 @@ namespace Winzent {
 
 
             /*!
-             * Adds a neuron to the layer ensuring that the bias neuron always
-             * remains the last one.
+             * \brief Returns a new iterator pointing at the first neuron in
+             *  the Layer
+             *
+             * \return A new iterator
              */
-            Layer& operator<<(Neuron *neuron);
+            iterator begin();
 
 
             /*!
-             * Returns a deep copy (clone) of this layer.
+             * \brief Returns a new const iterator pointing at the first
+             *  neuron in the Layer
+             *
+             * \return A new const iterator
              */
-            Layer *clone() const;
+            const_iterator begin() const;
+
+
+            /*!
+             * \brief Returns a new iterator pointing at the non-existent
+             *  element after the last Neuron in this Layer
+             *
+             * \return A new iterator
+             */
+            iterator end();
+
+
+            /*!
+             * \brief Returns a new const iterator pointing at the
+             *  non-existent element after the last Neuron in this Layer
+             *
+             * \return A new const iterator
+             */
+            const_iterator end() const;
+
+
+            /*!
+             * \brief Adds a neuron to the layer
+             *
+             * The takes ownership of the neuron, which will be deleted when
+             * the Layer is deleted.
+             *
+             * \return `this`
+             */
+            Layer& operator<<(Neuron *const &neuron);
+
+
+            /*!
+             * \brief Adds a neuron to the layer
+             *
+             * The takes ownership of the neuron, which will be deleted when
+             * the Layer is deleted.
+             *
+             * \return `this`
+             */
+            Layer &addNeuron(Neuron *const &neuron);
         };
-        
     } // namespace ANN
 } // namespace Winzent
+
+
+Winzent::ANN::Layer::iterator begin(Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::const_iterator begin(const Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::iterator end(Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::const_iterator end(const Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::iterator begin(Winzent::ANN::Layer *&layer);
+
 
 #endif // WINZENT_ANN_LAYER_H

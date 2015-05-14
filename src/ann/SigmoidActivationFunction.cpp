@@ -22,7 +22,7 @@ namespace Winzent
         }
 
 
-        ActivationFunction* SigmoidActivationFunction::clone() const
+        ActivationFunction *SigmoidActivationFunction::clone() const
         {
             return new SigmoidActivationFunction(steepness(), parent());
         }

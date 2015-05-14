@@ -53,9 +53,10 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
             1e-3,
             50000);
 
-    QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
-    testResultFile.open(QIODevice::Text
-            | QIODevice::WriteOnly | QIODevice::Truncate);
+    QFile testResultFile(QString(
+            QTest::currentTestFunction()).append(".out"));
+    testResultFile.open(
+            QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate);
     QTextStream testResultStream(&testResultFile);
 
     testResultStream << *network;

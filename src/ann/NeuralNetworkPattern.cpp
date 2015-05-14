@@ -23,10 +23,8 @@
 using std::initializer_list;
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
 
 
         double NeuralNetworkPattern::weightRandomMin = -0.5;
@@ -53,7 +51,7 @@ namespace Winzent
 
         NeuralNetworkPattern::NeuralNetworkPattern(
                 initializer_list<int> layerSizes,
-                initializer_list<ActivationFunction*> activationFunctions,
+                initializer_list<ActivationFunction *> activationFunctions,
                 QObject *parent):
                     NeuralNetworkPattern(
                         layerSizes,
@@ -84,12 +82,12 @@ namespace Winzent
             // Iterate over all neurons:
 
             for (int i = 0; i != fromLayerSize; ++i) {
-                    for (int j = 0; j != toLayerSize; ++j) {
-                        network->connectNeurons(
-                                network->layerAt(fromLayer)->neuronAt(i),
-                                network->layerAt(toLayer)->neuronAt(j))
-                                        ->weight(0.0);
-                    }
+                for (int j = 0; j != toLayerSize; ++j) {
+                    network->connectNeurons(
+                            network->layerAt(fromLayer)->neuronAt(i),
+                            network->layerAt(toLayer)->neuronAt(j))
+                                    ->weight(0.0);
+                }
             }
         }
 

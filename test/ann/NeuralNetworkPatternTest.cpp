@@ -52,9 +52,7 @@ void NeuralNetworkPatternTestDummyPattern::configureNetwork(
         Layer *l = new Layer(network);
 
         for (int j = 0; j != numNeuronsPerLayer; ++j) {
-            Neuron *n = new Neuron(
-                    new SigmoidActivationFunction(),
-                    network);
+            Neuron *n = new Neuron(new SigmoidActivationFunction());
             *l << n;
         }
 

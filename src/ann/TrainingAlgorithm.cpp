@@ -20,7 +20,8 @@ namespace Winzent {
 
 
         log4cxx::LoggerPtr TrainingAlgorithm::logger =
-                log4cxx::LogManager::getLogger("Winzent.ANN.TrainingAlgorithm");
+                log4cxx::LogManager::getLogger(
+                    "Winzent.ANN.TrainingAlgorithm");
 
 
         qreal TrainingAlgorithm::calculateMeanSquaredError(
@@ -57,38 +58,19 @@ namespace Winzent {
                 NeuralNetwork *const &network,
                 const int &cacheSize)
         {
-            for (int i = 0; i != network->size(); ++i) {
-                Layer *layer = network->layerAt(i);
-                for (int j = 0; j != layer->size(); ++j) {
-                    Neuron *neuron = layer->neuronAt(j);
-                    m_cacheSizes.insert(neuron, neuron->cacheSize());
-                    neuron->cacheSize(cacheSize);
-                }
-            }
-
-            // Include the network's bias neuron:
-
-            m_cacheSizes.insert(
-                    network->biasNeuron(),
-                    network->biasNeuron()->cacheSize());
-            network->biasNeuron()->cacheSize(cacheSize);
         }
 
 
 
         void TrainingAlgorithm::restoreNeuronCacheSize()
         {
-            foreach (Neuron *neuron, m_cacheSizes.keys()) {
-                neuron->cacheSize(m_cacheSizes[neuron]);
-            }
-
-            m_cacheSizes.clear();
         }
 
 
         void TrainingAlgorithm::setFinalError(
                 TrainingSet &trainingSet,
-                double error) const
+                qreal error)
+                const
         {
             trainingSet.m_error = error;
         }

@@ -9,8 +9,9 @@
 #define NEURON_H_
 
 
-#include <QObject>
 #include <QVector>
+
+#include <memory>
 
 
 class QTextStream;
@@ -20,49 +21,44 @@ namespace Winzent
 {
     namespace ANN
     {
-        class ActivationFunction;
+        class Layer;
         class NeuralNetwork;
+        class ActivationFunction;
 
 
-        class Neuron: public QObject
+        class Neuron
         {
-            Q_OBJECT
-
+            friend class Layer;
             friend QTextStream& operator<<(QTextStream&, const NeuralNetwork&);
+
 
         private:
 
 
             /*!
-             * The activation function used for neuron activation
+             * \brief Our parent layer
+             */
+            Layer *m_parent;
+
+
+            /*!
+             * \brief The activation function used for neuron activation
              *
-             * \sa #activate
+             * \sa #activate()
              */
-            ActivationFunction *m_activationFunction;
+            std::shared_ptr<ActivationFunction> m_activationFunction;
 
 
             /*!
-             * Caches that last input that was presented to this neuron.
+             * \brief Caches the input that was presented to #activate().
              */
-            QVector<qreal> m_lastInputs;
+            qreal m_lastInput;
 
 
             /*!
-             * Caches the result of the last activation
+             * \brief Caches the result of the last activation
              */
-            QVector<qreal> m_lastResults;
-
-
-            /*!
-             * The maximum size of the input/results caches
-             */
-            int m_cacheSize;
-
-
-            /*!
-             * Calls `resize()` on all caches.
-             */
-            void trimCache();
+            qreal m_lastResult;
 
 
         public:
@@ -70,7 +66,7 @@ namespace Winzent
 
             /*!
              * \brief Creates a new neuron with a specific activation
-                 * function
+             * function
              *
              * \param activationFunction The activation function that is used to
              *  calculation the neuron's activation. The Neuron object takes
@@ -82,15 +78,21 @@ namespace Winzent
              *
              * \sa QObject#setParent
              */
-            Neuron(ActivationFunction *activationFunction, QObject *parent = 0);
+            Neuron(ActivationFunction *activationFunction);
 
 
             /*!
-             * \brief Copy constructor
+             * \brief Deleted copy constructor
              *
-             * \param[in] rhs The right-hand side assignment operand
+             * No copy constructor exists for the Neuron class. If you need
+             * a deep copy of a neuron, call #clone() instead.
+             *
+             * \sa Neuron#clone()
              */
-            Neuron(const Neuron &rhs);
+            Neuron(const Neuron &) = delete;
+
+
+            Neuron(Neuron &&) = delete;
 
 
             /*!
@@ -103,6 +105,17 @@ namespace Winzent
              * \sa #lastResult
              */
             Neuron *clone() const;
+
+
+            /*!
+             * \brief Returns the parent Layer
+             *
+             * \return The parent layer, or `nullptr` if the Neuron does not
+             *  belong to any Layer
+             *
+             * \sa Layer#addNeuron()
+             */
+            Layer *parent() const;
 
 
             /*!
@@ -131,22 +144,41 @@ namespace Winzent
 
             /*!
              * \return The current size of the last input/last result caches.
+             *
+             * \deprecated
              */
             int cacheSize() const;
 
 
             /*!
-             * Sets the new input/result cache size.
+             * \brief Sets the new input/result cache size.
              *
              * \return `this`
+             *
+             * \deprecated
              */
             Neuron &cacheSize(const int &cacheSize);
 
 
             /*!
-             * Returns the activation function this neuron instance uses.
+             * \brief Returns the activation function
+             *  this neuron instance uses.
              */
             ActivationFunction *activationFunction() const;
+
+
+            /*!
+             * \brief Sets a new activation function
+             *
+             * Invoking this method explicitly allows to share an
+             * ActivationFunction object with other neurons.
+             *
+             * \param[in] activationFunction The activation function
+             *
+             * \return `*this`
+             */
+            Neuron &activationFunction(
+                    ActivationFunction *const &activationFunction);
 
 
             /*!
@@ -165,7 +197,6 @@ namespace Winzent
              */
             qreal activate(const qreal &sum);
         };
-
     } /* namespace ANN */
 } /* namespace Winzent */
 

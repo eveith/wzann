@@ -188,7 +188,7 @@ namespace Winzent
                 Layer* contextLayer = (*network)[CONTEXT];
                 ValueVector rememberedValues(contextLayer->size());
 
-                for (int i = 0; i != contextLayer->size(); ++i) {
+                for (size_t i = 0; i != contextLayer->size(); ++i) {
                     rememberedValues[i] = contextLayer->neuronAt(i)
                             ->activate(0.0);
                 }

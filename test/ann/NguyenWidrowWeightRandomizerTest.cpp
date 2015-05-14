@@ -40,7 +40,7 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
     for (int i = 0; i != network.size(); ++i) {
         Layer *layer = network.layerAt(i);
 
-        for (int j = 0; j != layer->size(); ++j) {
+        for (size_t j = 0; j != layer->size(); ++j) {
             Neuron *neuron = layer->neuronAt(j);
             foreach (Connection *c,
                     network.neuronConnectionsFrom(neuron)) {
