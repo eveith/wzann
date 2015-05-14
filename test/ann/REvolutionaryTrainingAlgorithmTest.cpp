@@ -190,7 +190,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     for (int i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
 
-        for (int j = 0; j != l->size(); ++j) {
+        for (size_t j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
 
             foreach (Connection *c, neuralNetwork->neuronConnectionsFrom(n)) {
@@ -222,7 +222,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     for (int i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
 
-        for (int j = 0; j != l->size(); ++j) {
+        for (size_t j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
 
             foreach (Connection *c, neuralNetwork->neuronConnectionsFrom(n)) {

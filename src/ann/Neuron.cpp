@@ -6,6 +6,8 @@
  */
 
 
+#include <memory>
+
 #include "Layer.h"
 #include "ActivationFunction.h"
 
@@ -16,13 +18,12 @@ namespace Winzent {
     namespace ANN {
 
 
-        Neuron::Neuron(
-                ActivationFunction *activationFunction,
-                QObject *parent):
-                    QObject(parent),
-                    m_activationFunction(activationFunction)
+        Neuron::Neuron(ActivationFunction *activationFunction):
+                m_parent(nullptr),
+                m_activationFunction(activationFunction)
         {
-            m_activationFunction->setParent(this);
+            // For now, make sure we don't accidentially delete twice:
+            m_activationFunction->setParent(nullptr);
         }
 
 
@@ -83,7 +84,15 @@ namespace Winzent {
 
         ActivationFunction *Neuron::activationFunction() const
         {
-            return m_activationFunction;
+            return m_activationFunction.get();
+        }
+
+
+        Neuron &Neuron::activationFunction(
+                ActivationFunction *const &activationFunction)
+        {
+            m_activationFunction.reset(activationFunction);
+            return *this;
         }
 
 

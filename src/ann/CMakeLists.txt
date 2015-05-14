@@ -2,9 +2,9 @@ project(winzent-ann)
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
 set(winzent-ann_VERSION_MAJOR ${WINZENT_VERSION_MAJOR})
-set(winzent-ann_VERSION_MINOR 1)
+set(winzent-ann_VERSION_MINOR 2)
 set(winzent-ann_VERSION_PATCHLEVEL 0)
-set(winzent-ann_VERSION 
+set(winzent-ann_VERSION
     "${winzent-ann_VERSION_MAJOR}.${winzent_ann_VERSION_MINOR}.${winzent_ann_VERSION_PATCHLEVEL}")
 set(winzent-ann_SOVERSION
     "${winzent-ann_VERSION_MAJOR}.${winzent-ann_VERSION_MINOR}")
@@ -64,6 +64,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Sql REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
+find_package(Boost 1.56.0 REQUIRED)
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
 
@@ -82,7 +83,7 @@ target_link_libraries(winzent-ann
     Qt5::Core
     Qt5::Sql
     Qt5::Concurrent
-    log4cxx
+    ${LOG4CXX_LIBRARIES}
     winzent-common)
 set_target_properties(winzent-ann
     PROPERTIES SOVERSION ${winzent-ann_SOVERSION})

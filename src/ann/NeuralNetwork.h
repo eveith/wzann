@@ -14,6 +14,7 @@
 #include <QVector>
 #include <QHash>
 
+#include <memory>
 #include <functional>
 
 #include <log4cxx/logger.h>
@@ -38,7 +39,7 @@ namespace Winzent {
 
 
         /*!
-         * Represents a Neural Network.
+         * \brief Represents a Neural Network.
          *
          * Instances of this class represent any neural network. A
          * neural network is made up by layers which contain neurons.
@@ -210,7 +211,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            NeuralNetwork &biasNeuron(Neuron *neuron);
+            NeuralNetwork &biasNeuron(Neuron *const &neuron);
 
 
             /*!

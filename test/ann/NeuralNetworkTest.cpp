@@ -48,9 +48,7 @@ namespace Mock {
             Layer* l = new Layer();
 
             for (int j = 0; j != numNeuronsInLayer(i); ++j) {
-                Neuron *n = new Neuron(
-                        new LinearActivationFunction(1.0, this));
-                n->cacheSize(1);
+                Neuron *n = new Neuron(new LinearActivationFunction(1.0));
                 *l << n;
             }
 
@@ -195,8 +193,8 @@ void NeuralNetworkTest::testConnectionsFromTo()
 {
     NeuralNetwork *network = new NeuralNetwork(this);
 
-    Neuron *s = new Neuron(new LinearActivationFunction(), network);
-    Neuron *d = new Neuron(new LinearActivationFunction(), network);
+    Neuron *s = new Neuron(new LinearActivationFunction());
+    Neuron *d = new Neuron(new LinearActivationFunction());
 
     Layer *l1 = new Layer(network);
     Layer *l2 = new Layer(network);

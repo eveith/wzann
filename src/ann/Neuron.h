@@ -9,8 +9,9 @@
 #define NEURON_H_
 
 
-#include <QObject>
 #include <QVector>
+
+#include <memory>
 
 
 class QTextStream;
@@ -25,12 +26,11 @@ namespace Winzent
         class ActivationFunction;
 
 
-        class Neuron: public QObject
+        class Neuron
         {
-            Q_OBJECT
-
             friend class Layer;
             friend QTextStream& operator<<(QTextStream&, const NeuralNetwork&);
+
 
         private:
 
@@ -46,7 +46,7 @@ namespace Winzent
              *
              * \sa #activate()
              */
-            ActivationFunction *m_activationFunction;
+            std::shared_ptr<ActivationFunction> m_activationFunction;
 
 
             /*!
@@ -66,7 +66,7 @@ namespace Winzent
 
             /*!
              * \brief Creates a new neuron with a specific activation
-                 * function
+             * function
              *
              * \param activationFunction The activation function that is used to
              *  calculation the neuron's activation. The Neuron object takes
@@ -78,7 +78,7 @@ namespace Winzent
              *
              * \sa QObject#setParent
              */
-            Neuron(ActivationFunction *activationFunction, QObject *parent = 0);
+            Neuron(ActivationFunction *activationFunction);
 
 
             /*!
@@ -90,6 +90,7 @@ namespace Winzent
              * \sa Neuron#clone()
              */
             Neuron(const Neuron &) = delete;
+
 
             Neuron(Neuron &&) = delete;
 
@@ -143,22 +144,41 @@ namespace Winzent
 
             /*!
              * \return The current size of the last input/last result caches.
+             *
+             * \deprecated
              */
             int cacheSize() const;
 
 
             /*!
-             * Sets the new input/result cache size.
+             * \brief Sets the new input/result cache size.
              *
              * \return `this`
+             *
+             * \deprecated
              */
             Neuron &cacheSize(const int &cacheSize);
 
 
             /*!
-             * Returns the activation function this neuron instance uses.
+             * \brief Returns the activation function
+             *  this neuron instance uses.
              */
             ActivationFunction *activationFunction() const;
+
+
+            /*!
+             * \brief Sets a new activation function
+             *
+             * Invoking this method explicitly allows to share an
+             * ActivationFunction object with other neurons.
+             *
+             * \param[in] activationFunction The activation function
+             *
+             * \return `*this`
+             */
+            Neuron &activationFunction(
+                    ActivationFunction *const &activationFunction);
 
 
             /*!

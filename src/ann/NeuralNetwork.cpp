@@ -52,9 +52,7 @@ namespace Winzent {
 
         NeuralNetwork::NeuralNetwork(QObject* parent):
                 QObject(parent),
-                m_biasNeuron(new Neuron(
-                    new ConstantActivationFunction(),
-                    this)),
+                m_biasNeuron(new Neuron(new ConstantActivationFunction())),
                 m_pattern(nullptr)
         {
             Q_ASSERT(m_connectionSources.size()
@@ -67,8 +65,6 @@ namespace Winzent {
                 m_biasNeuron(rhs.m_biasNeuron->clone()),
                 m_pattern(nullptr)
         {
-            m_biasNeuron->setParent(this);
-
             // Clone layers:
 
             foreach(Layer *l, rhs.m_layers) {
@@ -162,6 +158,7 @@ namespace Winzent {
 
         NeuralNetwork::~NeuralNetwork()
         {
+            delete m_biasNeuron;
         }
 
 
@@ -183,8 +180,9 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork &NeuralNetwork::biasNeuron(Neuron *neuron)
+        NeuralNetwork &NeuralNetwork::biasNeuron(Neuron *const &neuron)
         {
+            delete m_biasNeuron;
             m_biasNeuron = neuron;
             return *this;
         }
@@ -198,7 +196,7 @@ namespace Winzent {
                 return true;
             }
 
-            foreach (Layer *l, m_layers) {
+            for (const auto &l: m_layers) {
                 if (l->contains(neuron)) {
                     return true;
                 }
@@ -384,14 +382,13 @@ namespace Winzent {
             m_layers << layer;
             layer->setParent(this);
 
-            // Connect all neurons to the bias neuron, but only if the new layer
-            // is not the input layer.
+            // Connect all neurons to the bias neuron, but only if the new
+            // layer is not the input layer.
 
             if (m_layers.first() != layer) {
-                layer->eachNeuron([this](Neuron *const &n) {
-                    Connection *c = connectNeurons(biasNeuron(), n);
-                    c->weight(-1.0);
-                });
+                for (Neuron &n: layer) {
+                    connectNeurons(biasNeuron(), &n)->weight(-1.0);
+                }
             }
 
             return *this;

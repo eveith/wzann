@@ -33,18 +33,6 @@ namespace Winzent
         {
             Q_OBJECT
 
-        private:
-
-
-            /*!
-             * Used for storing the current cache size of all network neurons.
-             *
-             * \sa #setNeuronCacheSize
-             *
-             * \sa #restoreNeuronCacheSize
-             */
-            QHash<Neuron *, int> m_cacheSizes;
-
 
         protected:
 
@@ -58,7 +46,7 @@ namespace Winzent
             /*!
              * Sets the final error of a training set.
              */
-            void setFinalError(TrainingSet &trainingSet, double error) const;
+            void setFinalError(TrainingSet &trainingSet, qreal error) const;
 
 
             /*!

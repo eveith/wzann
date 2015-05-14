@@ -26,6 +26,13 @@ namespace Winzent {
         {
             Q_OBJECT
 
+        public:
+
+
+            typedef boost::ptr_vector<Neuron>::iterator iterator;
+            typedef boost::ptr_vector<Neuron>::const_iterator const_iterator;
+
+
         private:
 
 
@@ -48,6 +55,15 @@ namespace Winzent {
              * \brief Copy constructor
              */
             Layer(const Layer &rhs);
+
+
+
+            /*!
+             * \brief Returns a deep copy (clone) of this layer.
+             *
+             * \return The clone
+             */
+            Layer *clone() const;
 
 
             /*!
@@ -116,6 +132,42 @@ namespace Winzent {
 
 
             /*!
+             * \brief Returns a new iterator pointing at the first neuron in
+             *  the Layer
+             *
+             * \return A new iterator
+             */
+            iterator begin();
+
+
+            /*!
+             * \brief Returns a new const iterator pointing at the first
+             *  neuron in the Layer
+             *
+             * \return A new const iterator
+             */
+            const_iterator begin() const;
+
+
+            /*!
+             * \brief Returns a new iterator pointing at the non-existent
+             *  element after the last Neuron in this Layer
+             *
+             * \return A new iterator
+             */
+            iterator end();
+
+
+            /*!
+             * \brief Returns a new const iterator pointing at the
+             *  non-existent element after the last Neuron in this Layer
+             *
+             * \return A new const iterator
+             */
+            const_iterator end() const;
+
+
+            /*!
              * \brief Adds a neuron to the layer
              *
              * The takes ownership of the neuron, which will be deleted when
@@ -135,17 +187,16 @@ namespace Winzent {
              * \return `this`
              */
             Layer &addNeuron(Neuron *const &neuron);
-
-
-            /*!
-             * \brief Returns a deep copy (clone) of this layer.
-             *
-             * \return The clone
-             */
-            Layer *clone() const;
         };
-
     } // namespace ANN
 } // namespace Winzent
+
+
+Winzent::ANN::Layer::iterator begin(Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::const_iterator begin(const Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::iterator end(Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::const_iterator end(const Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::iterator begin(Winzent::ANN::Layer *&layer);
+
 
 #endif // WINZENT_ANN_LAYER_H

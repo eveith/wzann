@@ -19,9 +19,7 @@ namespace Winzent {
         Layer::Layer(const Layer &rhs): QObject(rhs.parent())
         {
             for (const auto &n: rhs.m_neurons) {
-                Neuron *neuronClone = n.clone();
-                neuronClone->m_parent = this;
-                m_neurons.push_back(neuronClone);
+                addNeuron(n.clone());
             }
         }
 
@@ -82,6 +80,30 @@ namespace Winzent {
         }
 
 
+        Layer::iterator Layer::begin()
+        {
+            return m_neurons.begin();
+        }
+
+
+        Layer::const_iterator Layer::begin() const
+        {
+            return m_neurons.begin();
+        }
+
+
+        Layer::iterator Layer::end()
+        {
+            return m_neurons.end();
+        }
+
+
+        Layer::const_iterator Layer::end() const
+        {
+            return m_neurons.end();
+        }
+
+
         Layer &Layer::operator <<(Neuron *const &neuron)
         {
             return addNeuron(neuron);
@@ -103,3 +125,27 @@ namespace Winzent {
         }
     } // namespace ANN
 } // namespace Winzent
+
+
+Winzent::ANN::Layer::iterator begin(Winzent::ANN::Layer *&layer)
+{
+    return layer->begin();
+}
+
+
+Winzent::ANN::Layer::const_iterator begin(const Winzent::ANN::Layer *&layer)
+{
+    return layer->begin();
+}
+
+
+Winzent::ANN::Layer::iterator end(Winzent::ANN::Layer *&layer)
+{
+    return layer->end();
+}
+
+
+Winzent::ANN::Layer::const_iterator end(const Winzent::ANN::Layer *&layer)
+{
+    return layer->end();
+}

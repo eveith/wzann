@@ -17,7 +17,7 @@ using std::initializer_list;
 
 namespace Winzent {
     namespace ANN {
-        
+
         PerceptronNetworkPattern::PerceptronNetworkPattern(
                 QList<int> layerSizes,
                 QList<ActivationFunction *> activationFunctions,
@@ -46,23 +46,24 @@ namespace Winzent {
         {
             return new PerceptronNetworkPattern(
                     QList<int>(m_layerSizes),
-                    QList<ActivationFunction*>(m_activationFunctions),
+                    QList<ActivationFunction *>(m_activationFunctions),
                     parent());
         }
 
 
-        void PerceptronNetworkPattern::configureNetwork(NeuralNetwork *network)
+        void PerceptronNetworkPattern::configureNetwork(
+                NeuralNetwork *network)
         {
             // Add the layers & neurons:
 
             for (int i = 0; i != m_layerSizes.size(); ++i) {
                 Layer *layer = new Layer(network);
+                ActivationFunction *activationFunction =
+                        m_activationFunctions.at(i)->clone();
 
                 int size = m_layerSizes.at(i);
                 for (int j = 0; j != size; ++j) {
-                    *layer << new Neuron(
-                            m_activationFunctions[i]->clone(),
-                            layer);
+                    layer->addNeuron(new Neuron(activationFunction));
                 }
 
                 *network << layer;
