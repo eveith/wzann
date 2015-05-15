@@ -7,7 +7,6 @@
 #include "Neuron.h"
 #include "ActivationFunction.h"
 #include "NeuralNetworkPattern.h"
-#include "NguyenWidrowWeightRandomizer.h"
 
 #include "PerceptronNetworkPattern.h"
 
@@ -44,9 +43,15 @@ namespace Winzent {
 
         NeuralNetworkPattern *PerceptronNetworkPattern::clone() const
         {
+            QList<ActivationFunction *> functionClones;
+
+            for (const auto &i: m_activationFunctions) {
+                functionClones.push_back(i->clone());
+            }
+
             return new PerceptronNetworkPattern(
-                    QList<int>(m_layerSizes),
-                    QList<ActivationFunction *>(m_activationFunctions),
+                    m_layerSizes,
+                    functionClones,
                     parent());
         }
 
@@ -59,11 +64,11 @@ namespace Winzent {
             for (int i = 0; i != m_layerSizes.size(); ++i) {
                 Layer *layer = new Layer(network);
                 ActivationFunction *activationFunction =
-                        m_activationFunctions.at(i)->clone();
+                        m_activationFunctions.at(i);
 
                 int size = m_layerSizes.at(i);
                 for (int j = 0; j != size; ++j) {
-                    layer->addNeuron(new Neuron(activationFunction));
+                    layer->addNeuron(new Neuron(activationFunction->clone()));
                 }
 
                 *network << layer;
@@ -74,10 +79,6 @@ namespace Winzent {
             for (int i = 0; i != network->size() -1; ++i) {
                 fullyConnectNetworkLayers(network, i, i+1);
             }
-
-            // Init weights:
-
-            NguyenWidrowWeightRandomizer().randomize(network);
         }
 
 
@@ -91,7 +92,10 @@ namespace Winzent {
                 output = network->calculateLayer(network->layerAt(i), output);
 
                 if (i < network->size() - 1) {
-                    output = network->calculateLayerTransition(i, i+1, output);
+                    output = network->calculateLayerTransition(
+                            i,
+                            i+1,
+                            output);
                 }
             }
 

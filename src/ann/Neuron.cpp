@@ -91,6 +91,7 @@ namespace Winzent {
         Neuron &Neuron::activationFunction(
                 ActivationFunction *const &activationFunction)
         {
+            m_activationFunction->setParent(nullptr);
             m_activationFunction.reset(activationFunction);
             return *this;
         }

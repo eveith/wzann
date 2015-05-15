@@ -110,14 +110,14 @@ namespace Winzent {
              * An hash that indixes all connection originating from a certain
              * neuron.
              */
-            QHash<Neuron*, QList<Connection*> > m_connectionSources;
+            QHash<Neuron *, QList<Connection *>> m_connectionSources;
 
 
             /*!
              * An hash that indexes all connections that lead to a certain
              * neuron.
              */
-            QHash<Neuron*, QList<Connection*> > m_connectionDestinations;
+            QHash<Neuron *, QList<Connection *>> m_connectionDestinations;
 
 
             /*!
@@ -128,7 +128,7 @@ namespace Winzent {
              * of a network, and second, they define how a network
              * works when values are calculated with it.
              */
-            NeuralNetworkPattern *m_pattern;
+            std::unique_ptr<NeuralNetworkPattern> m_pattern;
 
 
         protected:
@@ -155,18 +155,6 @@ namespace Winzent {
              * \param parent The parent object that owns this one
              */
             NeuralNetwork(QObject *parent = 0);
-
-
-            /*!
-             * Constructs a new neural network which gets initialized
-             * with the layers supplied by the first argument.
-             *
-             * \param layers A list of layers (possibly with neurons)
-             *  that make up this neural network
-             *
-             * \param parent The parent object that owns this one
-             */
-            NeuralNetwork(QList<Layer*> *layers, QObject *parent = 0);
 
 
             /*!
@@ -202,16 +190,6 @@ namespace Winzent {
              * \return The bias neuron, modifiable
              */
             Neuron *const &biasNeuron();
-
-
-            /*!
-             * \brief Sets a new bias neuron
-             *
-             * \param[in] neuron The new bias neuron
-             *
-             * \return `*this`
-             */
-            NeuralNetwork &biasNeuron(Neuron *const &neuron);
 
 
             /*!

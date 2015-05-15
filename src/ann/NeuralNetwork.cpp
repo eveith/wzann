@@ -52,8 +52,7 @@ namespace Winzent {
 
         NeuralNetwork::NeuralNetwork(QObject* parent):
                 QObject(parent),
-                m_biasNeuron(new Neuron(new ConstantActivationFunction())),
-                m_pattern(nullptr)
+                m_biasNeuron(new Neuron(new ConstantActivationFunction()))
         {
             Q_ASSERT(m_connectionSources.size()
                      == m_connectionDestinations.size());
@@ -62,8 +61,7 @@ namespace Winzent {
 
         NeuralNetwork::NeuralNetwork(const NeuralNetwork &rhs):
                 QObject(rhs.parent()),
-                m_biasNeuron(rhs.m_biasNeuron->clone()),
-                m_pattern(nullptr)
+                m_biasNeuron(rhs.m_biasNeuron->clone())
         {
             // Clone layers:
 
@@ -150,8 +148,7 @@ namespace Winzent {
             // Make sure the cloned pattern has the correct parent object:
 
             if (nullptr != rhs.m_pattern) {
-                m_pattern = rhs.m_pattern->clone();
-                m_pattern->setParent(this);
+                m_pattern.reset(rhs.m_pattern->clone());
             }
         }
 
@@ -177,14 +174,6 @@ namespace Winzent {
         Neuron *const &NeuralNetwork::biasNeuron()
         {
             return m_biasNeuron;
-        }
-
-
-        NeuralNetwork &NeuralNetwork::biasNeuron(Neuron *const &neuron)
-        {
-            delete m_biasNeuron;
-            m_biasNeuron = neuron;
-            return *this;
         }
 
 
@@ -277,7 +266,7 @@ namespace Winzent {
         }
 
 
-        QList<Connection*> NeuralNetwork::neuronConnectionsTo(
+        QList<Connection *> NeuralNetwork::neuronConnectionsTo(
                 const Neuron *const &neuron)
                     const
                     throw(UnknownNeuronException)
@@ -434,17 +423,8 @@ namespace Winzent {
         NeuralNetwork &NeuralNetwork::configure(
                 const NeuralNetworkPattern &pattern)
         {
-            // Get rid of the old pattern, if one exists:
-
-            if (nullptr != m_pattern) {
-                delete m_pattern;
-            }
-
-            m_pattern = pattern.clone();
-            m_pattern->setParent(this);
-
+            m_pattern.reset(pattern.clone());
             m_pattern->configureNetwork(this);
-
             return *this;
         }
 
@@ -452,6 +432,7 @@ namespace Winzent {
         NeuralNetwork &NeuralNetwork::configure(
                 const NeuralNetworkPattern *const &pattern)
         {
+            Q_ASSERT(nullptr != pattern);
             return configure(*pattern);
         }
 
