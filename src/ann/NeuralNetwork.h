@@ -15,7 +15,10 @@
 #include <QHash>
 
 #include <memory>
+#include <cstddef>
 #include <functional>
+
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include <log4cxx/logger.h>
 
@@ -29,10 +32,10 @@ namespace Winzent {
     namespace ANN {
         typedef QVector<qreal> ValueVector;
 
-        class NeuralNetworkPattern;
         class Layer;
         class Neuron;
         class Connection;
+        class NeuralNetworkPattern;
 
         class TrainingSet;
         class TrainingAlgorithm;
@@ -101,9 +104,9 @@ namespace Winzent {
 
 
             /*!
-             * All neurons that make up this neural network.
+             * \brief All Layers contained in this Neural Network
              */
-            QList<Layer *> m_layers;
+            boost::ptr_vector<Layer> m_layers;
 
 
             /*!
@@ -171,6 +174,8 @@ namespace Winzent {
 
 
             /*!
+             * \brief Contstructs a deep copy of the network
+             *
              * \return A clone of this current network.
              */
             NeuralNetwork *clone() const;
@@ -201,7 +206,7 @@ namespace Winzent {
              * \return <code>true</code> if it lives in this network,
              *  <code>false</code> otherwise.
              */
-            bool containsNeuron(const Neuron *neuron) const;
+            bool containsNeuron(const Neuron *const &neuron) const;
 
 
             /*!
@@ -218,7 +223,9 @@ namespace Winzent {
              * \return <code>true</code> if a connection exists, false
              *  otherwise.
              */
-            bool neuronConnectionExists(const Neuron *from, const Neuron *to)
+            bool neuronConnectionExists(
+                    const Neuron *const &from,
+                    const Neuron *const &to)
                     const;
 
 
@@ -254,32 +261,6 @@ namespace Winzent {
                     const Neuron *const &to)
                         const
                         throw(NoConnectionException);
-
-
-            /*!
-             * Sets a new weight on a connection
-             *
-             * \param[in] i The neuron from which the connection
-             *  originates
-             *
-             * \param[in] j The neuron that is the destination of the
-             *  connection
-             *
-             * \param[in] value The new weight value
-             *
-             * \throws NoConnectionException If the connection does
-             *  not exist.
-             *
-             * \throws WeightFixedException If the weight has been flagged as
-             *  fixed.
-             *
-             * \sa Connection#weight
-             */
-            void weight(
-                    const Neuron *const &from,
-                    const Neuron *const &to,
-                    double value)
-                        throw(NoConnectionException, WeightFixedException);
 
 
             /*!
@@ -370,7 +351,7 @@ namespace Winzent {
              * \sa #inputLayer
              * \sa #outputLayer
              */
-            NeuralNetwork& operator<<(Layer *layer);
+            NeuralNetwork& operator <<(Layer *const &layer);
 
 
             /*!
@@ -382,50 +363,67 @@ namespace Winzent {
              *
              * \sa #operator[]
              */
-            int size() const
+            size_t size() const
             {
                 return m_layers.size();
             }
 
 
             /*!
-             * Returns the layer at the designated index.
+             * \brief Returns the layer at the designated index.
+             *
+             * Requires index < NeuralNetwork#size()
+             *
+             * \return The Layer at the given index; the
+             *  result of using this method with index >= NeuralNetwork#size()
+             *  is undefined.
              */
-            Layer *&layerAt(const int &index);
+            Layer *layerAt(const size_t &index) const;
 
 
             /*!
-             * <code>const</code> version of #layerAt
+             * \brief Returns the layer at the designated index.
+             *
+             * Requires index < NeuralNetwork#size()
+             *
+             * \return The Layer at the given index; the
+             *  result of using this method with index >= NeuralNetwork#size()
+             *  is undefined.
              */
-            Layer *const &layerAt(const int &index) const;
+            Layer *operator [](const size_t &index) const;
 
 
             /*!
-             * Returns the layer at the designated index.
+             * \brief Returns a reference to the Layer at the given index
+             *
+             * \param[in] index The position of the layer in the FIFO-sorted
+             *  Layer list
+             *
+             * \return A reference to the layer at the given position. The
+             *  result of using this method with index >= NeuralNetwork#size()
+             *  is undefined.
              */
-            Layer*& operator [](const int &index);
+            Layer &operator [](const size_t &index);
 
 
             /*!
-             * <code>const</code> version of the index operator.
+             * \brief Returns the input layer
+             *
+             * \return The input layer
              */
-            Layer *operator [](const int &i) const;
+            Layer *inputLayer() const;
 
 
             /*!
-             * Returns the input layer
+             * \brief Returns the output layer
+             *
+             * \return The output layer
              */
-            Layer *const &inputLayer() const;
+            Layer *outputLayer() const;
 
 
             /*!
-             * Returns the output layer
-             */
-            Layer *const &outputLayer() const;
-
-
-            /*!
-             * Configures this neural network based on a pattern.
+             * \brief Configures this neural network based on a pattern.
              *
              * \param pattern The pattern that is used to set this
              *  network up. We create our own clone of the pattern
@@ -543,7 +541,9 @@ namespace Winzent {
          * Appends the JSON representation of this network to the
          * designated data stream.
          */
-        QTextStream& operator<<(QTextStream &out, const NeuralNetwork &network);
+        QTextStream& operator <<(
+                QTextStream &out,
+                const NeuralNetwork &network);
     } /* namespace ANN */
 } /* namespace Winzent */
 

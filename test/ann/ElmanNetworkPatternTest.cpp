@@ -53,7 +53,7 @@ void ElmanNetworkPatternTest::testConfigure()
     testResultStream.flush();
     testResultFile.close();
 
-    QCOMPARE(network.size(), 4);
+    QCOMPARE(network.size(), 4ul);
     QCOMPARE(network.m_connectionSources.size(),
              layers[0] + 2 * layers[1] + layers[2]);
 

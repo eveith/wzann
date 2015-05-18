@@ -10,6 +10,7 @@
 #include "SigmoidActivationFunction.h"
 
 #include "PerceptronNetworkPattern.h"
+#include <NguyenWidrowWeightRandomizer.h>
 
 #include "TrainingSet.h"
 #include "SimulatedAnnealingTrainingAlgorithm.h"
@@ -45,6 +46,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
             });
 
     network->configure(pattern);
+    NguyenWidrowWeightRandomizer().randomize(network);
 
     // Build training data:
 

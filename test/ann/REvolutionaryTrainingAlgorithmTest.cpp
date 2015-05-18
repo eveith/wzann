@@ -13,13 +13,14 @@
 #include "Layer.h"
 #include "Neuron.h"
 #include "Connection.h"
+#include "TrainingSet.h"
 #include "ElmanNetworkPattern.h"
 #include "PerceptronNetworkPattern.h"
 #include "LinearActivationFunction.h"
 #include "SigmoidActivationFunction.h"
-#include "REvolutionaryTrainingAlgorithm.h"
-#include "TrainingSet.h"
+#include "NguyenWidrowWeightRandomizer.h"
 
+#include "REvolutionaryTrainingAlgorithm.h"
 #include "REvolutionaryTrainingAlgorithmTest.h"
 
 
@@ -31,6 +32,7 @@ using Winzent::ANN::ElmanNetworkPattern;
 using Winzent::ANN::PerceptronNetworkPattern;
 using Winzent::ANN::LinearActivationFunction;
 using Winzent::ANN::SigmoidActivationFunction;
+using Winzent::ANN::NguyenWidrowWeightRandomizer;
 using Winzent::ANN::Individual;
 using Winzent::ANN::REvolutionaryTrainingAlgorithm;
 using Winzent::ANN::TrainingSet;
@@ -56,11 +58,11 @@ NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
             1
         },
         {
-            new SigmoidActivationFunction(1.0, this),
-            new SigmoidActivationFunction(1.0, this),
-            new SigmoidActivationFunction(1.0, this)
+            new SigmoidActivationFunction(),
+            new SigmoidActivationFunction(),
+            new SigmoidActivationFunction()
         });
-    net->configure(&pattern);
+    net->configure(pattern);
 
     return net;
 }
@@ -337,6 +339,7 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
                 new SigmoidActivationFunction()
             });
     network->configure(pattern);
+    NguyenWidrowWeightRandomizer().randomize(network);
 
     // Build training data:
 

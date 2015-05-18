@@ -16,27 +16,20 @@ using std::initializer_list;
 
 namespace Winzent {
     namespace ANN {
-
         PerceptronNetworkPattern::PerceptronNetworkPattern(
                 QList<int> layerSizes,
-                QList<ActivationFunction *> activationFunctions,
-                QObject *parent):
-                    NeuralNetworkPattern(
-                        layerSizes,
-                        activationFunctions,
-                        parent)
+                QList<ActivationFunction *> activationFunctions):
+                    NeuralNetworkPattern(layerSizes, activationFunctions)
         {
         }
 
 
         PerceptronNetworkPattern::PerceptronNetworkPattern(
                 initializer_list<int> layerSizes,
-                initializer_list<ActivationFunction *> activationFunctions,
-                QObject *parent):
+                initializer_list<ActivationFunction *> activationFunctions):
                     PerceptronNetworkPattern(
                         QList<int>(layerSizes),
-                        QList<ActivationFunction*>(activationFunctions),
-                        parent)
+                        QList<ActivationFunction *>(activationFunctions))
         {
         }
 
@@ -51,8 +44,7 @@ namespace Winzent {
 
             return new PerceptronNetworkPattern(
                     m_layerSizes,
-                    functionClones,
-                    parent());
+                    functionClones);
         }
 
 
@@ -62,13 +54,13 @@ namespace Winzent {
             // Add the layers & neurons:
 
             for (int i = 0; i != m_layerSizes.size(); ++i) {
-                Layer *layer = new Layer(network);
-                ActivationFunction *activationFunction =
-                        m_activationFunctions.at(i);
+                Layer *layer = new Layer();
+                std::shared_ptr<ActivationFunction> af(
+                        m_activationFunctions.at(i)->clone());
 
                 int size = m_layerSizes.at(i);
                 for (int j = 0; j != size; ++j) {
-                    layer->addNeuron(new Neuron(activationFunction->clone()));
+                    layer->addNeuron(new Neuron(af));
                 }
 
                 *network << layer;
@@ -76,7 +68,7 @@ namespace Winzent {
 
             // Now connect layers:
 
-            for (int i = 0; i != network->size() -1; ++i) {
+            for (size_t i = 0; i != network->size() -1; ++i) {
                 fullyConnectNetworkLayers(network, i, i+1);
             }
         }
@@ -88,7 +80,7 @@ namespace Winzent {
         {
             ValueVector output = input; // For the loop
 
-            for (int i = 0; i != network->size(); ++i) {
+            for (size_t i = 0; i != network->size(); ++i) {
                 output = network->calculateLayer(network->layerAt(i), output);
 
                 if (i < network->size() - 1) {

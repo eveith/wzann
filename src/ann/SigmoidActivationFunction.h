@@ -9,33 +9,36 @@
 #define SIGMOIDACTIVATIONFUNCTION_H_
 
 
-#include <cmath>
+#include <QtGlobal>
 
 #include "ActivationFunction.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
 
+
+        /*!
+         * \brief The SigmoidActivationFunction class represents an activation
+         *  function that follows a sigmoid pattern
+         */
         class SigmoidActivationFunction: public ActivationFunction
         {
-            Q_OBJECT
-
-
         public:
 
 
-            SigmoidActivationFunction(
-                    double steepness = 1.0,
-                    QObject *parent = 0);
+            /*!
+             * \brief Constructs a new SigmoidActivationFunction
+             *
+             * \param[in] steepness The new function's steepness
+             */
+            SigmoidActivationFunction(qreal steepness = 1.0);
 
 
             /*!
-             * Calculates output using the sigmoid function.
+             * \brief Calculates output using the sigmoid function.
              */
-            virtual double calculate(const double &input);
+            virtual qreal calculate(const qreal &input) override;
 
 
             /*!
@@ -44,17 +47,18 @@ namespace Winzent
              *
              * \sa ActivationFunction#calculateDerivative
              */
-            virtual double calculateDerivative(
-                    const double &,
-                    const double &result);
+            virtual qreal calculateDerivative(
+                    const qreal &,
+                    const qreal &result)
+                    override;
 
 
             /*!
-             * Indicates that this function has a derivative.
+             * \brief Indicates that this function has a derivative.
              *
              * \return `true`
              */
-            virtual bool hasDerivative() const {
+            virtual bool hasDerivative() const override {
                 return true;
             }
 
@@ -65,9 +69,8 @@ namespace Winzent
              *
              * \return A new instance of this class
              */
-            virtual ActivationFunction* clone() const;
+            virtual ActivationFunction *clone() const override;
         };
-
     } /* namespace ANN */
 } /* namespace Winzent */
 

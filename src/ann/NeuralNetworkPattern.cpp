@@ -33,9 +33,7 @@ namespace Winzent {
 
         NeuralNetworkPattern::NeuralNetworkPattern(
                 QList<int> layerSizes,
-                QList<ActivationFunction *> activationFunctions,
-                QObject *parent):
-                    QObject(parent),
+                QList<ActivationFunction *> activationFunctions):
                     m_layerSizes(layerSizes),
                     m_activationFunctions(activationFunctions),
                     m_weightRandomMin(weightRandomMin),
@@ -51,22 +49,18 @@ namespace Winzent {
 
         NeuralNetworkPattern::NeuralNetworkPattern(
                 initializer_list<int> layerSizes,
-                initializer_list<ActivationFunction *> activationFunctions,
-                QObject *parent):
+                initializer_list<ActivationFunction *> activationFunctions):
                     NeuralNetworkPattern(
-                        layerSizes,
-                        activationFunctions,
-                        parent)
+                        QList<int>(layerSizes),
+                        QList<ActivationFunction *>(activationFunctions))
         {
         }
 
 
         NeuralNetworkPattern::~NeuralNetworkPattern()
         {
-            foreach (ActivationFunction *f, m_activationFunctions) {
-                if (f->parent() == 0) {
-                    delete f;
-                }
+            for (auto &f: m_activationFunctions) {
+                delete f;
             }
         }
 
@@ -94,7 +88,7 @@ namespace Winzent {
 
         QString NeuralNetworkPattern::toString()
         {
-            return QString(metaObject()->className());
+            return "unknown: TODO FIXME";
         }
     }
 }

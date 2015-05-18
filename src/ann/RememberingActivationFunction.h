@@ -11,12 +11,12 @@
 #include "ActivationFunction.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
 
         /*!
+         * \brief An activation function that remembers its last value
+         *
          * Represents an activation function which always remembers
          * the last value. This functionality is used, e.g., in
          * Elman Networks, where the context layer always remembers
@@ -26,7 +26,6 @@ namespace Winzent
          */
         class RememberingActivationFunction: public ActivationFunction
         {
-            Q_OBJECT
 
         private:
 
@@ -34,7 +33,7 @@ namespace Winzent
             /*!
              * The saved/remembered value
              */
-            double m_remeberedValue;
+            qreal m_remeberedValue;
 
 
         public:
@@ -44,15 +43,18 @@ namespace Winzent
              * Constructs a new instance of this activation function
              * and initializes the remembered value with 0.0.
              */
-            RememberingActivationFunction(
-                    double steepness = 1.0,
-                    QObject *parent = 0);
+            RememberingActivationFunction(qreal steepness = 1.0);
 
 
-            virtual ~RememberingActivationFunction();
-
-
-            virtual double calculate(const double &input);
+            /*!
+             * \brief Returns the lastly remembered value and replaces it with
+             *  the newly supplied one.
+             *
+             * \param[in] input The new value to remember
+             *
+             * \return The last value that had been remembered
+             */
+            virtual qreal calculate(const qreal &input) override;
 
 
             /*!
@@ -65,7 +67,8 @@ namespace Winzent
              *
              * \sa ActivationFunction#steepness
              */
-            virtual double calculateDerivative(const double &, const double &) {
+            virtual qreal calculateDerivative(const qreal &, const qreal &)
+                    override {
                 return steepness();
             }
 
@@ -76,12 +79,14 @@ namespace Winzent
              *
              * \return `true`
              */
-            virtual bool hasDerivative() const {
+            virtual bool hasDerivative() const override {
                 return true;
             }
 
 
             /*!
+             * \brief Clones the activation function
+             *
              * Creates a new instance of this activation function and
              * initializes it with the currently remembered value.
              *
@@ -89,9 +94,8 @@ namespace Winzent
              *  <code>RememberingActivationFunction</code> instance
              *  with the same remembered value as this one.
              */
-            virtual ActivationFunction* clone() const;
+            virtual ActivationFunction *clone() const override;
         };
-
     } /* namespace ANN */
 } /* namespace Winzent */
 

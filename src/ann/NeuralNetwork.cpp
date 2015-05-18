@@ -19,10 +19,14 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+#include <memory>
+#include <cstddef>
+#include <functional>
+
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include <log4cxx/logger.h>
 #include <log4cxx/logmanager.h>
-
-#include <functional>
 
 #include "Layer.h"
 #include "Neuron.h"
@@ -65,10 +69,9 @@ namespace Winzent {
         {
             // Clone layers:
 
-            foreach(Layer *l, rhs.m_layers) {
-                Layer *layerClone = l->clone();
-                layerClone->setParent(this);
-                m_layers << layerClone;
+            for (const Layer &l: rhs.m_layers) {
+                Layer *layerClone = l.clone();
+                *this << layerClone;
             }
 
             // Clone connections. We have already cloned the neurons, which
@@ -177,7 +180,7 @@ namespace Winzent {
         }
 
 
-        bool NeuralNetwork::containsNeuron(const Neuron *neuron) const
+        bool NeuralNetwork::containsNeuron(const Neuron *const &neuron) const
         {
             Q_ASSERT(nullptr != neuron);
 
@@ -185,34 +188,31 @@ namespace Winzent {
                 return true;
             }
 
-            for (const auto &l: m_layers) {
-                if (l->contains(neuron)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return std::any_of(m_layers.begin(), m_layers.end(), [&neuron](
+                    const Layer &layer) {
+                return layer.contains(neuron);
+            });
         }
 
 
         bool NeuralNetwork::neuronConnectionExists(
-                const Neuron *from,
-                const Neuron *to) const
+                const Neuron *const &from,
+                const Neuron *const &to) const
         {
-            if (! m_connectionSources.contains(const_cast<Neuron*>(from))) {
+            Q_ASSERT(from != nullptr);
+            Q_ASSERT(to != nullptr);
+
+            if (! m_connectionSources.contains(const_cast<Neuron *>(from))) {
                 return false;
             }
 
-            QList<Connection*> connections =
-                    m_connectionSources[const_cast<Neuron*>(from)];
+            const QList<Connection *> &connections = m_connectionSources[
+                    const_cast<Neuron *>(from)];
 
-            foreach (Connection *c, connections) {
-                if (c->destination() == const_cast<Neuron*>(to)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return std::any_of(connections.begin(), connections.end(), [&to](
+                    const Connection *const &c) {
+                return (c->destination() == const_cast<Neuron *>(to));
+            });
         }
 
 
@@ -239,17 +239,6 @@ namespace Winzent {
 
             return result;
         }
-
-
-        void NeuralNetwork::weight(
-                const Neuron *const &from,
-                const Neuron *const &to,
-                double value)
-                    throw(NoConnectionException, WeightFixedException)
-        {
-            neuronConnection(from, to)->weight(value);
-        }
-
 
         const QList<Connection *> NeuralNetwork::neuronConnectionsFrom(
                 const Neuron *const &neuron)
@@ -284,13 +273,19 @@ namespace Winzent {
         void NeuralNetwork::eachLayer(
                 std::function<void (const Layer *const &)> yield) const
         {
-            std::for_each(m_layers.begin(), m_layers.end(), yield);
+            std::for_each(m_layers.begin(), m_layers.end(),
+                    [&yield](const Layer &l) {
+                yield(&l);
+            });
         }
 
 
         void NeuralNetwork::eachLayer(function<void (Layer* const &)> yield)
         {
-            std::for_each(m_layers.begin(), m_layers.end(), yield);
+            std::for_each(m_layers.begin(), m_layers.end(),
+                    [&yield](Layer &l) {
+                yield(&l);
+            });
         }
 
 
@@ -366,16 +361,16 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork &NeuralNetwork::operator<<(Layer *layer)
+        NeuralNetwork &NeuralNetwork::operator <<(Layer *const &layer)
         {
-            m_layers << layer;
-            layer->setParent(this);
+            layer->m_parent = this;
+            m_layers.push_back(layer);
 
             // Connect all neurons to the bias neuron, but only if the new
             // layer is not the input layer.
 
-            if (m_layers.first() != layer) {
-                for (Neuron &n: layer) {
+            if (&(m_layers.front()) != layer) {
+                for (Neuron &n: *layer) {
                     connectNeurons(biasNeuron(), &n)->weight(-1.0);
                 }
             }
@@ -384,39 +379,33 @@ namespace Winzent {
         }
 
 
-        Layer *&NeuralNetwork::layerAt(const int &index)
+        Layer *NeuralNetwork::layerAt(const size_t &index) const
+        {
+            return &(const_cast<NeuralNetwork *>(this)->m_layers.at(index));
+        }
+
+
+        Layer *NeuralNetwork::operator [](const size_t &index) const
+        {
+            return layerAt(index);
+        }
+
+
+        Layer &NeuralNetwork::operator [](const size_t &index)
         {
             return m_layers[index];
         }
 
 
-        Layer *const &NeuralNetwork::layerAt(const int &index) const
+        Layer *NeuralNetwork::inputLayer() const
         {
-            return m_layers.at(index);
+            return &(const_cast<NeuralNetwork *>(this)->m_layers.front());
         }
 
 
-        Layer *&NeuralNetwork::operator [](const int &index)
+        Layer *NeuralNetwork::outputLayer() const
         {
-            return layerAt(index);
-        }
-
-
-        Layer *NeuralNetwork::operator [](const int &index) const
-        {
-            return layerAt(index);
-        }
-
-
-        Layer *const &NeuralNetwork::inputLayer() const
-        {
-            return m_layers.first();
-        }
-
-
-        Layer *const &NeuralNetwork::outputLayer() const
-        {
-            return m_layers.last();
+            return &(const_cast<NeuralNetwork *>(this)->m_layers.back());
         }
 
 
@@ -529,9 +518,9 @@ namespace Winzent {
         ValueVector NeuralNetwork::calculate(const ValueVector &input)
                 throw(LayerSizeMismatchException)
         {
-            if (input.size() != m_layers.first()->size()) {
+            if (input.size() != m_layers.front().size()) {
                 throw LayerSizeMismatchException(
-                        m_layers.first()->size(),
+                        m_layers.front().size(),
                         input.size());
             }
 
@@ -539,7 +528,7 @@ namespace Winzent {
         }
 
 
-        QTextStream& operator<<(QTextStream &out, const NeuralNetwork &network)
+        QTextStream &operator<<(QTextStream &out, const NeuralNetwork &network)
         {
             QJsonDocument jsonDocument;
             QJsonObject outList;
@@ -557,9 +546,7 @@ namespace Winzent {
 
                     neuronMap.insert(
                             "activationFunction",
-                            QString(network.layerAt(i)->neuronAt(j)
-                                ->m_activationFunction
-                                    ->metaObject()->className()));
+                            "unknown: TODO FIXME!");
 
                     QJsonArray lastInputs;
                     foreach (qreal r,

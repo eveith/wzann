@@ -25,17 +25,12 @@
 using std::initializer_list;
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
         ElmanNetworkPattern::ElmanNetworkPattern(
                 QList<int> layerSizes,
-                QList<ActivationFunction*> activationFunctions,
-                QObject* parent):
-                    NeuralNetworkPattern(layerSizes,
-                                activationFunctions,
-                                parent)
+                QList<ActivationFunction *> activationFunctions):
+                    NeuralNetworkPattern(layerSizes, activationFunctions)
         {
             // Make sure that we do not get more than three layers here:
 
@@ -54,12 +49,10 @@ namespace Winzent
 
         ElmanNetworkPattern::ElmanNetworkPattern(
                 initializer_list<int> layerSizes,
-                initializer_list<ActivationFunction*> activationFunctions,
-                QObject *parent):
+                initializer_list<ActivationFunction*> activationFunctions):
                     ElmanNetworkPattern(
                         QList<int>(layerSizes), // Cast necessary!
-                        QList<ActivationFunction *>(activationFunctions),
-                        parent)
+                        QList<ActivationFunction *>(activationFunctions))
         {
         }
 
@@ -69,8 +62,8 @@ namespace Winzent
             QList<int> layerSizes = m_layerSizes;
             QList<ActivationFunction *> activationFunctions;
 
-            foreach (ActivationFunction *f, m_activationFunctions) {
-                activationFunctions << f->clone();
+            for (const auto &f: m_activationFunctions) {
+                activationFunctions.push_back(f->clone());
             }
 
             // Delete the CONTEXT layer, as the constructor will try to add it
@@ -81,8 +74,7 @@ namespace Winzent
 
             return new ElmanNetworkPattern(
                         layerSizes,
-                        activationFunctions,
-                        parent());
+                        activationFunctions);
         }
 
 
@@ -91,12 +83,12 @@ namespace Winzent
             // Create layers & neurons:
 
             for (int lidx = INPUT; lidx <= OUTPUT; ++lidx) {
-
-                Layer *layer = new Layer(network);
+                Layer *layer = new Layer();
                 int layerSize = m_layerSizes.at(lidx);
 
                 for (int i = 0; i != layerSize; ++i) {
-                    *layer << new Neuron(m_activationFunctions[lidx]->clone());
+                    layer->addNeuron(
+                            new Neuron(m_activationFunctions[lidx]->clone()));
                 }
 
                 *network << layer;
@@ -127,7 +119,8 @@ namespace Winzent
                         fullyConnectNetworkLayers(network, lidx, HIDDEN);
 
                         for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
-                            for (int j = 0; j != m_layerSizes.at(HIDDEN); ++j) {
+                            for (int j = 0; j != m_layerSizes.at(HIDDEN);
+                                    ++j) {
                                 Connection *c = network->neuronConnection(
                                         network->layerAt(lidx)->neuronAt(i),
                                         network->layerAt(HIDDEN)->neuronAt(j));
@@ -153,7 +146,8 @@ namespace Winzent
                         }
 
                         for (int i = 0; i != m_layerSizes.at(lidx); ++i) {
-                            for (int j = 0; j != m_layerSizes.at(OUTPUT); ++j) {
+                            for (int j = 0; j != m_layerSizes.at(OUTPUT);
+                                    ++j) {
                                 network->neuronConnection(
                                         network->layerAt(lidx)->neuronAt(i),
                                         network->layerAt(OUTPUT)->neuronAt(j)
@@ -185,7 +179,7 @@ namespace Winzent
             // Fetch remembered values from the context layer:
 
             {
-                Layer* contextLayer = (*network)[CONTEXT];
+                Layer* contextLayer = network->layerAt(CONTEXT);
                 ValueVector rememberedValues(contextLayer->size());
 
                 for (size_t i = 0; i != contextLayer->size(); ++i) {
@@ -205,9 +199,9 @@ namespace Winzent
 
             output = network->calculateLayer(HIDDEN, layerInput);
 
-            // Now re-remember the newly calculated hidden layer results. We can
-            // throw away the result since these are just the old values we already
-            // retrieved above:
+            // Now re-remember the newly calculated hidden layer results.
+            // We can throw away the result since these are just the old
+            // values we already retrieved above:
 
             network->calculateLayer(CONTEXT, output);
 

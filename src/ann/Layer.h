@@ -19,12 +19,16 @@ namespace Winzent {
     namespace ANN {
 
 
+        class NeuralNetwork;
+
+
         /*!
          * Represents a layer in a neural network
          */
-        class Layer: public QObject
+        class Layer
         {
-            Q_OBJECT
+            friend class NeuralNetwork;
+
 
         public:
 
@@ -42,19 +46,24 @@ namespace Winzent {
             boost::ptr_vector<Neuron> m_neurons;
 
 
+            /*!
+             * \brief The parent network we're contained in.
+             */
+            NeuralNetwork *m_parent;
+
+
+
         public:
 
 
             /*!
              * \brief Creates a new, empty layer.
              */
-            Layer(QObject *parent = 0);
+            Layer();
 
 
-            /*!
-             * \brief Copy constructor
-             */
-            Layer(const Layer &rhs);
+            Layer(const Layer &) = delete;
+            Layer(Layer &&) = delete;
 
 
 
@@ -64,6 +73,15 @@ namespace Winzent {
              * \return The clone
              */
             Layer *clone() const;
+
+
+            /*!
+             * \brief Grants access to the parent neural network
+             *
+             * \return The parent neural network, or `nullptr` when the layer
+             *  isn't contained in any neural network yet
+             */
+            NeuralNetwork *parent() const;
 
 
             /*!
@@ -120,7 +138,8 @@ namespace Winzent {
              *
              * \param yield The lambda called for each neuron.
              */
-            void eachNeuron(function<void(const Neuron *const &)> yield) const;
+            void eachNeuron(function<void(const Neuron *const &)> yield)
+                    const;
 
 
             /*!
@@ -175,7 +194,7 @@ namespace Winzent {
              *
              * \return `this`
              */
-            Layer& operator<<(Neuron *const &neuron);
+            Layer &operator<<(Neuron *const &neuron);
 
 
             /*!
@@ -192,11 +211,14 @@ namespace Winzent {
 } // namespace Winzent
 
 
-Winzent::ANN::Layer::iterator begin(Winzent::ANN::Layer *&layer);
-Winzent::ANN::Layer::const_iterator begin(const Winzent::ANN::Layer *&layer);
-Winzent::ANN::Layer::iterator end(Winzent::ANN::Layer *&layer);
-Winzent::ANN::Layer::const_iterator end(const Winzent::ANN::Layer *&layer);
-Winzent::ANN::Layer::iterator begin(Winzent::ANN::Layer *&layer);
+Winzent::ANN::Layer::iterator begin(
+        Winzent::ANN::Layer *const &layer);
+Winzent::ANN::Layer::const_iterator begin(
+        const Winzent::ANN::Layer *const &layer);
+Winzent::ANN::Layer::iterator end(
+        Winzent::ANN::Layer *const &layer);
+Winzent::ANN::Layer::const_iterator end(
+        const Winzent::ANN::Layer *const &layer);
 
 
 #endif // WINZENT_ANN_LAYER_H

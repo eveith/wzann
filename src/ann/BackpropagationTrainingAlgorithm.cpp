@@ -55,11 +55,6 @@ namespace Winzent {
             int epochs  = 0;
             qreal error = std::numeric_limits<qreal>::max();
 
-            // Make sure the network caches the last result; this is important
-            // for the process to work.
-
-            setNeuronCacheSize(ann, 1);
-
             for(; epochs < trainingSet.maxEpochs()
                         && error > trainingSet.targetError();
                     ++epochs) {
@@ -100,7 +95,7 @@ namespace Winzent {
 
                     // Add squared error for this run:
 
-                    foreach (qreal d, errorOutput) {
+                    for (const auto &d: errorOutput) {
                         error += d*d;
                     }
 
@@ -110,7 +105,7 @@ namespace Winzent {
                     // applied.
 
                     ann->eachConnection([&](Connection *const &c) {
-                        qreal dn = neuronDelta(
+                        auto dn = neuronDelta(
                                 ann,
                                 c->destination(),
                                 neuronDeltas,
@@ -137,10 +132,6 @@ namespace Winzent {
 
             setFinalError(trainingSet, error);
             setFinalNumEpochs(trainingSet, epochs);
-
-            // Restore previously modified cache sizes:
-
-            restoreNeuronCacheSize();
         }
 
 
@@ -186,11 +177,10 @@ namespace Winzent {
         {
             qreal delta = 0.0;
 
-            QList<Connection*> connections =
-                    ann->neuronConnectionsFrom(neuron);
+            const auto connections = ann->neuronConnectionsFrom(neuron);
             Q_ASSERT(connections.size() > 0);
 
-            foreach (Connection *c, connections) {
+            for (const auto &c: connections) {
                 // weight(j,k) * delta(k):
                 delta += neuronDelta(
                             ann,
@@ -231,10 +221,10 @@ namespace Winzent {
                 neuronDeltas.insert(
                         neuron,
                         hiddenNeuronDelta(
-                                ann,
-                                neuron,
-                                neuronDeltas,
-                                outputError));
+                            ann,
+                            neuron,
+                            neuronDeltas,
+                            outputError));
             }
 
             return neuronDeltas[neuron];

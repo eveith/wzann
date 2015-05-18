@@ -2,6 +2,7 @@
 
 #include <NeuralNetwork.h>
 #include <PerceptronNetworkPattern.h>
+#include <NguyenWidrowWeightRandomizer.h>
 
 #include <LinearActivationFunction.h>
 #include <SigmoidActivationFunction.h>
@@ -17,7 +18,7 @@
 using namespace Winzent::ANN;
 
 
-RpropTrainingAlgorithmTest::RpropTrainingAlgorithmTest(QObject *parent) :
+RpropTrainingAlgorithmTest::RpropTrainingAlgorithmTest(QObject *parent):
     QObject(parent)
 {
 }
@@ -29,12 +30,13 @@ void RpropTrainingAlgorithmTest::testTrainXOR()
     PerceptronNetworkPattern pattern(
             { 2, 3, 1 },
             {
-                new LinearActivationFunction(1.0, this),
-                new SigmoidActivationFunction(1.0, this),
-                new SigmoidActivationFunction(1.0, this)
+                new LinearActivationFunction(),
+                new SigmoidActivationFunction(),
+                new SigmoidActivationFunction()
             });
 
     network->configure(pattern);
+    NguyenWidrowWeightRandomizer().randomize(network);
 
     TrainingSet ts(
             {

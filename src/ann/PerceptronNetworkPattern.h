@@ -29,17 +29,16 @@ namespace Winzent {
          * (potentially multi-layered), feed-forward perceptron without
          * recurrent connections, shortcut connections or other specialities.
          */
-        class PerceptronNetworkPattern : public NeuralNetworkPattern
+        class PerceptronNetworkPattern: public NeuralNetworkPattern
         {
-            Q_OBJECT
-
         protected:
 
 
             /*!
-             * Configures the supplied neural network to be an perceptron.
+             * \brief Configures the supplied neural network
+             *  to be an perceptron.
              */
-            virtual void configureNetwork(NeuralNetwork *network);
+            virtual void configureNetwork(NeuralNetwork *network) override;
 
 
             /*!
@@ -47,7 +46,8 @@ namespace Winzent {
              */
             virtual ValueVector calculate(
                     NeuralNetwork *const &network,
-                    const ValueVector &input);
+                    const ValueVector &input)
+                    override;
 
 
         public:
@@ -61,8 +61,7 @@ namespace Winzent {
              */
             PerceptronNetworkPattern(
                     QList<int> layerSizes,
-                    QList<ActivationFunction*> activationFunctions,
-                    QObject *parent = 0);
+                    QList<ActivationFunction *> activationFunctions);
 
 
             /*!
@@ -73,16 +72,16 @@ namespace Winzent {
              */
             PerceptronNetworkPattern(
                     initializer_list<int> layerSizes,
-                    initializer_list<ActivationFunction*> activationFunctions,
-                    QObject *parent = 0);
+                    initializer_list<ActivationFunction *>
+                        activationFunctions);
 
 
             /*!
-             * Creates a clone of a pattern instance.
+             * \brief Creates a clone of a pattern instance.
              *
              * \sa NeuralNetworkPattern#clone
              */
-            virtual NeuralNetworkPattern* clone() const;
+            virtual NeuralNetworkPattern* clone() const override;
         };
         
     } // namespace ANN

@@ -23,16 +23,15 @@ class QString;
 using std::initializer_list;
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
+
+
         class ActivationFunction;
 
 
-        class NeuralNetworkPattern: public QObject
+        class NeuralNetworkPattern
         {
-            Q_OBJECT
 
 
             friend ValueVector NeuralNetwork::calculate(const ValueVector &);
@@ -56,23 +55,22 @@ namespace Winzent
              * Lists the activation function per layer. The index
              * corresponds to the index of the #m_layerSizes member.
              */
-            QList<ActivationFunction*> m_activationFunctions;
+            QList<ActivationFunction *> m_activationFunctions;
 
 
             /*!
              * \sa ::weightRandomMin
              */
-            double m_weightRandomMin;
+            qreal m_weightRandomMin;
 
 
             /*!
              * \sa ::weightRandomMax
              */
-            double m_weightRandomMax;
+            qreal m_weightRandomMax;
 
 
-            NeuralNetworkPattern(QObject *parent = 0):
-                    QObject(parent),
+            NeuralNetworkPattern():
                     m_weightRandomMin(weightRandomMin),
                     m_weightRandomMax(weightRandomMax)
             {
@@ -133,7 +131,7 @@ namespace Winzent
              *
              * \sa #m_weightRandomMin
              */
-            static double weightRandomMin;
+            static qreal weightRandomMin;
 
 
             /*!
@@ -142,7 +140,7 @@ namespace Winzent
              *
              * \sa #m_weightRandomMax
              */
-            static double weightRandomMax;
+            static qreal weightRandomMax;
 
 
             /*!
@@ -158,8 +156,7 @@ namespace Winzent
              */
             NeuralNetworkPattern(
                     QList<int> layerSizes,
-                    QList<ActivationFunction*> activationFunctions,
-                    QObject *parent = 0);
+                    QList<ActivationFunction *> activationFunctions);
 
 
             /*!
@@ -187,8 +184,8 @@ namespace Winzent
              */
             NeuralNetworkPattern(
                     initializer_list<int> layerSizes,
-                    initializer_list<ActivationFunction *> activationFunctions,
-                    QObject *parent = 0);
+                    initializer_list<ActivationFunction *>
+                        activationFunctions);
 
 
 
@@ -197,7 +194,7 @@ namespace Winzent
              *
              * \return A complete clone of the instance
              */
-            virtual NeuralNetworkPattern* clone() const = 0;
+            virtual NeuralNetworkPattern *clone() const = 0;
 
 
             /*!

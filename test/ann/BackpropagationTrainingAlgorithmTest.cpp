@@ -1,11 +1,14 @@
 #include <initializer_list>
 
-#include "NeuralNetwork.h"
-#include "PerceptronNetworkPattern.h"
-#include "LinearActivationFunction.h"
-#include "SigmoidActivationFunction.h"
-#include "TrainingSet.h"
-#include "BackpropagationTrainingAlgorithm.h"
+#include <NeuralNetwork.h>
+#include <PerceptronNetworkPattern.h>
+#include <NguyenWidrowWeightRandomizer.h>
+
+#include <LinearActivationFunction.h>
+#include <SigmoidActivationFunction.h>
+
+#include <TrainingSet.h>
+#include <BackpropagationTrainingAlgorithm.h>
 
 #include "Testrunner.h"
 #include "BackpropagationTrainingAlgorithmTest.h"
@@ -38,6 +41,7 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
             });
 
     network->configure(pattern);
+    NguyenWidrowWeightRandomizer().randomize(network);
 
     // Build training data:
 

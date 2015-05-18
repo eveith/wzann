@@ -6,25 +6,22 @@
 
 namespace Winzent {
     namespace ANN {
-        
-        ConstantActivationFunction::ConstantActivationFunction(
-                double value,
-                QObject *parent):
-                    ActivationFunction(1.0, parent),
-                    m_value(value)
+        ConstantActivationFunction::ConstantActivationFunction(qreal value):
+                ActivationFunction(1.0),
+                m_value(value)
         {
         }
 
 
-        double ConstantActivationFunction::calculate(const double &)
+        qreal ConstantActivationFunction::calculate(const qreal &)
         {
             return m_value;
         }
 
 
-        double ConstantActivationFunction::calculateDerivative(
-                const double &,
-                const double &)
+        qreal ConstantActivationFunction::calculateDerivative(
+                const qreal &,
+                const qreal &)
         {
             return 0.0;
         }
@@ -36,9 +33,9 @@ namespace Winzent {
         }
 
 
-        ActivationFunction* ConstantActivationFunction::clone() const
+        ActivationFunction *ConstantActivationFunction::clone() const
         {
-            return new ConstantActivationFunction(m_value, parent());
+            return new ConstantActivationFunction(m_value);
         }
     } // namespace ANN
 } // namespace Winzent

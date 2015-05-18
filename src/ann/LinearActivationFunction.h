@@ -8,7 +8,7 @@
 #define WINZENT_ANN_LINEARACTIVATIONFUNCTION_H
 
 
-#include <QObject>
+#include <QtGlobal>
 
 #include "ActivationFunction.h"
 
@@ -32,39 +32,39 @@ namespace Winzent {
 
 
             /*!
-             * Creates a new linear activation function with an optional scaling
-             * and transposition.
+             * \brief Creates a new linear activation function with
+             *  an optional scaling and transposition.
              *
              * \param steepness Steepness the function: f(x) = steepness * x
-             *
-             * \param parent The parent object.
-             *
-             * \sa QObject
              */
-            LinearActivationFunction(
-                    double steepness = 1.0,
-                    QObject *parent = 0);
+            LinearActivationFunction(qreal steepness = 1.0);
 
 
             /*!
              * \return `input * steepness()`
              */
-            virtual double calculate(const double &input);
+            virtual qreal calculate(const qreal &input) override;
 
 
             /*!
              * \return ActivationFunction#steepness()
              */
-            virtual double calculateDerivative(const double &, const double &);
+            virtual qreal calculateDerivative(const qreal &, const qreal &)
+                    override;
 
 
             /*!
              * \return `true`
              */
-            virtual bool hasDerivative() const;
+            virtual bool hasDerivative() const override;
 
 
-            virtual ActivationFunction *clone() const;
+            /*!
+             * \brief Clones the activation function
+             *
+             * \return A clone of this object
+             */
+            virtual ActivationFunction *clone() const override;
         };
         
     } // namespace ANN

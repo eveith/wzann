@@ -17,10 +17,13 @@
 class QTextStream;
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+using std::shared_ptr;
+
+
+namespace Winzent {
+    namespace ANN {
+
+
         class Layer;
         class NeuralNetwork;
         class ActivationFunction;
@@ -79,6 +82,16 @@ namespace Winzent
              * \sa QObject#setParent
              */
             Neuron(ActivationFunction *activationFunction);
+
+
+            /*!
+             * \brief Constructs a new Neuron with a shared activation
+             *  function
+             *
+             * \param[in] activationFunction The activation function for this
+             *  neuron that is shared with other neurons
+             */
+            Neuron(shared_ptr<ActivationFunction> &activationFunction);
 
 
             /*!
@@ -170,6 +183,16 @@ namespace Winzent
             /*!
              * \brief Sets a new activation function
              *
+             * \param[in] activationFunction The activation function
+             *
+             * \return `*this`
+             */
+            Neuron &activationFunction(
+                    ActivationFunction *const &activationFunction);
+
+            /*!
+             * \brief Sets a new activation function
+             *
              * Invoking this method explicitly allows to share an
              * ActivationFunction object with other neurons.
              *
@@ -178,7 +201,7 @@ namespace Winzent
              * \return `*this`
              */
             Neuron &activationFunction(
-                    ActivationFunction *const &activationFunction);
+                    shared_ptr<ActivationFunction> &activationFunction);
 
 
             /*!

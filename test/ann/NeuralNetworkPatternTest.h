@@ -23,8 +23,6 @@ using Winzent::ANN::NeuralNetworkPattern;
 namespace Mock {
     class NeuralNetworkPatternTestDummyPattern: public NeuralNetworkPattern
     {
-        Q_OBJECT
-
     public:
 
         int numLayers;

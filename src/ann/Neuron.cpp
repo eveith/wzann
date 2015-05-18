@@ -14,6 +14,9 @@
 #include "Neuron.h"
 
 
+using std::shared_ptr;
+
+
 namespace Winzent {
     namespace ANN {
 
@@ -22,8 +25,13 @@ namespace Winzent {
                 m_parent(nullptr),
                 m_activationFunction(activationFunction)
         {
-            // For now, make sure we don't accidentially delete twice:
-            m_activationFunction->setParent(nullptr);
+        }
+
+
+        Neuron::Neuron(shared_ptr<ActivationFunction> &activationFunction):
+                m_parent(nullptr),
+                m_activationFunction(activationFunction)
+        {
         }
 
 
@@ -81,7 +89,6 @@ namespace Winzent {
         }
 
 
-
         ActivationFunction *Neuron::activationFunction() const
         {
             return m_activationFunction.get();
@@ -91,8 +98,15 @@ namespace Winzent {
         Neuron &Neuron::activationFunction(
                 ActivationFunction *const &activationFunction)
         {
-            m_activationFunction->setParent(nullptr);
             m_activationFunction.reset(activationFunction);
+            return *this;
+        }
+
+
+        Neuron &Neuron::activationFunction(
+                shared_ptr<ActivationFunction> &activationFunction)
+        {
+            m_activationFunction = activationFunction;
             return *this;
         }
 

@@ -5,24 +5,21 @@
 
 namespace Winzent {
     namespace ANN {
-        
-        LinearActivationFunction::LinearActivationFunction(
-                double steepness,
-                QObject *parent):
-                    ActivationFunction(steepness, parent)
+        LinearActivationFunction::LinearActivationFunction(qreal steepness):
+                ActivationFunction(steepness)
         {
         }
 
 
-        double LinearActivationFunction::calculate(const double &input)
+        qreal LinearActivationFunction::calculate(const qreal &input)
         {
             return steepness() * input;
         }
 
 
-        double LinearActivationFunction::calculateDerivative(
-                const double&,
-                const double &)
+        qreal LinearActivationFunction::calculateDerivative(
+                const qreal &,
+                const qreal &)
         {
             return steepness();
         }
@@ -36,8 +33,7 @@ namespace Winzent {
 
         ActivationFunction *LinearActivationFunction::clone() const
         {
-            return new LinearActivationFunction(steepness(), parent());
+            return new LinearActivationFunction(steepness());
         }
-        
     } // namespace ANN
 } // namespace Winzent

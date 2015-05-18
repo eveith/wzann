@@ -97,7 +97,7 @@ void NeuralNetworkTest::testLayerAdditionRemoval()
 {
     NeuralNetwork* network = new NeuralNetwork(this);
 
-    Layer* l1 = new Layer(this);
+    Layer* l1 = new Layer();
     *network << l1;
 
     QVERIFY(network->inputLayer() == l1);
@@ -105,7 +105,7 @@ void NeuralNetworkTest::testLayerAdditionRemoval()
 
     QVERIFY(l1->parent() == network);
 
-    Layer* l2 = new Layer(this);
+    Layer* l2 = new Layer();
 
     *network << l2;
 
@@ -196,8 +196,8 @@ void NeuralNetworkTest::testConnectionsFromTo()
     Neuron *s = new Neuron(new LinearActivationFunction());
     Neuron *d = new Neuron(new LinearActivationFunction());
 
-    Layer *l1 = new Layer(network);
-    Layer *l2 = new Layer(network);
+    Layer *l1 = new Layer();
+    Layer *l2 = new Layer();
 
     *l1 << s;
     *l2 << d;
@@ -230,7 +230,7 @@ void NeuralNetworkTest::testClone()
     QCOMPARE(network->size(), clone->size());
     QVERIFY(network->biasNeuron() != clone->biasNeuron());
 
-    for (int i = 0; i != network->size(); ++i) {
+    for (size_t i = 0; i != network->size(); ++i) {
         Layer *origLayer    = network->layerAt(i);
         Layer *cloneLayer   = clone->layerAt(i);
 

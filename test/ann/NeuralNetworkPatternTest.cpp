@@ -22,7 +22,7 @@ using namespace Winzent::ANN;
 
 
 NeuralNetworkPatternTestDummyPattern::NeuralNetworkPatternTestDummyPattern():
-        NeuralNetworkPattern(QList<int>(), QList<ActivationFunction*>()),
+        NeuralNetworkPattern(QList<int>(), QList<ActivationFunction *>()),
         numLayers(3), numNeuronsPerLayer(10)
 {
     for (int i = 0; i != numLayers; ++i) {
@@ -49,7 +49,7 @@ void NeuralNetworkPatternTestDummyPattern::configureNetwork(
         NeuralNetwork* network)
 {
     for (int i = 0; i != numLayers; ++i) {
-        Layer *l = new Layer(network);
+        Layer *l = new Layer();
 
         for (int j = 0; j != numNeuronsPerLayer; ++j) {
             Neuron *n = new Neuron(new SigmoidActivationFunction());

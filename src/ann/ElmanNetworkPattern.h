@@ -18,10 +18,8 @@
 using std::initializer_list;
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
 
         /*!
          * Represents the general layout and wokring mode of an
@@ -36,8 +34,6 @@ namespace Winzent
          */
         class ElmanNetworkPattern: public NeuralNetworkPattern
         {
-            Q_OBJECT
-
         public:
 
 
@@ -60,7 +56,8 @@ namespace Winzent
              */
             virtual ValueVector calculate(
                     NeuralNetwork *const &network,
-                    const ValueVector &input);
+                    const ValueVector &input)
+                    override;
 
 
         public:
@@ -77,8 +74,7 @@ namespace Winzent
              */
             ElmanNetworkPattern(
                     QList<int> layerSizes,
-                    QList<ActivationFunction*> activationFunctions,
-                    QObject *parent = 0);
+                    QList<ActivationFunction *> activationFunctions);
 
 
             /*!
@@ -92,15 +88,15 @@ namespace Winzent
              */
             ElmanNetworkPattern(
                     initializer_list<int> layerSizes,
-                    initializer_list<ActivationFunction*> activationFunctions,
-                    QObject *parent = 0);
+                    initializer_list<ActivationFunction *>
+                        activationFunctions);
 
 
             /*!
              * Creates a clone of this pattern, cast to the base
              * class.
              */
-            virtual NeuralNetworkPattern* clone() const;
+            virtual NeuralNetworkPattern* clone() const override;
 
 
             /*!
@@ -118,7 +114,7 @@ namespace Winzent
              * - Each hidden layer neuron is connected to each
              *   output layer neuron.
              */
-            virtual void configureNetwork(NeuralNetwork *network);
+            virtual void configureNetwork(NeuralNetwork *network) override;
         };
 
     } /* namespace ANN */
