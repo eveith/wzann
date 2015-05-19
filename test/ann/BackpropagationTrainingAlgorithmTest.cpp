@@ -1,14 +1,17 @@
+#include <QtTest>
+#include <QObject>
+
 #include <initializer_list>
 
-#include <NeuralNetwork.h>
-#include <PerceptronNetworkPattern.h>
-#include <NguyenWidrowWeightRandomizer.h>
+#include "NeuralNetwork.h"
+#include "SimpleWeightRandomizer.h"
+#include "PerceptronNetworkPattern.h"
 
-#include <LinearActivationFunction.h>
-#include <SigmoidActivationFunction.h>
+#include "LinearActivationFunction.h"
+#include "SigmoidActivationFunction.h"
 
-#include <TrainingSet.h>
-#include <BackpropagationTrainingAlgorithm.h>
+#include "TrainingSet.h"
+#include "BackpropagationTrainingAlgorithm.h"
 
 #include "Testrunner.h"
 #include "BackpropagationTrainingAlgorithmTest.h"
@@ -26,8 +29,6 @@ BackpropagationTrainingAlgorithmTest::BackpropagationTrainingAlgorithmTest(
 
 void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 {
-    qsrand(time(NULL));
-
     NeuralNetwork *network = new NeuralNetwork(this);
     PerceptronNetworkPattern pattern(
             {
@@ -41,7 +42,7 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
             });
 
     network->configure(pattern);
-    NguyenWidrowWeightRandomizer().randomize(network);
+    SimpleWeightRandomizer().randomize(*network);
 
     // Build training data:
 

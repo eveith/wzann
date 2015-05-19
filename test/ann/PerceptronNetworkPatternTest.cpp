@@ -2,8 +2,8 @@
 
 #include "Testrunner.h"
 
-#include "NeuralNetwork.h"
 #include "Layer.h"
+#include "NeuralNetwork.h"
 #include "SigmoidActivationFunction.h"
 #include "PerceptronNetworkPattern.h"
 

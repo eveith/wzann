@@ -1,15 +1,16 @@
 #include <QtTest>
+#include <QObject>
 
-#include <NeuralNetwork.h>
-#include <PerceptronNetworkPattern.h>
-#include <NguyenWidrowWeightRandomizer.h>
+#include "NeuralNetwork.h"
+#include "SimpleWeightRandomizer.h"
+#include "PerceptronNetworkPattern.h"
 
-#include <LinearActivationFunction.h>
-#include <SigmoidActivationFunction.h>
+#include "LinearActivationFunction.h"
+#include "SigmoidActivationFunction.h"
 
-#include <TrainingSet.h>
+#include "TrainingSet.h"
 
-#include <RpropTrainingAlgorithm.h>
+#include "RpropTrainingAlgorithm.h"
 
 #include "Testrunner.h"
 #include "RpropTrainingAlgorithmTest.h"
@@ -19,7 +20,7 @@ using namespace Winzent::ANN;
 
 
 RpropTrainingAlgorithmTest::RpropTrainingAlgorithmTest(QObject *parent):
-    QObject(parent)
+        QObject(parent)
 {
 }
 
@@ -36,7 +37,7 @@ void RpropTrainingAlgorithmTest::testTrainXOR()
             });
 
     network->configure(pattern);
-    NguyenWidrowWeightRandomizer().randomize(network);
+    SimpleWeightRandomizer().randomize(*network);
 
     TrainingSet ts(
             {
@@ -66,4 +67,4 @@ void RpropTrainingAlgorithmTest::testTrainXOR()
 }
 
 
-TESTCASE(RpropTrainingAlgorithmTest);
+TESTCASE(RpropTrainingAlgorithmTest)

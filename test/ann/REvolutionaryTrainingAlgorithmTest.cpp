@@ -1,5 +1,4 @@
 #include <QtTest>
-
 #include <QObject>
 
 #include <QFile>
@@ -9,36 +8,39 @@
 
 #include "Testrunner.h"
 
-#include "NeuralNetwork.h"
 #include "Layer.h"
 #include "Neuron.h"
 #include "Connection.h"
-#include "TrainingSet.h"
+#include "NeuralNetwork.h"
+#include "SimpleWeightRandomizer.h"
+
 #include "ElmanNetworkPattern.h"
 #include "PerceptronNetworkPattern.h"
 #include "LinearActivationFunction.h"
 #include "SigmoidActivationFunction.h"
-#include "NguyenWidrowWeightRandomizer.h"
+
+#include "TrainingSet.h"
 
 #include "REvolutionaryTrainingAlgorithm.h"
 #include "REvolutionaryTrainingAlgorithmTest.h"
 
 
-using Winzent::ANN::NeuralNetwork;
 using Winzent::ANN::Layer;
 using Winzent::ANN::Neuron;
 using Winzent::ANN::Connection;
+using Winzent::ANN::ValueVector;
+using Winzent::ANN::NeuralNetwork;
 using Winzent::ANN::ElmanNetworkPattern;
+using Winzent::ANN::SimpleWeightRandomizer;
 using Winzent::ANN::PerceptronNetworkPattern;
 using Winzent::ANN::LinearActivationFunction;
 using Winzent::ANN::SigmoidActivationFunction;
-using Winzent::ANN::NguyenWidrowWeightRandomizer;
-using Winzent::ANN::Individual;
-using Winzent::ANN::REvolutionaryTrainingAlgorithm;
+
 using Winzent::ANN::TrainingSet;
 using Winzent::ANN::TrainingItem;
-using Winzent::ANN::ValueVector;
+
 using Winzent::ANN::Individual;
+using Winzent::ANN::REvolutionaryTrainingAlgorithm;
 
 
 REvolutionaryTrainingAlgorithmTest::REvolutionaryTrainingAlgorithmTest(
@@ -139,13 +141,15 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
 
     QVERIFY(i1 == i2);
 
-    std::for_each(i2.parameters().begin(), i2.parameters().end(), [](qreal &w) {
+    std::for_each(i2.parameters().begin(), i2.parameters().end(),
+            [](qreal &w) {
         w = 1.0;
     });
 
     QVERIFY(!(i1 == i2));
 
-    std::for_each(i2.parameters().begin(), i2.parameters().end(), [](qreal &w) {
+    std::for_each(i2.parameters().begin(), i2.parameters().end(),
+            [](qreal &w) {
         w = 0.0;
     });
 
@@ -339,7 +343,7 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
                 new SigmoidActivationFunction()
             });
     network->configure(pattern);
-    NguyenWidrowWeightRandomizer().randomize(network);
+    SimpleWeightRandomizer().randomize(*network);
 
     // Build training data:
 
