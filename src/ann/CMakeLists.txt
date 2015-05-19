@@ -22,6 +22,7 @@ set(winzent-ann_SOURCES
     NeuralNetwork.cpp
     NeuralNetworkPattern.cpp
     Neuron.cpp
+    SimpleWeightRandomizer.cpp
     NguyenWidrowWeightRandomizer.cpp
     PerceptronNetworkPattern.cpp
     RememberingActivationFunction.cpp
@@ -46,6 +47,8 @@ set(winzent-ann_HEADERS
     NeuralNetwork.h
     NeuralNetworkPattern.h
     Neuron.h
+    WeightRandomizer.h
+    SimpleWeightRandomizer.h
     NguyenWidrowWeightRandomizer.h
     PerceptronNetworkPattern.h
     RememberingActivationFunction.h

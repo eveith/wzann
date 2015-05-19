@@ -286,7 +286,6 @@ namespace Winzent {
 
         qreal REvolutionaryTrainingAlgorithm::frandom()
         {
-            //return ((qrand() % RAND_MAX - 1) / static_cast<qreal>(RAND_MAX));
             return m_uniformDistribution(m_randomNumberGenerator);
         }
 

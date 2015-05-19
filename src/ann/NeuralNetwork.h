@@ -194,7 +194,7 @@ namespace Winzent {
              *
              * \return The bias neuron, modifiable
              */
-            Neuron *const &biasNeuron();
+            Neuron *biasNeuron();
 
 
             /*!

@@ -174,7 +174,7 @@ namespace Winzent {
         }
 
 
-        Neuron *const &NeuralNetwork::biasNeuron()
+        Neuron *NeuralNetwork::biasNeuron()
         {
             return m_biasNeuron;
         }
