@@ -9,7 +9,7 @@
 #define NGUYENWIDROWWEIGHTRANDOMIZER_H
 
 
-#include <QObject>
+#include "WeightRandomizer.h"
 
 
 namespace Winzent {
@@ -24,10 +24,8 @@ namespace Winzent {
          * Randomizes the weights of a neural network based on the algorithm
          * developed by Nguyen and Widrow.
          */
-        class NguyenWidrowWeightRandomizer: public QObject
+        class NguyenWidrowWeightRandomizer: public WeightRandomizer
         {
-            Q_OBJECT
-
         private:
 
 
@@ -42,9 +40,9 @@ namespace Winzent {
              * \param[in] to The layer where all connections lead to.
              */
             void randomizeSynapse(
-                    NeuralNetwork *const &network,
-                    Layer *const &from,
-                    Layer *const &to)
+                    NeuralNetwork &network,
+                    Layer &from,
+                    Layer &to)
                     const;
 
 
@@ -52,19 +50,22 @@ namespace Winzent {
 
 
             /*!
-             * Constructs a new randomizer. Typically, you'll just want to
-             * call `NguyenWidrowWeightRandomizer().randomize(network);`.
+             * \brief Constructs a new randomizer.
+             *
+             * Typically, you'll just want to call
+             * `NguyenWidrowWeightRandomizer().randomize(network);`.
              */
-            explicit NguyenWidrowWeightRandomizer(QObject *parent = 0);
+            NguyenWidrowWeightRandomizer();
 
 
             /*!
-             * Randomizes the network's weights according to the Nguyen-Widrow
-             * algorithm.
+             * \brief Randomizes the network's weights according to the
+             *  Nguyen-Widrow algorithm.
              *
-             * \param network The network whose weights shall be randomized.
+             * \param[inout] network The network whose weights
+             *  shall be randomized.
              */
-            void randomize(NeuralNetwork *const &network) const;
+            void randomize(NeuralNetwork &network);
         };
     }
 }

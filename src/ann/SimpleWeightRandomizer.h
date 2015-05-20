@@ -39,13 +39,13 @@ namespace Winzent {
             /*!
              * \brief The default minimum weight
              */
-            static constexpr qreal defaultMinWeight = -0.5;
+            static constexpr qreal defaultMinWeight = -0.1;
 
 
             /*!
              * \brief The default maximum weight
              */
-            static constexpr qreal defaultMaxWeight = +0.5;
+            static constexpr qreal defaultMaxWeight = +0.1;
 
 
             /*!

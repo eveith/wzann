@@ -25,8 +25,6 @@ NguyenWidrowWeightRandomizerTest::NguyenWidrowWeightRandomizerTest(
 
 void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
 {
-    qsrand(time(0));
-
     NeuralNetwork *network = new NeuralNetwork();
     PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern({
             1,
@@ -39,7 +37,7 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
             });
     network->configure(pattern);
 
-    NguyenWidrowWeightRandomizer().randomize(network);
+    NguyenWidrowWeightRandomizer().randomize(*network);
 
     for (int i = 0; i != network->size(); ++i) {
         Layer *layer = network->layerAt(i);

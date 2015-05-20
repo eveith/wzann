@@ -1,66 +1,61 @@
-#include <QObject>
-
 #include <cmath>
 #include <limits>
 
-#include "NeuralNetwork.h"
+#include <boost/random.hpp>
+
 #include "Layer.h"
 #include "Neuron.h"
-#include "ActivationFunction.h"
 #include "Connection.h"
+#include "NeuralNetwork.h"
+#include "ActivationFunction.h"
 
+#include "WeightRandomizer.h"
 #include "NguyenWidrowWeightRandomizer.h"
 
-#include <iostream>
-using std::cout;
-using std::endl;
 
 using std::pow;
 
 
 namespace Winzent {
     namespace ANN {
-
-
-        NguyenWidrowWeightRandomizer::NguyenWidrowWeightRandomizer(
-                QObject *parent):
-                    QObject(parent)
+        NguyenWidrowWeightRandomizer::NguyenWidrowWeightRandomizer():
+                WeightRandomizer()
         {
         }
 
 
-        void NguyenWidrowWeightRandomizer::randomize(
-                NeuralNetwork *const &network)
-                const
+        void NguyenWidrowWeightRandomizer::randomize(NeuralNetwork &network)
         {
-            for (int i = 0; i != network->size() - 1; ++i) {
+            for (auto i = 0; i != network.size() - 1; ++i) {
                 randomizeSynapse(
                         network,
-                        network->layerAt(i),
-                        network->layerAt(i+1));
+                        *(network.layerAt(i)),
+                        *(network.layerAt(i+1)));
             }
         }
 
 
         void NguyenWidrowWeightRandomizer::randomizeSynapse(
-                NeuralNetwork *const &network,
-                Layer *const &from,
-                Layer *const &to)
+                NeuralNetwork &network,
+                Layer &from,
+                Layer &to)
                 const
         {
-            int fromCount   = from->size();
-            int toCount     = to->size();
+            boost::random::mt11213b rng;
+            boost::random::uniform_01<qreal> rDistribution;
+            auto fromCount   = from.size();
+            auto toCount     = to.size();
 
-            for (int i = 0; i != fromCount; ++i) {
-                Neuron *neuron = from->neuronAt(i);
+            for (auto i = 0; i != fromCount; ++i) {
+                Neuron *neuron = from.neuronAt(i);
 
-                foreach (Connection *connection,
-                         network->neuronConnectionsFrom(neuron)) {
+                for (auto &connection:
+                        network.neuronConnectionsFrom(neuron)) {
                     if (connection->fixedWeight()) {
                         continue;
                     }
 
-                    if (!to->contains(connection->destination())) {
+                    if (! to.contains(connection->destination())) {
                         continue;
                     }
 
@@ -70,10 +65,12 @@ namespace Winzent {
                     qreal low = connection->destination()
                             ->activationFunction()
                             ->calculate(std::numeric_limits<qreal>::min());
-                    qreal b = 0.7 * pow(toCount, (1.d/fromCount)) / (high-low);
+                    qreal b = pow(
+                                toCount,
+                                (1.0 / static_cast<qreal>(fromCount)))
+                            / (high-low) * 0.7;
 
-                    connection->weight(-b
-                            + qrand() / static_cast<qreal>(RAND_MAX) * 2 * b);
+                    connection->weight(-b + rDistribution(rng) * 2 * b);
                 }
             }
         }
