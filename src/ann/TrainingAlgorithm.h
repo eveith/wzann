@@ -7,7 +7,9 @@
 #define WINZENT_MODEL_FORECASTER_ANN_TRAININGALGORITHM_H
 
 
-#include <QObject>
+#include <QtGlobal>
+
+#include <cstddef>
 
 #include <log4cxx/logger.h>
 
@@ -15,10 +17,8 @@
 #include "NeuralNetwork.h"
 
 
-namespace Winzent
-{
-    namespace ANN
-    {
+namespace Winzent {
+    namespace ANN {
 
 
         class NeuralNetwork;
@@ -26,14 +26,11 @@ namespace Winzent
 
 
         /*!
-         * Abstract training algorithm interface for all neural
-         * network training algorithms.
+         * \brief Abstract training algorithm interface for all neural
+         *  network training algorithms.
          */
-        class TrainingAlgorithm: public QObject
+        class TrainingAlgorithm
         {
-            Q_OBJECT
-
-
         protected:
 
 
@@ -44,19 +41,33 @@ namespace Winzent
 
 
             /*!
-             * Sets the final error of a training set.
+             * \brief Sets the final error of a training set.
+             *
+             * \param[inout] trainingSet The training set on which to record
+             *  the final error
+             *
+             * \param[in] error The final error
              */
-            void setFinalError(TrainingSet &trainingSet, qreal error) const;
+            void setFinalError(TrainingSet &trainingSet, const qreal &error)
+                    const;
 
 
             /*!
-             * Sets the final number of epochs needed for the training.
+             * \brief Sets the final number of epochs needed for the training.
+             *
+             * \param[inout] trainingSet The training set on which to set
+             *  the final number of epochs
+             *
+             * \param[in] epochs The number of epochs the training took.
              */
-            void setFinalNumEpochs(TrainingSet &trainingSet, int epochs) const;
+            void setFinalNumEpochs(
+                    TrainingSet &trainingSet,
+                    const size_t &epochs)
+                    const;
 
 
             /*!
-             * Calculates the mean square error.
+             * \brief Calculates the mean square error.
              *
              * The MSE is defined as the sum of all squared errors,
              * divided by the number of output neurons.
@@ -75,38 +86,14 @@ namespace Winzent
             qreal calculateMeanSquaredError(
                     const ValueVector &actualOutput,
                     const ValueVector &expectedOutput)
-                        throw(LayerSizeMismatchException);
-
-
-            /*!
-             * Sets the cache size of all neurons in the network to a certain
-             * value. The current cache sizes are stored and can be reset using
-             * #restoreNeuronCacheSize.
-             *
-             * \param network The network that contains the neurons.
-             *
-             * \param cacheSize The cache size
-             *
-             * \sa #restoreNeuronCacheSize
-             */
-            void setNeuronCacheSize(
-                    NeuralNetwork *const &network,
-                    const int &cacheSize);
-
-
-            /*!
-             * Restores the cache sizes of all network neurons.
-             *
-             * \sa #setNeuronCacheSize
-             */
-            void restoreNeuronCacheSize();
+                    throw(LayerSizeMismatchException);
 
 
         public:
 
 
             /*!
-             * Commences the training of the neural network.
+             * \brief Commences the training of the neural network.
              *
              * How this training is being done is up to the training
              * strategy. The <code>TrainingSet</code> supplies a number
@@ -128,20 +115,9 @@ namespace Winzent
              * \sa NeuralNetwork#train
              */
             virtual void train(
-                    NeuralNetwork *const &ann,
+                    NeuralNetwork &neuralNetwork,
                     TrainingSet &trainingSet) = 0;
-
-
-            /*!
-             * Creates a new instance of a particular training algorithm for
-             * training a particular network.
-             *
-             * \param parent The parent object; if `0`, the target network
-             *  becomes the parent object.
-             */
-            explicit TrainingAlgorithm(QObject *parent = 0);
         };
-
     } // namespace ANN
 } // namespace Winzent
 

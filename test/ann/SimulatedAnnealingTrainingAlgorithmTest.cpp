@@ -70,7 +70,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
     QDateTime dt1 = QDateTime::currentDateTime();
 
     SimulatedAnnealingTrainingAlgorithm(10, 2, 100)
-        .train(&network, trainingSet);
+        .train(network, trainingSet);
 
     QDateTime dt2 = QDateTime::currentDateTime();
     qDebug() << "Trained XOR(x, y) in" << dt1.msecsTo(dt2) << "msec";

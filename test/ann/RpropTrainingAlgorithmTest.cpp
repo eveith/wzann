@@ -27,7 +27,7 @@ RpropTrainingAlgorithmTest::RpropTrainingAlgorithmTest(QObject *parent):
 
 void RpropTrainingAlgorithmTest::testTrainXOR()
 {
-    NeuralNetwork *network = new NeuralNetwork(this);
+    NeuralNetwork network;
     PerceptronNetworkPattern pattern(
             { 2, 3, 1 },
             {
@@ -36,8 +36,8 @@ void RpropTrainingAlgorithmTest::testTrainXOR()
                 new SigmoidActivationFunction()
             });
 
-    network->configure(pattern);
-    SimpleWeightRandomizer().randomize(*network);
+    network.configure(pattern);
+    SimpleWeightRandomizer().randomize(network);
 
     TrainingSet ts(
             {
@@ -52,16 +52,16 @@ void RpropTrainingAlgorithmTest::testTrainXOR()
     trainingAlgorithm.train(network, ts);
 
     ValueVector output;
-    output = network->calculate({ 1, 1 });
+    output = network.calculate({ 1, 1 });
     qDebug() << "(1, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 0);
-    output = network->calculate({ 1, 0 });
+    output = network.calculate({ 1, 0 });
     qDebug() << "(1, 0) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
-    output = network->calculate({ 0, 0 });
+    output = network.calculate({ 0, 0 });
     qDebug() << "(0, 0) =>" << output;
     QCOMPARE(qRound(output[0]), 0);
-    output = network->calculate({ 0, 1 });
+    output = network.calculate({ 0, 1 });
     qDebug() << "(0, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
 }

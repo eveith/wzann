@@ -1,13 +1,14 @@
+#include <QtGlobal>
+
 #include <cmath>
+#include <cstddef>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/logmanager.h>
 
 #include "Exception.h"
-#include "NeuralNetwork.h"
-#include "Layer.h"
-#include "Neuron.h"
 #include "TrainingSet.h"
+#include "NeuralNetwork.h"
 
 #include "TrainingAlgorithm.h"
 
@@ -27,7 +28,7 @@ namespace Winzent {
         qreal TrainingAlgorithm::calculateMeanSquaredError(
                 const ValueVector &actualOutput,
                 const ValueVector &expectedOutput)
-                    throw(LayerSizeMismatchException)
+                throw(LayerSizeMismatchException)
         {
             if (actualOutput.size() != expectedOutput.size()) {
                 throw LayerSizeMismatchException(
@@ -36,7 +37,7 @@ namespace Winzent {
             }
 
 
-            double error = 0.0;
+            qreal error = 0.0;
             int n = 0;
 
             for (; n != actualOutput.size(); ++n) {
@@ -48,28 +49,9 @@ namespace Winzent {
         }
 
 
-        TrainingAlgorithm::TrainingAlgorithm(QObject *parent):
-                QObject(parent)
-        {
-        }
-
-
-        void TrainingAlgorithm::setNeuronCacheSize(
-                NeuralNetwork *const &network,
-                const int &cacheSize)
-        {
-        }
-
-
-
-        void TrainingAlgorithm::restoreNeuronCacheSize()
-        {
-        }
-
-
         void TrainingAlgorithm::setFinalError(
                 TrainingSet &trainingSet,
-                qreal error)
+                const qreal &error)
                 const
         {
             trainingSet.m_error = error;
@@ -78,7 +60,8 @@ namespace Winzent {
 
         void TrainingAlgorithm::setFinalNumEpochs(
                 TrainingSet &trainingSet,
-                int epochs) const
+                const size_t &epochs)
+                const
         {
             trainingSet.m_epochs = epochs;
         }

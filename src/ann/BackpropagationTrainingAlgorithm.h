@@ -20,8 +20,6 @@ namespace Winzent {
 
         class BackpropagationTrainingAlgorithm: public TrainingAlgorithm
         {
-            Q_OBJECT
-
         private:
 
 
@@ -62,10 +60,10 @@ namespace Winzent {
 
 
             /*!
-             * Calculates the neuron delta for one given neuron, assuming it is
-             * an output layer neuron.
+             * \brief Calculates the neuron delta for one given neuron,
+             *  assuming it is an output layer neuron.
              */
-            qreal outputNeuronDelta(const Neuron *neuron, const qreal &error)
+            qreal outputNeuronDelta(const Neuron &neuron, const qreal &error)
                     const;
 
 
@@ -73,9 +71,9 @@ namespace Winzent {
              * Calculates the neuron delta for a neuron in an hidden layer.
              */
             qreal hiddenNeuronDelta(
-                    NeuralNetwork *const &ann,
-                    Neuron *neuron,
-                    QHash<Neuron *, qreal> &neuronDeltas,
+                    NeuralNetwork &ann,
+                    const Neuron &neuron,
+                    QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
@@ -84,9 +82,9 @@ namespace Winzent {
              * Calculates the delta value of a neuron.
              */
             qreal neuronDelta(
-                    NeuralNetwork *const &ann,
-                    Neuron *neuron,
-                    QHash<Neuron *, qreal> &neuronDeltas,
+                    NeuralNetwork &ann,
+                    const Neuron &neuron,
+                    QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
@@ -105,15 +103,13 @@ namespace Winzent {
              *
              * \param parent The parent object
              */
-            BackpropagationTrainingAlgorithm(
-                    qreal learningRate = 0.7,
-                    QObject *parent = 0);
+            BackpropagationTrainingAlgorithm(qreal learningRate = 0.7);
 
 
             /*!
              * \return The learning rate applied to each weight change
              */
-            inline qreal learningRate() const;
+            qreal learningRate() const;
 
 
             /*!
@@ -133,12 +129,9 @@ namespace Winzent {
              * \param[in] trainingSet A set of sample inputs and expected
              *  outputs.
              */
-            virtual void train(
-                    NeuralNetwork *const &ann,
-                    TrainingSet &trainingSet);
+            virtual void train(NeuralNetwork &ann, TrainingSet &trainingSet)
+                    override;
         };
-
-
     } // namespace ANN
 } // namespace Winzent
 
