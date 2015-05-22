@@ -9,8 +9,10 @@
 #define TRAININGSET_H_
 
 
-#include <QObject>
+#include <QtGlobal>
 #include <QList>
+
+#include <cstddef>
 
 #include "NeuralNetwork.h"
 
@@ -34,7 +36,6 @@ namespace Winzent {
          */
         class TrainingItem
         {
-
         private:
 
 
@@ -51,8 +52,8 @@ namespace Winzent {
 
 
             /*!
-             * Stores whether an expected output to the input exists (i.e., the
-             * output is relevant) or not.
+             * \brief Stores whether an expected output to the input exists
+             *  (i.e., the output is relevant) or not.
              */
             bool m_outputRelevant;
 
@@ -83,11 +84,9 @@ namespace Winzent {
 
 
             /*!
-             * Constructs a new, empty training item.
+             * \brief Constructs a new, empty training item.
              */
-            TrainingItem():
-                    m_input(ValueVector()),
-                    m_expectedOutput(ValueVector())
+            TrainingItem()
             {
             }
 
@@ -135,18 +134,16 @@ namespace Winzent {
 
 
         /*!
-         * Represents a complete set of training data. A set of
-         * training data is a collection of inputs together with their
-         * desired outputs. The training set is used to train the
+         * \brief Represents a complete set of training data.
+         *
+         * A set of training data is a collection of inputs together with
+         * their desired outputs. The training set is used to train the
          * network until either the target error or the maximum number
          * of iteration have been reached. The resulting target error
          * is then stored in the particular training set instance.
          */
-        class TrainingSet: public QObject
+        class TrainingSet
         {
-            Q_OBJECT
-
-
             friend class TrainingAlgorithm;
 
 
@@ -162,26 +159,26 @@ namespace Winzent {
             /*!
              * The error we're trying to target.
              */
-            double m_targetError;
+            qreal m_targetError;
 
 
             /*!
              * Maximum number of epochs the training will run for.
              */
-            int m_maxNumEpochs;
+            size_t m_maxNumEpochs;
 
 
             /*!
              * Number of epochs it took to complete the training.
              */
-            int m_epochs;
+            size_t m_epochs;
 
 
             /*!
              * The error after each epoch (stores the
              * final error after the training is finished.)
              */
-            double m_error;
+            qreal m_error;
 
 
         public:
@@ -191,33 +188,30 @@ namespace Winzent {
              * Constructs a new TrainingSet by supplying the training
              * data and the relevant paramters.
              *
-             * \param trainingData The data used for training, given
+             * \param[in] trainingData The data used for training, given
              *  as a Hash mapping input to output. Both are
              *  <code>double[]</code>, where each array index
              *  corresponds to a neuron.
              *
-             * \param targetMSE The target mean square error after
+             * \param[in] targetError The target mean square error after
              *  which the training stops
              *
-             * \param maxNumEpochs The maximum number of epochs the
+             * \param[in] maxNumEpochs The maximum number of epochs the
              *  training runs for. If this number is reached the
              *  training will end, even if the target error is not
              *  yet reached.
              */
             TrainingSet(
                     QList<TrainingItem> trainingData,
-                    double targetError,
-                    int maxNumEpochs);
-
-
-            virtual ~TrainingSet();
+                    const qreal &targetError,
+                    const size_t &maxNumEpochs);
 
 
             /*!
              * Returns the mean square error after the current
              * training epoch.
              */
-            double error() const;
+            qreal error() const;
 
 
             /*!
@@ -225,21 +219,21 @@ namespace Winzent {
              *
              * \return The target error.
              */
-            double targetError() const;
+            qreal targetError() const;
 
 
             /*!
              * Returns the maximum number of epochs that are allowed during
              * training.
              */
-            int maxEpochs() const;
+            size_t maxEpochs() const;
 
 
             /*!
              * Returns the number of epochs needed to complete
              * the training.
              */
-            int epochs() const;
+            size_t epochs() const;
 
 
             /*!
@@ -258,20 +252,19 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            TrainingSet &operator<<(const TrainingItem &item);
+            TrainingSet &operator <<(const TrainingItem &item);
 
 
             /*!
-             * \brief Allows read-write access to the training item at a certain
-             *  index
+             * \brief Allows read-write access to the training item at
+             *  a certain index
              *
              * \param[in] index Index of the training item
              *
              * \return The Training Item, modifiable
              */
-            TrainingItem &operator[](const int &index);
+            TrainingItem &operator[](const size_t &index);
         };
-
     } /* namespace ANN */
 } /* namespace Winzent */
 #endif /* TRAININGSET_H_ */

@@ -29,7 +29,7 @@ BackpropagationTrainingAlgorithmTest::BackpropagationTrainingAlgorithmTest(
 
 void BackpropagationTrainingAlgorithmTest::testTrainXOR()
 {
-    NeuralNetwork *network = new NeuralNetwork(this);
+    NeuralNetwork network;
     PerceptronNetworkPattern pattern(
             {
                 2,
@@ -41,8 +41,8 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
                 new SigmoidActivationFunction()
             });
 
-    network->configure(pattern);
-    SimpleWeightRandomizer().randomize(*network);
+    network.configure(pattern);
+    SimpleWeightRandomizer().randomize(network);
 
     // Build training data:
 
@@ -64,23 +64,23 @@ void BackpropagationTrainingAlgorithmTest::testTrainXOR()
             QIODevice::Text | QIODevice::WriteOnly | QIODevice::Truncate);
     QTextStream testResultStream(&testResultFile);
 
-    testResultStream << *network;
+    testResultStream << network;
 
     BackpropagationTrainingAlgorithm().train(network, trainingSet);
 
-    testResultStream << *network;
+    testResultStream << network;
 
     ValueVector output;
-    output = network->calculate({ 1, 1 });
+    output = network.calculate({ 1, 1 });
     qDebug() << "(1, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 0);
-    output = network->calculate({ 1, 0 });
+    output = network.calculate({ 1, 0 });
     qDebug() << "(1, 0) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
-    output = network->calculate({ 0, 0 });
+    output = network.calculate({ 0, 0 });
     qDebug() << "(0, 0) =>" << output;
     QCOMPARE(qRound(output[0]), 0);
-    output = network->calculate({ 0, 1 });
+    output = network.calculate({ 0, 1 });
     qDebug() << "(0, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
 

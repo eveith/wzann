@@ -1,7 +1,6 @@
-#include <QObject>
-
 #include <limits>
 #include <cmath>
+#include <cstddef>
 #include <algorithm>
 
 #include <log4cxx/logger.h>
@@ -32,9 +31,8 @@ namespace Winzent {
         SimulatedAnnealingTrainingAlgorithm::SimulatedAnnealingTrainingAlgorithm(
                 qreal startTemperature,
                 qreal stopTemperature,
-                int cycles,
-                QObject *parent):
-                    TrainingAlgorithm(parent),
+                size_t cycles):
+                    TrainingAlgorithm(),
                     m_startTemperature(startTemperature),
                     m_stopTemperature(stopTemperature),
                     m_cycles(cycles)
@@ -54,18 +52,18 @@ namespace Winzent {
         }
 
 
-        int SimulatedAnnealingTrainingAlgorithm::cycles() const
+        size_t SimulatedAnnealingTrainingAlgorithm::cycles() const
         {
             return m_cycles;
         }
 
 
         ValueVector SimulatedAnnealingTrainingAlgorithm::getParameters(
-                const NeuralNetwork *const &neuralNetwork)
+                const NeuralNetwork &neuralNetwork)
         {
             ValueVector r;
 
-            neuralNetwork->eachConnection([&r](const Connection *const &c) {
+            neuralNetwork.eachConnection([&r](const Connection *const &c) {
                 if (!c->fixedWeight()) {
                     r << c->weight();
                 }
@@ -77,10 +75,10 @@ namespace Winzent {
 
         void SimulatedAnnealingTrainingAlgorithm::applyParameters(
                 const ValueVector &parameters,
-                NeuralNetwork *const &neuralNetwork)
+                NeuralNetwork &neuralNetwork)
         {
             int i = 0;
-            neuralNetwork->eachConnection([&i, &parameters](
+            neuralNetwork.eachConnection([&i, &parameters](
                     Connection *const &c) {
                 if (!c->fixedWeight()) {
                     c->weight(parameters.at(i++));
@@ -115,7 +113,7 @@ namespace Winzent {
 
 
         qreal SimulatedAnnealingTrainingAlgorithm::iterate(
-                NeuralNetwork *const &network,
+                NeuralNetwork &network,
                 TrainingSet const &trainingSet)
         {
             // Initialze state: Safe the best known network configuration and
@@ -128,18 +126,19 @@ namespace Winzent {
             // Execute all circles, plus one to get the score of the current
             // solution:
 
-            for (int i = 0; i < cycles(); ++i) {
+            for (auto i = 0; i < cycles(); ++i) {
                 qreal score         = 0.0;
-                int trainingItems   = 0;
+                size_t trainingItems= 0;
 
                 ValueVector parameters = getParameters(network);
                 randomize(parameters, temperature);
                 applyParameters(parameters, network);
 
-                foreach (TrainingItem item, trainingSet.trainingData()) {
-                    ValueVector actualOutput = network->calculate(item.input());
+                for (const auto &item: trainingSet.trainingData()) {
+                    ValueVector actualOutput = network.calculate(
+                            item.input());
 
-                    if (!item.outputRelevant()) {
+                    if (! item.outputRelevant()) {
                         continue;
                     }
 
@@ -181,17 +180,13 @@ namespace Winzent {
 
 
         void SimulatedAnnealingTrainingAlgorithm::train(
-                NeuralNetwork *const &ann,
+                NeuralNetwork &ann,
                 TrainingSet &trainingSet)
         {
-            // We do not need any caching here:
-
-            setNeuronCacheSize(ann, 0);
-
             // Init state:
 
             qreal error     = std::numeric_limits<qreal>::max();
-            int epoch       = -1;
+            size_t epoch    = -1;
 
             while (error > trainingSet.targetError()
                    && ++epoch < trainingSet.maxEpochs()) {
@@ -207,7 +202,6 @@ namespace Winzent {
 
             // We're done, restore the cache size and save information:
 
-            restoreNeuronCacheSize();
             setFinalNumEpochs(trainingSet, epoch);
             setFinalError(trainingSet, error);
         }

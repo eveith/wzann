@@ -8,6 +8,8 @@
 
 
 #include <cmath>
+#include <limits>
+#include <cstddef>
 
 #include "Exception.h"
 #include "TrainingSet.h"
@@ -20,20 +22,10 @@ namespace Winzent {
         TrainingItem::TrainingItem(
                 const ValueVector &input,
                 const ValueVector &expectedOutput):
-                    m_input(),
-                    m_expectedOutput(),
+                    m_input(input),
+                    m_expectedOutput(expectedOutput),
                     m_outputRelevant(true)
         {
-            // Copy all values so that we don't lose it and can modify them as
-            // we wish:
-
-            foreach (qreal i, input) {
-                m_input.append(qreal(i));
-            }
-
-            foreach (qreal i, expectedOutput) {
-                m_expectedOutput.append(qreal(i));
-            }
         }
 
 
@@ -80,7 +72,7 @@ namespace Winzent {
 
             ValueVector r(expectedOutput().size());
 
-            for (int i = 0; i != actualOutput.size(); ++i) {
+            for (auto i = 0; i != actualOutput.size(); ++i) {
                 r[i] = expectedOutput().at(i) - actualOutput.at(i);
             }
 
@@ -90,43 +82,37 @@ namespace Winzent {
 
         TrainingSet::TrainingSet(
                 QList<TrainingItem> trainingData,
-                double targetError,
-                int maxNumEpochs):
-                    m_trainingData(QList<TrainingItem>()),
+                const qreal &targetError,
+                const size_t &maxNumEpochs):
                     m_targetError(targetError),
                     m_maxNumEpochs(maxNumEpochs),
-                    m_error(INFINITY)
+                    m_error(std::numeric_limits<qreal>::infinity())
         {
-            foreach (TrainingItem i, trainingData) {
-                m_trainingData << TrainingItem(i);
+            for (const auto &i: trainingData) {
+                m_trainingData.push_back(TrainingItem(i));
             }
         }
 
 
-        TrainingSet::~TrainingSet()
-        {
-        }
-
-
-        double TrainingSet::targetError() const
+        qreal TrainingSet::targetError() const
         {
             return m_targetError;
         }
 
 
-        double TrainingSet::error() const
+        qreal TrainingSet::error() const
         {
             return m_error;
         }
 
 
-        int TrainingSet::maxEpochs() const
+        size_t TrainingSet::maxEpochs() const
         {
             return m_maxNumEpochs;
         }
 
 
-        int TrainingSet::epochs() const
+        size_t TrainingSet::epochs() const
         {
             return m_epochs;
         }
@@ -138,14 +124,14 @@ namespace Winzent {
         }
 
 
-        TrainingSet &TrainingSet::operator<<(const TrainingItem &item)
+        TrainingSet &TrainingSet::operator <<(const TrainingItem &item)
         {
-            m_trainingData << item;
+            m_trainingData.push_back(item);
             return *this;
         }
 
 
-        TrainingItem &TrainingSet::operator [](const int &index)
+        TrainingItem &TrainingSet::operator [](const size_t &index)
         {
             return m_trainingData[index];
         }

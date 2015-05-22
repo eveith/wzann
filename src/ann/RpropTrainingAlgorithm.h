@@ -2,10 +2,7 @@
 #define WINZENT_ANN_RPROPTRAININGALGORITHM_H
 
 
-#include <QObject>
-
 #include "TrainingSet.h"
-
 #include "TrainingAlgorithm.h"
 
 
@@ -13,8 +10,8 @@ namespace Winzent {
     namespace ANN {
 
 
-        class NeuralNetwork;
         class TrainingSet;
+        class NeuralNetwork;
 
 
         /*!
@@ -29,8 +26,6 @@ namespace Winzent {
          */
         class RpropTrainingAlgorithm: public TrainingAlgorithm
         {
-            Q_OBJECT
-
         public:
 
 
@@ -93,8 +88,9 @@ namespace Winzent {
              * \return A vector of errors at the output layer.
              */
             ValueVector feedForward(
-                    NeuralNetwork *const &network,
-                    TrainingItem const &trainingItem) const;
+                    NeuralNetwork &network,
+                    const TrainingItem &trainingItem)
+                    const;
 
 
             /*!
@@ -109,7 +105,7 @@ namespace Winzent {
             ValueVector outputError(
                     const ValueVector &expected,
                     const ValueVector &actual)
-                        const;
+                    const;
 
 
 
@@ -131,11 +127,11 @@ namespace Winzent {
              * \see #outputError
              */
             qreal hiddenNeuronDelta(
-                    NeuralNetwork *const &ann,
-                    const Neuron *const &neuron,
+                    NeuralNetwork &ann,
+                    const Neuron &neuron,
                     QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
-                        const;
+                    const;
 
 
             /*!
@@ -154,8 +150,9 @@ namespace Winzent {
              * \return The delta
              */
             qreal outputNeuronDelta(
-                    const Neuron *const &neuron,
-                    const qreal &error) const;
+                    const Neuron &neuron,
+                    const qreal &error)
+                    const;
 
 
             /*!
@@ -173,22 +170,18 @@ namespace Winzent {
              * \see #outputError
              */
             qreal neuronDelta(
-                    NeuralNetwork *const &ann,
-                    const Neuron *const &neuron,
+                    NeuralNetwork &ann,
+                    const Neuron &neuron,
                     QHash<const Neuron *, qreal> &neuronDeltas,
                     const ValueVector &outputError)
-                        const;
+                    const;
 
 
             /*!
              * \brief Creates a new training algorithm instance for the given
              *  neural network.
-             *
-             * \param[in] network The neural network to train
-             *
-             * \param parent The parent object
              */
-            explicit RpropTrainingAlgorithm(QObject *parent = 0);
+            RpropTrainingAlgorithm();
 
 
             /*!
@@ -196,9 +189,8 @@ namespace Winzent {
              *
              * \param[in] trainingSet A set of training data
              */
-            virtual void train(
-                    NeuralNetwork *const &ann,
-                    TrainingSet &trainingSet);
+            virtual void train(NeuralNetwork &ann, TrainingSet &trainingSet)
+                    override;
         };
     } // namespace ANN
 } // namespace Winzent

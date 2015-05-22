@@ -9,7 +9,9 @@
 #define SIMULATEDANNEALINGTRAININGALGORITHM_H
 
 
-#include <QObject>
+#include <QtGlobal>
+
+#include <cstddef>
 
 #include "TrainingAlgorithm.h"
 
@@ -24,8 +26,6 @@ namespace Winzent {
 
         class SimulatedAnnealingTrainingAlgorithm: public TrainingAlgorithm
         {
-            Q_OBJECT
-
         private:
 
 
@@ -50,7 +50,7 @@ namespace Winzent {
             /*!
              * The number of cycles to run at a certain temperature.
              */
-            int m_cycles;
+            size_t m_cycles;
 
 
             /*!
@@ -62,8 +62,7 @@ namespace Winzent {
              *
              * \return The parameter vector
              */
-            static ValueVector getParameters(
-                    const NeuralNetwork *const &network);
+            static ValueVector getParameters(const NeuralNetwork &network);
 
 
             /*!
@@ -76,7 +75,7 @@ namespace Winzent {
              */
             static void applyParameters(
                     const ValueVector &parameters,
-                    NeuralNetwork *const &network);
+                    NeuralNetwork &network);
 
 
             /*!
@@ -100,7 +99,7 @@ namespace Winzent {
              * \return The error at the end of the iteration
              */
             qreal iterate(
-                    NeuralNetwork *const &network,
+                    NeuralNetwork &network,
                     TrainingSet const &trainingSet);
 
 
@@ -124,8 +123,7 @@ namespace Winzent {
             explicit SimulatedAnnealingTrainingAlgorithm(
                     qreal startTemperature,
                     qreal stopTemperature,
-                    int cycles,
-                    QObject *parent = 0);
+                    size_t cycles);
 
 
             /*!
@@ -149,7 +147,7 @@ namespace Winzent {
             /*!
              * \return The number of cycles per temperature
              */
-            int cycles() const;
+            size_t cycles() const;
 
 
             /*!
@@ -158,8 +156,9 @@ namespace Winzent {
              * \param trainingSet A set of training data
              */
             virtual void train(
-                    NeuralNetwork *const &ann,
-                    TrainingSet &trainingSet);
+                    NeuralNetwork &ann,
+                    TrainingSet &trainingSet)
+                    override;
         };
     }
 }

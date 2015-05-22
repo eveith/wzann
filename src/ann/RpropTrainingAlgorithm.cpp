@@ -32,15 +32,15 @@ namespace Winzent {
 
         const qreal RpropTrainingAlgorithm::ETA_POSITIVE =  1.2;
         const qreal RpropTrainingAlgorithm::ETA_NEGATIVE = -0.5;
-        const qreal RpropTrainingAlgorithm::ZERO_TOLERANCE =0.00000000000000001;
+        const qreal RpropTrainingAlgorithm::ZERO_TOLERANCE =
+                0.00000000000000001;
         const qreal RpropTrainingAlgorithm::DEFAULT_INITIAL_UPDATE = 0.1;
         const qreal RpropTrainingAlgorithm::DELTA_MIN = 1e-6;
         const qreal RpropTrainingAlgorithm::MAX_STEP = 50.0;
 
 
 
-        RpropTrainingAlgorithm::RpropTrainingAlgorithm(QObject *parent):
-                TrainingAlgorithm(parent)
+        RpropTrainingAlgorithm::RpropTrainingAlgorithm(): TrainingAlgorithm()
         {
         }
 
@@ -60,11 +60,12 @@ namespace Winzent {
 
 
         ValueVector RpropTrainingAlgorithm::feedForward(
-                NeuralNetwork *const &network,
+                NeuralNetwork &network,
                 const TrainingItem &trainingItem)
                 const
         {
-            ValueVector actualOutput = network->calculate(trainingItem.input());
+            ValueVector actualOutput = network.calculate(
+                    trainingItem.input());
             return outputError(trainingItem.expectedOutput(), actualOutput);
         }
 
@@ -79,8 +80,8 @@ namespace Winzent {
             ValueVector error;
             error.reserve(actual.size());
 
-            for (int i = 0; i != actual.size(); ++i) {
-                error << expected.at(i) - actual.at(i);
+            for (auto i = 0; i != actual.size(); ++i) {
+                error.push_back(expected.at(i) - actual.at(i));
             }
 
             return error;
@@ -88,69 +89,69 @@ namespace Winzent {
 
 
         qreal RpropTrainingAlgorithm::outputNeuronDelta(
-                const Neuron *const &neuron,
+                const Neuron &neuron,
                 const qreal &error)
                 const
         {
-            return error * neuron->activationFunction()->calculateDerivative(
-                    neuron->lastInput(),
-                    neuron->lastResult());
+            return error * neuron.activationFunction()->calculateDerivative(
+                    neuron.lastInput(),
+                    neuron.lastResult());
         }
 
 
         qreal RpropTrainingAlgorithm::hiddenNeuronDelta(
-                NeuralNetwork *const &ann,
-                const Neuron *const &neuron,
+                NeuralNetwork &ann,
+                const Neuron &neuron,
                 QHash<const Neuron *, qreal> &neuronDeltas,
                 const ValueVector &outputError)
                 const
         {
             qreal delta = 0.0;
 
-            QList<Connection *> connections =
-                    ann->neuronConnectionsFrom(neuron);
+            QList<Connection *> connections = ann.neuronConnectionsFrom(
+                    &neuron);
             Q_ASSERT(connections.size() > 0);
 
-            foreach (Connection *c, connections) {
+            for (const Connection *c: connections) {
                 // weight(j,k) * delta(k):
                 delta += neuronDelta(
                             ann,
-                            c->destination(),
+                            *(c->destination()),
                             neuronDeltas,
                             outputError)
                         * c->weight();
-                delta += neuronDeltas[c->destination()] * c->weight();
+                delta += neuronDeltas.value(c->destination()) * c->weight();
             }
 
-            delta *= neuron->activationFunction()->calculateDerivative(
-                    neuron->lastInput(),
-                    neuron->lastResult());
+            delta *= neuron.activationFunction()->calculateDerivative(
+                    neuron.lastInput(),
+                    neuron.lastResult());
 
             return delta;
         }
 
 
         qreal RpropTrainingAlgorithm::neuronDelta(
-                NeuralNetwork *const &ann,
-                const Neuron *const &neuron,
+                NeuralNetwork &ann,
+                const Neuron &neuron,
                 QHash<const Neuron *, qreal> &neuronDeltas,
                 const ValueVector &outputError)
-                    const
+                const
         {
             // Apply memoization, where possible:
 
-            if (neuronDeltas.contains(neuron)) {
-                return neuronDeltas.value(neuron);
+            if (neuronDeltas.contains(&neuron)) {
+                return neuronDeltas.value(&neuron);
             }
 
             // What layer does the neuron live in?
 
-            Q_ASSERT(!ann->inputLayer()->contains(neuron));
+            Q_ASSERT(! ann.inputLayer()->contains(&neuron));
             qreal delta = 0.0;
 
-            if (ann->outputLayer()->contains(neuron)) {
+            if (ann.outputLayer()->contains(&neuron)) {
                 qreal error = outputError.at(
-                        ann->outputLayer()->indexOf(neuron));
+                        ann.outputLayer()->indexOf(&neuron));
                 delta = outputNeuronDelta(neuron, error);
             } else {
                 delta = hiddenNeuronDelta(
@@ -160,13 +161,13 @@ namespace Winzent {
                         outputError);
             }
 
-            neuronDeltas.insert(neuron, delta);
+            neuronDeltas.insert(&neuron, delta);
             return delta;
         }
 
 
         void RpropTrainingAlgorithm::train(
-                NeuralNetwork *const &ann,
+                NeuralNetwork &ann,
                 TrainingSet &trainingSet)
         {
             QHash<const Connection *, qreal> currentGradients;
@@ -174,9 +175,7 @@ namespace Winzent {
             QHash<const Connection *, qreal> updateValues;
             QHash<const Connection *, qreal> lastWeightChange;
             qreal error         = std::numeric_limits<qreal>::max();
-            int epoch           = 0;
-
-            setNeuronCacheSize(ann, 2);
+            size_t epoch           = 0;
 
             while (error >= trainingSet.targetError()
                    && ++epoch < trainingSet.maxEpochs()) {
@@ -191,7 +190,8 @@ namespace Winzent {
                             errorVector.begin(),
                             errorVector.end(),
                             0.0,
-                            [](const qreal &error, const qreal &delta)-> qreal {
+                            [](const qreal &error, const qreal &delta)
+                                    -> qreal {
                                 return error + delta * delta;
                             });
 
@@ -200,7 +200,7 @@ namespace Winzent {
 
                     // Calculate error delta of all neurons in the forward pass:
 
-                    ann->eachConnection([
+                    ann.eachConnection([
                             this,
                             &ann,
                             &neuronDeltas,
@@ -213,13 +213,13 @@ namespace Winzent {
 
                         const Neuron *dstNeuron = c->destination();
 
-                        if (ann->inputLayer()->contains(dstNeuron)) {
+                        if (ann.inputLayer()->contains(dstNeuron)) {
                             return;
                         }
 
                         qreal delta = neuronDelta(
                                 ann,
-                                dstNeuron,
+                                *dstNeuron,
                                 neuronDeltas,
                                 errorVector);
                         neuronDeltas.insert(dstNeuron, delta);
@@ -235,11 +235,11 @@ namespace Winzent {
                 // Calculate mean of all errors:
 
                 error /= (trainingSet.trainingData().size()
-                        * ann->outputLayer()->size());
+                        * ann.outputLayer()->size());
 
                 // Now, learn:
 
-                ann->eachConnection([
+                ann.eachConnection([
                         this,
                         &currentGradients,
                         &lastGradients,
@@ -294,7 +294,6 @@ namespace Winzent {
 
             setFinalError(trainingSet, error);
             setFinalNumEpochs(trainingSet, epoch);
-            restoreNeuronCacheSize();
         }
     } // namespace ANN
 } // namespace Winzent

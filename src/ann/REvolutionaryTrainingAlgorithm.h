@@ -10,7 +10,9 @@
 
 
 #include <QObject>
+#include <QtGlobal>
 
+#include <cstddef>
 #include <ostream>
 
 #include <boost/random.hpp>
@@ -76,10 +78,10 @@ namespace Winzent {
             /*!
              * \brief Creates a new individual given a neural network
              *
-             * \param neuralNetwork The ANN from which we initialize paremters
-             *  and scatter
+             * \param[in] neuralNetwork The ANN from which we initialize
+             *  the parameters and scatter vector
              */
-            explicit Individual(const NeuralNetwork *const &neuralNetwork);
+            Individual(const NeuralNetwork &neuralNetwork);
 
 
             /*!
@@ -87,10 +89,7 @@ namespace Winzent {
              *
              * \param[in] parameters A parameter vector
              */
-            explicit Individual(const ValueVector &parameters);
-
-
-            virtual ~Individual();
+            Individual(const ValueVector &parameters);
 
 
             /*!
@@ -102,7 +101,8 @@ namespace Winzent {
 
 
             /*!
-             * \brief Retrieves a modifiable copy of the current scatter vector.
+             * \brief Retrieves a modifiable copy of the current
+             *  scatter vector.
              *
              * \return The scatter vector, modifiable
              */
@@ -112,7 +112,7 @@ namespace Winzent {
             /*!
              * \brief Sets the new scatter vector
              *
-             * \param scatter The new scatter vector
+             * \param[in] scatter The new scatter vector
              *
              * \return `*this`
              */
@@ -143,8 +143,7 @@ namespace Winzent {
              *
              * \return The parameters vector
              */
-            ValueVector parameters(const NeuralNetwork *const &neuralNetwork)
-                    const;
+            ValueVector parameters(const NeuralNetwork &neuralNetwork) const;
 
 
             /*!
@@ -160,15 +159,15 @@ namespace Winzent {
 
 
             /*!
-             * \brief Applies the parameters of this individual to the supplied
-             *  ANN
+             * \brief Applies the parameters of this individual to
+             *  the supplied ANN
              *
              * \param[inout] neuralNetwork The Artificial Neural Network to
              *  which the parameters stored in the Individual shall be applied
              *
              * \return `*this`
              */
-            void applyParameters(NeuralNetwork *const &neuralNetwork) const;
+            void applyParameters(NeuralNetwork &neuralNetwork) const;
 
 
             /*!
@@ -232,7 +231,7 @@ namespace Winzent {
              *  0 if they are equal, or 1 if this one is better than the other
              *  individual.
              */
-            int compare(const Individual *other) const;
+            int compare(const Individual &other) const;
 
 
             /*!
@@ -242,7 +241,7 @@ namespace Winzent {
              *
              * \return true if the object is better, false otherwise.
              */
-            bool isBetterThan(const Individual *other) const;
+            bool isBetterThan(const Individual &other) const;
 
 
             static bool isIndividual1Better(
@@ -271,9 +270,12 @@ namespace Winzent {
         };
 
 
-        class REvolutionaryTrainingAlgorithm: public TrainingAlgorithm
+        class REvolutionaryTrainingAlgorithm:
+                public QObject,
+                public TrainingAlgorithm
         {
             Q_OBJECT
+
 
         private:
 
@@ -282,19 +284,19 @@ namespace Winzent {
              * \brief Maximum number of epochs that may pass without a global
              *  improvement
              */
-            int m_maxNoSuccessEpochs;
+            size_t m_maxNoSuccessEpochs;
 
 
             /*!
              * \brief Overall size of the population
              */
-            int m_populationSize;
+            size_t m_populationSize;
 
 
             /*!
              * \brief Size of the elite, contained in the population
              */
-            int m_eliteSize;
+            size_t m_eliteSize;
 
 
             /*!
@@ -310,8 +312,8 @@ namespace Winzent {
 
 
             /*!
-             * \brief Smallest absolute delta; typically the smallest number we
-             *  can safe
+             * \brief Smallest absolute delta; typically the smallest number
+             *  we can store
              */
             qreal m_eamin;
 
@@ -337,7 +339,7 @@ namespace Winzent {
             /*!
              * \brief Number of epochs to apply to the dc1 method
              */
-            int m_measurementEpochs;
+            size_t m_measurementEpochs;
 
 
             /*!
@@ -367,16 +369,17 @@ namespace Winzent {
 
 
             /*!
-             * \brief Applies the bounds defined in ebmin, eamin and eamax given
-             *  another object's parameter
+             * \brief Applies the bounds defined in ebmin, eamin and eamax
+             *  given another object's parameter
              *
-             * \param dx The delta X that shall be checked and corrected
+             * \param[in] dx The delta X that shall be checked and corrected
              *
-             * \param parameter Another object's parameter
+             * \param[in] parameter Another object's parameter
              *
              * \return The corrected delta X
              */
-            qreal applyDxBounds(const qreal &dx, const qreal &parameter) const;
+            qreal applyDxBounds(const qreal &dx, const qreal &parameter)
+                    const;
 
 
             /*!
@@ -412,15 +415,11 @@ namespace Winzent {
 
 
             /*!
-             * Creates a new instance of the evolutionary training algorithm for
-             * training a particular network.
-             *
-             * \param network The network that shall be trained
-             *
-             * \param parent The parent object; if `0`, the target network
-             *  becomes the parent object.
+             * \brief Creates a new instance of the
+             *  evolutionary training algorithm for
+             *  training a particular network.
              */
-            explicit REvolutionaryTrainingAlgorithm(QObject *parent = 0);
+            REvolutionaryTrainingAlgorithm();
 
 
             /*!
@@ -437,7 +436,7 @@ namespace Winzent {
              *
              * \return The number of epochs
              */
-            int maxNoSuccessEpochs() const;
+            size_t maxNoSuccessEpochs() const;
 
 
             /*!
@@ -449,7 +448,7 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &maxNoSuccessEpochs(
-                    const int &epochs);
+                    const size_t &epochs);
 
 
             /*!
@@ -457,7 +456,7 @@ namespace Winzent {
              *
              * \return The population's size
              */
-            int populationSize() const;
+            size_t populationSize() const;
 
 
             /*!
@@ -467,7 +466,8 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &populationSize(const int &size);
+            REvolutionaryTrainingAlgorithm &populationSize(
+                    const size_t &size);
 
 
             /*!
@@ -475,7 +475,7 @@ namespace Winzent {
              *
              * \return The number of elite individuals within the population
              */
-            int eliteSize() const;
+            size_t eliteSize() const;
 
 
             /*!
@@ -485,7 +485,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &eliteSize(const int &size);
+            REvolutionaryTrainingAlgorithm &eliteSize(const size_t &size);
 
 
             /*!
@@ -508,7 +508,8 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &gradientWeight(const qreal &weight);
+            REvolutionaryTrainingAlgorithm &gradientWeight(
+                    const qreal &weight);
 
 
             /*!
@@ -529,7 +530,8 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &successWeight(const qreal &weight);
+            REvolutionaryTrainingAlgorithm &successWeight(
+                    const qreal &weight);
 
 
             /*!
@@ -542,7 +544,8 @@ namespace Winzent {
 
 
             /*!
-             * \brief Sets the smallest absolute delta for parameters or scatter
+             * \brief Sets the smallest absolute delta for parameters
+             *  or scatter
              *
              * This is the smallest absolute change we apply; smaller values
              * are not accepted. Typically, this is the smallest floating
@@ -625,7 +628,7 @@ namespace Winzent {
              *
              * \return Number of epochs
              */
-            int measurementEpochs() const;
+            size_t measurementEpochs() const;
 
 
             /*!
@@ -636,7 +639,7 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &measurementEpochs(
-                    const int &epochs);
+                    const size_t &epochs);
 
 
             /*!
@@ -649,7 +652,7 @@ namespace Winzent {
              * \return The population, including the elite
              */
             QList<Individual *> generateInitialPopulation(
-                    const NeuralNetwork *const &baseNetwork);
+                    const NeuralNetwork &baseNetwork);
 
 
             /*!
@@ -679,8 +682,9 @@ namespace Winzent {
              * \param trainingSet
              */
             virtual void train(
-                    NeuralNetwork *const &ann,
-                    TrainingSet &trainingSet);
+                    NeuralNetwork &ann,
+                    TrainingSet &trainingSet)
+                    override;
 
         signals:
 
@@ -695,7 +699,7 @@ namespace Winzent {
              * \param population The complete population
              */
             void iterationFinished(
-                    const int &epoch,
+                    const size_t &epoch,
                     const qreal &error,
                     const QList<Individual *> &population);
 
