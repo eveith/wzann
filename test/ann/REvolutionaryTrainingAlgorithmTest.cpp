@@ -193,7 +193,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     ValueVector parameters = individual.parameters();
     QList<Connection *> connections;
 
-    for (int i = 0; i != neuralNetwork->size(); ++i) {
+    for (size_t i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
 
         for (size_t j = 0; j != l->size(); ++j) {
@@ -225,7 +225,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     individual.parameters(parameters);
     individual.applyParameters(*neuralNetwork);
 
-    for (auto i = 0; i != neuralNetwork->size(); ++i) {
+    for (size_t i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
 
         for (size_t j = 0; j != l->size(); ++j) {
@@ -277,7 +277,7 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     trainingAlgorithm.eliteSize(2).populationSize(5);
 
     QList<Individual *> population;
-    for (auto i = 0; i != trainingAlgorithm.populationSize(); ++i) {
+    for (size_t i = 0; i != trainingAlgorithm.populationSize(); ++i) {
         population.push_back(new Individual(createNeuralNetwork()));
     }
 

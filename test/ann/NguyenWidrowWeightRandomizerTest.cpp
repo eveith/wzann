@@ -1,3 +1,5 @@
+#include <cstddef>
+
 #include "NeuralNetwork.h"
 #include "Layer.h"
 #include "Neuron.h"
@@ -39,7 +41,7 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
 
     NguyenWidrowWeightRandomizer().randomize(*network);
 
-    for (int i = 0; i != network->size(); ++i) {
+    for (size_t i = 0; i != network->size(); ++i) {
         Layer *layer = network->layerAt(i);
 
         for (size_t j = 0; j != layer->size(); ++j) {
