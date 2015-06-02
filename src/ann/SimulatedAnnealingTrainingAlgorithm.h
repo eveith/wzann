@@ -32,19 +32,19 @@ namespace Winzent {
             /*!
              * Cutoff value for random data.
              */
-            static const qreal CUT;
+            static const double CUT;
 
 
             /*!
              * The temperature at which the simulated annealing process starts.
              */
-            qreal m_startTemperature;
+            double m_startTemperature;
 
 
             /*!
              * The temperature at which the simulated annealing process stops.
              */
-            qreal m_stopTemperature;
+            double m_stopTemperature;
 
 
             /*!
@@ -84,7 +84,7 @@ namespace Winzent {
              *
              * \param[inout] network The neural network to randomize.
              */
-            void randomize(ValueVector &parameters, const qreal &temperature);
+            void randomize(ValueVector &parameters, const double &temperature);
 
 
             /*!
@@ -98,7 +98,7 @@ namespace Winzent {
              *
              * \return The error at the end of the iteration
              */
-            qreal iterate(
+            double iterate(
                     NeuralNetwork &network,
                     TrainingSet const &trainingSet);
 
@@ -121,27 +121,27 @@ namespace Winzent {
              *  stopTemperature
              */
             explicit SimulatedAnnealingTrainingAlgorithm(
-                    qreal startTemperature,
-                    qreal stopTemperature,
+                    double startTemperature,
+                    double stopTemperature,
                     size_t cycles);
 
 
             /*!
              * \return The starting temperature
              */
-            qreal startTemperature() const;
+            double startTemperature() const;
 
 
             /*!
              * \return The stopping temperature
              */
-            qreal stopTemperature() const;
+            double stopTemperature() const;
 
 
             /*!
              * \return The current temperature
              */
-            qreal temperature() const;
+            double temperature() const;
 
 
             /*!

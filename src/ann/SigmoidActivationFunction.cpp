@@ -6,8 +6,6 @@
  */
 
 
-#include <QtGlobal>
-
 #include <cmath>
 
 #include "ActivationFunction.h"
@@ -16,7 +14,7 @@
 
 namespace Winzent {
     namespace ANN {
-        SigmoidActivationFunction::SigmoidActivationFunction(qreal steepness):
+        SigmoidActivationFunction::SigmoidActivationFunction(double steepness):
                 ActivationFunction(steepness)
         {
         }
@@ -28,16 +26,16 @@ namespace Winzent {
         }
 
 
-        qreal SigmoidActivationFunction::calculate(const qreal &input)
+        double SigmoidActivationFunction::calculate(const double &input)
         {
             auto in = clip(input, -45.0f / steepness(), 45.0f / steepness());
             return 1.0f / (1.0f + std::exp(-1.0f * steepness() * in));
         }
 
 
-        qreal SigmoidActivationFunction::calculateDerivative(
-                const qreal &,
-                const qreal &result)
+        double SigmoidActivationFunction::calculateDerivative(
+                const double &,
+                const double &result)
         {
             auto in = clip(result, 0.01f, 0.99f);
             return steepness() * in * (1.0f - in);

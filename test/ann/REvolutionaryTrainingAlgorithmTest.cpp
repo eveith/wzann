@@ -72,7 +72,7 @@ NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 
 void REvolutionaryTrainingAlgorithmTest::recordIteration(
         const int &epoch,
-        const qreal &,
+        const double &,
         const QList<Winzent::ANN::Individual *> &population)
 {
     QFile outFile(QString("./%1.out").arg(QTest::currentTestFunction()));
@@ -83,7 +83,7 @@ void REvolutionaryTrainingAlgorithmTest::recordIteration(
         stream << epoch << " " << i->errorVector().first()
                 << " " << i->timeToLive();
 
-        foreach (qreal p, i->parameters()) {
+        foreach (double p, i->parameters()) {
             stream << " " << p;
         }
 
@@ -142,14 +142,14 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
     QVERIFY(i1 == i2);
 
     std::for_each(i2.parameters().begin(), i2.parameters().end(),
-            [](qreal &w) {
+            [](double &w) {
         w = 1.0;
     });
 
     QVERIFY(!(i1 == i2));
 
     std::for_each(i2.parameters().begin(), i2.parameters().end(),
-            [](qreal &w) {
+            [](double &w) {
         w = 0.0;
     });
 
@@ -370,9 +370,9 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
 
     connect(
             &trainingAlgorithm,
-            SIGNAL(iterationFinished(int,qreal,QList<Individual*>)),
+            SIGNAL(iterationFinished(int,double,QList<Individual*>)),
             this,
-            SLOT(recordIteration(int,qreal,QList<Individual*>)));
+            SLOT(recordIteration(int,double,QList<Individual*>)));
 
     QDateTime dt1 = QDateTime::currentDateTime();
     trainingAlgorithm.train(network, trainingSet);

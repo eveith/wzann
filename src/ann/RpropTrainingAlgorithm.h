@@ -32,38 +32,38 @@ namespace Winzent {
             /*!
              * \brief Positive step value
              */
-            const static qreal ETA_POSITIVE;
+            const static double ETA_POSITIVE;
 
 
             /*!
              * \brief Negative step value
              */
-            const static qreal ETA_NEGATIVE;
+            const static double ETA_NEGATIVE;
 
 
             /*!
              * \brief Tolerance within which a value is still considered to be
              *  equal to 0.
              */
-            const static qreal ZERO_TOLERANCE;
+            const static double ZERO_TOLERANCE;
 
 
             /*!
              * \brief The initial value for weight changes
              */
-            const static qreal DEFAULT_INITIAL_UPDATE;
+            const static double DEFAULT_INITIAL_UPDATE;
 
 
             /*!
              * \brief The minimum delta value applied during weight change
              */
-            const static qreal DELTA_MIN;
+            const static double DELTA_MIN;
 
 
             /*!
              * \brief Maximum value for a delta during weight change
              */
-            const static qreal MAX_STEP;
+            const static double MAX_STEP;
 
 
             /*!
@@ -74,7 +74,7 @@ namespace Winzent {
              *
              * \return -1 on negative sign, 0 on 0, +1 on positive sign
              */
-            static int sgn(const qreal &x);
+            static int sgn(const double &x);
 
 
             /*!
@@ -126,10 +126,10 @@ namespace Winzent {
              *
              * \see #outputError
              */
-            qreal hiddenNeuronDelta(
+            double hiddenNeuronDelta(
                     NeuralNetwork &ann,
                     const Neuron &neuron,
-                    QHash<const Neuron *, qreal> &neuronDeltas,
+                    QHash<const Neuron *, double> &neuronDeltas,
                     const ValueVector &outputError)
                     const;
 
@@ -149,9 +149,9 @@ namespace Winzent {
              *
              * \return The delta
              */
-            qreal outputNeuronDelta(
+            double outputNeuronDelta(
                     const Neuron &neuron,
-                    const qreal &error)
+                    const double &error)
                     const;
 
 
@@ -169,10 +169,10 @@ namespace Winzent {
              *
              * \see #outputError
              */
-            qreal neuronDelta(
+            double neuronDelta(
                     NeuralNetwork &ann,
                     const Neuron &neuron,
-                    QHash<const Neuron *, qreal> &neuronDeltas,
+                    QHash<const Neuron *, double> &neuronDeltas,
                     const ValueVector &outputError)
                     const;
 

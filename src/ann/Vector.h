@@ -7,7 +7,7 @@
 namespace Winzent {
     namespace ANN {
 
-        class Vector: public QVector<qreal>
+        class Vector: public QVector<double>
         {
         public:
 
@@ -51,7 +51,7 @@ namespace Winzent {
              *
              * \return The MSE
              */
-            qreal meanSquaredError(const Vector &expected) const;
+            double meanSquaredError(const Vector &expected) const;
 
 
             /*!

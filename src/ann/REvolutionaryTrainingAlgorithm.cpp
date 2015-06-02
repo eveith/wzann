@@ -6,7 +6,6 @@
 
 #include <QList>
 #include <QObject>
-#include <QtGlobal>
 
 #include <log4cxx/logger.h>
 
@@ -39,7 +38,7 @@ namespace Winzent {
         Individual::Individual(const NeuralNetwork &neuralNetwork):
                 Individual()
         {
-            m_errorVector.push_back(std::numeric_limits<qreal>::infinity());
+            m_errorVector.push_back(std::numeric_limits<double>::infinity());
 
             m_parameters = parameters(neuralNetwork);
             m_scatter.reserve(m_parameters.size());
@@ -243,12 +242,12 @@ namespace Winzent {
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::dc1(
-                const qreal &y,
-                const qreal &u,
-                const qreal &t)
+        double REvolutionaryTrainingAlgorithm::dc1(
+                const double &y,
+                const double &u,
+                const double &t)
         {
-            qreal r = 0.0;
+            double r = 0.0;
 
             if (t != 0) {
                 r = y + ((u - y) / t);
@@ -270,7 +269,7 @@ namespace Winzent {
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::frandom()
+        double REvolutionaryTrainingAlgorithm::frandom()
         {
             return m_uniformDistribution(m_randomNumberGenerator);
         }
@@ -343,69 +342,69 @@ namespace Winzent {
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::gradientWeight() const
+        double REvolutionaryTrainingAlgorithm::gradientWeight() const
         {
             return m_gradientWeight;
         }
 
 
         REvolutionaryTrainingAlgorithm &
-        REvolutionaryTrainingAlgorithm::gradientWeight(const qreal &weight)
+        REvolutionaryTrainingAlgorithm::gradientWeight(const double &weight)
         {
             m_gradientWeight = weight;
             return *this;
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::successWeight() const
+        double REvolutionaryTrainingAlgorithm::successWeight() const
         {
             return m_successWeight;
         }
 
 
         REvolutionaryTrainingAlgorithm &
-        REvolutionaryTrainingAlgorithm::successWeight(const qreal &weight)
+        REvolutionaryTrainingAlgorithm::successWeight(const double &weight)
         {
             m_successWeight = weight;
             return *this;
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::eamin() const
+        double REvolutionaryTrainingAlgorithm::eamin() const
         {
             return m_eamin;
         }
 
 
         REvolutionaryTrainingAlgorithm &
-        REvolutionaryTrainingAlgorithm::eamin(const qreal &eamin)
+        REvolutionaryTrainingAlgorithm::eamin(const double &eamin)
         {
             m_eamin = eamin;
             return *this;
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::ebmin() const
+        double REvolutionaryTrainingAlgorithm::ebmin() const
         {
             return m_ebmin;
         }
 
 
         REvolutionaryTrainingAlgorithm &
-        REvolutionaryTrainingAlgorithm::ebmin(const qreal &ebmin)
+        REvolutionaryTrainingAlgorithm::ebmin(const double &ebmin)
         {
             m_ebmin = ebmin;
             return *this;
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::ebmax() const
+        double REvolutionaryTrainingAlgorithm::ebmax() const
         {
             return m_ebmax;
         }
 
         REvolutionaryTrainingAlgorithm &
-        REvolutionaryTrainingAlgorithm::ebmax(const qreal &ebmax)
+        REvolutionaryTrainingAlgorithm::ebmax(const double &ebmax)
         {
             m_ebmax = ebmax;
             return *this;
@@ -441,12 +440,12 @@ namespace Winzent {
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::applyDxBounds(
-                const qreal &dx,
-                const qreal &parameter)
+        double REvolutionaryTrainingAlgorithm::applyDxBounds(
+                const double &dx,
+                const double &parameter)
                 const
         {
-            qreal cdx = dx;
+            double cdx = dx;
 
             if (std::fetestexcept(FE_UNDERFLOW)) {
                 LOG4CXX_DEBUG(logger, "Underflow detected");
@@ -531,7 +530,7 @@ namespace Winzent {
                 individual->scatter().reserve(numParameters);
 
                 for (auto j = 0; j != numParameters; ++j) {
-                    qreal r = baseIndividual->scatter().at(j) * exp(
+                    double r = baseIndividual->scatter().at(j) * exp(
                             0.4 * (0.5 - frandom()));
                     individual->scatter().push_back(r);
                     individual->parameters().push_back(
@@ -582,10 +581,10 @@ namespace Winzent {
                 otherIndividual = tmp;
             }
 
-            qreal xlp = 0.0;
-            qreal successRate = m_success / m_targetSuccess - 1.0;
+            double xlp = 0.0;
+            double successRate = m_success / m_targetSuccess - 1.0;
             int gradientSwitch = rnDistribution(m_randomNumberGenerator) % 3;
-            qreal expvar = exp(frandom() - frandom());
+            double expvar = exp(frandom() - frandom());
 
             if (2 == gradientSwitch) {
                 xlp = (frandom() + frandom() + frandom() + frandom()
@@ -613,7 +612,7 @@ namespace Winzent {
             for (auto i = 0; i != numParameters; ++i) {
                 std::feclearexcept(FE_ALL_EXCEPT);
 
-                qreal dx = eliteIndividual->scatter().at(i) * exp(
+                double dx = eliteIndividual->scatter().at(i) * exp(
                         successWeight() * successRate);
 
                 dx = applyDxBounds(dx, eliteIndividual->parameters().at(i));
@@ -662,7 +661,7 @@ namespace Winzent {
             individual->timeToLive(startTTL());
             individual->errorVector().clear();
             individual->errorVector().push_back(
-                    std::numeric_limits<qreal>::infinity());
+                    std::numeric_limits<double>::infinity());
 
 #ifdef      QT_DEBUG
                 for (auto i = 0; i != newParameters.size(); ++i) {
@@ -718,7 +717,7 @@ namespace Winzent {
 
                 for (auto &individual: population) {
                     size_t errorPos    = 1;
-                    qreal totalMSE  = 0.0;
+                    double totalMSE  = 0.0;
 
                     individual->errorVector().resize(
                             1 + trainingSet.trainingData().size());
@@ -731,7 +730,7 @@ namespace Winzent {
                             continue;
                         }
 
-                        qreal sampleMSE = calculateMeanSquaredError(
+                        double sampleMSE = calculateMeanSquaredError(
                                 output,
                                 item.expectedOutput());
 
@@ -740,7 +739,7 @@ namespace Winzent {
                     }
 
                     individual->errorVector()[0] =
-                            totalMSE / static_cast<qreal>(errorPos);
+                            totalMSE / static_cast<double>(errorPos);
                     individual->age();
                 }
 

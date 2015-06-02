@@ -2,7 +2,6 @@
 #define WINZENT_MODEL_FORECASTER_ANN_BACKPROPAGATIONTRAININGALGORITHM_H
 
 
-#include <QObject>
 #include <QHash>
 
 #include "NeuralNetwork.h"
@@ -40,13 +39,13 @@ namespace Winzent {
              *
              * \sa NeuralNetwork#m_weightMatrix
              */
-            QHash<Neuron *, qreal> m_deltas;
+            QHash<Neuron *, double> m_deltas;
 
 
             /*!
              * The learning rate applied to each weight change
              */
-            qreal m_learningRate;
+            double m_learningRate;
 
 
             /*!
@@ -63,17 +62,17 @@ namespace Winzent {
              * \brief Calculates the neuron delta for one given neuron,
              *  assuming it is an output layer neuron.
              */
-            qreal outputNeuronDelta(const Neuron &neuron, const qreal &error)
+            double outputNeuronDelta(const Neuron &neuron, const double &error)
                     const;
 
 
             /*!
              * Calculates the neuron delta for a neuron in an hidden layer.
              */
-            qreal hiddenNeuronDelta(
+            double hiddenNeuronDelta(
                     NeuralNetwork &ann,
                     const Neuron &neuron,
-                    QHash<const Neuron *, qreal> &neuronDeltas,
+                    QHash<const Neuron *, double> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
@@ -81,10 +80,10 @@ namespace Winzent {
             /*!
              * Calculates the delta value of a neuron.
              */
-            qreal neuronDelta(
+            double neuronDelta(
                     NeuralNetwork &ann,
                     const Neuron &neuron,
-                    QHash<const Neuron *, qreal> &neuronDeltas,
+                    QHash<const Neuron *, double> &neuronDeltas,
                     const ValueVector &outputError)
                         const;
 
@@ -103,13 +102,13 @@ namespace Winzent {
              *
              * \param parent The parent object
              */
-            BackpropagationTrainingAlgorithm(qreal learningRate = 0.7);
+            BackpropagationTrainingAlgorithm(double learningRate = 0.7);
 
 
             /*!
              * \return The learning rate applied to each weight change
              */
-            qreal learningRate() const;
+            double learningRate() const;
 
 
             /*!
@@ -120,7 +119,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            BackpropagationTrainingAlgorithm &learningRate(const qreal &rate);
+            BackpropagationTrainingAlgorithm &learningRate(const double &rate);
 
 
             /*!

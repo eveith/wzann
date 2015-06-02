@@ -24,13 +24,13 @@ namespace Winzent {
             /*!
              * \brief The absolute minimum weight of this instance
              */
-            qreal m_minWeight;
+            double m_minWeight;
 
 
             /*!
              * \brief The absolute maximum weight of this instance
              */
-            qreal m_maxWeight;
+            double m_maxWeight;
 
 
         public:
@@ -39,13 +39,13 @@ namespace Winzent {
             /*!
              * \brief The default minimum weight
              */
-            static constexpr qreal defaultMinWeight = -0.1;
+            static constexpr double defaultMinWeight = -0.1;
 
 
             /*!
              * \brief The default maximum weight
              */
-            static constexpr qreal defaultMaxWeight = +0.1;
+            static constexpr double defaultMaxWeight = +0.1;
 
 
             /*!
@@ -64,7 +64,7 @@ namespace Winzent {
              *
              * \return The smallest possible weight value
              */
-            qreal minWeight() const;
+            double minWeight() const;
 
 
             /*!
@@ -74,7 +74,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            SimpleWeightRandomizer &minWeight(const qreal &weight);
+            SimpleWeightRandomizer &minWeight(const double &weight);
 
 
             /*!
@@ -82,7 +82,7 @@ namespace Winzent {
              *
              * \return The smallest possible weight value
              */
-            qreal maxWeight() const;
+            double maxWeight() const;
 
 
             /*!
@@ -92,7 +92,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            SimpleWeightRandomizer &maxWeight(const qreal &weight);
+            SimpleWeightRandomizer &maxWeight(const double &weight);
 
 
             /*!

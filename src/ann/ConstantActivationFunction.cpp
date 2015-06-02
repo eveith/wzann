@@ -6,22 +6,22 @@
 
 namespace Winzent {
     namespace ANN {
-        ConstantActivationFunction::ConstantActivationFunction(qreal value):
+        ConstantActivationFunction::ConstantActivationFunction(double value):
                 ActivationFunction(1.0),
                 m_value(value)
         {
         }
 
 
-        qreal ConstantActivationFunction::calculate(const qreal &)
+        double ConstantActivationFunction::calculate(const double &)
         {
             return m_value;
         }
 
 
-        qreal ConstantActivationFunction::calculateDerivative(
-                const qreal &,
-                const qreal &)
+        double ConstantActivationFunction::calculateDerivative(
+                const double &,
+                const double &)
         {
             return 0.0;
         }

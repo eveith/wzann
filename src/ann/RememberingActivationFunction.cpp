@@ -6,8 +6,6 @@
  */
 
 
-#include <QtGlobal>
-
 #include "ActivationFunction.h"
 #include "RememberingActivationFunction.h"
 
@@ -15,22 +13,22 @@
 namespace Winzent {
     namespace ANN {
         RememberingActivationFunction::RememberingActivationFunction(
-                qreal steepness):
+                double steepness):
                     ActivationFunction(steepness)
         {
         }
 
 
-        qreal RememberingActivationFunction::calculate(const qreal &input)
+        double RememberingActivationFunction::calculate(const double &input)
         {
-            qreal ret = m_remeberedValue;
+            double ret = m_remeberedValue;
             m_remeberedValue = input * steepness();
 
             return ret;
         }
 
 
-        ActivationFunction* RememberingActivationFunction::clone() const
+        ActivationFunction *RememberingActivationFunction::clone() const
         {
             RememberingActivationFunction *clone =
                     new RememberingActivationFunction(steepness());

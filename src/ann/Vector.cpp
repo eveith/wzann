@@ -9,17 +9,17 @@ namespace Winzent {
     namespace ANN {
 
 
-        Vector::Vector(): QVector<qreal>()
+        Vector::Vector(): QVector<double>()
         {
         }
 
 
-        Vector::Vector(int size): QVector<qreal>(size)
+        Vector::Vector(int size): QVector<double>(size)
         {
         }
 
 
-        Vector::Vector(const Vector &other): QVector<qreal>(other)
+        Vector::Vector(const Vector &other): QVector<double>(other)
         {
         }
 
@@ -38,25 +38,25 @@ namespace Winzent {
         }
 
 
-        qreal Vector::meanSquaredError(const Vector &expected) const
+        double Vector::meanSquaredError(const Vector &expected) const
         {
             Q_ASSERT(size() == expected.size());
             Vector errorVector = errors(expected);
 
-            qreal error = 0.0;
+            double error = 0.0;
             int n = 0;
 
             for (; n != size(); ++n) {
                 error += pow(errorVector.at(n), 2);
             }
 
-            return error / static_cast<qreal>(n);
+            return error / static_cast<double>(n);
         }
 
 
         Vector &Vector::operator *(const int &x)
         {
-            QMutableVectorIterator<qreal> i(*this);
+            QMutableVectorIterator<double> i(*this);
             while (i.hasNext()) {
                 i.next() *= x;
             }
@@ -71,7 +71,7 @@ namespace Winzent {
                 return *this;
             }
 
-            QVector<qreal>::operator =(other);
+            QVector<double>::operator =(other);
             return *this;
         }
 

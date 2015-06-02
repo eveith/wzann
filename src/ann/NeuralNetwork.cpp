@@ -549,7 +549,7 @@ namespace Winzent {
                             "unknown: TODO FIXME!");
 
                     QJsonArray lastInputs;
-                    foreach (qreal r,
+                    foreach (double r,
                              network.layerAt(i)->neuronAt(j)->lastInputs()) {
                         lastInputs.append(r);
                     }
@@ -557,7 +557,7 @@ namespace Winzent {
                     neuronMap.insert("lastInputs", lastInputs);
 
                     QJsonArray lastResults;
-                    foreach (qreal r,
+                    foreach (double r,
                              network.layerAt(i)->neuronAt(j)->lastResults()) {
                         lastResults.append(r);
                     }

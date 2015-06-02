@@ -147,7 +147,7 @@ void NeuralNetworkTest::testCalculateLayer()
     Mock::NeuralNetworkTestDummyPattern pattern;
     network.configure(&pattern);
 
-    const qreal inValue = 1.0;
+    const double inValue = 1.0;
     const int layer     = 2;
 
     ValueVector inVector(pattern.numNeuronsInLayer(layer), inValue);

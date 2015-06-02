@@ -1,25 +1,24 @@
-#include <QObject>
-
 #include "ActivationFunction.h"
 #include "LinearActivationFunction.h"
 
+
 namespace Winzent {
     namespace ANN {
-        LinearActivationFunction::LinearActivationFunction(qreal steepness):
+        LinearActivationFunction::LinearActivationFunction(double steepness):
                 ActivationFunction(steepness)
         {
         }
 
 
-        qreal LinearActivationFunction::calculate(const qreal &input)
+        double LinearActivationFunction::calculate(const double &input)
         {
             return steepness() * input;
         }
 
 
-        qreal LinearActivationFunction::calculateDerivative(
-                const qreal &,
-                const qreal &)
+        double LinearActivationFunction::calculateDerivative(
+                const double &,
+                const double &)
         {
             return steepness();
         }

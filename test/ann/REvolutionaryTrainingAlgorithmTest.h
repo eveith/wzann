@@ -41,7 +41,7 @@ private slots:
 
     void recordIteration(
             const int &epoch,
-            const qreal &error,
+            const double &error,
             const QList<Individual *> &population);
 };
 

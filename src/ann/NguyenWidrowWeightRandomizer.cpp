@@ -1,5 +1,6 @@
 #include <cmath>
 #include <limits>
+#include <cstddef>
 
 #include <boost/random.hpp>
 
@@ -26,7 +27,7 @@ namespace Winzent {
 
         void NguyenWidrowWeightRandomizer::randomize(NeuralNetwork &network)
         {
-            for (auto i = 0; i != network.size() - 1; ++i) {
+            for (size_t i = 0; i != network.size() - 1; ++i) {
                 randomizeSynapse(
                         network,
                         *(network.layerAt(i)),
@@ -42,11 +43,11 @@ namespace Winzent {
                 const
         {
             boost::random::mt11213b rng;
-            boost::random::uniform_01<qreal> rDistribution;
+            boost::random::uniform_01<double> rDistribution;
             auto fromCount   = from.size();
             auto toCount     = to.size();
 
-            for (auto i = 0; i != fromCount; ++i) {
+            for (size_t i = 0; i != fromCount; ++i) {
                 Neuron *neuron = from.neuronAt(i);
 
                 for (auto &connection:
@@ -59,15 +60,15 @@ namespace Winzent {
                         continue;
                     }
 
-                    qreal high = connection->destination()
+                    double high = connection->destination()
                             ->activationFunction()
-                            ->calculate(std::numeric_limits<qreal>::max());
-                    qreal low = connection->destination()
+                            ->calculate(std::numeric_limits<double>::max());
+                    double low = connection->destination()
                             ->activationFunction()
-                            ->calculate(std::numeric_limits<qreal>::min());
-                    qreal b = pow(
+                            ->calculate(std::numeric_limits<double>::min());
+                    double b = pow(
                                 toCount,
-                                (1.0 / static_cast<qreal>(fromCount)))
+                                (1.0 / static_cast<double>(fromCount)))
                             / (high-low) * 0.7;
 
                     connection->weight(-b + rDistribution(rng) * 2 * b);

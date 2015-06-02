@@ -25,12 +25,12 @@ namespace Winzent {
     namespace ANN {
 
 
-        const qreal SimulatedAnnealingTrainingAlgorithm::CUT = 0.5;
+        const double SimulatedAnnealingTrainingAlgorithm::CUT = 0.5;
 
 
         SimulatedAnnealingTrainingAlgorithm::SimulatedAnnealingTrainingAlgorithm(
-                qreal startTemperature,
-                qreal stopTemperature,
+                double startTemperature,
+                double stopTemperature,
                 size_t cycles):
                     TrainingAlgorithm(),
                     m_startTemperature(startTemperature),
@@ -40,13 +40,13 @@ namespace Winzent {
         }
 
 
-        qreal SimulatedAnnealingTrainingAlgorithm::startTemperature() const
+        double SimulatedAnnealingTrainingAlgorithm::startTemperature() const
         {
             return m_startTemperature;
         }
 
 
-        qreal SimulatedAnnealingTrainingAlgorithm::stopTemperature() const
+        double SimulatedAnnealingTrainingAlgorithm::stopTemperature() const
         {
             return m_stopTemperature;
         }
@@ -89,12 +89,12 @@ namespace Winzent {
 
         void SimulatedAnnealingTrainingAlgorithm::randomize(
                 ValueVector &parameters,
-                const qreal &temperature)
+                const double &temperature)
         {
 
             std::for_each(parameters.begin(), parameters.end(),
-                        [this, &temperature](qreal &w) {
-                qreal add = CUT - qrand() / static_cast<qreal>(RAND_MAX);
+                        [this, &temperature](double &w) {
+                double add = CUT - qrand() / static_cast<double>(RAND_MAX);
                 add /= startTemperature();
                 add *= temperature;
 
@@ -112,7 +112,7 @@ namespace Winzent {
         }
 
 
-        qreal SimulatedAnnealingTrainingAlgorithm::iterate(
+        double SimulatedAnnealingTrainingAlgorithm::iterate(
                 NeuralNetwork &network,
                 TrainingSet const &trainingSet)
         {
@@ -120,14 +120,14 @@ namespace Winzent {
             // the score (i. e., error value) of that network:
 
             ValueVector bestParameters;
-            qreal bestScore     = std::numeric_limits<qreal>::max();
-            qreal temperature   = startTemperature();
+            double bestScore     = std::numeric_limits<double>::max();
+            double temperature   = startTemperature();
 
             // Execute all circles, plus one to get the score of the current
             // solution:
 
             for (auto i = 0; i < cycles(); ++i) {
-                qreal score         = 0.0;
+                double score         = 0.0;
                 size_t trainingItems= 0;
 
                 ValueVector parameters = getParameters(network);
@@ -149,7 +149,7 @@ namespace Winzent {
                     ++trainingItems;
                 }
 
-                score /= static_cast<qreal>(trainingItems);
+                score /= static_cast<double>(trainingItems);
 
                 // Accept the solution if its better (score < bestScore)
 
@@ -171,7 +171,7 @@ namespace Winzent {
                 }
 
                 temperature *= exp(log(stopTemperature() / startTemperature())
-                        / static_cast<qreal>(cycles() - 1));
+                        / static_cast<double>(cycles() - 1));
             }
 
             applyParameters(bestParameters, network);
@@ -185,7 +185,7 @@ namespace Winzent {
         {
             // Init state:
 
-            qreal error     = std::numeric_limits<qreal>::max();
+            double error     = std::numeric_limits<double>::max();
             size_t epoch    = -1;
 
             while (error > trainingSet.targetError()

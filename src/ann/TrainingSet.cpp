@@ -82,11 +82,11 @@ namespace Winzent {
 
         TrainingSet::TrainingSet(
                 QList<TrainingItem> trainingData,
-                const qreal &targetError,
+                const double &targetError,
                 const size_t &maxNumEpochs):
                     m_targetError(targetError),
                     m_maxNumEpochs(maxNumEpochs),
-                    m_error(std::numeric_limits<qreal>::infinity())
+                    m_error(std::numeric_limits<double>::infinity())
         {
             for (const auto &i: trainingData) {
                 m_trainingData.push_back(TrainingItem(i));
@@ -94,13 +94,13 @@ namespace Winzent {
         }
 
 
-        qreal TrainingSet::targetError() const
+        double TrainingSet::targetError() const
         {
             return m_targetError;
         }
 
 
-        qreal TrainingSet::error() const
+        double TrainingSet::error() const
         {
             return m_error;
         }

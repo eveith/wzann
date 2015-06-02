@@ -25,7 +25,7 @@ namespace Winzent {
                     "Winzent.ANN.TrainingAlgorithm");
 
 
-        qreal TrainingAlgorithm::calculateMeanSquaredError(
+        double TrainingAlgorithm::calculateMeanSquaredError(
                 const ValueVector &actualOutput,
                 const ValueVector &expectedOutput)
                 throw(LayerSizeMismatchException)
@@ -37,21 +37,21 @@ namespace Winzent {
             }
 
 
-            qreal error = 0.0;
+            double error = 0.0;
             int n = 0;
 
             for (; n != actualOutput.size(); ++n) {
                 error += pow(expectedOutput[n] - actualOutput[n], 2);
             }
 
-            error /= static_cast<qreal>(++n);
+            error /= static_cast<double>(++n);
             return error;
         }
 
 
         void TrainingAlgorithm::setFinalError(
                 TrainingSet &trainingSet,
-                const qreal &error)
+                const double &error)
                 const
         {
             trainingSet.m_error = error;

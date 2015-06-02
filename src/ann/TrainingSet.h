@@ -159,7 +159,7 @@ namespace Winzent {
             /*!
              * The error we're trying to target.
              */
-            qreal m_targetError;
+            double m_targetError;
 
 
             /*!
@@ -178,7 +178,7 @@ namespace Winzent {
              * The error after each epoch (stores the
              * final error after the training is finished.)
              */
-            qreal m_error;
+            double m_error;
 
 
         public:
@@ -203,7 +203,7 @@ namespace Winzent {
              */
             TrainingSet(
                     QList<TrainingItem> trainingData,
-                    const qreal &targetError,
+                    const double &targetError,
                     const size_t &maxNumEpochs);
 
 
@@ -211,7 +211,7 @@ namespace Winzent {
              * Returns the mean square error after the current
              * training epoch.
              */
-            qreal error() const;
+            double error() const;
 
 
             /*!
@@ -219,7 +219,7 @@ namespace Winzent {
              *
              * \return The target error.
              */
-            qreal targetError() const;
+            double targetError() const;
 
 
             /*!

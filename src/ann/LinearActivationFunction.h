@@ -8,14 +8,12 @@
 #define WINZENT_ANN_LINEARACTIVATIONFUNCTION_H
 
 
-#include <QtGlobal>
-
 #include "ActivationFunction.h"
 
 
 namespace Winzent {
     namespace ANN {
-        
+
 
         /*!
          * The linear activation function resembles a simple linear function.
@@ -37,19 +35,19 @@ namespace Winzent {
              *
              * \param steepness Steepness the function: f(x) = steepness * x
              */
-            LinearActivationFunction(qreal steepness = 1.0);
+            LinearActivationFunction(double steepness = 1.0);
 
 
             /*!
              * \return `input * steepness()`
              */
-            virtual qreal calculate(const qreal &input) override;
+            virtual double calculate(const double &input) override;
 
 
             /*!
              * \return ActivationFunction#steepness()
              */
-            virtual qreal calculateDerivative(const qreal &, const qreal &)
+            virtual double calculateDerivative(const double &, const double &)
                     override;
 
 
@@ -66,7 +64,7 @@ namespace Winzent {
              */
             virtual ActivationFunction *clone() const override;
         };
-        
+
     } // namespace ANN
 } // namespace Winzent
 

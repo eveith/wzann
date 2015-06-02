@@ -24,21 +24,21 @@ namespace Winzent {
     namespace ANN {
 
         BackpropagationTrainingAlgorithm::BackpropagationTrainingAlgorithm(
-                qreal learningRate):
+                double learningRate):
                     TrainingAlgorithm(),
                     m_learningRate(learningRate)
         {
         }
 
 
-        qreal BackpropagationTrainingAlgorithm::learningRate() const
+        double BackpropagationTrainingAlgorithm::learningRate() const
         {
             return m_learningRate;
         }
 
 
         BackpropagationTrainingAlgorithm &
-        BackpropagationTrainingAlgorithm::learningRate(const qreal &rate)
+        BackpropagationTrainingAlgorithm::learningRate(const double &rate)
         {
             m_learningRate = rate;
             return *this;
@@ -52,7 +52,7 @@ namespace Winzent {
             // Initialize the state variables:
 
             size_t epochs  = 0;
-            qreal error = std::numeric_limits<qreal>::max();
+            double error = std::numeric_limits<double>::max();
 
             for(; epochs < trainingSet.maxEpochs()
                         && error > trainingSet.targetError();
@@ -77,8 +77,8 @@ namespace Winzent {
 
                     // Set up state storage:
 
-                    QHash<const Neuron *, qreal> neuronDeltas;
-                    QHash<Connection *, qreal> connectionDeltas;
+                    QHash<const Neuron *, double> neuronDeltas;
+                    QHash<Connection *, double> connectionDeltas;
 
                     // First step: Feed forward and compare the network's output
                     // with the ideal teaching output:
@@ -152,9 +152,9 @@ namespace Winzent {
         }
 
 
-        qreal BackpropagationTrainingAlgorithm::outputNeuronDelta(
+        double BackpropagationTrainingAlgorithm::outputNeuronDelta(
                 const Neuron &neuron,
-                const qreal &error)
+                const double &error)
                     const
         {
             return neuron.activationFunction()->calculateDerivative(
@@ -164,14 +164,14 @@ namespace Winzent {
         }
 
 
-        qreal BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
+        double BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
                 NeuralNetwork &ann,
                 const Neuron &neuron,
-                QHash<const Neuron *, qreal> &neuronDeltas,
+                QHash<const Neuron *, double> &neuronDeltas,
                 const ValueVector &outputError)
                     const
         {
-            qreal delta = 0.0;
+            double delta = 0.0;
 
             const auto connections = ann.neuronConnectionsFrom(&neuron);
             Q_ASSERT(connections.size() > 0);
@@ -195,10 +195,10 @@ namespace Winzent {
         }
 
 
-        qreal BackpropagationTrainingAlgorithm::neuronDelta(
+        double BackpropagationTrainingAlgorithm::neuronDelta(
                 NeuralNetwork &ann,
                 const Neuron &neuron,
-                QHash<const Neuron *, qreal> &neuronDeltas,
+                QHash<const Neuron *, double> &neuronDeltas,
                 const ValueVector &outputError)
                     const
         {

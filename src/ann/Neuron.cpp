@@ -53,27 +53,27 @@ namespace Winzent {
         }
 
 
-        qreal Neuron::lastResult() const
+        double Neuron::lastResult() const
         {
             return m_lastResult;
         }
 
 
-        const QVector<qreal> Neuron::lastInputs() const
+        const QVector<double> Neuron::lastInputs() const
         {
-            return QVector<qreal>({ m_lastInput });
+            return QVector<double>({ m_lastInput });
         }
 
 
-        qreal Neuron::lastInput() const
+        double Neuron::lastInput() const
         {
             return m_lastInput;
         }
 
 
-        const QVector<qreal> Neuron::lastResults() const
+        const QVector<double> Neuron::lastResults() const
         {
-            return QVector<qreal>({ m_lastResult });
+            return QVector<double>({ m_lastResult });
         }
 
 
@@ -111,7 +111,7 @@ namespace Winzent {
         }
 
 
-        qreal Neuron::activate(const qreal &sum)
+        double Neuron::activate(const double &sum)
         {
             m_lastInput = sum;
             m_lastResult = m_activationFunction->calculate(sum);

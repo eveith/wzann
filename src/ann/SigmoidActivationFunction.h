@@ -9,8 +9,6 @@
 #define SIGMOIDACTIVATIONFUNCTION_H_
 
 
-#include <QtGlobal>
-
 #include "ActivationFunction.h"
 
 
@@ -32,13 +30,13 @@ namespace Winzent {
              *
              * \param[in] steepness The new function's steepness
              */
-            SigmoidActivationFunction(qreal steepness = 1.0);
+            SigmoidActivationFunction(double steepness = 1.0);
 
 
             /*!
              * \brief Calculates output using the sigmoid function.
              */
-            virtual qreal calculate(const qreal &input) override;
+            virtual double calculate(const double &input) override;
 
 
             /*!
@@ -47,9 +45,9 @@ namespace Winzent {
              *
              * \sa ActivationFunction#calculateDerivative
              */
-            virtual qreal calculateDerivative(
-                    const qreal &,
-                    const qreal &result)
+            virtual double calculateDerivative(
+                    const double &,
+                    const double &result)
                     override;
 
 

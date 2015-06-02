@@ -10,22 +10,27 @@
 
 namespace Winzent {
     namespace ANN {
-        ActivationFunction::ActivationFunction(qreal steepness):
+        ActivationFunction::ActivationFunction(double steepness):
                 m_steepness(steepness)
         {
         }
 
 
-        qreal ActivationFunction::steepness() const
+        ActivationFunction::~ActivationFunction()
+        {
+        }
+
+
+        double ActivationFunction::steepness() const
         {
             return m_steepness;
         }
 
 
-        qreal ActivationFunction::clip(
-                qreal value,
-                const qreal &min,
-                const qreal &max)
+        double ActivationFunction::clip(
+                double value,
+                const double &min,
+                const double &max)
                 const
         {
             return (value < min) ? min : ((value > max) ? max : value);

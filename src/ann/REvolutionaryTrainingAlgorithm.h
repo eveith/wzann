@@ -10,7 +10,6 @@
 
 
 #include <QObject>
-#include <QtGlobal>
 
 #include <cstddef>
 #include <ostream>
@@ -302,32 +301,32 @@ namespace Winzent {
             /*!
              * \brief Weight of implicit gradient information.
              */
-            qreal m_gradientWeight;
+            double m_gradientWeight;
 
 
             /*!
              * \brief Weight of the reproduction success
              */
-            qreal m_successWeight;
+            double m_successWeight;
 
 
             /*!
              * \brief Smallest absolute delta; typically the smallest number
              *  we can store
              */
-            qreal m_eamin;
+            double m_eamin;
 
 
             /*!
              * \brief Smallest relative delta
              */
-            qreal m_ebmin;
+            double m_ebmin;
 
 
             /*!
              * \brief The biggest relative change
              */
-            qreal m_ebmax;
+            double m_ebmax;
 
 
             /*!
@@ -345,14 +344,14 @@ namespace Winzent {
             /*!
              * \brief Success of reproduction
              */
-            qreal m_success;
+            double m_success;
 
 
             /*!
              * \brief Target value on which the population has reached
              *  equilibrium
              */
-            qreal m_targetSuccess;
+            double m_targetSuccess;
 
 
             /*!
@@ -365,7 +364,7 @@ namespace Winzent {
              * \brief A uniform distribution `[0; 1)` from which we draw
              *  random numbers
              */
-            boost::random::uniform_01<qreal> m_uniformDistribution;
+            boost::random::uniform_01<double> m_uniformDistribution;
 
 
             /*!
@@ -378,7 +377,7 @@ namespace Winzent {
              *
              * \return The corrected delta X
              */
-            qreal applyDxBounds(const qreal &dx, const qreal &parameter)
+            double applyDxBounds(const double &dx, const double &parameter)
                     const;
 
 
@@ -402,7 +401,7 @@ namespace Winzent {
              *
              * \return
              */
-            static qreal dc1(const qreal &y, const qreal &u, const qreal &t);
+            static double dc1(const double &y, const double &u, const double &t);
 
 
             /*!
@@ -427,7 +426,7 @@ namespace Winzent {
              *
              * \return A random number between 0.0 and 1.0 (exclusive)
              */
-            qreal frandom();
+            double frandom();
 
 
             /*!
@@ -493,7 +492,7 @@ namespace Winzent {
              *
              * \return The gradient weight
              */
-            qreal gradientWeight() const;
+            double gradientWeight() const;
 
 
             /*!
@@ -509,7 +508,7 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &gradientWeight(
-                    const qreal &weight);
+                    const double &weight);
 
 
             /*!
@@ -517,7 +516,7 @@ namespace Winzent {
              *
              * \return The error weight
              */
-            qreal successWeight() const;
+            double successWeight() const;
 
 
             /*!
@@ -531,7 +530,7 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &successWeight(
-                    const qreal &weight);
+                    const double &weight);
 
 
             /*!
@@ -540,7 +539,7 @@ namespace Winzent {
              *
              * \return The smallest absolute delta
              */
-            qreal eamin() const;
+            double eamin() const;
 
 
             /*!
@@ -555,7 +554,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &eamin(const qreal &eamin);
+            REvolutionaryTrainingAlgorithm &eamin(const double &eamin);
 
 
             /*!
@@ -563,7 +562,7 @@ namespace Winzent {
              *
              * \return The smallest relative change for scatter/parameters
              */
-            qreal ebmin() const;
+            double ebmin() const;
 
 
             /*!
@@ -576,7 +575,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &ebmin(const qreal &ebmin);
+            REvolutionaryTrainingAlgorithm &ebmin(const double &ebmin);
 
 
             /*!
@@ -584,7 +583,7 @@ namespace Winzent {
              *
              * \return The relative maximum
              */
-            qreal ebmax() const;
+            double ebmax() const;
 
 
             /*!
@@ -598,7 +597,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &ebmax(const qreal &ebmax);
+            REvolutionaryTrainingAlgorithm &ebmax(const double &ebmax);
 
 
             /*!
@@ -700,7 +699,7 @@ namespace Winzent {
              */
             void iterationFinished(
                     const size_t &epoch,
-                    const qreal &error,
+                    const double &error,
                     const QList<Individual *> &population);
 
         };

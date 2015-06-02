@@ -9,7 +9,6 @@
 
 #include <initializer_list>
 
-#include <QObject>
 #include <QList>
 
 #include "NeuralNetworkPattern.h"
@@ -23,7 +22,7 @@ namespace Winzent {
     namespace ANN {
 
         class ActivationFunction;
-        
+
         /*!
          * Instances of this class represent the pattern to create a
          * (potentially multi-layered), feed-forward perceptron without
@@ -81,9 +80,9 @@ namespace Winzent {
              *
              * \sa NeuralNetworkPattern#clone
              */
-            virtual NeuralNetworkPattern* clone() const override;
+            virtual NeuralNetworkPattern *clone() const override;
         };
-        
+
     } // namespace ANN
 } // namespace Winzent
 

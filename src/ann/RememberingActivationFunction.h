@@ -33,7 +33,7 @@ namespace Winzent {
             /*!
              * The saved/remembered value
              */
-            qreal m_remeberedValue;
+            double m_remeberedValue;
 
 
         public:
@@ -43,7 +43,7 @@ namespace Winzent {
              * Constructs a new instance of this activation function
              * and initializes the remembered value with 0.0.
              */
-            RememberingActivationFunction(qreal steepness = 1.0);
+            RememberingActivationFunction(double steepness = 1.0);
 
 
             /*!
@@ -54,7 +54,7 @@ namespace Winzent {
              *
              * \return The last value that had been remembered
              */
-            virtual qreal calculate(const qreal &input) override;
+            virtual double calculate(const double &input) override;
 
 
             /*!
@@ -67,7 +67,7 @@ namespace Winzent {
              *
              * \sa ActivationFunction#steepness
              */
-            virtual qreal calculateDerivative(const qreal &, const qreal &)
+            virtual double calculateDerivative(const double &, const double &)
                     override {
                 return steepness();
             }

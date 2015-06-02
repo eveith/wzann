@@ -30,7 +30,7 @@ class QTextStream;
 
 namespace Winzent {
     namespace ANN {
-        typedef QVector<qreal> ValueVector;
+        typedef QVector<double> ValueVector;
 
         class Layer;
         class Neuron;

@@ -18,28 +18,28 @@ namespace Winzent {
         }
 
 
-        qreal SimpleWeightRandomizer::minWeight() const
+        double SimpleWeightRandomizer::minWeight() const
         {
             return m_minWeight;
         }
 
 
         SimpleWeightRandomizer &SimpleWeightRandomizer::minWeight(
-                const qreal &weight)
+                const double &weight)
         {
             m_minWeight = weight;
             return *this;
         }
 
 
-        qreal SimpleWeightRandomizer::maxWeight() const
+        double SimpleWeightRandomizer::maxWeight() const
         {
             return m_maxWeight;
         }
 
 
         SimpleWeightRandomizer &SimpleWeightRandomizer::maxWeight(
-                const qreal &weight)
+                const double &weight)
         {
             m_maxWeight = weight;
             return *this;
@@ -49,7 +49,7 @@ namespace Winzent {
         void SimpleWeightRandomizer::randomize(NeuralNetwork &neuralNetwork)
         {
             boost::random::mt11213b rng;
-            boost::random::uniform_real_distribution<qreal> rDistribution(
+            boost::random::uniform_real_distribution<double> rDistribution(
                     m_minWeight,
                     m_maxWeight);
 

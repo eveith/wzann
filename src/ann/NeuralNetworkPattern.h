@@ -61,13 +61,13 @@ namespace Winzent {
             /*!
              * \sa ::weightRandomMin
              */
-            qreal m_weightRandomMin;
+            double m_weightRandomMin;
 
 
             /*!
              * \sa ::weightRandomMax
              */
-            qreal m_weightRandomMax;
+            double m_weightRandomMax;
 
 
             NeuralNetworkPattern():
@@ -131,7 +131,7 @@ namespace Winzent {
              *
              * \sa #m_weightRandomMin
              */
-            static qreal weightRandomMin;
+            static double weightRandomMin;
 
 
             /*!
@@ -140,7 +140,7 @@ namespace Winzent {
              *
              * \sa #m_weightRandomMax
              */
-            static qreal weightRandomMax;
+            static double weightRandomMax;
 
 
             /*!

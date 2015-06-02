@@ -9,9 +9,6 @@
 #define ACTIVATIONFUNCTION_H_
 
 
-#include <QtGlobal>
-
-
 namespace Winzent {
     namespace ANN {
 
@@ -28,7 +25,7 @@ namespace Winzent {
             /*!
              * Factor by which the function is to be scaled.
              */
-            qreal m_steepness;
+            double m_steepness;
 
 
         public:
@@ -42,7 +39,10 @@ namespace Winzent {
              *
              * \param[in] parent The parent object (for auto-destruction)
              */
-            ActivationFunction(qreal steepness = 1.0);
+            ActivationFunction(double steepness = 1.0);
+
+
+            virtual ~ActivationFunction();
 
 
             /*!
@@ -50,7 +50,7 @@ namespace Winzent {
              *
              * \return The function's steepness
              */
-            qreal steepness() const;
+            double steepness() const;
 
 
             /*!
@@ -58,7 +58,7 @@ namespace Winzent {
              *
              * \return <code>this</code>, for method chaining.
              */
-            ActivationFunction &steepness(qreal steepness);
+            ActivationFunction &steepness(double steepness);
 
 
             /*!
@@ -69,7 +69,7 @@ namespace Winzent {
              *
              * \return f(input)
              */
-            virtual qreal calculate(const qreal &input) = 0;
+            virtual double calculate(const double &input) = 0;
 
 
             /*!
@@ -106,8 +106,8 @@ namespace Winzent {
              * \sa Neuron#lastResult()
              */
             virtual double calculateDerivative(
-                    const qreal &sum,
-                    const qreal &result) = 0;
+                    const double &sum,
+                    const double &result) = 0;
 
 
             /*!
@@ -147,7 +147,7 @@ namespace Winzent {
              *
              * \param A value in the boundaries of min <= value <= max
              */
-            qreal clip(qreal value, const qreal &min, const qreal &max)
+            double clip(double value, const double &min, const double &max)
                     const;
         };
     } /* namespace ANN */
