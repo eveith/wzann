@@ -1,5 +1,3 @@
-#include <QObject>
-
 #include "Neuron.h"
 #include "Exception.h"
 
@@ -8,28 +6,14 @@
 
 namespace Winzent {
     namespace ANN {
-
-
         Connection::Connection(
-                Neuron *source,
-                Neuron *destination,
-                double weight,
-                QObject *parent):
-                    QObject(parent),
+                Neuron *const &source,
+                Neuron *const &destination,
+                const double &weight):
                     m_weight(weight),
                     m_fixed(false),
                     m_sourceNeuron(source),
                     m_destinationNeuron(destination)
-        {
-        }
-
-
-        Connection::Connection(const Connection &rhs):
-                QObject(rhs.parent()),
-                m_weight(rhs.m_weight),
-                m_fixed(rhs.m_fixed),
-                m_sourceNeuron(rhs.m_sourceNeuron),
-                m_destinationNeuron(rhs.m_destinationNeuron)
         {
         }
 
@@ -39,8 +23,7 @@ namespace Winzent {
             Connection *clone = new Connection(
                     m_sourceNeuron,
                     m_destinationNeuron,
-                    m_weight,
-                    parent());
+                    m_weight);
             clone->fixedWeight(fixedWeight());
             return clone;
         }
@@ -52,7 +35,7 @@ namespace Winzent {
         }
 
 
-        void Connection::weight(double weight) throw(WeightFixedException)
+        Connection &Connection::weight(const double &weight)
         {
             if (m_fixed) {
                 throw WeightFixedException();
@@ -62,37 +45,28 @@ namespace Winzent {
         }
 
 
-
-        double Connection::setRandomWeight(const double &min, const double &max)
-                throw(WeightFixedException)
-        {
-            weight(min + (qrand() * abs(max-min)
-                    / static_cast<double>(RAND_MAX)));
-            return weight();
-        }
-
-
         bool Connection::fixedWeight() const
         {
             return m_fixed;
         }
 
 
-        void Connection::fixedWeight(bool fixed)
+        void Connection::fixedWeight(const bool &fixed)
         {
             m_fixed = fixed;
         }
 
 
-        const Neuron *Connection::source() const
+        Neuron *Connection::source() const
         {
             return m_sourceNeuron;
         }
 
 
-        void Connection::source(Neuron *source)
+        Connection &Connection::source(Neuron *const &source)
         {
             m_sourceNeuron = source;
+            return *this;
         }
 
 
@@ -102,9 +76,10 @@ namespace Winzent {
         }
 
 
-        void Connection::destination(Neuron *destination)
+        Connection &Connection::destination(Neuron *const &destination)
         {
             m_destinationNeuron = destination;
+            return *this;
         }
 
 

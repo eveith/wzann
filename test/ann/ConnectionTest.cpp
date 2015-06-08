@@ -17,9 +17,8 @@ ConnectionTest::ConnectionTest(QObject *parent) :
 
 void ConnectionTest::testConnectionMultiplicaton()
 {
-    Connection *c = new Connection(NULL, NULL, 0.5, this);
-    QCOMPARE(*c * 1.0, 0.5);
-    delete c;
+    Connection c(nullptr, nullptr, 0.5);
+    QCOMPARE(c * 1.0, 0.5);
 }
 
 
