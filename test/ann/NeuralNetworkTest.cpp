@@ -68,10 +68,6 @@ namespace Mock {
                     QVERIFY(true == network->neuronConnectionExists(
                             network->layerAt(i-1)->neuronAt(j),
                             network->layerAt(i)->neuronAt(k)));
-                    QCOMPARE(network->neuronConnection(
-                                network->layerAt(i-1)->neuronAt(j),
-                                network->layerAt(i)->neuronAt(k))->parent(),
-                            network);
                 }
             }
         }

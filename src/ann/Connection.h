@@ -1,9 +1,10 @@
 #ifndef WINZENT_ANN_CONNECTION_H
 #define WINZENT_ANN_CONNECTION_H
 
-#include <QObject>
+#include <QtGlobal>
 
 #include "Exception.h"
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
@@ -13,7 +14,8 @@ namespace Winzent {
         
 
         /*!
-         * Instances of this class represent a connection between two neurons.
+         * \brief Instances of this class represent a connection
+         *  between two neurons.
          *
          * A connection is always unidirectional, meaning it has a source and
          * a destination. If you need a two-ways connection, you'll need to
@@ -25,17 +27,15 @@ namespace Winzent {
          * layouts, fixed connections exist. As such, every connection object
          * has a boolean switch to make the weight fixed.
          */
-        class Connection: public QObject
+        class WINZENTANNSHARED_EXPORT Connection
         {
-            Q_OBJECT
-
         private:
 
 
             /*!
              * The weight that is attached to this connection.
              */
-            double m_weight;
+            qreal m_weight;
 
 
             /*!
@@ -61,53 +61,41 @@ namespace Winzent {
 
 
             /*!
-             * Creates a new connection
+             * \brief Creates a new connection
              */
             explicit Connection(
-                    Neuron *source,
-                    Neuron *destination,
-                    double weight,
-                    QObject *parent = 0);
+                    Neuron *const &source = nullptr,
+                    Neuron *const &destination = nullptr,
+                    const double &weight = 0.0);
+
+
+            Connection(const Connection &) = delete;
+            Connection(Connection &&) = delete;
 
 
             /*!
-             * Copy constructor
-             */
-            Connection(const Connection &rhs);
-
-
-            /*!
-             * Creates a clone of this connection.
+             * \brief Creates a clone of this connection.
              */
             Connection *clone() const;
 
 
             /*!
-             * Returns the current weight attached to this connection.
+             * \brief Returns the current weight attached to this connection.
+             *
+             * \return The connection's weight
              */
             double weight() const;
 
 
             /*!
-             * Sets a new weight value.
+             * \brief Sets a new weight value.
+             *
+             * \throw WeightFixedException If the connection has a fixed
+             *  weight
+             *
+             * \return `*this`
              */
-            void weight(double weight) throw(WeightFixedException);
-
-
-            /*!
-             * Sets the weight to a random value between
-             * <code>min</code> and <code>max</code>.
-             *
-             * \input[in] min The minimum inclusive value
-             *
-             * \input[in] max The maximum inclusive value
-             *
-             * \return The random value the weight was set to.
-             *
-             * \throws WeightFixedException if the weight is fixed.
-             */
-            double setRandomWeight(const double &min, const double &max)
-                    throw(WeightFixedException);
+            Connection &weight(const double &weight);
 
 
             /*!
@@ -120,43 +108,47 @@ namespace Winzent {
             /*!
              * Sets the connection weight fixed (i.e., untrainable) or variable.
              */
-            void fixedWeight(bool fixed);
+            void fixedWeight(const bool &fixed);
 
 
             /*!
              * Returns the current source neuron.
              */
-            const Neuron *source() const;
+            Neuron *source() const;
 
 
             /*!
-             * Sets a new source neuron.
+             * \brief Sets a new source neuron.
+             *
+             * \return `*this`
              */
-            void source(Neuron *source);
+            Connection &source(Neuron *const &source);
 
 
             /*!
-             * Returns the current destination neuron.
+             * \brief Returns the current destination neuron.
+             *
+             * \return The connection's destination
              */
             Neuron *destination() const;
 
 
             /*!
-             * Sets a new destination neuron.
+             * \brief Sets a new destination neuron.
+             *
+             * \return `*this`
              */
-            void destination(Neuron *destination);
+            Connection &destination(Neuron *const &destination);
 
 
             /*!
-             * Multiplies a value with the weight of this connection and returns
-             * the result.
+             * \brief Multiplies a value with the weight of this connection
+             *
+             * \param[in] rhs The right-hand side operand
+             *
+             * \return this->weight() * rhs
              */
             double operator *(const double &rhs) const;
-
-        signals:
-            
-        public slots:
-            
         };
     } // namespace ANN
 } // namespace Winzent

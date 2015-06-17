@@ -144,7 +144,6 @@ namespace Winzent {
                             dstNeuron);
                     newConnection->weight(c->weight());
                     newConnection->fixedWeight(c->fixedWeight());
-                    newConnection->setParent(this);
                 }
             }
 
@@ -349,7 +348,7 @@ namespace Winzent {
                 throw UnknownNeuronException(to);
             }
 
-            Connection *connection = new Connection(from, to, 0.0, this);
+            Connection *connection = new Connection(from, to, 0.0);
 
             Q_ASSERT(connection->source() == from);
             Q_ASSERT(connection->destination() == to);
