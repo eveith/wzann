@@ -430,9 +430,11 @@ namespace Winzent {
                 const ValueVector &input)
                     throw(LayerSizeMismatchException)
         {
+#ifdef QT_DEBUG
             if (layer->size() != input.size()) {
                 throw LayerSizeMismatchException(input.size(), layer->size());
             }
+#endif
 
             ValueVector output;
             output.reserve(layer->size());
@@ -455,7 +457,7 @@ namespace Winzent {
                 output << neuron->activate(sum);
             }
 
-            return output;
+            return (output);
         }
 
 
@@ -479,9 +481,11 @@ namespace Winzent {
             int fromLayerSize   = fromLayer->size();
             int toLayerSize     = toLayer->size();
 
+#ifdef QT_DEBUG
             if (input.size() != fromLayerSize) {
                 throw LayerSizeMismatchException(input.size(), fromLayerSize);
             }
+#endif
 
             ValueVector output;
             output.fill(0.0, toLayerSize);
@@ -510,7 +514,7 @@ namespace Winzent {
                         << from << ": " << input
                         << " => "
                         << to << ": " << output);
-            return output;
+            return (output);
         }
 
 
