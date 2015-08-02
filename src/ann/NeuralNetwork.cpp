@@ -1,11 +1,3 @@
-/*!
- * \file	NeuralNetwork.cpp
- * \brief
- * \date	17.12.2012
- * \author	eveith
- */
-
-
 #include <QObject>
 
 #include <QList>
@@ -14,10 +6,10 @@
 #include <QByteArray>
 #include <QTextStream>
 
-#include <QJsonDocument>
+#include <QJsonValue>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QJsonValue>
+#include <QJsonDocument>
 
 #include <memory>
 #include <cstddef>
@@ -28,17 +20,19 @@
 #include <log4cxx/logger.h>
 #include <log4cxx/logmanager.h>
 
+#include <JsonSerializable.h>
+
 #include "Layer.h"
 #include "Neuron.h"
-#include "Connection.h"
 #include "Exception.h"
+#include "Connection.h"
 #include "NeuralNetworkPattern.h"
-#include "NeuralNetwork.h"
 
 #include "ActivationFunction.h"
 #include "ConstantActivationFunction.h"
 
-#include "TrainingAlgorithm.h"
+#include "NeuralNetwork.h"
+#include "Winzent-ANN_global.h"
 
 
 using std::function;
@@ -54,8 +48,7 @@ namespace Winzent {
                 log4cxx::LogManager::getLogger("Winzent.ANN.NeuralNetwork");
 
 
-        NeuralNetwork::NeuralNetwork(QObject* parent):
-                QObject(parent),
+        NeuralNetwork::NeuralNetwork():
                 m_biasNeuron(new Neuron(new ConstantActivationFunction()))
         {
             Q_ASSERT(m_connectionSources.size()
@@ -64,7 +57,6 @@ namespace Winzent {
 
 
         NeuralNetwork::NeuralNetwork(const NeuralNetwork &rhs):
-                QObject(rhs.parent()),
                 m_biasNeuron(rhs.m_biasNeuron->clone())
         {
             // Clone layers:
@@ -425,9 +417,9 @@ namespace Winzent {
         }
 
 
-        ValueVector NeuralNetwork::calculateLayer(
+        Vector NeuralNetwork::calculateLayer(
                 Layer *const &layer,
-                const ValueVector &input)
+                const Vector &input)
                     throw(LayerSizeMismatchException)
         {
 #ifdef QT_DEBUG
@@ -436,11 +428,11 @@ namespace Winzent {
             }
 #endif
 
-            ValueVector output;
+            Vector output;
             output.reserve(layer->size());
 
             for (int i = 0; i != input.size(); ++i) {
-                double sum = input.at(i);
+                qreal sum = input.at(i);
                 Neuron *neuron = layer->neuronAt(i);
 
                 // Add bias neuron. We ignore the bias neuron in the input layer
@@ -461,19 +453,19 @@ namespace Winzent {
         }
 
 
-        ValueVector NeuralNetwork::calculateLayer(
+        Vector NeuralNetwork::calculateLayer(
                 const int &layerIndex,
-                const ValueVector &input)
+                const Vector &input)
                     throw(LayerSizeMismatchException)
         {
             return this->calculateLayer(layerAt(layerIndex), input);
         }
 
 
-        ValueVector NeuralNetwork::calculateLayerTransition(
+        Vector NeuralNetwork::calculateLayerTransition(
                 const int &from,
                 const int &to,
-                const ValueVector &input)
+                const Vector &input)
                     throw(LayerSizeMismatchException)
         {
             Layer *fromLayer    = layerAt(from);
@@ -487,7 +479,7 @@ namespace Winzent {
             }
 #endif
 
-            ValueVector output;
+            Vector output;
             output.fill(0.0, toLayerSize);
             Q_ASSERT(output.size() == toLayerSize);
 
@@ -518,7 +510,7 @@ namespace Winzent {
         }
 
 
-        ValueVector NeuralNetwork::calculate(const ValueVector &input)
+        Vector NeuralNetwork::calculate(const Vector &input)
                 throw(LayerSizeMismatchException)
         {
             if (input.size() != m_layers.front().size()) {
@@ -531,99 +523,88 @@ namespace Winzent {
         }
 
 
-        QTextStream &operator<<(QTextStream &out, const NeuralNetwork &network)
+        void NeuralNetwork::clear()
         {
-            QJsonDocument jsonDocument;
-            QJsonObject outList;
-
-            outList.insert("version", QString(NeuralNetwork::VERSION));
-
-            QJsonArray layersList;
-
-            for (int i = 0; i != network.m_layers.size(); ++i) {
-                QJsonObject layerMap;
-                QJsonArray neuronsList;
-
-                for (int j = 0; j != network.layerAt(i)->size(); ++j) {
-                    QJsonObject neuronMap;
-
-                    neuronMap.insert(
-                            "activationFunction",
-                            "unknown: TODO FIXME!");
-
-                    QJsonArray lastInputs;
-                    foreach (double r,
-                             network.layerAt(i)->neuronAt(j)->lastInputs()) {
-                        lastInputs.append(r);
-                    }
-
-                    neuronMap.insert("lastInputs", lastInputs);
-
-                    QJsonArray lastResults;
-                    foreach (double r,
-                             network.layerAt(i)->neuronAt(j)->lastResults()) {
-                        lastResults.append(r);
-                    }
-
-                    neuronMap.insert("lastResults", lastResults);
-                    neuronsList.append(neuronMap);
+            for (auto const& k: m_connectionSources.keys()) {
+                for (auto& c: m_connectionSources[k]) {
+                    delete c;
                 }
-
-                layerMap.insert("neurons", neuronsList);
-                layersList.append(layerMap);
             }
 
-            outList.insert("layers", layersList);
+            m_pattern.release();
+            m_layers.clear();
+        }
+
+
+        void NeuralNetwork::fromJSON(const QJsonDocument &json)
+        {
+
+        }
+
+
+        QJsonDocument NeuralNetwork::toJSON() const
+        {
+            QJsonObject o;
+
+            o["version"] = VERSION;
+
+            QJsonArray layers;
+            for (const Layer &l: m_layers) {
+                QJsonArray layer;
+
+                for (const Neuron &n: l) {
+                    QJsonObject neuron;
+
+                    neuron["lastInput"] = n.lastInput();
+                    neuron["lastResult"] = n.lastResult();
+                    neuron["activationFunction"] =
+                            n.activationFunction()->metaObject()->className();
+
+                    layer.push_back(neuron);
+                }
+
+                layers.push_back(layer);
+            }
+            o["layers"] = layers;
 
             QJsonArray connections;
+            for (Neuron* const& n: m_connectionSources.keys()) {
+                for (Connection* const& c: m_connectionSources.value(n)) {
+                    int srcLayer = -1,
+                            dstLayer = -1,
+                            srcNeuron = -1,
+                            dstNeuron = -1;
+                    QJsonObject connection;
 
-            for (int i = 0; i != network.size(); ++i) {
-                for (int j = 0; j != network[i]->size(); ++j) {
-                    Neuron *srcNeuron = network.layerAt(i)->neuronAt(j);
+                    for (size_t i = 0; i != m_layers.size(); ++i) {
+                        for (size_t j = 0; j != m_layers.at(i).size(); ++j) {
+                            Neuron* const& n = layerAt(i)->neuronAt(j);
 
-                    if (!network.m_connectionSources.contains(srcNeuron)) {
-                        continue;
-                    }
-
-                    QList<Connection*> networkConnections =
-                            network.m_connectionSources[srcNeuron];
-
-                    // Find destination neurons:
-
-                    foreach (Connection *c, networkConnections) {
-                        Neuron *dstNeuron = c->destination();
-
-                        for (int k = 0; k != network.size(); ++k) {
-                            if (!network[k]->contains(dstNeuron)) {
-                                continue;
+                            if (n == c->source()) {
+                                srcLayer = i;
+                                srcNeuron = j;
+                            } else if (n == c->destination()) {
+                                dstLayer = i;
+                                dstNeuron = j;
                             }
-
-
-                            QJsonObject connection;
-                            connection.insert("srcLayer", i);
-                            connection.insert("srcNeuron", j);
-                            connection.insert("dstLayer", k);
-                            connection.insert(
-                                    "dstNeuron",
-                                    static_cast<qint64>(
-                                        network[k]->indexOf(dstNeuron)));
-                            connection.insert("weight", c->weight());
-                            connection.insert("fixed", c->fixedWeight());
-                            connections.append(connection);
-
-                            break;
                         }
                     }
+
+                    connection["srcLayer"] = srcLayer;
+                    connection["srcNeuron"] = srcNeuron;
+                    connection["dstLayer"] = dstLayer;
+                    connection["dstNeuron"] = dstNeuron;
+
+                    if (-1 == srcNeuron) {
+                        connection["srcNeuron"] = "BIAS";
+                    }
+
+                    connections.push_back(connection);
                 }
             }
+            o["connections"] = connections;
 
-            outList.insert("connections", connections);
-
-            // Serialize:
-
-            jsonDocument.setObject(outList);
-            out << jsonDocument.toJson();
-            return out;
+            return QJsonDocument(o);
         }
     }
 }
@@ -632,9 +613,9 @@ namespace Winzent {
 namespace std {
     ostream &operator<<(
             ostream &os,
-            const Winzent::ANN::ValueVector &valueVector)
+            const Winzent::ANN::Vector &valueVector)
     {
-        os << "ValueVector(";
+        os << "Vector(";
 
         for (int i = 0; i < valueVector.size(); ++i) {
             os << valueVector.at(i);
@@ -646,4 +627,13 @@ namespace std {
         os << ")";
         return os;
     }
+}
+
+
+QTextStream &operator<<(
+        QTextStream &out,
+        Winzent::ANN::NeuralNetwork const& network)
+{
+    out << network.toJSON().toJson();
+    return out;
 }

@@ -27,8 +27,8 @@ namespace Winzent {
     namespace ANN {
 
 
-        double NeuralNetworkPattern::weightRandomMin = -0.5;
-        double NeuralNetworkPattern::weightRandomMax =  0.5;
+        qreal NeuralNetworkPattern::weightRandomMin = -0.5;
+        qreal NeuralNetworkPattern::weightRandomMax =  0.5;
 
 
         NeuralNetworkPattern::NeuralNetworkPattern(

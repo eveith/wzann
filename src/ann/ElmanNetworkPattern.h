@@ -54,9 +54,9 @@ namespace Winzent {
             /*!
              * Feed-forward calculation of an Elman network.
              */
-            virtual ValueVector calculate(
+            virtual Vector calculate(
                     NeuralNetwork *const &network,
-                    const ValueVector &input)
+                    const Vector &input)
                     override;
 
 

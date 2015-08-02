@@ -55,13 +55,13 @@ namespace Winzent {
             /*!
              * \brief Caches the input that was presented to #activate().
              */
-            double m_lastInput;
+            qreal m_lastInput;
 
 
             /*!
              * \brief Caches the result of the last activation
              */
-            double m_lastResult;
+            qreal m_lastResult;
 
 
         public:
@@ -134,25 +134,25 @@ namespace Winzent {
             /*!
              * Returns the last network input for this neuron
              */
-            double lastInput() const;
+            qreal lastInput() const;
 
 
             /*!
              * \return All cached inputs
              */
-            const QVector<double> lastInputs() const;
+            const QVector<qreal> lastInputs() const;
 
 
             /*!
              * Returns the result of the last activation
              */
-            double lastResult() const;
+            qreal lastResult() const;
 
 
             /*!
              * \return All cached results
              */
-            const QVector<double> lastResults() const;
+            const QVector<qreal> lastResults() const;
 
 
             /*!
@@ -218,7 +218,7 @@ namespace Winzent {
              * \sa #lastResult
              * \sa #m_activationFunction
              */
-            double activate(const double &sum);
+            qreal activate(const qreal &sum);
         };
     } /* namespace ANN */
 } /* namespace Winzent */

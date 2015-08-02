@@ -34,7 +34,7 @@ namespace Winzent {
         {
 
 
-            friend ValueVector NeuralNetwork::calculate(const ValueVector &);
+            friend Vector NeuralNetwork::calculate(const Vector &);
             friend NeuralNetwork &NeuralNetwork::configure(
                     const NeuralNetworkPattern &);
 
@@ -61,13 +61,13 @@ namespace Winzent {
             /*!
              * \sa ::weightRandomMin
              */
-            double m_weightRandomMin;
+            qreal m_weightRandomMin;
 
 
             /*!
              * \sa ::weightRandomMax
              */
-            double m_weightRandomMax;
+            qreal m_weightRandomMax;
 
 
             NeuralNetworkPattern():
@@ -106,9 +106,9 @@ namespace Winzent {
              *
              * \return The result of the calculation
              */
-            virtual ValueVector calculate(
+            virtual Vector calculate(
                     NeuralNetwork *const &network,
-                    const ValueVector &input) = 0;
+                    const Vector &input) = 0;
 
 
             /*!
@@ -131,7 +131,7 @@ namespace Winzent {
              *
              * \sa #m_weightRandomMin
              */
-            static double weightRandomMin;
+            static qreal weightRandomMin;
 
 
             /*!
@@ -140,7 +140,7 @@ namespace Winzent {
              *
              * \sa #m_weightRandomMax
              */
-            static double weightRandomMax;
+            static qreal weightRandomMax;
 
 
             /*!

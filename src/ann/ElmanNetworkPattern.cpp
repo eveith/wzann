@@ -129,12 +129,12 @@ namespace Winzent {
         }
 
 
-        ValueVector ElmanNetworkPattern::calculate(
+        Vector ElmanNetworkPattern::calculate(
                 NeuralNetwork *const &network,
-                const ValueVector &input)
+                const Vector &input)
         {
-            ValueVector layerInput;
-            ValueVector output;
+            Vector layerInput;
+            Vector output;
 
             layerInput = network->calculateLayer(INPUT, input);
             layerInput = network->calculateLayerTransition(
@@ -146,7 +146,7 @@ namespace Winzent {
 
             {
                 Layer* contextLayer = network->layerAt(CONTEXT);
-                ValueVector rememberedValues(contextLayer->size());
+                Vector rememberedValues(contextLayer->size());
 
                 for (size_t i = 0; i != contextLayer->size(); ++i) {
                     rememberedValues[i] = contextLayer->neuronAt(i)

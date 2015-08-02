@@ -1,18 +1,16 @@
-/*
- * RememberingActivationFunction.h
- *
- *  Created on: 05.11.2012
- *      Author: eveith
- */
-
 #ifndef REMEMBERINGACTIVATIONFUNCTION_H_
 #define REMEMBERINGACTIVATIONFUNCTION_H_
 
+
+#include <QObject>
+
 #include "ActivationFunction.h"
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
     namespace ANN {
+
 
         /*!
          * \brief An activation function that remembers its last value
@@ -24,17 +22,10 @@ namespace Winzent {
          *
          * \sa ElmanNetwork
          */
-        class RememberingActivationFunction: public ActivationFunction
+        class WINZENTANNSHARED_EXPORT RememberingActivationFunction:
+                public ActivationFunction
         {
-
-        private:
-
-
-            /*!
-             * The saved/remembered value
-             */
-            double m_remeberedValue;
-
+            Q_OBJECT
 
         public:
 
@@ -43,7 +34,7 @@ namespace Winzent {
              * Constructs a new instance of this activation function
              * and initializes the remembered value with 0.0.
              */
-            RememberingActivationFunction(double steepness = 1.0);
+            RememberingActivationFunction(const qreal &steepness = 1.0);
 
 
             /*!
@@ -54,7 +45,7 @@ namespace Winzent {
              *
              * \return The last value that had been remembered
              */
-            virtual double calculate(const double &input) override;
+            virtual qreal calculate(const qreal &input) override;
 
 
             /*!
@@ -67,7 +58,7 @@ namespace Winzent {
              *
              * \sa ActivationFunction#steepness
              */
-            virtual double calculateDerivative(const double &, const double &)
+            virtual qreal calculateDerivative(const qreal &, const qreal &)
                     override {
                 return steepness();
             }
@@ -95,6 +86,13 @@ namespace Winzent {
              *  with the same remembered value as this one.
              */
             virtual ActivationFunction *clone() const override;
+
+
+        private:
+
+
+            //! The saved/remembered value
+            qreal m_remeberedValue;
         };
     } /* namespace ANN */
 } /* namespace Winzent */

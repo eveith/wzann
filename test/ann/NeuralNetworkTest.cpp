@@ -74,9 +74,9 @@ namespace Mock {
     }
 
 
-    ValueVector NeuralNetworkTestDummyPattern::calculate(
+    Vector NeuralNetworkTestDummyPattern::calculate(
             NeuralNetwork *const &,
-            const ValueVector& input)
+            const Vector& input)
     {
         return input;
     }
@@ -91,7 +91,7 @@ namespace Mock {
 
 void NeuralNetworkTest::testLayerAdditionRemoval()
 {
-    NeuralNetwork* network = new NeuralNetwork(this);
+    NeuralNetwork* network = new NeuralNetwork();
 
     Layer* l1 = new Layer();
     *network << l1;
@@ -123,8 +123,8 @@ void NeuralNetworkTest::testCalculateLayerTransition()
     const int fromLayer = 0;
     const int toLayer   = 1;
 
-    ValueVector inVector(pattern.numNeuronsInLayer(fromLayer), 1.0);
-    ValueVector outVector = network.calculateLayerTransition(
+    Vector inVector(pattern.numNeuronsInLayer(fromLayer), 1.0);
+    Vector outVector = network.calculateLayerTransition(
             fromLayer,
             toLayer,
             inVector);
@@ -143,16 +143,16 @@ void NeuralNetworkTest::testCalculateLayer()
     Mock::NeuralNetworkTestDummyPattern pattern;
     network.configure(&pattern);
 
-    const double inValue = 1.0;
+    const qreal inValue = 1.0;
     const int layer     = 2;
 
-    ValueVector inVector(pattern.numNeuronsInLayer(layer), inValue);
-    ValueVector outVector = network.calculateLayer(layer, inVector);
+    Vector inVector(pattern.numNeuronsInLayer(layer), inValue);
+    Vector outVector = network.calculateLayer(layer, inVector);
 
     QCOMPARE(outVector.size(), pattern.numNeuronsInLayer(layer));
     QCOMPARE(outVector.size(), inVector.size());
 
-    foreach (double d, outVector) {
+    foreach (qreal d, outVector) {
         QCOMPARE(
                 1.0 + d,
                 1.0 + LinearActivationFunction().calculate(inValue)
@@ -187,7 +187,7 @@ void NeuralNetworkTest::testInitialLayerSize()
 
 void NeuralNetworkTest::testConnectionsFromTo()
 {
-    NeuralNetwork *network = new NeuralNetwork(this);
+    NeuralNetwork *network = new NeuralNetwork();
 
     Neuron *s = new Neuron(new LinearActivationFunction());
     Neuron *d = new Neuron(new LinearActivationFunction());
@@ -210,6 +210,8 @@ void NeuralNetworkTest::testConnectionsFromTo()
 
     QCOMPARE(network->neuronConnectionsFrom(s)[0]->destination(), d);
     QCOMPARE(network->neuronConnectionsTo(d)[1]->source(), s);
+
+    delete network;
 }
 
 

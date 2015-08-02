@@ -1,24 +1,28 @@
+#include <ClassRegistry.h>
+
 #include "ActivationFunction.h"
 #include "LinearActivationFunction.h"
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
     namespace ANN {
-        LinearActivationFunction::LinearActivationFunction(double steepness):
-                ActivationFunction(steepness)
+        LinearActivationFunction::LinearActivationFunction(
+                const qreal &steepness):
+                    ActivationFunction(steepness)
         {
         }
 
 
-        double LinearActivationFunction::calculate(const double &input)
+        qreal LinearActivationFunction::calculate(const qreal &input)
         {
             return steepness() * input;
         }
 
 
-        double LinearActivationFunction::calculateDerivative(
-                const double &,
-                const double &)
+        qreal LinearActivationFunction::calculateDerivative(
+                const qreal &,
+                const qreal &)
         {
             return steepness();
         }
@@ -36,3 +40,9 @@ namespace Winzent {
         }
     } // namespace ANN
 } // namespace Winzent
+
+
+
+WINZENT_REGISTER_CLASS(
+        Winzent::ANN::LinearActivationFunction,
+        Winzent::ANN::ActivationFunction)

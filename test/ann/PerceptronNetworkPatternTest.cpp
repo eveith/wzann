@@ -72,8 +72,8 @@ void PerceptronNetworkPatternTest::testCalculate()
             });
     network.configure(pattern);
 
-    ValueVector input = { 1.0, 0.0 };
-    ValueVector output = network.calculate(input);
+    Vector input = { 1.0, 0.0 };
+    Vector output = network.calculate(input);
     QVERIFY(1.0f != output.first() + 1.0);
 }
 

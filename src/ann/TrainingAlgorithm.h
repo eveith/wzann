@@ -48,7 +48,7 @@ namespace Winzent {
              *
              * \param[in] error The final error
              */
-            void setFinalError(TrainingSet &trainingSet, const double &error)
+            void setFinalError(TrainingSet &trainingSet, const qreal &error)
                     const;
 
 
@@ -83,9 +83,9 @@ namespace Winzent {
              * \throws LayerSizeMismatchException if the number of
              *  neurons in one input vector differs from the other.
              */
-            double calculateMeanSquaredError(
-                    const ValueVector &actualOutput,
-                    const ValueVector &expectedOutput)
+            qreal calculateMeanSquaredError(
+                    const Vector &actualOutput,
+                    const Vector &expectedOutput)
                     throw(LayerSizeMismatchException);
 
 

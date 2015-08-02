@@ -32,19 +32,19 @@ namespace Winzent {
             /*!
              * Cutoff value for random data.
              */
-            static const double CUT;
+            static const qreal CUT;
 
 
             /*!
              * The temperature at which the simulated annealing process starts.
              */
-            double m_startTemperature;
+            qreal m_startTemperature;
 
 
             /*!
              * The temperature at which the simulated annealing process stops.
              */
-            double m_stopTemperature;
+            qreal m_stopTemperature;
 
 
             /*!
@@ -62,7 +62,7 @@ namespace Winzent {
              *
              * \return The parameter vector
              */
-            static ValueVector getParameters(const NeuralNetwork &network);
+            static Vector getParameters(const NeuralNetwork &network);
 
 
             /*!
@@ -74,7 +74,7 @@ namespace Winzent {
              * \param[inout] network The ANN to apply the parameters to
              */
             static void applyParameters(
-                    const ValueVector &parameters,
+                    const Vector &parameters,
                     NeuralNetwork &network);
 
 
@@ -84,7 +84,7 @@ namespace Winzent {
              *
              * \param[inout] network The neural network to randomize.
              */
-            void randomize(ValueVector &parameters, const double &temperature);
+            void randomize(Vector &parameters, const qreal &temperature);
 
 
             /*!
@@ -98,7 +98,7 @@ namespace Winzent {
              *
              * \return The error at the end of the iteration
              */
-            double iterate(
+            qreal iterate(
                     NeuralNetwork &network,
                     TrainingSet const &trainingSet);
 
@@ -121,27 +121,27 @@ namespace Winzent {
              *  stopTemperature
              */
             explicit SimulatedAnnealingTrainingAlgorithm(
-                    double startTemperature,
-                    double stopTemperature,
+                    qreal startTemperature,
+                    qreal stopTemperature,
                     size_t cycles);
 
 
             /*!
              * \return The starting temperature
              */
-            double startTemperature() const;
+            qreal startTemperature() const;
 
 
             /*!
              * \return The stopping temperature
              */
-            double stopTemperature() const;
+            qreal stopTemperature() const;
 
 
             /*!
              * \return The current temperature
              */
-            double temperature() const;
+            qreal temperature() const;
 
 
             /*!

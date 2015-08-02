@@ -74,11 +74,11 @@ namespace Winzent {
         }
 
 
-        ValueVector PerceptronNetworkPattern::calculate(
+        Vector PerceptronNetworkPattern::calculate(
                 NeuralNetwork *const &network,
-                const ValueVector &input)
+                const Vector &input)
         {
-            ValueVector output = input; // For the loop
+            Vector output = input; // For the loop
 
             for (size_t i = 0; i != network->size(); ++i) {
                 output = network->calculateLayer(network->layerAt(i), output);

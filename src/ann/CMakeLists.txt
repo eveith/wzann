@@ -67,13 +67,20 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Sql REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
+
 find_package(Boost 1.56.0 REQUIRED)
+include_directories(${BOOST_INCLUDE_DIRS})
+
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
+include_directories(${LOG4CXX_INCLUDE_DIRS})
+
+include_directories(../common)
 
 
 # Tweak for C++14:
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
+        OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_compile_options(-std=c++1y)
 endif()
 

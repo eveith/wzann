@@ -18,8 +18,8 @@ TrainingSetTest::TrainingSetTest(QObject *parent) :
 
 void TrainingSetTest::testOutputRelevant()
 {
-    QCOMPARE(TrainingItem(ValueVector(), ValueVector()).outputRelevant(), true);
-    QCOMPARE(TrainingItem(ValueVector()).outputRelevant(), false);
+    QCOMPARE(TrainingItem(Vector(), Vector()).outputRelevant(), true);
+    QCOMPARE(TrainingItem(Vector()).outputRelevant(), false);
 }
 
 

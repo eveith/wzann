@@ -43,9 +43,9 @@ namespace Winzent {
             /*!
              * \sa NeuralNetworkPattern#calculate
              */
-            virtual ValueVector calculate(
+            virtual Vector calculate(
                     NeuralNetwork *const &network,
-                    const ValueVector &input)
+                    const Vector &input)
                     override;
 
 

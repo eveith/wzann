@@ -77,7 +77,7 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
 
     testResultStream << network;
 
-    ValueVector output;
+    Vector output;
     output = network.calculate({ 1, 1 });
     qDebug() << "(1, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 0);

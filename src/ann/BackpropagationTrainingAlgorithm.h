@@ -31,7 +31,7 @@ namespace Winzent {
             /*!
              * Caches the ouptut neuron errors (diffs) of the current epoch.
              */
-            ValueVector m_outputError;
+            Vector m_outputError;
 
 
             /*!
@@ -39,22 +39,22 @@ namespace Winzent {
              *
              * \sa NeuralNetwork#m_weightMatrix
              */
-            QHash<Neuron *, double> m_deltas;
+            QHash<Neuron *, qreal> m_deltas;
 
 
             /*!
              * The learning rate applied to each weight change
              */
-            double m_learningRate;
+            qreal m_learningRate;
 
 
             /*!
              * Calculates the error per neuron between the actual and the
              * expected output of the neural net.
              */
-            ValueVector outputError(
-                    const ValueVector &actual,
-                    const ValueVector &expected)
+            Vector outputError(
+                    const Vector &actual,
+                    const Vector &expected)
                         const;
 
 
@@ -62,29 +62,29 @@ namespace Winzent {
              * \brief Calculates the neuron delta for one given neuron,
              *  assuming it is an output layer neuron.
              */
-            double outputNeuronDelta(const Neuron &neuron, const double &error)
+            qreal outputNeuronDelta(const Neuron &neuron, const qreal &error)
                     const;
 
 
             /*!
              * Calculates the neuron delta for a neuron in an hidden layer.
              */
-            double hiddenNeuronDelta(
+            qreal hiddenNeuronDelta(
                     NeuralNetwork &ann,
                     const Neuron &neuron,
-                    QHash<const Neuron *, double> &neuronDeltas,
-                    const ValueVector &outputError)
+                    QHash<const Neuron *, qreal> &neuronDeltas,
+                    const Vector &outputError)
                         const;
 
 
             /*!
              * Calculates the delta value of a neuron.
              */
-            double neuronDelta(
+            qreal neuronDelta(
                     NeuralNetwork &ann,
                     const Neuron &neuron,
-                    QHash<const Neuron *, double> &neuronDeltas,
-                    const ValueVector &outputError)
+                    QHash<const Neuron *, qreal> &neuronDeltas,
+                    const Vector &outputError)
                         const;
 
 
@@ -102,13 +102,13 @@ namespace Winzent {
              *
              * \param parent The parent object
              */
-            BackpropagationTrainingAlgorithm(double learningRate = 0.7);
+            BackpropagationTrainingAlgorithm(qreal learningRate = 0.7);
 
 
             /*!
              * \return The learning rate applied to each weight change
              */
-            double learningRate() const;
+            qreal learningRate() const;
 
 
             /*!
@@ -119,7 +119,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            BackpropagationTrainingAlgorithm &learningRate(const double &rate);
+            BackpropagationTrainingAlgorithm &learningRate(const qreal &rate);
 
 
             /*!

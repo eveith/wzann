@@ -1,10 +1,4 @@
-/*!
- * \file	RememberingActivationFunction.cpp
- * \brief
- * \date	04.01.2013
- * \author	eveith
- */
-
+#include <ClassRegistry.h>
 
 #include "ActivationFunction.h"
 #include "RememberingActivationFunction.h"
@@ -13,15 +7,15 @@
 namespace Winzent {
     namespace ANN {
         RememberingActivationFunction::RememberingActivationFunction(
-                double steepness):
+                const qreal &steepness):
                     ActivationFunction(steepness)
         {
         }
 
 
-        double RememberingActivationFunction::calculate(const double &input)
+        qreal RememberingActivationFunction::calculate(const qreal &input)
         {
-            double ret = m_remeberedValue;
+            qreal ret = m_remeberedValue;
             m_remeberedValue = input * steepness();
 
             return ret;
@@ -38,3 +32,8 @@ namespace Winzent {
         }
     }
 }
+
+
+WINZENT_REGISTER_CLASS(
+        Winzent::ANN::RememberingActivationFunction,
+        Winzent::ANN::ActivationFunction)

@@ -9,7 +9,7 @@ namespace Winzent {
         Connection::Connection(
                 Neuron *const &source,
                 Neuron *const &destination,
-                const double &weight):
+                const qreal &weight):
                     m_weight(weight),
                     m_fixed(false),
                     m_sourceNeuron(source),
@@ -29,13 +29,13 @@ namespace Winzent {
         }
 
 
-        double Connection::weight() const
+        qreal Connection::weight() const
         {
             return m_weight;
         }
 
 
-        Connection &Connection::weight(const double &weight)
+        Connection &Connection::weight(const qreal &weight)
         {
             if (m_fixed) {
                 throw WeightFixedException();
@@ -83,7 +83,7 @@ namespace Winzent {
         }
 
 
-        double Connection::operator *(const double &rhs) const
+        qreal Connection::operator *(const qreal &rhs) const
         {
             return m_weight * rhs;
         }

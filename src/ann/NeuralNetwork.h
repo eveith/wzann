@@ -22,7 +22,10 @@
 
 #include <log4cxx/logger.h>
 
+#include <JsonSerializable.h>
+
 #include "Exception.h"
+#include "Winzent-ANN_global.h"
 
 
 class QTextStream;
@@ -30,8 +33,6 @@ class QTextStream;
 
 namespace Winzent {
     namespace ANN {
-        typedef QVector<double> ValueVector;
-
         class Layer;
         class Neuron;
         class Connection;
@@ -81,95 +82,28 @@ namespace Winzent {
          *
          * \sa Neuron
          */
-        class NeuralNetwork: public QObject
+        class WINZENTANNSHARED_EXPORT NeuralNetwork: public JsonSerializable
         {
-            Q_OBJECT
-
-
             friend class NeuralNetworkPattern;
             friend class AbstractTrainingStrategy;
-
-            friend QTextStream& operator<<(
-                    QTextStream &out,
-                    const NeuralNetwork &network);
-
-
-        private:
-
-
-            /*!
-             * \brief The bias neuron, connected to each neuron in each layer.
-             */
-            Neuron *m_biasNeuron;
-
-
-            /*!
-             * \brief All Layers contained in this Neural Network
-             */
-            boost::ptr_vector<Layer> m_layers;
-
-
-            /*!
-             * An hash that indixes all connection originating from a certain
-             * neuron.
-             */
-            QHash<Neuron *, QList<Connection *>> m_connectionSources;
-
-
-            /*!
-             * An hash that indexes all connections that lead to a certain
-             * neuron.
-             */
-            QHash<Neuron *, QList<Connection *>> m_connectionDestinations;
-
-
-            /*!
-             * The pattern that is used to construct the network
-             * and calculate a run through it.
-             *
-             * Patterns do two things: First, they define the layout
-             * of a network, and second, they define how a network
-             * works when values are calculated with it.
-             */
-            std::unique_ptr<NeuralNetworkPattern> m_pattern;
-
-
-        protected:
-
-
-            /*!
-             * \brief Internal logger
-             */
-            static log4cxx::LoggerPtr logger;
 
 
         public:
 
 
-            /*!
-             * The library version, needed e.g. for serialization.
-             */
+            //! The library version, needed e.g. for serialization.
             static const char VERSION[];
 
 
-            /*!
-             * Constructs an empty, uninitialized network.
-             *
-             * \param parent The parent object that owns this one
-             */
-            NeuralNetwork(QObject *parent = 0);
+            //! Constructs an empty, uninitialized network.
+            NeuralNetwork();
 
 
-            /*!
-             * Copy constructor
-             */
+            //! Copy constructor
             NeuralNetwork(const NeuralNetwork &rhs);
 
 
-            /*!
-             * Destructs the neural network and calls
-             * <code>delete</code> on all layers and neurons.
-             */
+            //! Deletes all neurons, connections, and activation functions
             virtual ~NeuralNetwork();
 
 
@@ -351,7 +285,7 @@ namespace Winzent {
              * \sa #inputLayer
              * \sa #outputLayer
              */
-            NeuralNetwork& operator <<(Layer *const &layer);
+            NeuralNetwork &operator <<(Layer *const &layer);
 
 
             /*!
@@ -462,9 +396,9 @@ namespace Winzent {
              *
              * \sa #calculateLayer
              */
-            ValueVector calculateLayer(
+            Vector calculateLayer(
                     Layer *const &layer,
-                    const ValueVector &input)
+                    const Vector &input)
                         throw(LayerSizeMismatchException);
 
 
@@ -483,9 +417,9 @@ namespace Winzent {
              *
              * \throw LayerSizeMismatchException
              */
-            ValueVector calculateLayer(
+            Vector calculateLayer(
                     const int &layerIndex,
-                    const ValueVector &input)
+                    const Vector &input)
                         throw(LayerSizeMismatchException);
 
 
@@ -517,10 +451,10 @@ namespace Winzent {
              *
              * \throw LayerSizeMismatchException
              */
-            ValueVector calculateLayerTransition(
+            Vector calculateLayerTransition(
                     const int &from,
                     const int &to,
-                    const ValueVector &input)
+                    const Vector &input)
                         throw(LayerSizeMismatchException);
 
 
@@ -532,18 +466,73 @@ namespace Winzent {
              *  input neuron. If the size of the vector does not match
              *  the number of input neurons, an exception is thrown.
              */
-            ValueVector calculate(const ValueVector &input)
+            Vector calculate(const Vector &input)
                     throw(LayerSizeMismatchException);
+
+
+            //! Clears the neural network completely
+            void clear() override;
+
+
+            /*!
+             * \brief Initializes (deserializes) the ANN from its JSON
+             *  representation
+             *
+             * \param[in] json The ANNs JSON representation
+             */
+            void fromJSON(QJsonDocument const& json) override;
+
+
+            /*!
+             * \brief Serializes the ANN to JSON
+             *
+             * \return The JSON representation of the ANN
+             */
+            QJsonDocument toJSON() const override;
+
+
+        protected:
+
+
+            //! Internal logger
+            static log4cxx::LoggerPtr logger;
+
+
+        private:
+
+
+            //! The bias neuron, connected to each neuron in each layer.
+            Neuron *m_biasNeuron;
+
+
+            //! All Layers contained in this Neural Network
+            boost::ptr_vector<Layer> m_layers;
+
+
+            /*!
+             * An hash that indixes all connection originating from a certain
+             * neuron.
+             */
+            QHash<Neuron *, QList<Connection *>> m_connectionSources;
+
+
+            /*!
+             * An hash that indexes all connections that lead to a certain
+             * neuron.
+             */
+            QHash<Neuron *, QList<Connection *>> m_connectionDestinations;
+
+
+            /*!
+             * \brief The pattern that is used to construct the network
+             *  and calculate a run through it.
+             *
+             * Patterns do two things: First, they define the layout
+             * of a network, and second, they define how a network
+             * works when values are calculated with it.
+             */
+            std::unique_ptr<NeuralNetworkPattern> m_pattern;
         };
-
-
-        /*!
-         * Appends the JSON representation of this network to the
-         * designated data stream.
-         */
-        QTextStream& operator <<(
-                QTextStream &out,
-                const NeuralNetwork &network);
     } /* namespace ANN */
 } /* namespace Winzent */
 
@@ -551,8 +540,14 @@ namespace Winzent {
 namespace std {
     ostream &operator<<(
             ostream &os,
-            const Winzent::ANN::ValueVector &valueVector);
+            const Winzent::ANN::Vector &valueVector);
 }
+
+
+//! Appends the ANN's JSON representation to the text stream
+QTextStream& operator <<(
+        QTextStream &out,
+        const Winzent::ANN::NeuralNetwork &network);
 
 
 #endif /* NEURALNETWORK_H_ */
