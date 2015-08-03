@@ -127,5 +127,17 @@ namespace Winzent {
             activationFunction()->fromJSON(QJsonDocument(
                     o["activationFunction"].toObject()));
         }
+
+
+        bool Neuron::operator ==(const Neuron &other) const
+        {
+            bool equal = true;
+
+            equal &= (m_lastInput + 1.0 == 1.0 + other.m_lastInput);
+            equal &= (m_lastResult + 1.0 == 1.0 + other.m_lastResult);
+            //equal &= (*m_activationFunction == *(other.m_activationFunction));
+
+            return equal;
+        }
     }
 }

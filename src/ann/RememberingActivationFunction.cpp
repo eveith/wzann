@@ -57,6 +57,15 @@ namespace Winzent {
             ActivationFunction::fromJSON(json);
             m_remeberedValue = json.object()["rememberedValue"].toDouble();
         }
+
+
+        bool RememberingActivationFunction::operator ==(
+                const RememberingActivationFunction &other)
+                const
+        {
+            return steepness() == other.steepness()
+                    && m_remeberedValue == other.m_remeberedValue;
+        }
     }
 }
 

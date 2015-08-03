@@ -171,6 +171,10 @@ namespace Winzent {
             virtual void fromJSON(const QJsonDocument &json) override;
 
 
+            //! Checks for equality of two Neurons
+            bool operator ==(const Neuron &other) const;
+
+
         private:
 
 

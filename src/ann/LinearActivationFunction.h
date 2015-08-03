@@ -63,6 +63,10 @@ namespace Winzent {
              * \return A clone of this object
              */
             virtual ActivationFunction *clone() const override;
+
+
+            //! Checks for equality
+            bool operator ==(const LinearActivationFunction &other) const;
         };
     } // namespace ANN
 } // namespace Winzent

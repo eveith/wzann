@@ -35,6 +35,14 @@ namespace Winzent {
             auto in = clip(result, 0.01f, 0.99f);
             return steepness() * in * (1.0f - in);
         }
+
+
+        bool SigmoidActivationFunction::operator ==(
+                const SigmoidActivationFunction &other)
+                const
+        {
+            return steepness() == other.steepness();
+        }
     }
 }
 

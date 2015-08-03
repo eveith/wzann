@@ -213,6 +213,10 @@ namespace Winzent {
             virtual void fromJSON(const QJsonDocument &json) override;
 
 
+            //! Checks for equality
+            bool operator ==(const Layer &other) const;
+
+
         private:
 
 

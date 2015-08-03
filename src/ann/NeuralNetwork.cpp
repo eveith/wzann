@@ -644,7 +644,7 @@ namespace Winzent {
         {
             bool equal = true;
 
-
+            //equal &= (*m_pattern == *(other.m_pattern));
 
             return equal;
         }

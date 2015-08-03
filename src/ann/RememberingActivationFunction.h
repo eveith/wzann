@@ -109,6 +109,11 @@ namespace Winzent {
             virtual void fromJSON(const QJsonDocument &json) override;
 
 
+            //! Checks for equality
+            bool operator ==(const RememberingActivationFunction &other)
+                const;
+
+
         private:
 
 

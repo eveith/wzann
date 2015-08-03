@@ -169,6 +169,21 @@ namespace Winzent {
                 m_neurons.push_back(n);
             }
         }
+
+
+        bool Layer::operator ==(const Layer &other) const
+        {
+            auto i1 = begin();
+            auto i2 = other.end();
+
+            for (; i1 != end() && i2 != other.end(); i1++, i2++) {
+                if (! (*i1 == *i2)) {
+                    return false;
+                }
+            }
+
+            return i1 == end() && i2 == other.end();
+        }
     } // namespace ANN
 } // namespace Winzent
 

@@ -67,6 +67,10 @@ namespace Winzent {
              * \return A new instance of this class
              */
             virtual ActivationFunction *clone() const override;
+
+
+            //! Checks for equality
+            bool operator ==(const SigmoidActivationFunction &other) const;
         };
     } /* namespace ANN */
 } /* namespace Winzent */

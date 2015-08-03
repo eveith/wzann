@@ -38,6 +38,14 @@ namespace Winzent {
         {
             return new LinearActivationFunction(steepness());
         }
+
+
+        bool LinearActivationFunction::operator ==(
+                const LinearActivationFunction &other)
+                const
+        {
+            return steepness() == other.steepness();
+        }
     } // namespace ANN
 } // namespace Winzent
 
