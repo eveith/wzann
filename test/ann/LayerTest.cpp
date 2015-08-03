@@ -3,10 +3,8 @@
 #include "Neuron.h"
 #include "LinearActivationFunction.h"
 
-#include "LayerTest.h"
-
-#define private public
 #include "Layer.h"
+#include "LayerTest.h"
 
 
 using Winzent::ANN::Layer;

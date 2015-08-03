@@ -1,6 +1,5 @@
 #include "Testrunner.h"
 
-#define private public
 #include "Neuron.h"
 #include "SigmoidActivationFunction.h"
 

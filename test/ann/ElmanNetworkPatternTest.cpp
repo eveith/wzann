@@ -6,7 +6,6 @@
 
 #include "ElmanNetworkPatternTest.h"
 
-#define private public
 #include "ElmanNetworkPattern.h"
 #include "NeuralNetwork.h"
 #include "Layer.h"
@@ -54,8 +53,6 @@ void ElmanNetworkPatternTest::testConfigure()
     testResultFile.close();
 
     QCOMPARE(network.size(), 4ul);
-    QCOMPARE(network.m_connectionSources.size(),
-             layers[0] + 2 * layers[1] + layers[2]);
 
     // Each input layer neuron has one context neuron: Check
 

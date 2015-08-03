@@ -2,7 +2,6 @@
 
 #include "ActivationFunctionTest.h"
 
-#define protected public
 #include "SigmoidActivationFunction.h"
 #include "LinearActivationFunction.h"
 
@@ -11,8 +10,8 @@
 using namespace Winzent::ANN;
 
 
-ActivationFunctionTest::ActivationFunctionTest(QObject *parent) :
-    QObject(parent)
+ActivationFunctionTest::ActivationFunctionTest(QObject *parent):
+        QObject(parent)
 {
 }
 
