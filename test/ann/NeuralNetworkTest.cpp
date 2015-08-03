@@ -10,7 +10,6 @@
 
 #include "Testrunner.h"
 
-#define private public
 #include "LinearActivationFunction.h"
 #include "Neuron.h"
 #include "Layer.h"
@@ -181,7 +180,7 @@ void NeuralNetworkTest::testSerialization()
 void NeuralNetworkTest::testInitialLayerSize()
 {
     Layer l;
-    QCOMPARE(l.m_neurons.size(), 0ul);
+    QCOMPARE(l.size(), 0ul);
 }
 
 
