@@ -26,7 +26,7 @@ namespace Winzent {
             /*!
              * The constant value we emit
              */
-            double m_value;
+            qreal m_value;
 
 
         public:
@@ -38,7 +38,7 @@ namespace Winzent {
              *
              * \param value The constant activation value; defaults to 1.0.
              */
-            ConstantActivationFunction(double value = 1.0);
+            ConstantActivationFunction(qreal value = 1.0);
 
 
             /*!
@@ -46,13 +46,13 @@ namespace Winzent {
              *
              * \sa #m_value
              */
-            virtual double calculate(const double &) override;
+            virtual qreal calculate(const qreal &) override;
 
 
             /*!
              * \return 0.0
              */
-            virtual double calculateDerivative(const double &, const double &)
+            virtual qreal calculateDerivative(const qreal &, const qreal &)
                     override;
 
 

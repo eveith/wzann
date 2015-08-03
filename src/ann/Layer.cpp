@@ -1,9 +1,13 @@
-#include <QObject>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #include <cstddef>
 #include <functional>
 
 #include <boost/ptr_container/ptr_vector.hpp>
+
+#include <JsonSerializable.h>
 
 #include "Neuron.h"
 #include "Layer.h"
@@ -13,7 +17,12 @@ namespace Winzent {
     namespace ANN {
 
 
-        Layer::Layer(): m_parent(nullptr)
+        Layer::Layer(): JsonSerializable(), m_parent(nullptr)
+        {
+        }
+
+
+        Layer::~Layer()
         {
         }
 
@@ -128,6 +137,37 @@ namespace Winzent {
             }
 
             return clonedLayer;
+        }
+
+
+        void Layer::clear()
+        {
+            m_neurons.clear();
+        }
+
+
+        QJsonDocument Layer::toJSON() const
+        {
+            QJsonArray a;
+
+            for (const Neuron &n: m_neurons) {
+                a.push_back(n.toJSON().object());
+            }
+
+            return QJsonDocument(a);
+        }
+
+
+        void Layer::fromJSON(const QJsonDocument &json)
+        {
+            clear();
+            QJsonArray a = json.array();
+
+            for (const auto &i: a) {
+                Neuron *n = new Neuron(nullptr);
+                n->fromJSON(QJsonDocument(i.toObject()));
+                m_neurons.push_back(n);
+            }
         }
     } // namespace ANN
 } // namespace Winzent

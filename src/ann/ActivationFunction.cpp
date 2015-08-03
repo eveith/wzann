@@ -1,16 +1,16 @@
-/*
- * ActivationFunction.cpp
- *
- *  Created on: 16.10.2012
- *      Author: eveith
- */
+#include <QObject>
+
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #include "ActivationFunction.h"
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
     namespace ANN {
-        ActivationFunction::ActivationFunction(double steepness):
+        ActivationFunction::ActivationFunction(const qreal &steepness):
+                QObject(),
                 m_steepness(steepness)
         {
         }
@@ -21,19 +21,42 @@ namespace Winzent {
         }
 
 
-        double ActivationFunction::steepness() const
+        qreal ActivationFunction::steepness() const
         {
             return m_steepness;
         }
 
 
-        double ActivationFunction::clip(
-                double value,
-                const double &min,
-                const double &max)
+        qreal ActivationFunction::clip(
+                const qreal &value,
+                const qreal &min,
+                const qreal &max)
                 const
         {
             return (value < min) ? min : ((value > max) ? max : value);
+        }
+
+
+        void ActivationFunction::clear()
+        {
+        }
+
+
+        QJsonDocument ActivationFunction::toJSON() const
+        {
+            QJsonObject o;
+
+            o["type"] = metaObject()->className();
+            o["steepness"] = m_steepness;
+
+            return QJsonDocument(o);
+        }
+
+
+        void ActivationFunction::fromJSON(const QJsonDocument &json)
+        {
+            QJsonObject o = json.object();
+            m_steepness = o["steepness"].toDouble();
         }
     }
 }

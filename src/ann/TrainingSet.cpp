@@ -20,8 +20,8 @@ namespace Winzent {
 
 
         TrainingItem::TrainingItem(
-                const ValueVector &input,
-                const ValueVector &expectedOutput):
+                const Vector &input,
+                const Vector &expectedOutput):
                     m_input(input),
                     m_expectedOutput(expectedOutput),
                     m_outputRelevant(true)
@@ -29,8 +29,8 @@ namespace Winzent {
         }
 
 
-        TrainingItem::TrainingItem(const ValueVector &input):
-                TrainingItem(input, ValueVector())
+        TrainingItem::TrainingItem(const Vector &input):
+                TrainingItem(input, Vector())
         {
             m_outputRelevant = false;
         }
@@ -43,13 +43,13 @@ namespace Winzent {
         }
 
 
-        const ValueVector TrainingItem::input() const
+        const Vector TrainingItem::input() const
         {
             return m_input;
         }
 
 
-        const ValueVector TrainingItem::expectedOutput() const
+        const Vector TrainingItem::expectedOutput() const
         {
             return m_expectedOutput;
         }
@@ -61,7 +61,7 @@ namespace Winzent {
         }
 
 
-        ValueVector TrainingItem::error(const ValueVector &actualOutput) const
+        Vector TrainingItem::error(const Vector &actualOutput) const
                 throw(LayerSizeMismatchException)
         {
             if (actualOutput.size() == expectedOutput().size()) {
@@ -70,7 +70,7 @@ namespace Winzent {
                         expectedOutput().size());
             }
 
-            ValueVector r(expectedOutput().size());
+            Vector r(expectedOutput().size());
 
             for (auto i = 0; i != actualOutput.size(); ++i) {
                 r[i] = expectedOutput().at(i) - actualOutput.at(i);
@@ -82,11 +82,11 @@ namespace Winzent {
 
         TrainingSet::TrainingSet(
                 QList<TrainingItem> trainingData,
-                const double &targetError,
+                const qreal &targetError,
                 const size_t &maxNumEpochs):
                     m_targetError(targetError),
                     m_maxNumEpochs(maxNumEpochs),
-                    m_error(std::numeric_limits<double>::infinity())
+                    m_error(std::numeric_limits<qreal>::infinity())
         {
             for (const auto &i: trainingData) {
                 m_trainingData.push_back(TrainingItem(i));
@@ -94,13 +94,13 @@ namespace Winzent {
         }
 
 
-        double TrainingSet::targetError() const
+        qreal TrainingSet::targetError() const
         {
             return m_targetError;
         }
 
 
-        double TrainingSet::error() const
+        qreal TrainingSet::error() const
         {
             return m_error;
         }

@@ -42,13 +42,13 @@ namespace Winzent {
             /*!
              * The input presented to the network
              */
-            ValueVector m_input;
+            Vector m_input;
 
 
             /*!
              * The output expected from the network.
              */
-            ValueVector m_expectedOutput;
+            Vector m_expectedOutput;
 
 
             /*!
@@ -66,8 +66,8 @@ namespace Winzent {
              * output.
              */
             TrainingItem(
-                    const ValueVector &input,
-                    const ValueVector &expectedOutput);
+                    const Vector &input,
+                    const Vector &expectedOutput);
 
 
             /*!
@@ -80,7 +80,7 @@ namespace Winzent {
              *
              * \sa #outputRelevant
              */
-            TrainingItem(const ValueVector &input);
+            TrainingItem(const Vector &input);
 
 
             /*!
@@ -100,13 +100,13 @@ namespace Winzent {
             /*!
              * \return The input for the net
              */
-            const ValueVector input() const;
+            const Vector input() const;
 
 
             /*!
              * \return The output that is expected of the net
              */
-            const ValueVector expectedOutput() const;
+            const Vector expectedOutput() const;
 
 
             /*!
@@ -128,7 +128,7 @@ namespace Winzent {
              *  expectedOutput and actualOutput do not match; throws this also
              *  if the output is not relevant for this training item.
              */
-            ValueVector error(const ValueVector &actualOutput) const
+            Vector error(const Vector &actualOutput) const
                     throw(LayerSizeMismatchException);
         };
 
@@ -159,7 +159,7 @@ namespace Winzent {
             /*!
              * The error we're trying to target.
              */
-            double m_targetError;
+            qreal m_targetError;
 
 
             /*!
@@ -178,7 +178,7 @@ namespace Winzent {
              * The error after each epoch (stores the
              * final error after the training is finished.)
              */
-            double m_error;
+            qreal m_error;
 
 
         public:
@@ -190,7 +190,7 @@ namespace Winzent {
              *
              * \param[in] trainingData The data used for training, given
              *  as a Hash mapping input to output. Both are
-             *  <code>double[]</code>, where each array index
+             *  <code>qreal[]</code>, where each array index
              *  corresponds to a neuron.
              *
              * \param[in] targetError The target mean square error after
@@ -203,7 +203,7 @@ namespace Winzent {
              */
             TrainingSet(
                     QList<TrainingItem> trainingData,
-                    const double &targetError,
+                    const qreal &targetError,
                     const size_t &maxNumEpochs);
 
 
@@ -211,7 +211,7 @@ namespace Winzent {
              * Returns the mean square error after the current
              * training epoch.
              */
-            double error() const;
+            qreal error() const;
 
 
             /*!
@@ -219,7 +219,7 @@ namespace Winzent {
              *
              * \return The target error.
              */
-            double targetError() const;
+            qreal targetError() const;
 
 
             /*!

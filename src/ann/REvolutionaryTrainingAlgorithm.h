@@ -15,6 +15,7 @@
 #include <ostream>
 
 #include <boost/random.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
@@ -37,21 +38,15 @@ namespace Winzent {
         private:
 
 
-            /*!
-             * \brief The parameters vector of this individual
-             */
-            ValueVector m_parameters;
+            //! The parameters vector of this individual
+            Vector m_parameters;
 
 
-            /*!
-             * \brief The scatter vector of this individual
-             */
-            ValueVector m_scatter;
+            //! The scatter vector for the parameters
+            Vector m_scatter;
 
 
-            /*!
-             * \brief How many iterations this individual may exist
-             */
+            //! The individual's time to live: How long may it exist?
             int m_timeToLive;
 
 
@@ -60,7 +55,7 @@ namespace Winzent {
              *  overall error, indices 1..n stores the results of the indivdual
              *  runs.
              */
-            ValueVector m_errorVector;
+            Vector m_errorVector;
 
 
         public:
@@ -88,7 +83,7 @@ namespace Winzent {
              *
              * \param[in] parameters A parameter vector
              */
-            Individual(const ValueVector &parameters);
+            Individual(const Vector &parameters);
 
 
             /*!
@@ -96,7 +91,7 @@ namespace Winzent {
              *
              * \return The current scatter vector
              */
-            ValueVector scatter() const;
+            Vector scatter() const;
 
 
             /*!
@@ -105,7 +100,7 @@ namespace Winzent {
              *
              * \return The scatter vector, modifiable
              */
-            ValueVector &scatter();
+            Vector &scatter();
 
 
             /*!
@@ -115,7 +110,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Individual &scatter(ValueVector scatter);
+            Individual &scatter(Vector scatter);
 
 
             /*!
@@ -123,7 +118,7 @@ namespace Winzent {
              *
              * \return The current parameters
              */
-            const ValueVector &parameters() const;
+            const Vector &parameters() const;
 
 
             /*!
@@ -131,7 +126,7 @@ namespace Winzent {
              *
              * \return A modifiable reference to the parameter vector
              */
-            ValueVector &parameters();
+            Vector &parameters();
 
 
             /*!
@@ -142,7 +137,7 @@ namespace Winzent {
              *
              * \return The parameters vector
              */
-            ValueVector parameters(const NeuralNetwork &neuralNetwork) const;
+            Vector parameters(const NeuralNetwork &neuralNetwork) const;
 
 
             /*!
@@ -154,7 +149,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Individual &parameters(const ValueVector &parameters);
+            Individual &parameters(const Vector &parameters);
 
 
             /*!
@@ -210,7 +205,7 @@ namespace Winzent {
              *
              * \return A modifiable reference to the error vector
              */
-            ValueVector &errorVector();
+            Vector &errorVector();
 
 
             /*!
@@ -218,7 +213,7 @@ namespace Winzent {
              *
              * \return The error vector write-protected
              */
-            const ValueVector &errorVector() const;
+            const Vector &errorVector() const;
 
 
             /*!
@@ -243,9 +238,17 @@ namespace Winzent {
             bool isBetterThan(const Individual &other) const;
 
 
+            /*!
+             * \brief Checks whether an individual is better than the other
+             *
+             * \param[in] i1 The first individual
+             * \param[in] i2 The second individual
+             *
+             * \return True, iff `i1` is better than `i2`.
+             */
             static bool isIndividual1Better(
-                    const Individual *const &i1,
-                    const Individual *const &i2);
+                    Individual const& i1,
+                    Individual const& i2);
 
 
             /*!
@@ -269,139 +272,20 @@ namespace Winzent {
         };
 
 
-        class REvolutionaryTrainingAlgorithm:
-                public QObject,
-                public TrainingAlgorithm
+        class REvolutionaryTrainingAlgorithm: public TrainingAlgorithm
         {
-            Q_OBJECT
-
-
-        private:
-
-
-            /*!
-             * \brief Maximum number of epochs that may pass without a global
-             *  improvement
-             */
-            size_t m_maxNoSuccessEpochs;
-
-
-            /*!
-             * \brief Overall size of the population
-             */
-            size_t m_populationSize;
-
-
-            /*!
-             * \brief Size of the elite, contained in the population
-             */
-            size_t m_eliteSize;
-
-
-            /*!
-             * \brief Weight of implicit gradient information.
-             */
-            double m_gradientWeight;
-
-
-            /*!
-             * \brief Weight of the reproduction success
-             */
-            double m_successWeight;
-
-
-            /*!
-             * \brief Smallest absolute delta; typically the smallest number
-             *  we can store
-             */
-            double m_eamin;
-
-
-            /*!
-             * \brief Smallest relative delta
-             */
-            double m_ebmin;
-
-
-            /*!
-             * \brief The biggest relative change
-             */
-            double m_ebmax;
-
-
-            /*!
-             * \brief Initial Time-To-Live for new individuals
-             */
-            int m_startTTL;
-
-
-            /*!
-             * \brief Number of epochs to apply to the dc1 method
-             */
-            size_t m_measurementEpochs;
-
-
-            /*!
-             * \brief Success of reproduction
-             */
-            double m_success;
-
-
-            /*!
-             * \brief Target value on which the population has reached
-             *  equilibrium
-             */
-            double m_targetSuccess;
-
-
-            /*!
-             * \brief Our Random Number Generator
-             */
-            boost::random::mt11213b m_randomNumberGenerator;
-
-
-            /*!
-             * \brief A uniform distribution `[0; 1)` from which we draw
-             *  random numbers
-             */
-            boost::random::uniform_01<double> m_uniformDistribution;
-
-
-            /*!
-             * \brief Applies the bounds defined in ebmin, eamin and eamax
-             *  given another object's parameter
-             *
-             * \param[in] dx The delta X that shall be checked and corrected
-             *
-             * \param[in] parameter Another object's parameter
-             *
-             * \return The corrected delta X
-             */
-            double applyDxBounds(const double &dx, const double &parameter)
-                    const;
-
-
-            /*!
-             * \brief Checks that all parameters are within safe bounds
-             *
-             * \return true iff all parameters are in sensible bounds
-             */
-            bool hasSensibleTrainingParameters() const;
-
-
         public:
 
 
-            /*!
-             * \brief A time-discrete LTI system of first order
-             *
-             * \param[in] y
-             * \param[in] u
-             * \param[in] t
-             *
-             * \return
-             */
-            static double dc1(const double &y, const double &u, const double &t);
+            //! Auto-deleting vector for the population
+            typedef boost::ptr_vector<Individual> Population;
+
+
+            //! A time-discrete LTI system of first order
+            static qreal dc1(
+                    const qreal &y,
+                    const qreal &u,
+                    const qreal &t);
 
 
             /*!
@@ -410,7 +294,7 @@ namespace Winzent {
              *
              * \param[inout] population The population.
              */
-            static void sortPopulation(QList<Individual *> &population);
+            static void sortPopulation(Population& population);
 
 
             /*!
@@ -426,7 +310,7 @@ namespace Winzent {
              *
              * \return A random number between 0.0 and 1.0 (exclusive)
              */
-            double frandom();
+            qreal frandom();
 
 
             /*!
@@ -492,15 +376,16 @@ namespace Winzent {
              *
              * \return The gradient weight
              */
-            double gradientWeight() const;
+            qreal gradientWeight() const;
 
 
             /*!
              * \brief Sets the new gradient weight
              *
-             * This weight factor sets the influence of the gradient information
-             * on the training process. Setting it to 0.0 completeley disables
-             * this feature. Values between [1.0, 3.0] typically yield the best
+             * This weight factor sets the influence of the
+             * implicit gradient information on the training process.
+             * Setting it to 0.0 completeley disables this feature.
+             * Values between [1.0, 3.0] typically yield the best
              * results. Values > 5.0 are probably not useful.
              *
              * \param weight The new weight
@@ -508,7 +393,7 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &gradientWeight(
-                    const double &weight);
+                    const qreal &weight);
 
 
             /*!
@@ -516,7 +401,7 @@ namespace Winzent {
              *
              * \return The error weight
              */
-            double successWeight() const;
+            qreal successWeight() const;
 
 
             /*!
@@ -530,7 +415,7 @@ namespace Winzent {
              * \return `*this`
              */
             REvolutionaryTrainingAlgorithm &successWeight(
-                    const double &weight);
+                    const qreal &weight);
 
 
             /*!
@@ -539,7 +424,7 @@ namespace Winzent {
              *
              * \return The smallest absolute delta
              */
-            double eamin() const;
+            qreal eamin() const;
 
 
             /*!
@@ -554,7 +439,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &eamin(const double &eamin);
+            REvolutionaryTrainingAlgorithm &eamin(const qreal &eamin);
 
 
             /*!
@@ -562,7 +447,7 @@ namespace Winzent {
              *
              * \return The smallest relative change for scatter/parameters
              */
-            double ebmin() const;
+            qreal ebmin() const;
 
 
             /*!
@@ -575,7 +460,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &ebmin(const double &ebmin);
+            REvolutionaryTrainingAlgorithm &ebmin(const qreal &ebmin);
 
 
             /*!
@@ -583,7 +468,7 @@ namespace Winzent {
              *
              * \return The relative maximum
              */
-            double ebmax() const;
+            qreal ebmax() const;
 
 
             /*!
@@ -597,7 +482,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            REvolutionaryTrainingAlgorithm &ebmax(const double &ebmax);
+            REvolutionaryTrainingAlgorithm &ebmax(const qreal &ebmax);
 
 
             /*!
@@ -650,7 +535,7 @@ namespace Winzent {
              *
              * \return The population, including the elite
              */
-            QList<Individual *> generateInitialPopulation(
+            Population generateInitialPopulation(
                     const NeuralNetwork &baseNetwork);
 
 
@@ -664,13 +549,42 @@ namespace Winzent {
              * In the process, it also modifies existing objects in order to
              * re-train them.
              *
+             * \param[in] individual The individual that is to be modified
+             *  according to the rest of the population; may not already be
+             *  part of it.
+             *
              * \param population The current population of networks.
              *
-             * \return A newly generated ANN
+             * \return A pair containing the two individuals out of the
+             *  population that were used to modifiy the given target
+             *  individual. The frist reference denotes the better, the second
+             *  the other individual that were chosen.
              */
-            Individual *modifyIndividual(
-                    Individual *const &individual,
-                    QList<Individual *> &population);
+            QPair<Individual &, Individual &> modifyIndividual(
+                    Individual &individual,
+                    boost::ptr_vector<Individual> &population);
+
+
+            /*!
+             * \brief Evaluates one individual
+             *
+             * This method uses the given training set to evaluate the
+             * indicited individual. It feeds the patterns to the individual,
+             * notes the errors, and calculates the mean squared error (MSE).
+             *
+             * \param[in] individual The individual. Its error vector must
+             *  have the size necessary to store the MSE and all error values.
+             *
+             * \param[in] ann The Artificial Neural Network the individual
+             *  applies to
+             *
+             * \param[in] trainingSet The training set that should be used to
+             *  evaluate the individual
+             */
+            void evaluateIndividual(
+                    Individual &individual,
+                    NeuralNetwork& ann,
+                    const TrainingSet &trainingSet);
 
 
 
@@ -680,28 +594,120 @@ namespace Winzent {
              *
              * \param trainingSet
              */
-            virtual void train(
-                    NeuralNetwork &ann,
-                    TrainingSet &trainingSet)
+            virtual void train(NeuralNetwork &ann, TrainingSet &trainingSet)
                     override;
 
-        signals:
+        private:
 
 
             /*!
-             * \brief Fired whenever an iteration is complete
-             *
-             * \param epoch The current epoch (i.e., nth iteration)
-             *
-             * \param error The current error
-             *
-             * \param population The complete population
+             * \brief Maximum number of epochs that may pass without a global
+             *  improvement
              */
-            void iterationFinished(
-                    const size_t &epoch,
-                    const double &error,
-                    const QList<Individual *> &population);
+            size_t m_maxNoSuccessEpochs;
 
+
+            /*!
+             * \brief Overall size of the population
+             */
+            size_t m_populationSize;
+
+
+            /*!
+             * \brief Size of the elite, contained in the population
+             */
+            size_t m_eliteSize;
+
+
+            /*!
+             * \brief Weight of implicit gradient information.
+             */
+            qreal m_gradientWeight;
+
+
+            /*!
+             * \brief Weight of the reproduction success
+             */
+            qreal m_successWeight;
+
+
+            /*!
+             * \brief Smallest absolute delta; typically the smallest number
+             *  we can store
+             */
+            qreal m_eamin;
+
+
+            /*!
+             * \brief Smallest relative delta
+             */
+            qreal m_ebmin;
+
+
+            /*!
+             * \brief The biggest relative change
+             */
+            qreal m_ebmax;
+
+
+            /*!
+             * \brief Initial Time-To-Live for new individuals
+             */
+            int m_startTTL;
+
+
+            /*!
+             * \brief Number of epochs to apply to the dc1 method
+             */
+            size_t m_measurementEpochs;
+
+
+            /*!
+             * \brief Success of reproduction
+             */
+            qreal m_success;
+
+
+            /*!
+             * \brief Target value on which the population has reached
+             *  equilibrium
+             */
+            qreal m_targetSuccess;
+
+
+            /*!
+             * \brief Our Random Number Generator
+             */
+            boost::random::mt11213b m_randomNumberGenerator;
+
+
+            /*!
+             * \brief A uniform distribution `[0; 1)` from which we draw
+             *  random numbers
+             */
+            boost::random::uniform_01<qreal> m_uniformDistribution;
+
+
+            /*!
+             * \brief Applies the bounds defined in ebmin, eamin and eamax
+             *  given another object's parameter
+             *
+             * \param[in] dx The delta X that shall be checked and corrected
+             *
+             * \param[in] parameter Another object's parameter
+             *
+             * \return The corrected delta X
+             */
+            qreal applyDxBounds(const qreal &dx, const qreal &parameter)
+                    const;
+
+
+            /*!
+             * \brief Checks that all parameters are within safe bounds
+             *
+             * \return true iff all parameters are in sensible bounds
+             */
+            bool hasSensibleTrainingParameters() const;
         };
     } // namespace ANN
 } // namespace Winzent

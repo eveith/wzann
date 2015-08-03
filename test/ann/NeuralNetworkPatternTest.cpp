@@ -32,8 +32,8 @@ NeuralNetworkPatternTestDummyPattern::NeuralNetworkPatternTestDummyPattern():
 }
 
 
-ValueVector NeuralNetworkPatternTestDummyPattern::calculate(
-        NeuralNetwork *const &, const ValueVector &input)
+Vector NeuralNetworkPatternTestDummyPattern::calculate(
+        NeuralNetwork *const &, const Vector &input)
 {
     return input;
 }
@@ -46,7 +46,7 @@ NeuralNetworkPattern* NeuralNetworkPatternTestDummyPattern::clone() const
 
 
 void NeuralNetworkPatternTestDummyPattern::configureNetwork(
-        NeuralNetwork* network)
+        NeuralNetwork *const &network)
 {
     for (int i = 0; i != numLayers; ++i) {
         Layer *l = new Layer();

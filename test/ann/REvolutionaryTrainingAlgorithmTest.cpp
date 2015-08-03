@@ -28,7 +28,7 @@
 using Winzent::ANN::Layer;
 using Winzent::ANN::Neuron;
 using Winzent::ANN::Connection;
-using Winzent::ANN::ValueVector;
+using Winzent::ANN::Vector;
 using Winzent::ANN::NeuralNetwork;
 using Winzent::ANN::ElmanNetworkPattern;
 using Winzent::ANN::SimpleWeightRandomizer;
@@ -52,7 +52,7 @@ REvolutionaryTrainingAlgorithmTest::REvolutionaryTrainingAlgorithmTest(
 
 NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 {
-    NeuralNetwork *net = new NeuralNetwork(this);
+    NeuralNetwork *net = new NeuralNetwork();
 
     static ElmanNetworkPattern pattern({
             2,
@@ -70,31 +70,6 @@ NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::recordIteration(
-        const int &epoch,
-        const double &,
-        const QList<Winzent::ANN::Individual *> &population)
-{
-    QFile outFile(QString("./%1.out").arg(QTest::currentTestFunction()));
-    QTextStream stream(&outFile);
-    outFile.open(QFile::ReadWrite|QFile::Append);
-
-    foreach (Individual *i, population) {
-        stream << epoch << " " << i->errorVector().first()
-                << " " << i->timeToLive();
-
-        foreach (double p, i->parameters()) {
-            stream << " " << p;
-        }
-
-        stream << "\n";
-    }
-
-    stream.flush();
-    outFile.close();
-}
-
-
 void REvolutionaryTrainingAlgorithmTest::testIndividualInitialization()
 {
     NeuralNetwork *network = createNeuralNetwork();
@@ -109,6 +84,8 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualInitialization()
 
     QCOMPARE(i1.parameters().size(), nConnections);
     QCOMPARE(i1.scatter().size(), nConnections);
+
+    delete network;
 }
 
 
@@ -124,6 +101,8 @@ void REvolutionaryTrainingAlgorithmTest::testAgeIndividual()
     individual.age();
     QCOMPARE(individual.timeToLive(), 0);
     QVERIFY(!individual.isAlive());
+
+    delete neuralNetwork;
 }
 
 
@@ -142,14 +121,14 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
     QVERIFY(i1 == i2);
 
     std::for_each(i2.parameters().begin(), i2.parameters().end(),
-            [](double &w) {
+            [](qreal &w) {
         w = 1.0;
     });
 
     QVERIFY(!(i1 == i2));
 
     std::for_each(i2.parameters().begin(), i2.parameters().end(),
-            [](double &w) {
+            [](qreal &w) {
         w = 0.0;
     });
 
@@ -164,12 +143,16 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
     QVERIFY(!(i1 == i2));
     i2.errorVector()[0] = 11.1;
     QVERIFY(i1 == i2);
+
+    delete network;
 }
 
 
 void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorAssign()
 {
-    Individual i1(*(createNeuralNetwork())), i2(*(createNeuralNetwork()));
+    NeuralNetwork *n1 = createNeuralNetwork(),
+            *n2 = createNeuralNetwork();
+    Individual i1(*n1), i2(*n2);
 
     if (i1 == i2) {
         i1.errorVector()[0] = 421.43;
@@ -182,6 +165,9 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorAssign()
 
     QVERIFY(i1 == i2);
     QVERIFY(&i1 != &i2);
+
+    delete n1;
+    delete n2;
 }
 
 
@@ -190,7 +176,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
     Individual individual(*neuralNetwork);
 
-    ValueVector parameters = individual.parameters();
+    Vector parameters = individual.parameters();
     QList<Connection *> connections;
 
     for (size_t i = 0; i != neuralNetwork->size(); ++i) {
@@ -238,13 +224,17 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
             }
         }
     }
+
+    delete neuralNetwork;
 }
 
 
 void REvolutionaryTrainingAlgorithmTest::testCompareIndividuals()
 {
-    Individual *i1 = new Individual(createNeuralNetwork());
-    Individual *i2 = new Individual(createNeuralNetwork());
+    NeuralNetwork *n1 = createNeuralNetwork(),
+            *n2 = createNeuralNetwork();
+    Individual *i1 = new Individual(*n1);
+    Individual *i2 = new Individual(*n2);
 
     QCOMPARE(0, i1->compare(*i2));
 
@@ -268,6 +258,8 @@ void REvolutionaryTrainingAlgorithmTest::testCompareIndividuals()
 
     delete i1;
     delete i2;
+    delete n1;
+    delete n2;
 }
 
 
@@ -276,37 +268,40 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     REvolutionaryTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm.eliteSize(2).populationSize(5);
 
-    QList<Individual *> population;
+    REvolutionaryTrainingAlgorithm::Population population;
     for (size_t i = 0; i != trainingAlgorithm.populationSize(); ++i) {
-        population.push_back(new Individual(createNeuralNetwork()));
+        NeuralNetwork *n = createNeuralNetwork();
+        population.push_back(new Individual(*n));
+        delete n;
     }
 
-    Individual *i3 = trainingAlgorithm.modifyIndividual(
-            population.last(),
-            population);
+    NeuralNetwork *n = createNeuralNetwork();
+    Individual i3(*n);
+    delete n;
+    trainingAlgorithm.modifyIndividual(i3, population);
 
     QCOMPARE(
-            i3->parameters().size(),
-            population.first()->parameters().size());
+            i3.parameters().size(),
+            population.front().parameters().size());
 
     std::for_each(population.begin(), population.end() - 1,
-            [&](Individual *i) {
-        for (auto j = 0; j != i->parameters().size(); ++j) {
-            QVERIFY (i3->parameters().at(j) != i->parameters().at(j));
+            [&](Individual const& i) {
+        for (auto j = 0; j != i.parameters().size(); ++j) {
+            QVERIFY (i3.parameters().at(j) != i.parameters().at(j));
         }
     });
-
-    for (auto &i: population) {
-        delete i;
-    }
 }
 
 
 void REvolutionaryTrainingAlgorithmTest::testSortPopulation()
 {
-    Individual *i1 = new Individual(createNeuralNetwork());
-    Individual *i2 = new Individual(createNeuralNetwork());
-    Individual *i3 = new Individual(createNeuralNetwork());
+    NeuralNetwork *n1 = createNeuralNetwork(),
+            *n2 = createNeuralNetwork(),
+            *n3 = createNeuralNetwork();
+
+    Individual *i1 = new Individual(*n1);
+    Individual *i2 = new Individual(*n2);
+    Individual *i3 = new Individual(*n3);
 
     i1->timeToLive(10);
     i1->errorVector()[0] = 0.25;
@@ -319,11 +314,20 @@ void REvolutionaryTrainingAlgorithmTest::testSortPopulation()
 
     QVERIFY(i1->isBetterThan(*i2));
 
-    QList<Individual *> population = { i2, i1, i3 };
+    REvolutionaryTrainingAlgorithm::Population population;
+    population.push_back(i2);
+    population.push_back(i1);
+    population.push_back(i3);
 
-    QCOMPARE(population.first(), i2);
+    QCOMPARE(&(population.front()), i2);
     REvolutionaryTrainingAlgorithm::sortPopulation(population);
-    QCOMPARE(population, QList<Individual *>({ i1, i2, i3 }));
+    QCOMPARE(&(population.at(0)), i1);
+    QCOMPARE(&(population.at(1)), i2);
+    QCOMPARE(&(population.at(2)), i3);
+
+    delete n1;
+    delete n2;
+    delete n3;
 }
 
 
@@ -368,20 +372,13 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
             .ebmax(2.0)
             .successWeight(0.1);
 
-    connect(
-            &trainingAlgorithm,
-            SIGNAL(iterationFinished(int,double,QList<Individual*>)),
-            this,
-            SLOT(recordIteration(int,double,QList<Individual*>)));
-
     QDateTime dt1 = QDateTime::currentDateTime();
     trainingAlgorithm.train(network, trainingSet);
     QDateTime dt2 = QDateTime::currentDateTime();
 
     qDebug() << "Trained XOR(x, y) in" << dt1.msecsTo(dt2) << "msec";
 
-    ValueVector output;
-    output = network.calculate({ 1, 1 });
+    auto output = network.calculate({ 1, 1 });
     qDebug() << "(1, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 0);
     output = network.calculate({ 1, 0 });
@@ -393,6 +390,13 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
     output = network.calculate({ 0, 1 });
     qDebug() << "(0, 1) =>" << output;
     QCOMPARE(qRound(output[0]), 1);
+
+    QFile annDumpFile("testTrainXOR.out");
+    annDumpFile.open(
+            QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Text);
+    annDumpFile.write(network.toJSON().toJson());
+    annDumpFile.flush();
+    annDumpFile.close();
 }
 
 

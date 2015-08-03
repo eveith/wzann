@@ -1,12 +1,13 @@
-/*
- * ActivationFunction.h
- *
- *  Created on: 16.10.2012
- *      Author: eveith
- */
-
 #ifndef ACTIVATIONFUNCTION_H_
 #define ACTIVATIONFUNCTION_H_
+
+
+#include <QObject>
+#include <QJsonDocument>
+
+#include <JsonSerializable.h>
+
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
@@ -17,16 +18,11 @@ namespace Winzent {
          * implementing the strategy pattern. Instances of this class
          * represent the actual, concrete function, like a sigmoid.
          */
-        class ActivationFunction
+        class WINZENTANNSHARED_EXPORT ActivationFunction:
+                public QObject,
+                public JsonSerializable
         {
-        private:
-
-
-            /*!
-             * Factor by which the function is to be scaled.
-             */
-            double m_steepness;
-
+            Q_OBJECT
 
         public:
 
@@ -39,7 +35,7 @@ namespace Winzent {
              *
              * \param[in] parent The parent object (for auto-destruction)
              */
-            ActivationFunction(double steepness = 1.0);
+            ActivationFunction(const qreal &steepness = 1.0);
 
 
             virtual ~ActivationFunction();
@@ -50,7 +46,7 @@ namespace Winzent {
              *
              * \return The function's steepness
              */
-            double steepness() const;
+            qreal steepness() const;
 
 
             /*!
@@ -58,7 +54,7 @@ namespace Winzent {
              *
              * \return <code>this</code>, for method chaining.
              */
-            ActivationFunction &steepness(double steepness);
+            ActivationFunction &steepness(qreal steepness);
 
 
             /*!
@@ -69,7 +65,7 @@ namespace Winzent {
              *
              * \return f(input)
              */
-            virtual double calculate(const double &input) = 0;
+            virtual qreal calculate(const qreal &input) = 0;
 
 
             /*!
@@ -105,9 +101,9 @@ namespace Winzent {
              *
              * \sa Neuron#lastResult()
              */
-            virtual double calculateDerivative(
-                    const double &sum,
-                    const double &result) = 0;
+            virtual qreal calculateDerivative(
+                    const qreal &sum,
+                    const qreal &result) = 0;
 
 
             /*!
@@ -147,8 +143,45 @@ namespace Winzent {
              *
              * \param A value in the boundaries of min <= value <= max
              */
-            double clip(double value, const double &min, const double &max)
+            qreal clip(const qreal &value, const qreal &min, const qreal &max)
                     const;
+
+
+            /*!
+             * \brief Resets the Activation function as if newly constructed
+             */
+            virtual void clear() override;
+
+
+            /*!
+             * \brief Serializes the activation function to JSON
+             *
+             * This method serializes the standard parameters. If a derived
+             * activation function object has additional properties beyond
+             * steepness, etc., it must override this implementation.
+             *
+             * \return The JSON representation
+             */
+            virtual QJsonDocument toJSON() const override;
+
+
+            /*!
+             * \brief Re-initializes the activation function object from JSON
+             *
+             * This method serializes the standard parameters. If a derived
+             * activation function object has additional properties beyond
+             * steepness, etc., it must override this implementation.
+             *
+             * \param[in] json The activation function's JSON representation
+             */
+            virtual void fromJSON(const QJsonDocument &json) override;
+
+
+        private:
+
+
+            //! Factor by which the function is to be scaled.
+            qreal m_steepness;
         };
     } /* namespace ANN */
 } /* namespace Winzent */

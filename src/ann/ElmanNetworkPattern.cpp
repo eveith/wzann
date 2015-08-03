@@ -1,24 +1,19 @@
-/*!
- * \file	ElmanNetworkPattern.cpp
- * \brief
- * \date	31.12.2012
- * \author	eveith
- */
-
-
 #include <initializer_list>
 #include <QVector>
 #include <QList>
 
-#include "NeuralNetworkPattern.h"
-#include "NeuralNetwork.h"
-#include "ActivationFunction.h"
-#include "RememberingActivationFunction.h"
+#include <ClassRegistry.h>
+
 #include "Layer.h"
-#include "Connection.h"
 #include "Neuron.h"
 #include "Exception.h"
+#include "Connection.h"
+#include "NeuralNetwork.h"
 
+#include "ActivationFunction.h"
+#include "RememberingActivationFunction.h"
+
+#include "NeuralNetworkPattern.h"
 #include "ElmanNetworkPattern.h"
 
 
@@ -27,6 +22,11 @@ using std::initializer_list;
 
 namespace Winzent {
     namespace ANN {
+        ElmanNetworkPattern::ElmanNetworkPattern()
+        {
+        }
+
+
         ElmanNetworkPattern::ElmanNetworkPattern(
                 QList<int> layerSizes,
                 QList<ActivationFunction *> activationFunctions):
@@ -78,7 +78,8 @@ namespace Winzent {
         }
 
 
-        void ElmanNetworkPattern::configureNetwork(NeuralNetwork *network)
+        void ElmanNetworkPattern::configureNetwork(
+                NeuralNetwork* const& network)
         {
             // Create layers & neurons:
 
@@ -129,12 +130,12 @@ namespace Winzent {
         }
 
 
-        ValueVector ElmanNetworkPattern::calculate(
+        Vector ElmanNetworkPattern::calculate(
                 NeuralNetwork *const &network,
-                const ValueVector &input)
+                const Vector &input)
         {
-            ValueVector layerInput;
-            ValueVector output;
+            Vector layerInput;
+            Vector output;
 
             layerInput = network->calculateLayer(INPUT, input);
             layerInput = network->calculateLayerTransition(
@@ -146,7 +147,7 @@ namespace Winzent {
 
             {
                 Layer* contextLayer = network->layerAt(CONTEXT);
-                ValueVector rememberedValues(contextLayer->size());
+                Vector rememberedValues(contextLayer->size());
 
                 for (size_t i = 0; i != contextLayer->size(); ++i) {
                     rememberedValues[i] = contextLayer->neuronAt(i)
@@ -183,3 +184,8 @@ namespace Winzent {
         }
     }
 }
+
+
+WINZENT_REGISTER_CLASS(
+        Winzent::ANN::ElmanNetworkPattern,
+        Winzent::ANN::NeuralNetworkPattern)

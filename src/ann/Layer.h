@@ -1,15 +1,18 @@
 #ifndef WINZENT_ANN_LAYER_H
 #define WINZENT_ANN_LAYER_H
 
-#include <QObject>
+
+#include <QJsonDocument>
 
 #include <cstddef>
 #include <functional>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
+#include <JsonSerializable.h>
 
 #include "Neuron.h"
+#include "Winzent-ANN_global.h"
 
 
 using std::function;
@@ -23,9 +26,9 @@ namespace Winzent {
 
 
         /*!
-         * Represents a layer in a neural network
+         * \brief Represents a layer in a neural network
          */
-        class Layer
+        class WINZENTANNSHARED_EXPORT Layer: public JsonSerializable
         {
             friend class NeuralNetwork;
 
@@ -37,33 +40,15 @@ namespace Winzent {
             typedef boost::ptr_vector<Neuron>::const_iterator const_iterator;
 
 
-        private:
-
-
-            /*!
-             * \brief A list of all neurons the make up this layer.
-             */
-            boost::ptr_vector<Neuron> m_neurons;
-
-
-            /*!
-             * \brief The parent network we're contained in.
-             */
-            NeuralNetwork *m_parent;
-
-
-
-        public:
-
-
-            /*!
-             * \brief Creates a new, empty layer.
-             */
+            //! \brief Creates a new, empty layer.
             Layer();
 
 
             Layer(const Layer &) = delete;
             Layer(Layer &&) = delete;
+
+
+            virtual ~Layer();
 
 
 
@@ -206,6 +191,42 @@ namespace Winzent {
              * \return `this`
              */
             Layer &addNeuron(Neuron *const &neuron);
+
+
+            //! Resets the layer, clearing it.
+            virtual void clear() override;
+
+
+            /*!
+             * \brief Serializes the whole Layer to JSON
+             *
+             * \return The Layer's JSON representation
+             */
+            virtual QJsonDocument toJSON() const override;
+
+
+            /*!
+             * \brief Deserializes the Layer from JSON
+             *
+             * \param[in] json The Layer's JSON representation
+             */
+            virtual void fromJSON(const QJsonDocument &json) override;
+
+
+        private:
+
+
+            /*!
+             * \brief A list of all neurons the make up this layer.
+             */
+            boost::ptr_vector<Neuron> m_neurons;
+
+
+            /*!
+             * \brief The parent network we're contained in.
+             */
+            NeuralNetwork *m_parent;
+
         };
     } // namespace ANN
 } // namespace Winzent

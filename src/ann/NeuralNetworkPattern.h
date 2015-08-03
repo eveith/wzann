@@ -11,10 +11,13 @@
 
 #include <initializer_list>
 
-#include <qobject.h>
-#include <QList>
+#include <QObject>
+#include <QJsonDocument>
+
+#include <JsonSerializable.h>
 
 #include "NeuralNetwork.h"
+#include "Winzent-ANN_global.h"
 
 
 class QString;
@@ -30,117 +33,19 @@ namespace Winzent {
         class ActivationFunction;
 
 
-        class NeuralNetworkPattern
+        class WINZENTANNSHARED_EXPORT NeuralNetworkPattern:
+                public QObject,
+                public JsonSerializable
         {
+            Q_OBJECT
 
 
-            friend ValueVector NeuralNetwork::calculate(const ValueVector &);
+            friend Vector NeuralNetwork::calculate(const Vector &);
             friend NeuralNetwork &NeuralNetwork::configure(
                     const NeuralNetworkPattern &);
 
 
-        protected:
-
-
-            /*!
-             * A handy way to store the size of each layer. What index
-             * corresponds to which layer and what semantic is
-             * attached to each layer is not defined here, but depends
-             * on the concrete pattern.
-             */
-            QList<int> m_layerSizes;
-
-
-            /*!
-             * Lists the activation function per layer. The index
-             * corresponds to the index of the #m_layerSizes member.
-             */
-            QList<ActivationFunction *> m_activationFunctions;
-
-
-            /*!
-             * \sa ::weightRandomMin
-             */
-            double m_weightRandomMin;
-
-
-            /*!
-             * \sa ::weightRandomMax
-             */
-            double m_weightRandomMax;
-
-
-            NeuralNetworkPattern():
-                    m_weightRandomMin(weightRandomMin),
-                    m_weightRandomMax(weightRandomMax)
-            {
-            }
-
-
-            /*!
-             * Shortcut method that fully connects two layers of an
-             * neural network.
-             *
-             * \param network The network that contains the layers
-             *
-             * \param fromLayer The originating layer
-             *
-             * \param toLayer The layer that contains the target
-             *  neurons
-             */
-            void fullyConnectNetworkLayers(
-                    NeuralNetwork *network,
-                    const int &fromLayer,
-                    const int &toLayer);
-
-
-            /*!
-             * Runs a vector of values through the neural network and
-             * returns its result. The input vector size must match
-             * the neural network's input layer size.
-             *
-             * \param network The network that is used for
-             *  the calculation
-             *
-             * \param input The input values
-             *
-             * \return The result of the calculation
-             */
-            virtual ValueVector calculate(
-                    NeuralNetwork *const &network,
-                    const ValueVector &input) = 0;
-
-
-            /*!
-             * Configures any network to the layout the pattern
-             * represents. The layer sizes are given in the
-             * constructor; the rest of the layout is created by
-             * this method.
-             *
-             * \param network The neural network to configure
-             */
-            virtual void configureNetwork(NeuralNetwork *network) = 0;
-
-
         public:
-
-
-            /*!
-             * Minimum value of random weights upon initialization.
-             * This is the template value for all instances.
-             *
-             * \sa #m_weightRandomMin
-             */
-            static double weightRandomMin;
-
-
-            /*!
-             * Maximum value of random weights upon initialization.
-             * This is the template value for all instances.
-             *
-             * \sa #m_weightRandomMax
-             */
-            static double weightRandomMax;
 
 
             /*!
@@ -175,11 +80,11 @@ namespace Winzent {
              *              new SigmoidActivationFunction()
              *          });
              *
-             * \param layerSizes The size of each layer; which
+             * \param[in] layerSizes The size of each layer; which
              *  semantics apply depends on the actual, derived
              *  pattern class which is used.
              *
-             * \param activationFunctions The activation functions
+             * \param[in] activationFunctions The activation functions
              *  that apply to each layer.
              */
             NeuralNetworkPattern(
@@ -204,13 +109,92 @@ namespace Winzent {
             virtual ~NeuralNetworkPattern();
 
 
-            /*!
-             * Returns the string representation of this class. Needed
-             * to dump neural networks to disk.
-             */
-            QString toString();
-        };
+            //! Clears the pattern completely.
+            void clear() override;
 
+
+            /*!
+             * \brief Serializes the pattern to JSON
+             *
+             * \return The pattern's JSON representation
+             */
+            QJsonDocument toJSON() const override;
+
+
+            /*!
+             * \brief Deserializes the pattern from JSON
+             *
+             * \param[in] json The pattern's JSON representation
+             */
+            void fromJSON(const QJsonDocument &json) override;
+
+
+        protected:
+
+
+            /*!
+             * A handy way to store the size of each layer. What index
+             * corresponds to which layer and what semantic is
+             * attached to each layer is not defined here, but depends
+             * on the concrete pattern.
+             */
+            QList<int> m_layerSizes;
+
+
+            /*!
+             * Lists the activation function per layer. The index
+             * corresponds to the index of the #m_layerSizes member.
+             */
+            QList<ActivationFunction *> m_activationFunctions;
+
+
+            NeuralNetworkPattern();
+
+
+            /*!
+             * Shortcut method that fully connects two layers of an
+             * neural network.
+             *
+             * \param network The network that contains the layers
+             *
+             * \param fromLayer The originating layer
+             *
+             * \param toLayer The layer that contains the target
+             *  neurons
+             */
+            void fullyConnectNetworkLayers(
+                    NeuralNetwork *network,
+                    const int &fromLayer,
+                    const int &toLayer);
+
+
+            /*!
+             * Runs a vector of values through the neural network and
+             * returns its result. The input vector size must match
+             * the neural network's input layer size.
+             *
+             * \param network The network that is used for
+             *  the calculation
+             *
+             * \param input The input values
+             *
+             * \return The result of the calculation
+             */
+            virtual Vector calculate(
+                    NeuralNetwork *const &network,
+                    const Vector &input) = 0;
+
+
+            /*!
+             * \brief Configures any network to the layout the pattern
+             *  represents. The layer sizes are given in the
+             *  constructor; the rest of the layout is created by
+             *  this method.
+             *
+             * \param[inout] network The neural network to configure
+             */
+            virtual void configureNetwork(NeuralNetwork *const &network) = 0;
+        };
     } /* namespace ANN */
 } /* namespace Winzent */
 

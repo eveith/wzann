@@ -1,20 +1,12 @@
-/*!
- * \file	Neuron.h
- * \brief
- * \date	17.12.2012
- * \author	eveith
- */
-
 #ifndef NEURON_H_
 #define NEURON_H_
 
 
-#include <QVector>
-
 #include <memory>
+#include <QJsonDocument>
+#include <JsonSerializable.h>
 
-
-class QTextStream;
+#include "Winzent-ANN_global.h"
 
 
 using std::shared_ptr;
@@ -29,39 +21,9 @@ namespace Winzent {
         class ActivationFunction;
 
 
-        class Neuron
+        class WINZENTANNSHARED_EXPORT Neuron: public JsonSerializable
         {
             friend class Layer;
-            friend QTextStream& operator<<(QTextStream&, const NeuralNetwork&);
-
-
-        private:
-
-
-            /*!
-             * \brief Our parent layer
-             */
-            Layer *m_parent;
-
-
-            /*!
-             * \brief The activation function used for neuron activation
-             *
-             * \sa #activate()
-             */
-            std::shared_ptr<ActivationFunction> m_activationFunction;
-
-
-            /*!
-             * \brief Caches the input that was presented to #activate().
-             */
-            double m_lastInput;
-
-
-            /*!
-             * \brief Caches the result of the last activation
-             */
-            double m_lastResult;
 
 
         public:
@@ -71,17 +33,15 @@ namespace Winzent {
              * \brief Creates a new neuron with a specific activation
              * function
              *
-             * \param activationFunction The activation function that is used to
-             *  calculation the neuron's activation. The Neuron object takes
-             *  ownership of the activation function object.
-             *
-             * \param parent The parent object
+             * \param[in] activationFunction The activation function
+             *  that is used to calculate the neuron's activation.
+             *  The Neuron object takes ownership of the activation
+             *  function object. If a shared activation function is desiered,
+             *  use the setter that takes a std::shared_ptr.
              *
              * \sa #activate
-             *
-             * \sa QObject#setParent
              */
-            Neuron(ActivationFunction *activationFunction);
+            Neuron(ActivationFunction *const &activationFunction);
 
 
             /*!
@@ -108,6 +68,9 @@ namespace Winzent {
             Neuron(Neuron &&) = delete;
 
 
+            virtual ~Neuron();
+
+
             /*!
              * Clones this neuron by creating a new one with the
              * same activation function and the same last result.
@@ -131,46 +94,13 @@ namespace Winzent {
             Layer *parent() const;
 
 
-            /*!
-             * Returns the last network input for this neuron
-             */
-            double lastInput() const;
+            //! Returns the last network input for this neuron
+            qreal lastInput() const;
 
 
-            /*!
-             * \return All cached inputs
-             */
-            const QVector<double> lastInputs() const;
 
-
-            /*!
-             * Returns the result of the last activation
-             */
-            double lastResult() const;
-
-
-            /*!
-             * \return All cached results
-             */
-            const QVector<double> lastResults() const;
-
-
-            /*!
-             * \return The current size of the last input/last result caches.
-             *
-             * \deprecated
-             */
-            int cacheSize() const;
-
-
-            /*!
-             * \brief Sets the new input/result cache size.
-             *
-             * \return `this`
-             *
-             * \deprecated
-             */
-            Neuron &cacheSize(const int &cacheSize);
+            //! Returns the result of the last activation
+            qreal lastResult() const;
 
 
             /*!
@@ -218,7 +148,50 @@ namespace Winzent {
              * \sa #lastResult
              * \sa #m_activationFunction
              */
-            double activate(const double &sum);
+            qreal activate(const qreal &sum);
+
+
+            //! Resets the neuron to a pristine state
+            virtual void clear() override;
+
+
+            /*!
+             * \brief Serializes the Neuron object to JSON
+             *
+             * \return The JSON representation of the neuron
+             */
+            virtual QJsonDocument toJSON() const override;
+
+
+            /*!
+             * \brief Deserializes the Neuron object from JSON
+             *
+             * \param[in] json The JSON representation of the Neuron
+             */
+            virtual void fromJSON(const QJsonDocument &json) override;
+
+
+        private:
+
+
+            //! Our parent layer
+            Layer *m_parent;
+
+
+            /*!
+             * \brief The activation function used for neuron activation
+             *
+             * \sa #activate()
+             */
+            std::shared_ptr<ActivationFunction> m_activationFunction;
+
+
+            //! Caches the input that was presented to #activate().
+            qreal m_lastInput;
+
+
+            //! Caches the result of the last activation
+            qreal m_lastResult;
         };
     } /* namespace ANN */
 } /* namespace Winzent */

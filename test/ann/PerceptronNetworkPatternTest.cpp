@@ -33,7 +33,7 @@ void PerceptronNetworkPatternTest::testConfigure()
             });
     network->configure(pattern);
 
-    for (int i = 0; i != network->size() - 1; ++i) {
+    for (size_t i = 0; i != network->size() - 1; ++i) {
         for (size_t j = 0; j != network->layerAt(i)->size(); ++j) {
             for (size_t k = 0; k != (*network)[i+1].size(); ++k) {
                 QVERIFY(network->neuronConnectionExists(
@@ -72,8 +72,8 @@ void PerceptronNetworkPatternTest::testCalculate()
             });
     network.configure(pattern);
 
-    ValueVector input = { 1.0, 0.0 };
-    ValueVector output = network.calculate(input);
+    Vector input = { 1.0, 0.0 };
+    Vector output = network.calculate(input);
     QVERIFY(1.0f != output.first() + 1.0);
 }
 

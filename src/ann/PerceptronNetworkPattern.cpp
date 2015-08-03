@@ -2,9 +2,11 @@
 
 #include <QList>
 
-#include "NeuralNetwork.h"
+#include <ClassRegistry.h>
+
 #include "Layer.h"
 #include "Neuron.h"
+#include "NeuralNetwork.h"
 #include "ActivationFunction.h"
 #include "NeuralNetworkPattern.h"
 
@@ -16,6 +18,11 @@ using std::initializer_list;
 
 namespace Winzent {
     namespace ANN {
+        PerceptronNetworkPattern::PerceptronNetworkPattern()
+        {
+        }
+
+
         PerceptronNetworkPattern::PerceptronNetworkPattern(
                 QList<int> layerSizes,
                 QList<ActivationFunction *> activationFunctions):
@@ -49,7 +56,7 @@ namespace Winzent {
 
 
         void PerceptronNetworkPattern::configureNetwork(
-                NeuralNetwork *network)
+                NeuralNetwork* const& network)
         {
             // Add the layers & neurons:
 
@@ -74,11 +81,11 @@ namespace Winzent {
         }
 
 
-        ValueVector PerceptronNetworkPattern::calculate(
+        Vector PerceptronNetworkPattern::calculate(
                 NeuralNetwork *const &network,
-                const ValueVector &input)
+                const Vector &input)
         {
-            ValueVector output = input; // For the loop
+            Vector output = input; // For the loop
 
             for (size_t i = 0; i != network->size(); ++i) {
                 output = network->calculateLayer(network->layerAt(i), output);
@@ -95,3 +102,8 @@ namespace Winzent {
         }
     } // namespace ANN
 } // namespace Winzent
+
+
+WINZENT_REGISTER_CLASS(
+        Winzent::ANN::PerceptronNetworkPattern,
+        Winzent::ANN::NeuralNetworkPattern)

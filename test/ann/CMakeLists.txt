@@ -48,10 +48,13 @@ find_package(Qt5Test REQUIRED)
 find_package(Qt5Sql REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
 
+include_directories(../../src/common)
+
 
 # Tweak for C++11:
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
+        OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_compile_options(-std=c++1y)
 endif()
 

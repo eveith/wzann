@@ -15,7 +15,7 @@
 #include "NeuralNetworkPattern.h"
 
 
-using Winzent::ANN::ValueVector;
+using Winzent::ANN::Vector;
 using Winzent::ANN::NeuralNetwork;
 using Winzent::ANN::NeuralNetworkPattern;
 
@@ -32,15 +32,15 @@ namespace Mock {
         NeuralNetworkPatternTestDummyPattern();
 
 
-        virtual ValueVector calculate(
+        virtual Vector calculate(
                 NeuralNetwork *const &network,
-                const ValueVector& input);
+                const Vector& input);
 
 
         virtual NeuralNetworkPattern* clone() const;
 
 
-        virtual void configureNetwork(NeuralNetwork *network);
+        virtual void configureNetwork(NeuralNetwork *const &network);
     };
 }
 

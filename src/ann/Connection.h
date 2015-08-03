@@ -66,7 +66,7 @@ namespace Winzent {
             explicit Connection(
                     Neuron *const &source = nullptr,
                     Neuron *const &destination = nullptr,
-                    const double &weight = 0.0);
+                    const qreal &weight = 0.0);
 
 
             Connection(const Connection &) = delete;
@@ -84,7 +84,7 @@ namespace Winzent {
              *
              * \return The connection's weight
              */
-            double weight() const;
+            qreal weight() const;
 
 
             /*!
@@ -95,7 +95,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Connection &weight(const double &weight);
+            Connection &weight(const qreal &weight);
 
 
             /*!
@@ -148,7 +148,7 @@ namespace Winzent {
              *
              * \return this->weight() * rhs
              */
-            double operator *(const double &rhs) const;
+            qreal operator *(const qreal &rhs) const;
         };
     } // namespace ANN
 } // namespace Winzent

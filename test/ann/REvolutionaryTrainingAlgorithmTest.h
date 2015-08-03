@@ -37,12 +37,6 @@ private slots:
     void testCompareIndividuals();
     void testModifyIndividual();
     void testSortPopulation();
-    void testTrainXOR();
-
-    void recordIteration(
-            const int &epoch,
-            const double &error,
-            const QList<Individual *> &population);
-};
+    void testTrainXOR();};
 
 #endif // REVOLUTIONARYTRAININGALGORITHMTEST_H

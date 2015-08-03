@@ -1,18 +1,17 @@
-/*!
- * \file	ElmanNetworkPattern.h
- * \brief
- * \date	31.12.2012
- * \author	eveith
- */
-
-#ifndef ELMANNETWORKPATTERN_H_
-#define ELMANNETWORKPATTERN_H_
+#ifndef WINZENT_ANN_ELMANNETWORKPATTERN_H_
+#define WINZENT_ANN_ELMANNETWORKPATTERN_H_
 
 
 #include <initializer_list>
+
+#include <QObject>
 #include <QList>
 
+#include <ClassRegistry.h>
+
 #include "NeuralNetworkPattern.h"
+
+#include "Winzent-ANN_global.h"
 
 
 using std::initializer_list;
@@ -32,35 +31,24 @@ namespace Winzent {
          * output of its corresponding hidden neuron and feed it
          * again to the hidden neuron upon next activation.
          */
-        class ElmanNetworkPattern: public NeuralNetworkPattern
+        class WINZENTANNSHARED_EXPORT ElmanNetworkPattern:
+                public NeuralNetworkPattern
         {
+            Q_OBJECT
+
+            friend class Winzent::ClassRegistration<ElmanNetworkPattern>;
+
+
         public:
 
 
-            /*!
-             * Index constants for the layers we generate.
-             */
+            //! \brief Index constants for the layers we generate.
             enum Layers {
                 INPUT,
                 CONTEXT,
                 HIDDEN,
                 OUTPUT
             };
-
-
-        protected:
-
-
-            /*!
-             * Feed-forward calculation of an Elman network.
-             */
-            virtual ValueVector calculate(
-                    NeuralNetwork *const &network,
-                    const ValueVector &input)
-                    override;
-
-
-        public:
 
 
             /*!
@@ -92,10 +80,7 @@ namespace Winzent {
                         activationFunctions);
 
 
-            /*!
-             * Creates a clone of this pattern, cast to the base
-             * class.
-             */
+            //! \brief Clones this pattern
             virtual NeuralNetworkPattern* clone() const override;
 
 
@@ -114,9 +99,29 @@ namespace Winzent {
              * - Each hidden layer neuron is connected to each
              *   output layer neuron.
              */
-            virtual void configureNetwork(NeuralNetwork *network) override;
-        };
+            virtual void configureNetwork(NeuralNetwork *const &network)
+                    override;
 
+
+        protected:
+
+
+            /*!
+             * Feed-forward calculation of an Elman network.
+             */
+            virtual Vector calculate(
+                    NeuralNetwork *const &network,
+                    const Vector &input)
+                    override;
+
+
+        private:
+
+
+            ElmanNetworkPattern();
+        };
     } /* namespace ANN */
 } /* namespace Winzent */
-#endif /* ELMANNETWORKPATTERN_H_ */
+
+
+#endif /* WINZENT_ANN_ELMANNETWORKPATTERN_H_ */

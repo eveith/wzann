@@ -1,17 +1,15 @@
-/*!
- * \file	Neuron.cpp
- * \brief
- * \date	17.12.2012
- * \author	eveith
- */
-
-
 #include <memory>
+
+#include <QJsonObject>
+#include <QJsonDocument>
+
+#include <ClassRegistry.h>
 
 #include "Layer.h"
 #include "ActivationFunction.h"
 
 #include "Neuron.h"
+#include "Winzent-ANN_global.h"
 
 
 using std::shared_ptr;
@@ -19,9 +17,7 @@ using std::shared_ptr;
 
 namespace Winzent {
     namespace ANN {
-
-
-        Neuron::Neuron(ActivationFunction *activationFunction):
+        Neuron::Neuron(ActivationFunction* const& activationFunction):
                 m_parent(nullptr),
                 m_activationFunction(activationFunction)
         {
@@ -31,6 +27,11 @@ namespace Winzent {
         Neuron::Neuron(shared_ptr<ActivationFunction> &activationFunction):
                 m_parent(nullptr),
                 m_activationFunction(activationFunction)
+        {
+        }
+
+
+        Neuron::~Neuron()
         {
         }
 
@@ -53,39 +54,15 @@ namespace Winzent {
         }
 
 
-        double Neuron::lastResult() const
+        qreal Neuron::lastResult() const
         {
             return m_lastResult;
         }
 
 
-        const QVector<double> Neuron::lastInputs() const
-        {
-            return QVector<double>({ m_lastInput });
-        }
-
-
-        double Neuron::lastInput() const
+        qreal Neuron::lastInput() const
         {
             return m_lastInput;
-        }
-
-
-        const QVector<double> Neuron::lastResults() const
-        {
-            return QVector<double>({ m_lastResult });
-        }
-
-
-        int Neuron::cacheSize() const
-        {
-            return 1;
-        }
-
-
-        Neuron &Neuron::cacheSize(const int &)
-        {
-            return *this;
         }
 
 
@@ -111,11 +88,44 @@ namespace Winzent {
         }
 
 
-        double Neuron::activate(const double &sum)
+        qreal Neuron::activate(const qreal &sum)
         {
             m_lastInput = sum;
             m_lastResult = m_activationFunction->calculate(sum);
             return m_lastResult;
+        }
+
+
+        void Neuron::clear()
+        {
+            m_lastInput = m_lastResult = 0.0;
+        }
+
+
+        QJsonDocument Neuron::toJSON() const
+        {
+            QJsonObject o;
+
+            o["lastInput"] = lastInput();
+            o["lastResult"] = lastResult();
+            o["activationFunction"] = activationFunction()->toJSON().object();
+
+            return QJsonDocument(o);
+        }
+
+
+        void Neuron::fromJSON(const QJsonDocument &json)
+        {
+            QJsonObject o = json.object();
+
+            m_lastInput = o["lastInput"].toDouble();
+            m_lastResult = o["lastResult"].toDouble();
+            m_activationFunction.reset(
+                    ClassRegistry<ActivationFunction>::instance()->create(
+                        o["activationFunction"]
+                            .toObject()["type"].toString()));
+            activationFunction()->fromJSON(QJsonDocument(
+                    o["activationFunction"].toObject()));
         }
     }
 }

@@ -9,4 +9,14 @@
 #  define WINZENTANNSHARED_EXPORT Q_DECL_IMPORT
 #endif
 
+
+namespace Winzent {
+    namespace ANN {
+
+        //! The most commonly used vector to store floating point values
+        typedef QVector<qreal> Vector;
+    }
+}
+
+
 #endif // WINZENTANN_GLOBAL_H

@@ -9,10 +9,15 @@
 
 #include <initializer_list>
 
+#include <QObject>
 #include <QList>
 
-#include "NeuralNetworkPattern.h"
+#include <ClassRegistry.h>
+
 #include "NeuralNetwork.h"
+#include "NeuralNetworkPattern.h"
+
+#include "Winzent-ANN_global.h"
 
 
 using std::initializer_list;
@@ -24,29 +29,16 @@ namespace Winzent {
         class ActivationFunction;
 
         /*!
-         * Instances of this class represent the pattern to create a
-         * (potentially multi-layered), feed-forward perceptron without
-         * recurrent connections, shortcut connections or other specialities.
+         * \brief Instances of this class represent the pattern to create a
+         *  (potentially multi-layered), feed-forward perceptron without
+         *  recurrent connections, shortcut connections or other specialities.
          */
-        class PerceptronNetworkPattern: public NeuralNetworkPattern
+        class WINZENTANNSHARED_EXPORT PerceptronNetworkPattern:
+                public NeuralNetworkPattern
         {
-        protected:
+            Q_OBJECT
 
-
-            /*!
-             * \brief Configures the supplied neural network
-             *  to be an perceptron.
-             */
-            virtual void configureNetwork(NeuralNetwork *network) override;
-
-
-            /*!
-             * \sa NeuralNetworkPattern#calculate
-             */
-            virtual ValueVector calculate(
-                    NeuralNetwork *const &network,
-                    const ValueVector &input)
-                    override;
+            friend class Winzent::ClassRegistration<PerceptronNetworkPattern>;
 
 
         public:
@@ -81,8 +73,33 @@ namespace Winzent {
              * \sa NeuralNetworkPattern#clone
              */
             virtual NeuralNetworkPattern *clone() const override;
-        };
 
+
+        protected:
+
+
+            /*!
+             * \brief Configures the supplied neural network
+             *  to be an perceptron.
+             */
+            virtual void configureNetwork(NeuralNetwork *const &network)
+                    override;
+
+
+            /*!
+             * \sa NeuralNetworkPattern#calculate
+             */
+            virtual Vector calculate(
+                    NeuralNetwork *const &network,
+                    const Vector &input)
+                    override;
+
+
+        private:
+
+
+            PerceptronNetworkPattern();
+        };
     } // namespace ANN
 } // namespace Winzent
 

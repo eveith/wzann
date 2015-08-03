@@ -1,15 +1,11 @@
-/*
- * SigmoidActivationFunction.h
- *
- *  Created on: 04.11.2012
- *      Author: eveith
- */
-
 #ifndef SIGMOIDACTIVATIONFUNCTION_H_
 #define SIGMOIDACTIVATIONFUNCTION_H_
 
 
+#include <QObject>
+
 #include "ActivationFunction.h"
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
@@ -20,8 +16,11 @@ namespace Winzent {
          * \brief The SigmoidActivationFunction class represents an activation
          *  function that follows a sigmoid pattern
          */
-        class SigmoidActivationFunction: public ActivationFunction
+        class WINZENTANNSHARED_EXPORT SigmoidActivationFunction:
+                public ActivationFunction
         {
+            Q_OBJECT
+
         public:
 
 
@@ -30,13 +29,13 @@ namespace Winzent {
              *
              * \param[in] steepness The new function's steepness
              */
-            SigmoidActivationFunction(double steepness = 1.0);
+            SigmoidActivationFunction(const qreal &steepness = 1.0);
 
 
             /*!
              * \brief Calculates output using the sigmoid function.
              */
-            virtual double calculate(const double &input) override;
+            virtual qreal calculate(const qreal &input) override;
 
 
             /*!
@@ -45,9 +44,9 @@ namespace Winzent {
              *
              * \sa ActivationFunction#calculateDerivative
              */
-            virtual double calculateDerivative(
-                    const double &,
-                    const double &result)
+            virtual qreal calculateDerivative(
+                    const qreal &,
+                    const qreal &result)
                     override;
 
 
@@ -71,5 +70,6 @@ namespace Winzent {
         };
     } /* namespace ANN */
 } /* namespace Winzent */
+
 
 #endif /* SIGMOIDACTIVATIONFUNCTION_H_ */
