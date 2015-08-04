@@ -58,5 +58,13 @@ namespace Winzent {
             QJsonObject o = json.object();
             m_steepness = o["steepness"].toDouble();
         }
+
+
+        bool ActivationFunction::equals(
+                const ActivationFunction* const& other)
+                const
+        {
+            return steepness() == other->steepness();
+        }
     }
 }

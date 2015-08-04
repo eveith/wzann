@@ -2,13 +2,15 @@
 #define WINZENT_ANN_CONSTANTACTIVATIONFUNCTION_H
 
 
-#include <QtGlobal>
+#include <QObject>
 
 #include "ActivationFunction.h"
+#include "Winzent-ANN_global.h"
+
 
 namespace Winzent {
     namespace ANN {
-        
+
 
         /*!
          * Represents an activation function which always emits a constant
@@ -19,26 +21,21 @@ namespace Winzent {
          */
         class ConstantActivationFunction: public ActivationFunction
         {
+            Q_OBJECT
 
-        private:
-
-
-            /*!
-             * The constant value we emit
-             */
-            qreal m_value;
-
+            friend bool ActivationFunction::equals(
+                const ActivationFunction* const&)
+                const;
 
         public:
 
 
             /*!
-             * Creates a new instance of this class with a constant value of
-             * <code>1.0</code>, which is optionally configurable.
+             * \brief Creates a new instance of this class.
              *
              * \param value The constant activation value; defaults to 1.0.
              */
-            ConstantActivationFunction(qreal value = 1.0);
+            ConstantActivationFunction(const qreal& value = 1.0);
 
 
             /*!
@@ -68,8 +65,28 @@ namespace Winzent {
              * \return A clone of this object
              */
             virtual ActivationFunction *clone() const override;
+
+
+            /*!
+             * \brief Checks for equality of two ActivationFunction objects
+             *
+             * \param[in] other The other ActivationFunction object
+             *
+             * \return True if `other` is also a ConstantActivationFunction
+             *  and has the same parameters.
+             */
+            virtual bool equals(const ActivationFunction* const& other) const
+                override;
+
+
+        private:
+
+
+            /*!
+             * The constant value we emit
+             */
+            qreal m_value;
         };
-        
     } // namespace ANN
 } // namespace Winzent
 

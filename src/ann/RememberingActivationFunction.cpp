@@ -18,8 +18,8 @@ namespace Winzent {
 
         qreal RememberingActivationFunction::calculate(const qreal &input)
         {
-            qreal ret = m_remeberedValue;
-            m_remeberedValue = input * steepness();
+            qreal ret = m_rememberedValue;
+            m_rememberedValue = input * steepness();
 
             return ret;
         }
@@ -29,7 +29,7 @@ namespace Winzent {
         {
             RememberingActivationFunction *clone =
                     new RememberingActivationFunction(steepness());
-            clone->m_remeberedValue = m_remeberedValue;
+            clone->m_rememberedValue = m_rememberedValue;
 
             return clone;
         }
@@ -37,7 +37,7 @@ namespace Winzent {
 
         void RememberingActivationFunction::clear()
         {
-            m_remeberedValue = 0.0;
+            m_rememberedValue = 0.0;
         }
 
 
@@ -45,7 +45,7 @@ namespace Winzent {
         {
             QJsonObject o = ActivationFunction::toJSON().object();
 
-            o["rememberedValue"] = m_remeberedValue;
+            o["rememberedValue"] = m_rememberedValue;
 
             return QJsonDocument(o);
         }
@@ -55,16 +55,19 @@ namespace Winzent {
                 const QJsonDocument &json)
         {
             ActivationFunction::fromJSON(json);
-            m_remeberedValue = json.object()["rememberedValue"].toDouble();
+            m_rememberedValue = json.object()["rememberedValue"].toDouble();
         }
 
 
-        bool RememberingActivationFunction::operator ==(
-                const RememberingActivationFunction &other)
+        bool RememberingActivationFunction::equals(
+                const ActivationFunction* const &other)
                 const
         {
-            return steepness() == other.steepness()
-                    && m_remeberedValue == other.m_remeberedValue;
+            auto otherAF = reinterpret_cast<
+                    const RememberingActivationFunction* const&>(other);
+            return nullptr != otherAF
+                    && m_rememberedValue == otherAF->m_rememberedValue
+                    && ActivationFunction::equals(other);
         }
     }
 }

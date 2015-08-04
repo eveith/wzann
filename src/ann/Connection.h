@@ -11,7 +11,7 @@ namespace Winzent {
     namespace ANN {
 
         class Neuron;
-        
+
 
         /*!
          * \brief Instances of this class represent a connection
@@ -29,34 +29,6 @@ namespace Winzent {
          */
         class WINZENTANNSHARED_EXPORT Connection
         {
-        private:
-
-
-            /*!
-             * The weight that is attached to this connection.
-             */
-            qreal m_weight;
-
-
-            /*!
-             * Whether the weight value of this connection is fixed
-             * (i.e., cannot be trained) or may be changed.
-             */
-            bool m_fixed;
-
-
-            /*!
-             * The neuron from which this connection originates.
-             */
-            Neuron *m_sourceNeuron;
-
-
-            /*!
-             * The destination neuron to which this connection leads.
-             */
-            Neuron *m_destinationNeuron;
-
-
         public:
 
 
@@ -106,9 +78,10 @@ namespace Winzent {
 
 
             /*!
-             * Sets the connection weight fixed (i.e., untrainable) or variable.
+             * \brief Sets the connection weight fixed (i.e., untrainable)
+             *  or variable.
              */
-            void fixedWeight(const bool &fixed);
+            void fixedWeight(const bool& fixed);
 
 
             /*!
@@ -149,6 +122,67 @@ namespace Winzent {
              * \return this->weight() * rhs
              */
             qreal operator *(const qreal &rhs) const;
+
+
+            /*!
+             * \brief Checks for connection equality
+             *
+             * Two connections are equal if they have the same weight, the
+             * same "weight fixed" value, and their sources and destinations
+             * are the same. Here, source/destination equality is defined by
+             * the Neuron::operator==() method.
+             *
+             * This means that two connections can belong to different
+             * networks, but fulfill the same purpose. If you want to find
+             * out whether two connections really belong to the same network,
+             * compare their memory addresses.
+             *
+             * \param[in] other The other connection
+             *
+             * \return True if the connections are equal as explained; false
+             *  otherwise.
+             */
+            bool operator ==(const Connection& other) const;
+
+
+            /*!
+             * \brief Checks for connection inequality.
+             *
+             * \param[in] other The other connection object
+             *
+             * \return `! (*this == other)`
+             *
+             * \sa #operator==()
+             */
+            bool operator !=(const Connection& other) const;
+
+
+        private:
+
+
+            /*!
+             * The weight that is attached to this connection.
+             */
+            qreal m_weight;
+
+
+            /*!
+             * Whether the weight value of this connection is fixed
+             * (i.e., cannot be trained) or may be changed.
+             */
+            bool m_fixed;
+
+
+            /*!
+             * The neuron from which this connection originates.
+             */
+            Neuron *m_sourceNeuron;
+
+
+            /*!
+             * The destination neuron to which this connection leads.
+             */
+            Neuron *m_destinationNeuron;
         };
     } // namespace ANN
 } // namespace Winzent

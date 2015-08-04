@@ -103,6 +103,18 @@ namespace Winzent {
                     override;
 
 
+            /*!
+             * \brief Checks for equality of two ElmanNetworkPattern
+             *
+             * \param[in] other The other pattern
+             *
+             * \return True if the two are of the same class and have the
+             *  same parameters
+             */
+            virtual bool equals(const NeuralNetworkPattern* const& other)
+                    const override;
+
+
         protected:
 
 

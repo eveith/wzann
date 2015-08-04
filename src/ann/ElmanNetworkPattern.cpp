@@ -130,6 +130,16 @@ namespace Winzent {
         }
 
 
+        bool ElmanNetworkPattern::equals(
+                const NeuralNetworkPattern* const &other)
+                const
+        {
+            return reinterpret_cast<const ElmanNetworkPattern* const&>(
+                        other) != nullptr
+                    && NeuralNetworkPattern::equals(other);
+        }
+
+
         Vector ElmanNetworkPattern::calculate(
                 NeuralNetwork *const &network,
                 const Vector &input)

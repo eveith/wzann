@@ -65,8 +65,16 @@ namespace Winzent {
             virtual ActivationFunction *clone() const override;
 
 
-            //! Checks for equality
-            bool operator ==(const LinearActivationFunction &other) const;
+            /*!
+             * \brief Checks for equality
+             *
+             * \param[in] other Another ActivationFunction object
+             *
+             * \return True iff the other object is of the same class and
+             *  has the same parameters.
+             */
+            virtual bool equals(const ActivationFunction* const& other) const
+                override;
         };
     } // namespace ANN
 } // namespace Winzent

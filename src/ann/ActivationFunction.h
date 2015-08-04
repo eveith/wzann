@@ -177,6 +177,21 @@ namespace Winzent {
             virtual void fromJSON(const QJsonDocument &json) override;
 
 
+            /*!
+             * \brief Checks for equality of two Activation Function object
+             *  pointers
+             *
+             * This method is virtual since derived classes can re-implement
+             * and re-use it in order to support equality checking with
+             * regards to run-time polymorphism.
+             *
+             * \param[in] other The other ActivationFunction object
+             *
+             * \return True if the two are equal, false otherwise.
+             */
+            virtual bool equals(const ActivationFunction* const& other) const;
+
+
         private:
 
 

@@ -492,7 +492,11 @@ namespace Winzent {
 
 
             //! Checks for equality of two ANNs.
-            bool operator ==(const NeuralNetwork &other) const;
+            bool operator ==(const NeuralNetwork& other) const;
+
+
+            //! Checks for inequality of two ANNs.
+            bool operator !=(const NeuralNetwork& other) const;
 
 
         protected:

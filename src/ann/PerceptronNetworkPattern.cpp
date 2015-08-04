@@ -55,6 +55,16 @@ namespace Winzent {
         }
 
 
+        bool PerceptronNetworkPattern::equals(
+                const NeuralNetworkPattern* const& other)
+                const
+        {
+            return reinterpret_cast<const PerceptronNetworkPattern* const&>(
+                        other) != nullptr
+                    && NeuralNetworkPattern::equals(other);
+        }
+
+
         void PerceptronNetworkPattern::configureNetwork(
                 NeuralNetwork* const& network)
         {

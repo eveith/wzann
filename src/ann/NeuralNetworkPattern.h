@@ -129,6 +129,23 @@ namespace Winzent {
             void fromJSON(const QJsonDocument &json) override;
 
 
+            /*!
+             * \brief Checks for equality between two patterns.
+             *
+             * Two patterns are equal if their number of layers and types of
+             * activation functions match. However, in the base class, there
+             * is no check whether the type of the pattern matches. This is
+             * why derived classes must overload this method and add the
+             * corresponding check, e.g., by trying to cast.
+             *
+             * \param[in] other The other pattern
+             *
+             * \return True if the two patterns are equal
+             */
+            virtual bool equals(const NeuralNetworkPattern* const& other)
+                    const;
+
+
         protected:
 
 

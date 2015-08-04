@@ -28,6 +28,11 @@ namespace Winzent {
         {
             Q_OBJECT
 
+            friend bool ActivationFunction::equals(
+                    const ActivationFunction* const &)
+                    const;
+
+
         public:
 
 
@@ -109,16 +114,23 @@ namespace Winzent {
             virtual void fromJSON(const QJsonDocument &json) override;
 
 
-            //! Checks for equality
-            bool operator ==(const RememberingActivationFunction &other)
-                const;
+            /*!
+             * \brief Checks for equality
+             *
+             * \param[in] other Another ActivationFunction object
+             *
+             * \return True iff the other object is of the same class and
+             *  has the same parameters.
+             */
+            virtual bool equals(const ActivationFunction* const& other) const
+                override;
 
 
         private:
 
 
             //! The saved/remembered value
-            qreal m_remeberedValue;
+            qreal m_rememberedValue;
         };
     } /* namespace ANN */
 } /* namespace Winzent */

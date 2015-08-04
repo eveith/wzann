@@ -24,12 +24,15 @@ using Winzent::ANN::NeuralNetworkPattern;
 namespace Mock {
     class NeuralNetworkTestDummyPattern: public NeuralNetworkPattern
     {
+        Q_OBJECT
+
     public:
 
         static const int numLayers;
 
 
         NeuralNetworkTestDummyPattern();
+        virtual ~NeuralNetworkTestDummyPattern() {}
 
 
         int numNeuronsInLayer(const int &layer) {
@@ -65,6 +68,8 @@ private slots:
     void testClone();
     void testEachLayerIterator();
     void testEachConnectionIterator();
+    void testOperatorEquals();
+    void testJsonSerialization();
 };
 
 #endif /* NEURALNETWORKTEST_H_ */

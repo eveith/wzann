@@ -534,6 +534,8 @@ namespace Winzent {
 
             m_pattern.reset(nullptr);
             m_layers.clear();
+            m_connectionSources.clear();
+            m_connectionDestinations.clear();
         }
 
 
@@ -541,6 +543,8 @@ namespace Winzent {
         {
             clear();
             QJsonObject o = json.object();
+
+            m_biasNeuron->fromJSON(QJsonDocument(o["biasNeuron"].toObject()));
 
             QJsonArray layers = o["layers"].toArray();
             for (const auto &i: layers) {
@@ -553,17 +557,19 @@ namespace Winzent {
             for (const auto &i: connections) {
                 QJsonObject c = i.toObject();
 
-                Connection *connection = new Connection();
-                connection->destination(
-                        layerAt(c["dstLayer"].toInt())->neuronAt(
-                            c["dstNeuron"].toInt()));
+                Connection *connection = nullptr;
 
                 if (c["srcNeuron"] == "BIAS") {
-                    connection->source(biasNeuron());
+                    connection = neuronConnection(
+                            m_biasNeuron,
+                            layerAt(c["dstLayer"].toInt())
+                                ->neuronAt(c["dstNeuron"].toInt()));
                 } else {
-                    connection->source(
+                    connection = connectNeurons(
                             layerAt(c["srcLayer"].toInt())->neuronAt(
-                                c["srcNeuron"].toInt()));
+                                c["srcNeuron"].toInt()),
+                            layerAt(c["dstLayer"].toInt())->neuronAt(
+                                c["dstNeuron"].toInt()));
                 }
 
                 connection->weight(c["weight"].toDouble());
@@ -575,6 +581,7 @@ namespace Winzent {
                 m_pattern.reset(
                         ClassRegistry<NeuralNetworkPattern>::instance()
                             ->create(pattern["type"].toString()));
+                Q_ASSERT(m_pattern != nullptr);
                 m_pattern->fromJSON(QJsonDocument(pattern));
             }
         }
@@ -585,6 +592,7 @@ namespace Winzent {
             QJsonObject o;
 
             o["version"] = VERSION;
+            o["biasNeuron"] = m_biasNeuron->toJSON().object();
 
             QJsonArray layers;
             for (const Layer &l: m_layers) {
@@ -644,9 +652,56 @@ namespace Winzent {
         {
             bool equal = true;
 
-            //equal &= (*m_pattern == *(other.m_pattern));
+            equal &= size() == other.size();
+            equal &= *m_biasNeuron == *(other.m_biasNeuron);
+            equal &= (m_pattern == nullptr && other.m_pattern == nullptr
+                    || m_pattern != nullptr && other.m_pattern != nullptr
+                        && m_pattern->equals(other.m_pattern.get()));
+            equal &= (m_connectionSources.size()
+                    == other.m_connectionSources.size());
+
+            if (! equal) { // Short cut in order to save time:
+                return equal;
+            }
+
+            auto lit1 = m_layers.begin(), lit2 = other.m_layers.begin();
+            for (; lit1 != m_layers.end() && lit2 != other.m_layers.end();
+                    lit1++, lit2++) {
+                if (! (*lit1 == *lit2)) {
+                    return false;
+                }
+            }
+
+            for (size_t i = 0; i != size(); ++i) {
+                const auto& layer = layerAt(i);
+
+                for (size_t j = 0; j != layer->size(); ++j) {
+                    const auto& ourConnections = neuronConnectionsFrom(
+                            layer->neuronAt(j));
+                    const auto& otherConnections =
+                            other.neuronConnectionsFrom(
+                                other.layerAt(i)->neuronAt(j));
+
+                    for (auto it1 = ourConnections.constBegin(),
+                                it2 = otherConnections.constBegin();
+                            it1 != ourConnections.constEnd()
+                                && it2 != otherConnections.constEnd();
+                            it1++, it2++) {
+                        if (**it1 != **it2) {
+                            return false;
+                        }
+                    }
+                }
+            }
+
 
             return equal;
+        }
+
+
+        bool NeuralNetwork::operator !=(const NeuralNetwork& other) const
+        {
+            return !(*this == other);
         }
     }
 }

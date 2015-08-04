@@ -40,15 +40,17 @@ namespace Winzent {
         }
 
 
-        bool LinearActivationFunction::operator ==(
-                const LinearActivationFunction &other)
+        bool LinearActivationFunction::equals(
+                const ActivationFunction* const& other)
                 const
         {
-            return steepness() == other.steepness();
+            return
+                    nullptr != reinterpret_cast<
+                            const LinearActivationFunction* const&>(other)
+                        && ActivationFunction::equals(other);
         }
     } // namespace ANN
 } // namespace Winzent
-
 
 
 WINZENT_REGISTER_CLASS(

@@ -1,4 +1,4 @@
-#include <QObject>
+#include <ClassRegistry.h>
 
 #include "ActivationFunction.h"
 #include "ConstantActivationFunction.h"
@@ -6,9 +6,10 @@
 
 namespace Winzent {
     namespace ANN {
-        ConstantActivationFunction::ConstantActivationFunction(qreal value):
-                ActivationFunction(1.0),
-                m_value(value)
+        ConstantActivationFunction::ConstantActivationFunction(
+                const qreal& value):
+                    ActivationFunction(1.0),
+                    m_value(value)
         {
         }
 
@@ -37,5 +38,22 @@ namespace Winzent {
         {
             return new ConstantActivationFunction(m_value);
         }
+
+
+        bool ConstantActivationFunction::equals(
+                const ActivationFunction* const& other)
+                const
+        {
+            auto otherAF = reinterpret_cast<
+                    const ConstantActivationFunction* const&>(other);
+            return nullptr != otherAF
+                    && m_value == otherAF->m_value
+                    && ActivationFunction::equals(other);
+        }
     } // namespace ANN
 } // namespace Winzent
+
+
+WINZENT_REGISTER_CLASS(
+        Winzent::ANN::ConstantActivationFunction,
+        Winzent::ANN::ActivationFunction)

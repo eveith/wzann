@@ -89,5 +89,20 @@ namespace Winzent {
         {
             return m_weight * rhs;
         }
+
+
+        bool Connection::operator ==(const Connection& other) const
+        {
+            return (fixedWeight() == other.fixedWeight()
+                    && 1.0 + weight() == 1.0 + other.weight()
+                    && *(source()) == *(other.source())
+                    && *(destination()) == *(other.destination()));
+        }
+
+
+        bool Connection::operator !=(const Connection& other) const
+        {
+            return !(*this == other);
+        }
     } // namespace ANN
 } // namespace Winzent

@@ -8,6 +8,8 @@
 
 #include <QtDebug>
 
+#include <ClassRegistry.h>
+
 #include "Testrunner.h"
 
 #include "LinearActivationFunction.h"
@@ -325,4 +327,61 @@ void NeuralNetworkTest::testEachConnectionIterator()
 }
 
 
+void NeuralNetworkTest::testOperatorEquals()
+{
+    NeuralNetwork n1, n2;
+    QVERIFY(n1 == n2);
+    QVERIFY(! (n1 != n2));
+
+    Mock::NeuralNetworkTestDummyPattern pattern;
+    n1.configure(pattern);
+    QVERIFY(n1 != n2);
+    n2.configure(pattern);
+    QVERIFY(n1 == n2);
+
+    n1.eachConnection([](Connection* const& c) {
+        if (! c->fixedWeight()) {
+            c->weight(42.23);
+        }
+    });
+
+    n2.eachConnection([](Connection* const& c) {
+        if (! c->fixedWeight()) {
+            c->weight(1.0);
+        }
+    });
+
+    QVERIFY(n1 != n2);
+
+    n2.eachConnection([](Connection* const& c) {
+        if (! c->fixedWeight()) {
+            c->weight(42.23);
+        }
+    });
+
+    QVERIFY(n1 == n2);
+}
+
+
+void NeuralNetworkTest::testJsonSerialization()
+{
+    NeuralNetwork n1, n2;
+    Mock::NeuralNetworkTestDummyPattern pattern;
+
+    n1.configure(pattern);
+    n1.eachConnection([](Connection* const& c) {
+        if (! c->fixedWeight()) {
+            c->weight(12.20);
+        }
+    });
+
+    QVERIFY(n1 != n2);
+    n2.fromJSON(n1.toJSON());
+    QVERIFY(n2 == n1);
+}
+
+
 TESTCASE(NeuralNetworkTest)
+WINZENT_REGISTER_CLASS(
+        Mock::NeuralNetworkTestDummyPattern,
+        Winzent::ANN::NeuralNetworkPattern)

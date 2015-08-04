@@ -19,7 +19,9 @@ namespace Winzent {
     namespace ANN {
         Neuron::Neuron(ActivationFunction* const& activationFunction):
                 m_parent(nullptr),
-                m_activationFunction(activationFunction)
+                m_activationFunction(activationFunction),
+                m_lastInput(0.0),
+                m_lastResult(0.0)
         {
         }
 
@@ -99,6 +101,7 @@ namespace Winzent {
         void Neuron::clear()
         {
             m_lastInput = m_lastResult = 0.0;
+            m_activationFunction.reset();
         }
 
 
@@ -114,8 +117,9 @@ namespace Winzent {
         }
 
 
-        void Neuron::fromJSON(const QJsonDocument &json)
+        void Neuron::fromJSON(const QJsonDocument& json)
         {
+            clear();
             QJsonObject o = json.object();
 
             m_lastInput = o["lastInput"].toDouble();
@@ -129,15 +133,22 @@ namespace Winzent {
         }
 
 
-        bool Neuron::operator ==(const Neuron &other) const
+        bool Neuron::operator ==(const Neuron& other) const
         {
             bool equal = true;
 
             equal &= (m_lastInput + 1.0 == 1.0 + other.m_lastInput);
             equal &= (m_lastResult + 1.0 == 1.0 + other.m_lastResult);
-            //equal &= (*m_activationFunction == *(other.m_activationFunction));
+            equal &= (m_activationFunction->equals(
+                    other.m_activationFunction.get()));
 
             return equal;
+        }
+
+
+        bool Neuron::operator !=(const Neuron& other) const
+        {
+            return !(*this == other);
         }
     }
 }

@@ -15,6 +15,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
+#include <ClassRegistry.h>
+
 #include "Layer.h"
 #include "Exception.h"
 #include "Connection.h"
@@ -94,6 +96,7 @@ namespace Winzent {
             for (auto &f: m_activationFunctions) {
                 delete f;
             }
+            m_activationFunctions.clear();
         }
 
 
@@ -121,7 +124,54 @@ namespace Winzent {
 
         void NeuralNetworkPattern::fromJSON(const QJsonDocument &json)
         {
+            clear();
+            QJsonObject o = json.object();
 
+            QJsonArray layerSizes = o["layerSizes"].toArray();
+            for (const auto& i: layerSizes) {
+                m_layerSizes.push_back(i.toInt());
+            }
+
+            auto classRegistry =
+                    ClassRegistry<ActivationFunction>::instance();
+            QJsonArray activationFunctions =
+                    o["activationFunctions"].toArray();
+            for (const auto& i: activationFunctions) {
+                auto activationFunction = classRegistry->create(
+                        i.toObject()["type"].toString());
+                Q_ASSERT(nullptr != activationFunction);
+
+                activationFunction->fromJSON(QJsonDocument(i.toObject()));
+                m_activationFunctions.push_back(activationFunction);
+            }
+        }
+
+
+        bool NeuralNetworkPattern::equals(
+                const NeuralNetworkPattern* const& other)
+                const
+        {
+            bool equal = true;
+
+            equal &= (m_layerSizes == other->m_layerSizes);
+            equal &= (m_activationFunctions.size()
+                    == other->m_activationFunctions.size());
+
+            if (! equal) {
+                return equal;
+            }
+
+            for (auto i1 = m_activationFunctions.constBegin(),
+                        i2 = other->m_activationFunctions.constBegin();
+                    i1 != m_activationFunctions.constEnd()
+                        && i2 != other->m_activationFunctions.constEnd();
+                    i1++, i2++) {
+                if (! (*i1)->equals(*i2)) {
+                    return false;
+                }
+            }
+
+            return equal;
         }
     }
 }

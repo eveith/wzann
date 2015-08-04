@@ -168,11 +168,15 @@ namespace Winzent {
              *
              * \param[in] json The JSON representation of the Neuron
              */
-            virtual void fromJSON(const QJsonDocument &json) override;
+            virtual void fromJSON(const QJsonDocument& json) override;
 
 
             //! Checks for equality of two Neurons
-            bool operator ==(const Neuron &other) const;
+            bool operator ==(const Neuron& other) const;
+
+
+            //! Checks for inequality of two Neurons
+            bool operator !=(const Neuron& other) const;
 
 
         private:

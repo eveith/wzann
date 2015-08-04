@@ -37,11 +37,13 @@ namespace Winzent {
         }
 
 
-        bool SigmoidActivationFunction::operator ==(
-                const SigmoidActivationFunction &other)
+        bool SigmoidActivationFunction::equals(
+                const ActivationFunction* const& other)
                 const
         {
-            return steepness() == other.steepness();
+            return reinterpret_cast<const SigmoidActivationFunction* const&>(
+                        other) != nullptr
+                    && ActivationFunction::equals(other);
         }
     }
 }

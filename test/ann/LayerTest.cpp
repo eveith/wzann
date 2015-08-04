@@ -43,22 +43,14 @@ void LayerTest::testNeuronAddition()
 
 void LayerTest::testNeuronIterator()
 {
-    QList<Neuron *> neurons;
+    QList<const Neuron*> neurons;
 
     Layer layer;
     layer << new Neuron(new LinearActivationFunction());
     layer << new Neuron(new LinearActivationFunction());
 
-    layer.eachNeuron([&](Neuron *const &neuron) {
-        neurons << neuron;
-    });
-
-    QCOMPARE(static_cast<size_t>(neurons.size()), layer.size());
-
-    neurons.clear();
-
-    for (Neuron &n: layer) {
-        neurons << &n;
+    for (const Neuron &neuron: layer) {
+        neurons << &neuron;
     }
 
     QCOMPARE(static_cast<size_t>(neurons.size()), layer.size());

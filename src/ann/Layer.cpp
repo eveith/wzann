@@ -166,7 +166,7 @@ namespace Winzent {
             for (const auto &i: a) {
                 Neuron *n = new Neuron(nullptr);
                 n->fromJSON(QJsonDocument(i.toObject()));
-                m_neurons.push_back(n);
+                addNeuron(n);
             }
         }
 
@@ -174,7 +174,7 @@ namespace Winzent {
         bool Layer::operator ==(const Layer &other) const
         {
             auto i1 = begin();
-            auto i2 = other.end();
+            auto i2 = other.begin();
 
             for (; i1 != end() && i2 != other.end(); i1++, i2++) {
                 if (! (*i1 == *i2)) {
