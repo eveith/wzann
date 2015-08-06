@@ -2,6 +2,7 @@
 #define WINZENT_ANN_LAYER_H
 
 
+#include <QMap>
 #include <QJsonDocument>
 
 #include <cstddef>
@@ -119,23 +120,6 @@ namespace Winzent {
 
 
             /*!
-             * \brief Iterator access to each neuron as a const reference
-             *
-             * \param yield The lambda called for each neuron.
-             */
-            void eachNeuron(function<void(const Neuron *const &)> yield)
-                    const;
-
-
-            /*!
-             * \brief Iterator access to each neuron as a modifiable reference
-             *
-             * \param yield The lambda that is called for each neuron.
-             */
-            void eachNeuron(function<void(Neuron *const &)> yield);
-
-
-            /*!
              * \brief Returns a new iterator pointing at the first neuron in
              *  the Layer
              *
@@ -220,17 +204,16 @@ namespace Winzent {
         private:
 
 
-            /*!
-             * \brief A list of all neurons the make up this layer.
-             */
+            //! Stores and manages all neurons that make up this layer.
             boost::ptr_vector<Neuron> m_neurons;
 
 
-            /*!
-             * \brief The parent network we're contained in.
-             */
-            NeuralNetwork *m_parent;
+            //! Stores the position of a neuron for faster retrieval
+            QMap<Neuron*, size_t> m_neuronIndexes;
 
+
+            //! The parent network we're contained in.
+            NeuralNetwork *m_parent;
         };
     } // namespace ANN
 } // namespace Winzent

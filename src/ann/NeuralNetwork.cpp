@@ -285,14 +285,14 @@ namespace Winzent {
                 std::function<void (Connection * const &)> yield)
         {
             eachLayer([this, &yield](Layer *const &layer) {
-                layer->eachNeuron([this, &yield](Neuron *const &neuron) {
+                for (Neuron& n: *layer) {
                     QList<Connection *> connections =
-                            neuronConnectionsFrom(neuron);
+                            neuronConnectionsFrom(&n);
                     std::for_each(
                             connections.begin(),
                             connections.end(),
                             yield);
-                });
+                }
             });
 
             QList<Connection *> biasNeuronConnections =
@@ -308,14 +308,14 @@ namespace Winzent {
                 std::function<void (const Connection *const &)> yield) const
         {
             eachLayer([this, &yield](const Layer *const &layer) {
-                layer->eachNeuron([this, &yield](const Neuron *const &neuron) {
+                for (const Neuron& neuron: *layer) {
                     QList<Connection *> connections =
-                            neuronConnectionsFrom(neuron);
+                            neuronConnectionsFrom(&neuron);
                     std::for_each(
                             connections.begin(),
                             connections.end(),
                             yield);
-                });
+                }
             });
 
             QList<Connection *> biasNeuronConnections =
@@ -471,8 +471,8 @@ namespace Winzent {
         {
             Layer *fromLayer    = layerAt(from);
             Layer *toLayer      = layerAt(to);
-            int fromLayerSize   = fromLayer->size();
-            int toLayerSize     = toLayer->size();
+            size_t fromLayerSize= fromLayer->size();
+            size_t toLayerSize  = toLayer->size();
 
 #ifdef QT_DEBUG
             if (input.size() != fromLayerSize) {
@@ -484,7 +484,7 @@ namespace Winzent {
             output.fill(0.0, toLayerSize);
             Q_ASSERT(output.size() == toLayerSize);
 
-            for (int i = 0; i != fromLayerSize; ++i) {
+            for (size_t i = 0; i != fromLayerSize; ++i) {
                 Neuron *fromNeuron = fromLayer->neuronAt(i);
                 QList<Connection*> connections =
                         neuronConnectionsFrom(fromNeuron);

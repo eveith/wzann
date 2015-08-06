@@ -278,10 +278,10 @@ void NeuralNetworkTest::testEachLayerIterator()
     network.configure(&pattern);
 
     network.eachLayer([&layers](const Layer *const &layer) {
-        layers << layer;
+        layers.push_back(layer);
     });
 
-    QVERIFY(layers.size() == network.size());
+    QVERIFY(static_cast<size_t>(layers.size()) == network.size());
     QVERIFY(network.inputLayer() == layers.first());
     QVERIFY(network.outputLayer() == layers.last());
 
@@ -306,10 +306,10 @@ void NeuralNetworkTest::testEachConnectionIterator()
     network.configure(&pattern);
     QList<Connection *> connections;
 
-    for (int i = 0; i != network.size(); ++i) {
+    for (size_t i = 0; i != network.size(); ++i) {
         Layer *l = network.layerAt(i);
 
-        for (int j = 0; j != l->size(); ++j) {
+        for (size_t j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
             connections.append(network.neuronConnectionsFrom(n));
         }

@@ -1,9 +1,10 @@
+#include <cstddef>
+#include <functional>
+
+#include <QMap>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
-
-#include <cstddef>
-#include <functional>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -59,33 +60,7 @@ namespace Winzent {
 
         size_t Layer::indexOf(const Neuron *const &neuron) const
         {
-            size_t index = -1;
-
-            for (size_t i = 0; i != m_neurons.size(); ++i) {
-                if (&(m_neurons.at(i)) == neuron) {
-                    index = i;
-                    break;
-                }
-            }
-
-            return index;
-        }
-
-
-        void Layer::eachNeuron(function<void (const Neuron * const &)> yield)
-                const
-        {
-            for (const Neuron &n: m_neurons) {
-                yield(&n);
-            }
-        }
-
-
-        void Layer::eachNeuron(function<void (Neuron *const &)> yield)
-        {
-            for (Neuron &n: m_neurons) {
-                yield(&n);
-            }
+           return m_neuronIndexes.value(const_cast<Neuron* const&>(neuron));
         }
 
 
@@ -123,6 +98,7 @@ namespace Winzent {
         {
             neuron->m_parent = this;
             m_neurons.push_back(neuron);
+            m_neuronIndexes[neuron] = size()-1;
 
             return *this;
         }
@@ -143,6 +119,7 @@ namespace Winzent {
         void Layer::clear()
         {
             m_neurons.clear();
+            m_neuronIndexes.clear();
         }
 
 

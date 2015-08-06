@@ -663,7 +663,7 @@ namespace Winzent {
                 NeuralNetwork &ann,
                 const TrainingSet &trainingSet)
         {
-            size_t errorPos = 1;
+            size_t errorPos = 0;
             qreal totalMSE  = 0.0;
 
 
@@ -679,7 +679,7 @@ namespace Winzent {
                         output,
                         item.expectedOutput());
 
-                individual.errorVector()[errorPos++] = sampleMSE;
+                individual.errorVector()[++errorPos] = sampleMSE;
                 totalMSE += sampleMSE;
             }
 
