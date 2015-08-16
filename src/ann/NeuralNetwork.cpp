@@ -389,15 +389,39 @@ namespace Winzent {
         }
 
 
-        Layer *NeuralNetwork::inputLayer() const
+        Layer &NeuralNetwork::inputLayer()
         {
-            return &(const_cast<NeuralNetwork *>(this)->m_layers.front());
+            return m_layers.front();
         }
 
 
-        Layer *NeuralNetwork::outputLayer() const
+        Layer &NeuralNetwork::outputLayer()
         {
-            return &(const_cast<NeuralNetwork *>(this)->m_layers.back());
+            return m_layers.back();
+        }
+
+
+        NeuralNetwork::LayerIterator NeuralNetwork::begin()
+        {
+            return m_layers.begin();
+        }
+
+
+        NeuralNetwork::LayerConstIterator NeuralNetwork::begin() const
+        {
+            return m_layers.begin();
+        }
+
+
+        NeuralNetwork::LayerIterator NeuralNetwork::end()
+        {
+            return m_layers.end();
+        }
+
+
+        NeuralNetwork::LayerConstIterator NeuralNetwork::end() const
+        {
+            return m_layers.end();
         }
 
 
@@ -407,14 +431,6 @@ namespace Winzent {
             m_pattern.reset(pattern.clone());
             m_pattern->configureNetwork(this);
             return *this;
-        }
-
-
-        NeuralNetwork &NeuralNetwork::configure(
-                const NeuralNetworkPattern *const &pattern)
-        {
-            Q_ASSERT(nullptr != pattern);
-            return configure(*pattern);
         }
 
 
@@ -441,7 +457,7 @@ namespace Winzent {
                 // bias neuron in the input layer since its output would be
                 // overwritten by the input anyways.
 
-                if (inputLayer() != layer
+                if (&(inputLayer()) != layer
                         && neuronConnectionExists(biasNeuron(), neuron)) {
                     sum += neuronConnection(biasNeuron(), neuron)->weight()
                             * biasNeuron()->activate(1.0);

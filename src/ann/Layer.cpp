@@ -2,6 +2,7 @@
 #include <functional>
 
 #include <QMap>
+#include <QVector>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -12,6 +13,7 @@
 
 #include "Neuron.h"
 #include "Layer.h"
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
@@ -52,9 +54,28 @@ namespace Winzent {
         }
 
 
-        Neuron *Layer::operator [](const size_t &index)
+        Neuron &Layer::operator [](const size_t &index)
         {
-            return &(m_neurons[index]);
+            return m_neurons[index];
+        }
+
+
+        Vector Layer::activate(const Vector &neuronInputs)
+        {
+            Q_ASSERT(neuronInputs.size() == size());
+
+            Vector result;
+            result.reserve(size());
+
+            auto iit = neuronInputs.constBegin();
+            auto nit = begin();
+
+            for (; iit != neuronInputs.constEnd() && nit != end();
+                    iit++, nit++) {
+                result.push_back(nit->activate(*iit));
+            }
+
+            return result;
         }
 
 

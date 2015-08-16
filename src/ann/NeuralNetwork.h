@@ -31,6 +31,9 @@
 class QTextStream;
 
 
+using boost::ptr_vector;
+
+
 namespace Winzent {
     namespace ANN {
         class Layer;
@@ -86,6 +89,10 @@ namespace Winzent {
         {
             friend class NeuralNetworkPattern;
             friend class AbstractTrainingStrategy;
+
+
+            typedef ptr_vector<Layer>::iterator LayerIterator;
+            typedef ptr_vector<Layer>::const_iterator LayerConstIterator;
 
 
         public:
@@ -345,7 +352,7 @@ namespace Winzent {
              *
              * \return The input layer
              */
-            Layer *inputLayer() const;
+            Layer &inputLayer();
 
 
             /*!
@@ -353,7 +360,42 @@ namespace Winzent {
              *
              * \return The output layer
              */
-            Layer *outputLayer() const;
+            Layer &outputLayer();
+
+
+            /*!
+             * \brief Returns a new iterator pointing to the first Layer
+             *
+             * \return A layer iterator, pointing to the first Layer
+             */
+            LayerIterator begin();
+
+
+            /*!
+             * \brief Returns a new const iterator pointing to the first Layer
+             *
+             * \return A layer const iterator, pointing to the first Layer
+             */
+            LayerConstIterator begin() const;
+
+
+            /*!
+             * \brief Returns a new iterator pointing to the Layer after the
+             *  last
+             *
+             * \return A layer iterator, pointing to the Layer after the last
+             */
+            LayerIterator end();
+
+
+            /*!
+             * \brief Returns a new const iterator pointing to the Layer after
+             *  the last
+             *
+             * \return A layer const iterator, pointing to the Layer after the
+             *  last
+             */
+            LayerConstIterator end() const;
 
 
             /*!
@@ -367,13 +409,6 @@ namespace Winzent {
              * \return `*this`
              */
             NeuralNetwork &configure(const NeuralNetworkPattern &pattern);
-
-
-            /*!
-             * \deprecated
-             */
-            NeuralNetwork &configure(
-                    const NeuralNetworkPattern *const &pattern);
 
 
             /*!

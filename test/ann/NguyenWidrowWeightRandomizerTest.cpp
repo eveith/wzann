@@ -27,8 +27,8 @@ NguyenWidrowWeightRandomizerTest::NguyenWidrowWeightRandomizerTest(
 
 void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
 {
-    NeuralNetwork *network = new NeuralNetwork();
-    PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern({
+    NeuralNetwork network;
+    PerceptronNetworkPattern pattern({
             1,
             2,
             3
@@ -37,28 +37,25 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
                 new SigmoidActivationFunction(),
                 new SigmoidActivationFunction()
             });
-    network->configure(pattern);
+    network.configure(pattern);
 
-    NguyenWidrowWeightRandomizer().randomize(*network);
+    NguyenWidrowWeightRandomizer().randomize(network);
 
-    for (size_t i = 0; i != network->size(); ++i) {
-        Layer *layer = network->layerAt(i);
+    for (size_t i = 0; i != network.size(); ++i) {
+        Layer *layer = network.layerAt(i);
 
         for (size_t j = 0; j != layer->size(); ++j) {
             Neuron *neuron = layer->neuronAt(j);
-            for (const auto &c: network->neuronConnectionsFrom(neuron)) {
+            for (const auto &c: network.neuronConnectionsFrom(neuron)) {
                 QVERIFY(1.0 != 1.0 + c->weight());
             }
         }
 
-        for (const auto &c: network->neuronConnectionsFrom(
-                network->biasNeuron())) {
+        for (const auto &c: network.neuronConnectionsFrom(
+                network.biasNeuron())) {
             QCOMPARE(c->weight(), -1.0);
         }
     }
-
-    delete network;
-    delete pattern;
 }
 
 

@@ -70,7 +70,7 @@ void NeuralNetworkPatternTest::testFullyConnectNetworkLayers()
     NeuralNetwork network;
     Mock::NeuralNetworkPatternTestDummyPattern pattern;
 
-    network.configure(&pattern);
+    network.configure(pattern);
 
     // Check fully connected state:
 
