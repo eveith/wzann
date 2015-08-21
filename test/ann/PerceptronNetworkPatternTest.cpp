@@ -21,8 +21,8 @@ PerceptronNetworkPatternTest::PerceptronNetworkPatternTest(QObject *parent) :
 
 void PerceptronNetworkPatternTest::testConfigure()
 {
-    NeuralNetwork *network = new NeuralNetwork();
-    PerceptronNetworkPattern *pattern = new PerceptronNetworkPattern({
+    NeuralNetwork network;
+    PerceptronNetworkPattern pattern({
                 2,
                 3,
                 1
@@ -31,30 +31,27 @@ void PerceptronNetworkPatternTest::testConfigure()
                 new SigmoidActivationFunction(),
                 new SigmoidActivationFunction()
             });
-    network->configure(pattern);
+    network.configure(pattern);
 
-    for (size_t i = 0; i != network->size() - 1; ++i) {
-        for (size_t j = 0; j != network->layerAt(i)->size(); ++j) {
-            for (size_t k = 0; k != (*network)[i+1].size(); ++k) {
-                QVERIFY(network->neuronConnectionExists(
-                    network->layerAt(i)->neuronAt(j),
-                    network->layerAt(i+1)->neuronAt(k)));
+    for (size_t i = 0; i != network.size() - 1; ++i) {
+        for (size_t j = 0; j != network.layerAt(i)->size(); ++j) {
+            for (size_t k = 0; k != network[i+1].size(); ++k) {
+                QVERIFY(network.neuronConnectionExists(
+                    network.layerAt(i)->neuronAt(j),
+                    network.layerAt(i+1)->neuronAt(k)));
             }
         }
     }
 
-    QVERIFY(! network->neuronConnectionExists(
-            network->layerAt(1)->neuronAt(0),
-            network->layerAt(0)->neuronAt(0)));
-    QVERIFY(! network->neuronConnectionExists(
-            network->layerAt(1)->neuronAt(0),
-            network->layerAt(1)->neuronAt(0)));
-    QVERIFY(! network->neuronConnectionExists(
-            network->layerAt(1)->neuronAt(0),
-            network->layerAt(1)->neuronAt(1)));
-
-    delete pattern;
-    delete network;
+    QVERIFY(! network.neuronConnectionExists(
+            network.layerAt(1)->neuronAt(0),
+            network.layerAt(0)->neuronAt(0)));
+    QVERIFY(! network.neuronConnectionExists(
+            network.layerAt(1)->neuronAt(0),
+            network.layerAt(1)->neuronAt(0)));
+    QVERIFY(! network.neuronConnectionExists(
+            network.layerAt(1)->neuronAt(0),
+            network.layerAt(1)->neuronAt(1)));
 }
 
 

@@ -41,7 +41,9 @@ namespace Winzent {
             typedef boost::ptr_vector<Neuron>::const_iterator const_iterator;
 
 
-            //! \brief Creates a new, empty layer.
+            /*!
+             * \brief Creates a new, empty layer.
+             */
             Layer();
 
 
@@ -105,8 +107,20 @@ namespace Winzent {
              *
              * \return The neuron at the given position
              */
-            Neuron *operator [](const size_t &index);
+            Neuron &operator [](const size_t &index);
 
+
+            /*!
+             * \brief Activates all neurons in this layer.
+             *
+             * The given vector contains the inputs for the neurons, in order.
+             * It must have the same size as the layer.
+             *
+             * \param[in] neuronInputs The inputs to this layer's neurons.
+             *
+             * \return The results of the activation.
+             */
+            Vector activate(const Vector &neuronInputs);
 
 
             /*!
@@ -204,12 +218,12 @@ namespace Winzent {
         private:
 
 
-            //! Stores and manages all neurons that make up this layer.
+            //! \brief A list of all neurons the make up this layer.
             boost::ptr_vector<Neuron> m_neurons;
 
 
-            //! Stores the position of a neuron for faster retrieval
-            QMap<Neuron*, size_t> m_neuronIndexes;
+            //! \brief Maps Neurons to their index for faster #indexOf()
+            QMap<Neuron *, size_t> m_neuronIndexes;
 
 
             //! The parent network we're contained in.

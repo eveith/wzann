@@ -202,14 +202,14 @@ namespace Winzent {
                 const Vector &outputError)
                     const
         {
-            Q_ASSERT(! ann.inputLayer()->contains(&neuron));
+            Q_ASSERT(! ann.inputLayer().contains(&neuron));
 
             if (neuronDeltas.contains(&neuron)) {
                 return neuronDeltas.value(&neuron);
             }
 
-            if (ann.outputLayer()->contains(&neuron)) {
-                int neuronIdx = ann.outputLayer()->indexOf(&neuron);
+            if (ann.outputLayer().contains(&neuron)) {
+                size_t neuronIdx = ann.outputLayer().indexOf(&neuron);
                 neuronDeltas.insert(
                         &neuron,
                         outputNeuronDelta(neuron, outputError.at(neuronIdx)));

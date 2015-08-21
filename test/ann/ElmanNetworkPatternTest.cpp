@@ -38,13 +38,13 @@ ElmanNetworkPatternTest::ElmanNetworkPatternTest(QObject *parent) :
 
 void ElmanNetworkPatternTest::testConfigure()
 {
-    qsrand(time(NULL));
     NeuralNetwork network;
     ElmanNetworkPattern pattern(layers, activationFunctions);
 
-    network.configure(&pattern);
+    network.configure(pattern);
 
-    QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
+    QFile testResultFile(QString(
+            QTest::currentTestFunction()).append(".out"));
     testResultFile.open(QIODevice::Text
             | QIODevice::WriteOnly | QIODevice::Truncate);
     QTextStream testResultStream(&testResultFile);

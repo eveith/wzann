@@ -146,12 +146,12 @@ namespace Winzent {
 
             // What layer does the neuron live in?
 
-            Q_ASSERT(! ann.inputLayer()->contains(&neuron));
+            Q_ASSERT(! ann.inputLayer().contains(&neuron));
             qreal delta = 0.0;
 
-            if (ann.outputLayer()->contains(&neuron)) {
+            if (ann.outputLayer().contains(&neuron)) {
                 qreal error = outputError.at(
-                        ann.outputLayer()->indexOf(&neuron));
+                        ann.outputLayer().indexOf(&neuron));
                 delta = outputNeuronDelta(neuron, error);
             } else {
                 delta = hiddenNeuronDelta(
@@ -213,7 +213,7 @@ namespace Winzent {
 
                         const Neuron *dstNeuron = c->destination();
 
-                        if (ann.inputLayer()->contains(dstNeuron)) {
+                        if (ann.inputLayer().contains(dstNeuron)) {
                             return;
                         }
 
@@ -235,7 +235,7 @@ namespace Winzent {
                 // Calculate mean of all errors:
 
                 error /= (trainingSet.trainingData().size()
-                        * ann.outputLayer()->size());
+                        * ann.outputLayer().size());
 
                 // Now, learn:
 
