@@ -282,7 +282,7 @@ namespace Winzent {
 
 
             //! A time-discrete LTI system of first order
-            static qreal dc1(
+            static qreal pt1(
                     const qreal &y,
                     const qreal &u,
                     const qreal &t);
@@ -294,7 +294,15 @@ namespace Winzent {
              *
              * \param[inout] population The population.
              */
-            static void sortPopulation(Population& population);
+            static void sortPopulation(Population &population);
+
+
+            /*!
+             * \brief Reduces each individual's time to live.
+             *
+             * \param population The population
+             */
+            static void agePopulation(Population &population);
 
 
             /*!

@@ -240,7 +240,7 @@ namespace Winzent {
         }
 
 
-        qreal REvolutionaryTrainingAlgorithm::dc1(
+        qreal REvolutionaryTrainingAlgorithm::pt1(
                 const qreal &y,
                 const qreal &u,
                 const qreal &t)
@@ -261,6 +261,15 @@ namespace Winzent {
                 Population& population)
         {
             population.sort(&Individual::isIndividual1Better);
+        }
+
+
+        void REvolutionaryTrainingAlgorithm::agePopulation(
+                Population &population)
+        {
+            for (Individual &i: population) {
+                i.age();
+            }
         }
 
 
@@ -685,7 +694,6 @@ namespace Winzent {
 
             individual.errorVector()[0] =
                     totalMSE / static_cast<qreal>(errorPos);
-            individual.age();
         }
 
 
@@ -763,12 +771,12 @@ namespace Winzent {
                 } else {
                     if (newIndividual.isBetterThan(worstIndividual)) {
                         if (worstIndividual.timeToLive() >= 0) {
-                            m_success = dc1(
+                            m_success = pt1(
                                     m_success,
                                     1.0,
                                     measurementEpochs());
                         } else {
-                            m_success = dc1(
+                            m_success = pt1(
                                     m_success,
                                     -1.0,
                                     measurementEpochs());
@@ -779,7 +787,8 @@ namespace Winzent {
                 // Sort the list and do a bit of caretaking:
 
                 sortPopulation(population);
-                m_success = dc1(m_success, 0.0, measurementEpochs());
+                agePopulation(population);
+                m_success = pt1(m_success, 0.0, measurementEpochs());
                 epoch++;
 
                 LOG4CXX_DEBUG(
