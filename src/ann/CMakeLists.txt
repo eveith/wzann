@@ -69,10 +69,7 @@ find_package(Qt5Sql REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
 
 find_package(Boost 1.56.0 REQUIRED)
-include_directories(${BOOST_INCLUDE_DIRS})
-
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
-include_directories(${LOG4CXX_INCLUDE_DIRS})
 
 include_directories(../common)
 
@@ -87,8 +84,10 @@ endif()
 
 add_library(winzent-ann
     SHARED ${winzent-ann_SOURCES})
-add_dependencies(winzent-ann
-    winzent-common)
+target_include_directories(winzent-ann
+    PUBLIC ${winzent-common_SOURCE_DIR}}
+    PUBLIC ${BOOST_INCLUDE_DIRS}
+    PUBLIC ${LOG4CXX_INCLUDE_DIRS})
 target_link_libraries(winzent-ann
     Qt5::Core
     Qt5::Sql
