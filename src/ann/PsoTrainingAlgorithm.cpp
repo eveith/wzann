@@ -22,23 +22,23 @@ namespace Winzent {
                 TrainingAlgorithm(),
                 Algorithm::ParticleSwarmOptimization()
         {
-            lowerBoundary(-std::numeric_limits<qreal>::max());
-            upperBoundary(std::numeric_limits<qreal>::max());
+            lowerBoundary(-1000.0);
+            upperBoundary(1000.0);
         }
 
 
         void PsoTrainingAlgorithm::applyPosition(
-                const Algorithm::detail::Particle &particle,
+                const QVector<qreal> &position,
                 NeuralNetwork &neuralNetwork)
         {
             size_t i = 0;
-            neuralNetwork.eachConnection([&i, &particle](
+            neuralNetwork.eachConnection([&i, &position](
                     Connection *const &connection) {
                 if (connection->fixedWeight()) {
                     return;
                 }
 
-                connection->weight(particle.currentPosition.at(i++));
+                connection->weight(position.at(i++));
             });
         }
 
@@ -48,7 +48,7 @@ namespace Winzent {
                 NeuralNetwork &ann,
                 const TrainingSet &trainingSet)
         {
-            applyPosition(particle, ann);
+            applyPosition(particle.currentPosition, ann);
             qreal errorSum = 0;
             size_t i = 0;
 
@@ -89,7 +89,7 @@ namespace Winzent {
 
             setFinalError(trainingSet, result.bestParticle.bestFitness);
             setFinalNumEpochs(trainingSet, result.iterationsUsed);
-            applyPosition(result.bestParticle, ann);
+            applyPosition(result.bestParticle.bestPosition, ann);
         }
     }
 }

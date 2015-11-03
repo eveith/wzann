@@ -47,7 +47,7 @@ namespace Winzent {
              * \sa Algorithm::detail::Particle::currentPosition
              */
             static void applyPosition(
-                    const Algorithm::detail::Particle &particle,
+                    const QVector<qreal> &position,
                     NeuralNetwork &neuralNetwork);
 
 
