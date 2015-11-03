@@ -125,10 +125,10 @@ namespace Winzent {
             qreal totalMSE  = 0.0;
             individual.restrictions.resize(
                         trainingSet.trainingData().size() + 1);
+            Individual::applyParameters(individual, ann);
 
 
             for (const auto &item: trainingSet.trainingData()) {
-                Individual::applyParameters(individual, ann);
                 Vector output = ann.calculate(item.input());
 
                 if (! item.outputRelevant()) {

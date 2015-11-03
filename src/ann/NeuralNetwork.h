@@ -580,13 +580,6 @@ namespace Winzent {
 } /* namespace Winzent */
 
 
-namespace std {
-    ostream &operator<<(
-            ostream &os,
-            const Winzent::ANN::Vector &valueVector);
-}
-
-
 //! Appends the ANN's JSON representation to the text stream
 QTextStream& operator <<(
         QTextStream &out,

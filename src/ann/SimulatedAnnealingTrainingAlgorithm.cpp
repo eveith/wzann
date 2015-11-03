@@ -8,6 +8,8 @@
 #include <QtDebug>
 #include <QTextStream>
 
+#include "QtContainerOutput.h"
+
 #include "TrainingAlgorithm.h"
 #include "NeuralNetwork.h"
 #include "Layer.h"

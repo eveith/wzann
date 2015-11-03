@@ -26,6 +26,7 @@ set(winzent-ann_SOURCES
     NguyenWidrowWeightRandomizer.cpp
     PerceptronNetworkPattern.cpp
     RememberingActivationFunction.cpp
+    PsoTrainingAlgorithm.cpp
     REvolutionaryTrainingAlgorithm.cpp
     RpropTrainingAlgorithm.cpp
     SigmoidActivationFunction.cpp
@@ -52,6 +53,7 @@ set(winzent-ann_HEADERS
     NguyenWidrowWeightRandomizer.h
     PerceptronNetworkPattern.h
     RememberingActivationFunction.h
+    PsoTrainingAlgorithm.h
     REvolutionaryTrainingAlgorithm.h
     RpropTrainingAlgorithm.h
     SigmoidActivationFunction.h

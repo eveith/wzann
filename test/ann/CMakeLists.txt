@@ -14,6 +14,7 @@ set(test-winzent-ann_SOURCES
     SimpleWeightRandomizerTest.cpp
     NguyenWidrowWeightRandomizerTest.cpp
     PerceptronNetworkPatternTest.cpp
+    PsoTrainingAlgorithmTest.cpp
     REvolutionaryTrainingAlgorithmTest.cpp
     RpropTrainingAlgorithmTest.cpp
     SimulatedAnnealingTrainingAlgorithmTest.cpp
@@ -33,6 +34,7 @@ set(test-winzent-ann_HEADERS
     SimpleWeightRandomizerTest.h
     NguyenWidrowWeightRandomizerTest.h
     PerceptronNetworkPatternTest.h
+    PsoTrainingAlgorithmTest.h
     REvolutionaryTrainingAlgorithmTest.h
     RpropTrainingAlgorithmTest.h
     SimulatedAnnealingTrainingAlgorithmTest.h

@@ -23,6 +23,8 @@
 #include <ClassRegistry.h>
 #include <JsonSerializable.h>
 
+#include "QtContainerOutput.h"
+
 #include "Layer.h"
 #include "Neuron.h"
 #include "Exception.h"
@@ -719,26 +721,6 @@ namespace Winzent {
         {
             return !(*this == other);
         }
-    }
-}
-
-
-namespace std {
-    ostream &operator<<(
-            ostream &os,
-            const Winzent::ANN::Vector &valueVector)
-    {
-        os << "Vector(";
-
-        for (int i = 0; i < valueVector.size(); ++i) {
-            os << valueVector.at(i);
-            if (i < valueVector.size() - 1) {
-                os << ", ";
-            }
-        }
-
-        os << ")";
-        return os;
     }
 }
 
