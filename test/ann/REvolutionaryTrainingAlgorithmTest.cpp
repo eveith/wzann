@@ -82,8 +82,8 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualInitialization()
         }
     });
 
-    QCOMPARE(i1.parameters().size(), nConnections);
-    QCOMPARE(i1.scatter().size(), nConnections);
+    QCOMPARE(i1.parameters.size(), nConnections);
+    QCOMPARE(i1.scatter.size(), nConnections);
 
     delete network;
 }
@@ -94,13 +94,11 @@ void REvolutionaryTrainingAlgorithmTest::testAgeIndividual()
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
     Individual individual(*neuralNetwork);
 
-    individual.timeToLive(1);
+    individual.timeToLive = 1;
 
-    QCOMPARE(individual.timeToLive(), 1);
-    QVERIFY(individual.isAlive());
+    QCOMPARE(individual.timeToLive, 1l);
     individual.age();
-    QCOMPARE(individual.timeToLive(), 0);
-    QVERIFY(!individual.isAlive());
+    QCOMPARE(individual.timeToLive, 0l);
 
     delete neuralNetwork;
 }
@@ -111,7 +109,7 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
     NeuralNetwork *network = createNeuralNetwork();
 
     network->eachConnection([](Connection *const &c) {
-        if (!c->fixedWeight()) {
+        if (! c->fixedWeight()) {
             c->weight(0.0);
         }
     });
@@ -120,27 +118,25 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
 
     QVERIFY(i1 == i2);
 
-    std::for_each(i2.parameters().begin(), i2.parameters().end(),
-            [](qreal &w) {
+    std::for_each(i2.parameters.begin(), i2.parameters.end(), [](qreal &w) {
         w = 1.0;
     });
 
-    QVERIFY(!(i1 == i2));
+    QVERIFY(! (i1 == i2));
 
-    std::for_each(i2.parameters().begin(), i2.parameters().end(),
-            [](qreal &w) {
+    std::for_each(i2.parameters.begin(), i2.parameters.end(), [](qreal &w) {
         w = 0.0;
     });
 
-    i1.scatter()[1] = 1.0;
-    i2.scatter()[1] = 1.1;
+    i1.scatter[1] = 1.0;
+    i2.scatter[1] = 1.1;
 
-    QVERIFY(!(i1 == i2));
-    i2.scatter()[1] = 1.0;
+    QVERIFY(! (i1 == i2));
+    i2.scatter[1] = 1.0;
     QVERIFY(i1 == i2);
 
     i1.errorVector()[0] = 11.1;
-    QVERIFY(!(i1 == i2));
+    QVERIFY(! (i1 == i2));
     i2.errorVector()[0] = 11.1;
     QVERIFY(i1 == i2);
 
@@ -159,7 +155,7 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorAssign()
         i2.errorVector()[0] = -21.43;
     }
 
-    QVERIFY(!(i1 == i2));
+    QVERIFY(! (i1 == i2));
 
     i1 = i2;
 
@@ -176,7 +172,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
     Individual individual(*neuralNetwork);
 
-    Vector parameters = individual.parameters();
+    Vector parameters = individual.parameters;
     QList<Connection *> connections;
 
     for (size_t i = 0; i != neuralNetwork->size(); ++i) {
@@ -196,7 +192,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     QList<Connection *> biasConnections =
             neuralNetwork->neuronConnectionsFrom(neuralNetwork->biasNeuron());
     foreach (Connection *c, biasConnections) {
-        if (!c->fixedWeight()) {
+        if (! c->fixedWeight()) {
             connections << c;
         }
     }
@@ -208,8 +204,8 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
         parameters << 10.10;
     }
 
-    individual.parameters(parameters);
-    individual.applyParameters(*neuralNetwork);
+    individual.parameters = parameters;
+    Individual::applyParameters(individual, *neuralNetwork);
 
     for (size_t i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
@@ -217,8 +213,8 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
         for (size_t j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
 
-            foreach (Connection *c, neuralNetwork->neuronConnectionsFrom(n)) {
-                if (!c->fixedWeight()) {
+            for (const auto &c: neuralNetwork->neuronConnectionsFrom(n)) {
+                if (! c->fixedWeight()) {
                     QCOMPARE(c->weight(), 10.10);
                 }
             }
@@ -226,40 +222,6 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     }
 
     delete neuralNetwork;
-}
-
-
-void REvolutionaryTrainingAlgorithmTest::testCompareIndividuals()
-{
-    NeuralNetwork *n1 = createNeuralNetwork(),
-            *n2 = createNeuralNetwork();
-    Individual *i1 = new Individual(*n1);
-    Individual *i2 = new Individual(*n2);
-
-    QCOMPARE(0, i1->compare(*i2));
-
-    i2->timeToLive(3);
-    QCOMPARE(0, i1->compare(*i2));
-
-    i2->age();
-    QCOMPARE(0, i1->compare(*i2));
-
-    i1->errorVector()[0] = 1.0;
-    QCOMPARE(1, i1->compare(*i2));
-    QVERIFY(i1->isBetterThan(*i2));
-
-    i2->errorVector()[0] = 1.0;
-    QVERIFY(!i1->isBetterThan(*i2));
-    QCOMPARE(0, i2->compare(*i1));
-
-    i1->errorVector() << 1.0 << 2.0;
-    i2->errorVector() << 1.0 << 1.0;
-    QVERIFY(i2->isBetterThan(*i1));
-
-    delete i1;
-    delete i2;
-    delete n1;
-    delete n2;
 }
 
 
@@ -278,16 +240,18 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     NeuralNetwork *n = createNeuralNetwork();
     Individual i3(*n);
     delete n;
-    trainingAlgorithm.modifyIndividual(i3, population);
+    trainingAlgorithm.modifyIndividual(
+                static_cast<Winzent::Algorithm::detail::Individual &>(i3),
+                population);
 
     QCOMPARE(
-            i3.parameters().size(),
-            population.front().parameters().size());
+            i3.parameters.size(),
+            population.front().parameters.size());
 
     std::for_each(population.begin(), population.end() - 1,
             [&](Individual const& i) {
-        for (auto j = 0; j != i.parameters().size(); ++j) {
-            QVERIFY (i3.parameters().at(j) != i.parameters().at(j));
+        for (auto j = 0; j != i.parameters.size(); ++j) {
+            QVERIFY (i3.parameters.at(j) != i.parameters.at(j));
         }
     });
 }
@@ -303,24 +267,24 @@ void REvolutionaryTrainingAlgorithmTest::testSortPopulation()
     Individual *i2 = new Individual(*n2);
     Individual *i3 = new Individual(*n3);
 
-    i1->timeToLive(10);
+    i1->timeToLive = 10;
     i1->errorVector()[0] = 0.25;
 
-    i2->timeToLive(10);
+    i2->timeToLive = 10;
     i2->errorVector()[0] = 0.5;
 
-    i3->timeToLive(2);
+    i3->timeToLive = 2;
     i3->errorVector()[0] = 0.5;
 
     QVERIFY(i1->isBetterThan(*i2));
 
-    REvolutionaryTrainingAlgorithm::Population population;
+    Winzent::Algorithm::REvol::Population population;
     population.push_back(i2);
     population.push_back(i1);
     population.push_back(i3);
 
     QCOMPARE(&(population.front()), i2);
-    REvolutionaryTrainingAlgorithm::sortPopulation(population);
+    Winzent::Algorithm::REvol::sortPopulation(population);
     QCOMPARE(&(population.at(0)), i1);
     QCOMPARE(&(population.at(1)), i2);
     QCOMPARE(&(population.at(2)), i3);
@@ -358,19 +322,19 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
 
     TrainingSet trainingSet(
             trainingItems,
-            1e-3,
-            15000);
+            1e-2,
+            5000);
 
     REvolutionaryTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm
             .populationSize(50)
             .eliteSize(5)
-            .maxNoSuccessEpochs(INT_MAX)
-            .startTTL(500)
+            .maxNoSuccessEpochs(trainingSet.maxEpochs())
+            .startTTL(100)
             .gradientWeight(3.0)
+            .successWeight(0.1)
             .ebmin(1e-2)
-            .ebmax(2.0)
-            .successWeight(0.1);
+            .ebmax(2.0);
 
     QDateTime dt1 = QDateTime::currentDateTime();
     trainingAlgorithm.train(network, trainingSet);

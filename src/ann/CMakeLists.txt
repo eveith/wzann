@@ -85,7 +85,8 @@ endif()
 add_library(winzent-ann
     SHARED ${winzent-ann_SOURCES})
 target_include_directories(winzent-ann
-    PUBLIC ${winzent-common_SOURCE_DIR}}
+    PUBLIC ${winzent-common_SOURCE_DIR}
+    PUBLIC ${winzent-algorithm_SOURCE_DIR}
     PUBLIC ${BOOST_INCLUDE_DIRS}
     PUBLIC ${LOG4CXX_INCLUDE_DIRS})
 target_link_libraries(winzent-ann
@@ -93,7 +94,8 @@ target_link_libraries(winzent-ann
     Qt5::Sql
     Qt5::Concurrent
     ${LOG4CXX_LIBRARIES}
-    winzent-common)
+    winzent-common
+    winzent-algorithm)
 set_target_properties(winzent-ann
     PROPERTIES SOVERSION ${winzent-ann_SOVERSION})
 
