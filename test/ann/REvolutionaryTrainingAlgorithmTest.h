@@ -35,7 +35,7 @@ private slots:
     void testIndividualOperatorAssign();
     void testParametersSettingAndRetrieval();
     void testModifyIndividual();
-    void testSortPopulation();
-    void testTrainXOR();};
+    void testTrainXOR();
+};
 
 #endif // REVOLUTIONARYTRAININGALGORITHMTEST_H

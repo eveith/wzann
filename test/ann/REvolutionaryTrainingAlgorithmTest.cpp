@@ -257,44 +257,6 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testSortPopulation()
-{
-    NeuralNetwork *n1 = createNeuralNetwork(),
-            *n2 = createNeuralNetwork(),
-            *n3 = createNeuralNetwork();
-
-    Individual *i1 = new Individual(*n1);
-    Individual *i2 = new Individual(*n2);
-    Individual *i3 = new Individual(*n3);
-
-    i1->timeToLive = 10;
-    i1->errorVector()[0] = 0.25;
-
-    i2->timeToLive = 10;
-    i2->errorVector()[0] = 0.5;
-
-    i3->timeToLive = 2;
-    i3->errorVector()[0] = 0.5;
-
-    QVERIFY(i1->isBetterThan(*i2));
-
-    Winzent::Algorithm::REvol::Population population;
-    population.push_back(i2);
-    population.push_back(i1);
-    population.push_back(i3);
-
-    QCOMPARE(&(population.front()), i2);
-    Winzent::Algorithm::REvol::sortPopulation(population);
-    QCOMPARE(&(population.at(0)), i1);
-    QCOMPARE(&(population.at(1)), i2);
-    QCOMPARE(&(population.at(2)), i3);
-
-    delete n1;
-    delete n2;
-    delete n3;
-}
-
-
 void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
 {
     NeuralNetwork network;
@@ -323,7 +285,7 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
     TrainingSet trainingSet(
             trainingItems,
             1e-2,
-            5000);
+            15000);
 
     REvolutionaryTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm
