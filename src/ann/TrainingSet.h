@@ -1,10 +1,3 @@
-/*
- * TrainingSet.h
- *
- *  Created on: 18.10.2012
- *      Author: eveith
- */
-
 #ifndef TRAININGSET_H_
 #define TRAININGSET_H_
 
@@ -13,6 +6,7 @@
 #include <QList>
 
 #include <cstddef>
+#include <ostream>
 
 #include "NeuralNetwork.h"
 
@@ -147,41 +141,11 @@ namespace Winzent {
             friend class TrainingAlgorithm;
 
 
-        private:
-
-
-            /*!
-             * The data we're training on.
-             */
-            QList<TrainingItem> m_trainingData;
-
-
-            /*!
-             * The error we're trying to target.
-             */
-            qreal m_targetError;
-
-
-            /*!
-             * Maximum number of epochs the training will run for.
-             */
-            size_t m_maxNumEpochs;
-
-
-            /*!
-             * Number of epochs it took to complete the training.
-             */
-            size_t m_epochs;
-
-
-            /*!
-             * The error after each epoch (stores the
-             * final error after the training is finished.)
-             */
-            qreal m_error;
-
-
         public:
+
+
+            //! A vector or list of training items
+            typedef QList<TrainingItem> TrainingItems;
 
 
             /*!
@@ -202,7 +166,7 @@ namespace Winzent {
              *  yet reached.
              */
             TrainingSet(
-                    QList<TrainingItem> trainingData,
+                    TrainingItems trainingData,
                     const qreal &targetError,
                     const size_t &maxNumEpochs);
 
@@ -241,7 +205,7 @@ namespace Winzent {
              *
              * \return All training items.
              */
-            const QList<TrainingItem> &trainingData() const;
+            TrainingItems trainingData() const;
 
 
             /*!
@@ -264,7 +228,56 @@ namespace Winzent {
              * \return The Training Item, modifiable
              */
             TrainingItem &operator[](const size_t &index);
+
+
+        private:
+
+
+            /*!
+             * The data we're training on.
+             */
+            TrainingItems m_trainingData;
+
+
+            /*!
+             * The error we're trying to target.
+             */
+            qreal m_targetError;
+
+
+            /*!
+             * Maximum number of epochs the training will run for.
+             */
+            size_t m_maxNumEpochs;
+
+
+            /*!
+             * Number of epochs it took to complete the training.
+             */
+            size_t m_epochs;
+
+
+            /*!
+             * The error after each epoch (stores the
+             * final error after the training is finished.)
+             */
+            qreal m_error;
+
         };
     } /* namespace ANN */
 } /* namespace Winzent */
+
+
+namespace std {
+    ostream &operator <<(
+            ostream &os,
+            const Winzent::ANN::TrainingItem &trainingItem);
+    ostream &operator <<(
+            ostream &os,
+            const Winzent::ANN::TrainingSet::TrainingItems &trainingData);
+    ostream &operator <<(
+            ostream &os,
+            const Winzent::ANN::TrainingSet &trainingSet);
+}
+
 #endif /* TRAININGSET_H_ */

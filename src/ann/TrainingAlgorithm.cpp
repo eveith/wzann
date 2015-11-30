@@ -25,6 +25,16 @@ namespace Winzent {
                     "Winzent.ANN.TrainingAlgorithm");
 
 
+        TrainingAlgorithm::TrainingAlgorithm()
+        {
+        }
+
+
+        TrainingAlgorithm::~TrainingAlgorithm()
+        {
+        }
+
+
         qreal TrainingAlgorithm::calculateMeanSquaredError(
                 const Vector &actualOutput,
                 const Vector &expectedOutput)
@@ -44,7 +54,7 @@ namespace Winzent {
                 error += pow(expectedOutput[n] - actualOutput[n], 2);
             }
 
-            error /= static_cast<qreal>(++n);
+            error /= static_cast<qreal>(n);
             return error;
         }
 

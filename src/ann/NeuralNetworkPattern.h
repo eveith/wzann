@@ -60,8 +60,8 @@ namespace Winzent {
              *  that apply to each layer.
              */
             NeuralNetworkPattern(
-                    QList<int> layerSizes,
-                    QList<ActivationFunction *> activationFunctions);
+                    const QList<int> layerSizes,
+                    const QList<ActivationFunction *> activationFunctions);
 
 
             /*!

@@ -7,7 +7,6 @@
 #define WINZENT_MODEL_FORECASTER_ANN_TRAININGALGORITHM_H
 
 
-#include <QtGlobal>
 
 #include <cstddef>
 
@@ -15,6 +14,7 @@
 
 #include "Exception.h"
 #include "NeuralNetwork.h"
+#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
@@ -90,6 +90,10 @@ namespace Winzent {
 
 
         public:
+
+
+            TrainingAlgorithm();
+            virtual ~TrainingAlgorithm();
 
 
             /*!

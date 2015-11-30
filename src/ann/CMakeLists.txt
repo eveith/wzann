@@ -30,6 +30,7 @@ set(winzent-ann_SOURCES
     REvolutionaryTrainingAlgorithm.cpp
     RpropTrainingAlgorithm.cpp
     SigmoidActivationFunction.cpp
+    SymmetricSigmoidActivationFunction.cpp
     SimulatedAnnealingTrainingAlgorithm.cpp
     TrainingAlgorithm.cpp
     TrainingSet.cpp
@@ -52,11 +53,13 @@ set(winzent-ann_HEADERS
     SimpleWeightRandomizer.h
     NguyenWidrowWeightRandomizer.h
     PerceptronNetworkPattern.h
+    QtContainerOutput.h
     RememberingActivationFunction.h
     PsoTrainingAlgorithm.h
     REvolutionaryTrainingAlgorithm.h
     RpropTrainingAlgorithm.h
     SigmoidActivationFunction.h
+    SymmetricSigmoidActivationFunction.h
     SimulatedAnnealingTrainingAlgorithm.h
     TrainingAlgorithm.h
     TrainingSet.h

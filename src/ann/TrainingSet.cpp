@@ -1,15 +1,9 @@
-/*
- * TrainingSet.cpp
-
- *
- *  Created on: 18.10.2012
- *      Author: eveith
- */
-
-
 #include <cmath>
 #include <limits>
 #include <cstddef>
+#include <ostream>
+
+#include "QtContainerOutput.h"
 
 #include "Exception.h"
 #include "TrainingSet.h"
@@ -81,7 +75,7 @@ namespace Winzent {
 
 
         TrainingSet::TrainingSet(
-                QList<TrainingItem> trainingData,
+                TrainingItems trainingData,
                 const qreal &targetError,
                 const size_t &maxNumEpochs):
                     m_targetError(targetError),
@@ -118,7 +112,7 @@ namespace Winzent {
         }
 
 
-        const QList<TrainingItem> &TrainingSet::trainingData() const
+        TrainingSet::TrainingItems TrainingSet::trainingData() const
         {
             return m_trainingData;
         }
@@ -135,5 +129,56 @@ namespace Winzent {
         {
             return m_trainingData[index];
         }
+    }
+}
+
+
+namespace std {
+    ostream &operator <<(
+            ostream &os,
+            const Winzent::ANN::TrainingItem &trainingItem)
+    {
+        os
+                << "TrainingItem = ("
+                << "Input = "
+                << trainingItem.input()
+                << ", ExpectedOutput = "
+                << trainingItem.expectedOutput()
+                << ", OutputRelevant = "
+                << trainingItem.outputRelevant()
+                << ")";
+        return os;
+    }
+
+
+    ostream &operator <<(
+            ostream &os,
+            const Winzent::ANN::TrainingSet::TrainingItems &trainingData)
+    {
+        os << "TrainingData = (";
+        for (const auto &i: trainingData) {
+            os << i;
+            if (&i != &(trainingData.back())) {
+                os << ", ";
+            }
+        }
+        os << ")";
+        return os;
+    }
+
+
+    ostream &operator <<(
+            ostream &os,
+            const Winzent::ANN::TrainingSet &trainingSet)
+    {
+        os
+                << "TrainingSet = ("
+                << "TargetError = " << trainingSet.targetError()
+                << ", Error = " << trainingSet.error()
+                << ", MaxEpochs = " << trainingSet.maxEpochs()
+                << ", epochs = " << trainingSet.epochs()
+                << ", " << trainingSet.trainingData()
+                << ")";
+        return os;
     }
 }
