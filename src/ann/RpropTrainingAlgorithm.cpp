@@ -184,7 +184,7 @@ namespace Winzent {
 
                 // Forward pass:
 
-                foreach (TrainingItem item, trainingSet.trainingData()) {
+                foreach (TrainingItem item, trainingSet.trainingData) {
                     Vector errorVector = feedForward(ann, item);
                     error += accumulate(
                             errorVector.begin(),
@@ -234,7 +234,7 @@ namespace Winzent {
 
                 // Calculate mean of all errors:
 
-                error /= (trainingSet.trainingData().size()
+                error /= (trainingSet.trainingData.size()
                         * ann.outputLayer().size());
 
                 // Now, learn:

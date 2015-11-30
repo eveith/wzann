@@ -11,8 +11,6 @@
 
 namespace Winzent {
     namespace ANN {
-
-
         TrainingItem::TrainingItem(
                 const Vector &input,
                 const Vector &expectedOutput):
@@ -74,6 +72,14 @@ namespace Winzent {
         }
 
 
+        TrainingSet::TrainingSet():
+                m_targetError(0),
+                m_maxNumEpochs(std::numeric_limits<size_t>::max()),
+                m_error(std::numeric_limits<qreal>::infinity())
+        {
+        }
+
+
         TrainingSet::TrainingSet(
                 TrainingItems trainingData,
                 const qreal &targetError,
@@ -83,7 +89,7 @@ namespace Winzent {
                     m_error(std::numeric_limits<qreal>::infinity())
         {
             for (const auto &i: trainingData) {
-                m_trainingData.push_back(TrainingItem(i));
+                this->trainingData.push_back(TrainingItem(i));
             }
         }
 
@@ -91,6 +97,13 @@ namespace Winzent {
         qreal TrainingSet::targetError() const
         {
             return m_targetError;
+        }
+
+
+        TrainingSet &TrainingSet::targetError(const qreal &targetError)
+        {
+            m_targetError = targetError;
+            return *this;
         }
 
 
@@ -106,28 +119,23 @@ namespace Winzent {
         }
 
 
+        TrainingSet &TrainingSet::maxEpochs(const size_t &maxEpochs)
+        {
+            m_maxNumEpochs = maxEpochs;
+            return *this;
+        }
+
+
         size_t TrainingSet::epochs() const
         {
             return m_epochs;
         }
 
 
-        TrainingSet::TrainingItems TrainingSet::trainingData() const
-        {
-            return m_trainingData;
-        }
-
-
         TrainingSet &TrainingSet::operator <<(const TrainingItem &item)
         {
-            m_trainingData.push_back(item);
+            trainingData.push_back(item);
             return *this;
-        }
-
-
-        TrainingItem &TrainingSet::operator [](const size_t &index)
-        {
-            return m_trainingData[index];
         }
     }
 }
@@ -177,7 +185,7 @@ namespace std {
                 << ", Error = " << trainingSet.error()
                 << ", MaxEpochs = " << trainingSet.maxEpochs()
                 << ", epochs = " << trainingSet.epochs()
-                << ", " << trainingSet.trainingData()
+                << ", " << trainingSet.trainingData
                 << ")";
         return os;
     }

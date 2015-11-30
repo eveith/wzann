@@ -124,11 +124,11 @@ namespace Winzent {
             size_t errorPos = 0;
             qreal totalMSE  = 0.0;
             individual.restrictions.resize(
-                        trainingSet.trainingData().size() + 1);
+                        trainingSet.trainingData.size() + 1);
             Individual::applyParameters(individual, ann);
 
 
-            for (const auto &item: trainingSet.trainingData()) {
+            for (const auto &item: trainingSet.trainingData) {
                 Vector output = ann.calculate(item.input());
 
                 if (! item.outputRelevant()) {

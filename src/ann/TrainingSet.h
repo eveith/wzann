@@ -148,6 +148,10 @@ namespace Winzent {
             typedef QList<TrainingItem> TrainingItems;
 
 
+            //! The actual set of training data
+            TrainingItems trainingData;
+
+
             /*!
              * Constructs a new TrainingSet by supplying the training
              * data and the relevant paramters.
@@ -171,26 +175,56 @@ namespace Winzent {
                     const size_t &maxNumEpochs);
 
 
+            //! Creates an empty training set.
+            explicit TrainingSet();
+
+
             /*!
-             * Returns the mean square error after the current
-             * training epoch.
+             * \brief Returns the mean square error after the current
+             *  training epoch.
+             *
+             * \return The actual, current error
              */
             qreal error() const;
 
 
             /*!
-             * Returns the previously set target error.
+             * \brief Returns the previously set target error.
              *
-             * \return The target error.
+             * \return The target error
              */
             qreal targetError() const;
 
 
             /*!
-             * Returns the maximum number of epochs that are allowed during
-             * training.
+             * \brief Sets the target mean squared error
+             *
+             * \param[in] targetError The target MSE
+             *
+             * \return `*this`
+             */
+            TrainingSet &targetError(const qreal &targetError);
+
+
+            /*!
+             * \brief Returns the maximum number of epochs that are allowed
+             *  for training.
+             *
+             * \return The maximum number of iterations the training algorithm
+             *  may use
              */
             size_t maxEpochs() const;
+
+
+            /*!
+             * \brief Sets the maximum number of iterations a training
+             *  algorithm may use
+             *
+             * \param[in] maxEpochs The maximum number of epochs
+             *
+             * \return `*this`
+             */
+            TrainingSet &maxEpochs(const size_t &maxEpochs);
 
 
             /*!
@@ -198,14 +232,6 @@ namespace Winzent {
              * the training.
              */
             size_t epochs() const;
-
-
-            /*!
-             * \brief Allows const access to all training items
-             *
-             * \return All training items.
-             */
-            TrainingItems trainingData() const;
 
 
             /*!
@@ -219,50 +245,23 @@ namespace Winzent {
             TrainingSet &operator <<(const TrainingItem &item);
 
 
-            /*!
-             * \brief Allows read-write access to the training item at
-             *  a certain index
-             *
-             * \param[in] index Index of the training item
-             *
-             * \return The Training Item, modifiable
-             */
-            TrainingItem &operator[](const size_t &index);
-
-
         private:
 
 
-            /*!
-             * The data we're training on.
-             */
-            TrainingItems m_trainingData;
-
-
-            /*!
-             * The error we're trying to target.
-             */
+            //! The target MSE
             qreal m_targetError;
 
 
-            /*!
-             * Maximum number of epochs the training will run for.
-             */
+            //! Maximum number of epochs the training will run for.
             size_t m_maxNumEpochs;
 
 
-            /*!
-             * Number of epochs it took to complete the training.
-             */
+            //! Actual number of epochs it took to complete the training.
             size_t m_epochs;
 
 
-            /*!
-             * The error after each epoch (stores the
-             * final error after the training is finished.)
-             */
+            //! The actual MSE after training ran
             qreal m_error;
-
         };
     } /* namespace ANN */
 } /* namespace Winzent */

@@ -136,7 +136,7 @@ namespace Winzent {
                 randomize(parameters, temperature);
                 applyParameters(parameters, network);
 
-                for (const auto &item: trainingSet.trainingData()) {
+                for (const auto &item: trainingSet.trainingData) {
                     Vector actualOutput = network.calculate(
                             item.input());
 
