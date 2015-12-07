@@ -58,6 +58,10 @@ include_directories(../../src/common)
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
         OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     add_compile_options(-std=c++1y)
+
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+        add_compile_options(-funroll-loops)
+    endif()
 endif()
 
 
