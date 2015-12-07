@@ -198,7 +198,7 @@ namespace Winzent {
              * \return The result of the calculation
              */
             virtual Vector calculate(
-                    NeuralNetwork *const &network,
+                    NeuralNetwork &network,
                     const Vector &input) = 0;
 
 

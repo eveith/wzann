@@ -92,18 +92,18 @@ namespace Winzent {
 
 
         Vector PerceptronNetworkPattern::calculate(
-                NeuralNetwork *const &network,
+                NeuralNetwork &network,
                 const Vector &input)
         {
             Vector output = input; // For the loop
 
-            for (size_t i = 0; i != network->size(); ++i) {
-                output = network->calculateLayer(network->layerAt(i), output);
+            for (size_t i = 0; i != network.size(); ++i) {
+                output = network[i].activate(output);
 
-                if (i < network->size() - 1) {
-                    output = network->calculateLayerTransition(
-                            i,
-                            i+1,
+                if (i < network.size() - 1) {
+                    output = network.calculateLayerTransition(
+                            network[i],
+                            network[i+1],
                             output);
                 }
             }

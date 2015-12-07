@@ -238,11 +238,11 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     }
 
     NeuralNetwork *n = createNeuralNetwork();
-    Individual i3(*n);
+    population.push_back(new Individual(*n));
+    auto &i3 = population.back();
     delete n;
-    trainingAlgorithm.modifyIndividual(
-                static_cast<Winzent::Algorithm::detail::Individual &>(i3),
-                population);
+
+    trainingAlgorithm.modifyWorstIndividual(population);
 
     QCOMPARE(
             i3.parameters.size(),
@@ -251,7 +251,7 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     std::for_each(population.begin(), population.end() - 1,
             [&](Individual const& i) {
         for (auto j = 0; j != i.parameters.size(); ++j) {
-            QVERIFY (i3.parameters.at(j) != i.parameters.at(j));
+            QVERIFY(i3.parameters.at(j) != i.parameters.at(j));
         }
     });
 }

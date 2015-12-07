@@ -30,7 +30,7 @@ namespace Winzent {
         }
 
 
-        size_t Layer::size() const
+        Layer::size_type Layer::size() const
         {
             return m_neurons.size();
         }
@@ -54,7 +54,7 @@ namespace Winzent {
         }
 
 
-        Neuron &Layer::operator [](const size_t &index)
+        Neuron &Layer::operator [](const Layer::size_type &index)
         {
             return m_neurons[index];
         }
@@ -79,7 +79,7 @@ namespace Winzent {
         }
 
 
-        size_t Layer::indexOf(const Neuron *const &neuron) const
+        Layer::size_type Layer::indexOf(const Neuron *const &neuron) const
         {
            return m_neuronIndexes.value(const_cast<Neuron* const&>(neuron));
         }

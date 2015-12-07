@@ -39,6 +39,7 @@ namespace Winzent {
 
             typedef boost::ptr_vector<Neuron>::iterator iterator;
             typedef boost::ptr_vector<Neuron>::const_iterator const_iterator;
+            typedef boost::ptr_vector<Neuron>::size_type size_type;
 
 
             /*!
@@ -76,7 +77,7 @@ namespace Winzent {
              * \brief Returns the size of the layer, i.e. the number of
              *  neurons it holds.
              */
-            size_t size() const;
+            size_type size() const;
 
 
             /*!
@@ -107,7 +108,7 @@ namespace Winzent {
              *
              * \return The neuron at the given position
              */
-            Neuron &operator [](const size_t &index);
+            Neuron &operator [](const size_type &index);
 
 
             /*!
@@ -130,7 +131,7 @@ namespace Winzent {
              *
              * \return The index position, or -1 if no item matched.
              */
-            size_t indexOf(const Neuron *const &neuron) const;
+            size_type indexOf(const Neuron *const &neuron) const;
 
 
             /*!

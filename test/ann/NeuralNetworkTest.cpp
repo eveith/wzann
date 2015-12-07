@@ -42,7 +42,7 @@ namespace Mock {
     void NeuralNetworkTestDummyPattern::configureNetwork(
             NeuralNetwork *const &network)
     {
-        // Connect half of the neurons of the nth layer with all neurons
+        // Connect all neurons of the nth layer with all neurons
         // of the (n+1)th layer.
 
         for (int i = 0; i != numLayers; ++i) {
@@ -76,8 +76,8 @@ namespace Mock {
 
 
     Vector NeuralNetworkTestDummyPattern::calculate(
-            NeuralNetwork *const &,
-            const Vector& input)
+            NeuralNetwork &,
+            const Vector &input)
     {
         return input;
     }
@@ -124,14 +124,14 @@ void NeuralNetworkTest::testCalculateLayerTransition()
 
     Vector inVector(pattern.numNeuronsInLayer(fromLayer), 1.0);
     Vector outVector = network.calculateLayerTransition(
-            fromLayer,
-            toLayer,
+            network[fromLayer],
+            network[toLayer],
             inVector);
 
     QCOMPARE(outVector.size(), pattern.numNeuronsInLayer(toLayer));
 
     for (int i = 0; i != outVector.size(); ++i) {
-        QCOMPARE(outVector[i], 1.0);
+        QCOMPARE(outVector[i] + 1.0, 1.0);
     }
 }
 
@@ -146,16 +146,15 @@ void NeuralNetworkTest::testCalculateLayer()
     const int layer     = 2;
 
     Vector inVector(pattern.numNeuronsInLayer(layer), inValue);
-    Vector outVector = network.calculateLayer(layer, inVector);
+    Vector outVector = network[layer].activate(inVector);
 
     QCOMPARE(outVector.size(), pattern.numNeuronsInLayer(layer));
     QCOMPARE(outVector.size(), inVector.size());
 
-    foreach (qreal d, outVector) {
+    for (const qreal &d: outVector) {
         QCOMPARE(
                 1.0 + d,
-                1.0 + LinearActivationFunction().calculate(inValue)
-                    + -1.0 * LinearActivationFunction().calculate(1.0));
+                1.0 + LinearActivationFunction().calculate(inValue));
     }
 }
 

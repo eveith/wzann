@@ -47,7 +47,7 @@ void RpropTrainingAlgorithmTest::testTrainXOR()
                 TrainingItem({ 0.0, 1.0 }, { 1.0 })
             },
             1e-3,
-            2000);
+            6000);
     RpropTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm.train(network, ts);
 

@@ -40,12 +40,13 @@ namespace Mock {
         }
 
 
-        virtual void configureNetwork(NeuralNetwork* const& network);
+        virtual void configureNetwork(NeuralNetwork *const &network) override;
 
 
         virtual Vector calculate(
-                NeuralNetwork *const &network,
-                const Vector& input);
+                Winzent::ANN::NeuralNetwork &network,
+                const Vector& input)
+                override;
 
         virtual NeuralNetworkPattern* clone() const;
     };

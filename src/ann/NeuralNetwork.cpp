@@ -436,6 +436,7 @@ namespace Winzent {
         }
 
 
+#if 0
         Vector NeuralNetwork::calculateLayer(
                 Layer *const &layer,
                 const Vector &input)
@@ -479,66 +480,56 @@ namespace Winzent {
         {
             return this->calculateLayer(layerAt(layerIndex), input);
         }
+#endif
 
 
         Vector NeuralNetwork::calculateLayerTransition(
-                const int &from,
-                const int &to,
+                const Layer &from,
+                const Layer &to,
                 const Vector &input)
-                    throw(LayerSizeMismatchException)
         {
-            Layer *fromLayer    = layerAt(from);
-            Layer *toLayer      = layerAt(to);
-            size_t fromLayerSize= fromLayer->size();
-            size_t toLayerSize  = toLayer->size();
+            auto fromLayerSize= from.size();
+            auto toLayerSize  = to.size();
 
 #ifdef QT_DEBUG
-            if (input.size() != fromLayerSize) {
+            if (static_cast<Layer::size_type>(input.size()) != fromLayerSize){
                 throw LayerSizeMismatchException(input.size(), fromLayerSize);
             }
 #endif
 
             Vector output;
             output.fill(0.0, toLayerSize);
-            Q_ASSERT(output.size() == toLayerSize);
 
-            for (size_t i = 0; i != fromLayerSize; ++i) {
-                Neuron *fromNeuron = fromLayer->neuronAt(i);
-                QList<Connection*> connections =
-                        neuronConnectionsFrom(fromNeuron);
+            for (Layer::size_type t = 0; t != toLayerSize; ++t) {
+                const Neuron *toNeuron = to.neuronAt(t);
+                auto connections = neuronConnectionsTo(toNeuron);
 
-                foreach (Connection *c, connections) {
-                    if (!toLayer->contains(c->destination())) {
-                        continue;
+                for (const auto &c: connections) {
+                    Q_ASSERT(c->destination() == toNeuron);
+
+                    if (from.contains(c->source())) {
+                        auto s = from.indexOf(c->source());
+                        output[t] += input.at(s) * c->weight();
+                    } else if (c->source() == m_biasNeuron) {
+                        output[t] += m_biasNeuron->activate(1.0)*c->weight();
                     }
-
-                    Q_ASSERT(c->source() == fromNeuron);
-
-                    int j = toLayer->indexOf(c->destination());
-                    output[j] += input.at(i) * c->weight();
                 }
             }
 
-            LOG4CXX_DEBUG(
-                    logger,
-                    "ANN Layer Transition: "
-                        << from << ": " << input
-                        << " => "
-                        << to << ": " << output);
             return (output);
         }
 
 
         Vector NeuralNetwork::calculate(const Vector &input)
-                throw(LayerSizeMismatchException)
         {
-            if (input.size() != m_layers.front().size()) {
+            if (static_cast<Layer::size_type>(input.size())
+                    != m_layers.front().size()) {
                 throw LayerSizeMismatchException(
                         m_layers.front().size(),
                         input.size());
             }
 
-            return m_pattern->calculate(this, input);
+            return m_pattern->calculate(*this, input);
         }
 
 
@@ -672,9 +663,9 @@ namespace Winzent {
 
             equal &= size() == other.size();
             equal &= *m_biasNeuron == *(other.m_biasNeuron);
-            equal &= (m_pattern == nullptr && other.m_pattern == nullptr
-                    || m_pattern != nullptr && other.m_pattern != nullptr
-                        && m_pattern->equals(other.m_pattern.get()));
+            equal &= ((m_pattern == nullptr && other.m_pattern == nullptr)
+                    || (m_pattern != nullptr && other.m_pattern != nullptr
+                        && m_pattern->equals(other.m_pattern.get())));
             equal &= (m_connectionSources.size()
                     == other.m_connectionSources.size());
 

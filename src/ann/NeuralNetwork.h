@@ -411,6 +411,7 @@ namespace Winzent {
             NeuralNetwork &configure(const NeuralNetworkPattern &pattern);
 
 
+#if 0
             /*!
              * Feeds each neuron on a given layer and returns the
              * complete output. The number of values in the
@@ -456,11 +457,12 @@ namespace Winzent {
                     const int &layerIndex,
                     const Vector &input)
                         throw(LayerSizeMismatchException);
+#endif
 
 
             /*!
-             * Calculates the transition of values from one layer
-             * to another.
+             * \brief Calculates the transition of values from one layer
+             *  to another.
              *
              * The neurons of one layer are connected to neurons in
              * another layer. These two layers are identified by
@@ -487,22 +489,20 @@ namespace Winzent {
              * \throw LayerSizeMismatchException
              */
             Vector calculateLayerTransition(
-                    const int &from,
-                    const int &to,
-                    const Vector &input)
-                        throw(LayerSizeMismatchException);
+                    const Layer &from,
+                    const Layer &to,
+                    const Vector &input);
 
 
             /*!
-             * Calculates a complete pass of the neural network.
+             * \brief Calculates a complete pass of the neural network.
              *
              * \input[in] input The input to the neural network,
              *  which is a vector that maps 1:1 an input value to an
              *  input neuron. If the size of the vector does not match
              *  the number of input neurons, an exception is thrown.
              */
-            Vector calculate(const Vector &input)
-                    throw(LayerSizeMismatchException);
+            Vector calculate(const Vector &input);
 
 
             //! Clears the neural network completely

@@ -119,10 +119,12 @@ namespace Winzent {
 
 
             /*!
-             * Feed-forward calculation of an Elman network.
+             * \brief Feed-forward calculation of an Elman network.
+             *
+             * \sa NeuralNetworkPattern#calculate()
              */
             virtual Vector calculate(
-                    NeuralNetwork *const &network,
+                    NeuralNetwork &network,
                     const Vector &input)
                     override;
 

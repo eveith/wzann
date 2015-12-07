@@ -33,14 +33,15 @@ namespace Mock {
 
 
         virtual Vector calculate(
-                NeuralNetwork *const &network,
-                const Vector& input);
+                NeuralNetwork &network,
+                const Vector &input)
+                override;
 
 
         virtual NeuralNetworkPattern* clone() const;
 
 
-        virtual void configureNetwork(NeuralNetwork *const &network);
+        virtual void configureNetwork(NeuralNetwork *const &network) override;
     };
 }
 

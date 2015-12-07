@@ -141,54 +141,52 @@ namespace Winzent {
 
 
         Vector ElmanNetworkPattern::calculate(
-                NeuralNetwork *const &network,
+                NeuralNetwork &network,
                 const Vector &input)
         {
-            Vector layerInput;
-            Vector output;
-
-            layerInput = network->calculateLayer(INPUT, input);
-            layerInput = network->calculateLayerTransition(
-                    INPUT,
-                    HIDDEN,
+            auto layerInput = network[INPUT].activate(input);
+            layerInput = network.calculateLayerTransition(
+                    network[INPUT],
+                    network[HIDDEN],
                     layerInput);
 
             // Fetch remembered values from the context layer:
 
             {
-                Layer* contextLayer = network->layerAt(CONTEXT);
-                Vector rememberedValues(contextLayer->size());
+                auto &contextLayer = network[CONTEXT];
+                Vector rememberedValues;
+                rememberedValues.reserve(contextLayer.size());
 
-                for (size_t i = 0; i != contextLayer->size(); ++i) {
-                    rememberedValues[i] = contextLayer->neuronAt(i)
-                            ->activate(0.0);
+                for (size_t i = 0; i != contextLayer.size(); ++i) {
+                    rememberedValues.push_back(contextLayer[i].activate(0.0));
                 }
 
-                rememberedValues = network->calculateLayerTransition(
-                        CONTEXT,
-                        HIDDEN,
+                rememberedValues = network.calculateLayerTransition(
+                        network[CONTEXT],
+                        network[HIDDEN],
                         rememberedValues);
 
-                for (int i = 0; i != rememberedValues.size(); ++i) {
+                for (Vector::size_type i = 0; i != rememberedValues.size();
+                        ++i) {
                     layerInput[i] += rememberedValues[i];
                 }
             }
 
-            output = network->calculateLayer(HIDDEN, layerInput);
+            auto output = network[HIDDEN].activate(layerInput);
 
             // Now re-remember the newly calculated hidden layer results.
             // We can throw away the result since these are just the old
             // values we already retrieved above:
 
-            network->calculateLayer(CONTEXT, output);
+            network[CONTEXT].activate(output);
 
             // Finally, calculate the output:
 
-            layerInput = network->calculateLayerTransition(
-                    HIDDEN,
-                    OUTPUT,
+            layerInput = network.calculateLayerTransition(
+                    network[HIDDEN],
+                    network[OUTPUT],
                     output);
-            output = network->calculateLayer(OUTPUT, layerInput);
+            output = network[OUTPUT].activate(layerInput);
 
             return output;
         }
