@@ -113,10 +113,7 @@ namespace Winzent {
                         fullyConnectNetworkLayers(network, lidx, OUTPUT);
 
                         for (int i = 0; i != layerSize; ++i) {
-                            network->connectNeurons(
-                                    network->layerAt(HIDDEN)->neuronAt(i),
-                                    network->layerAt(CONTEXT)->neuronAt(i));
-                            Connection* connection = network->neuronConnection(
+                            auto *connection = network->connectNeurons(
                                     network->layerAt(HIDDEN)->neuronAt(i),
                                     network->layerAt(CONTEXT)->neuronAt(i));
                             connection->weight(1.0);
@@ -157,8 +154,8 @@ namespace Winzent {
                 Vector rememberedValues;
                 rememberedValues.reserve(contextLayer.size());
 
-                for (size_t i = 0; i != contextLayer.size(); ++i) {
-                    rememberedValues.push_back(contextLayer[i].activate(0.0));
+                for (Layer::size_type i = 0; i != contextLayer.size(); ++i) {
+                    rememberedValues.push_back(contextLayer[i].lastInput());
                 }
 
                 rememberedValues = network.calculateLayerTransition(
