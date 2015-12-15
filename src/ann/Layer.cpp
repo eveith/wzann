@@ -62,7 +62,8 @@ namespace Winzent {
 
         Vector Layer::activate(const Vector &neuronInputs)
         {
-            Q_ASSERT(neuronInputs.size() == size());
+            Q_ASSERT(static_cast<Layer::size_type>(neuronInputs.size())
+                     == size());
 
             Vector result;
             result.reserve(size());
