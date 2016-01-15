@@ -3,6 +3,11 @@
 #include <cstddef>
 #include <ostream>
 
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
+
+#include "JsonSerializable.h"
 #include "QtContainerOutput.h"
 
 #include "Exception.h"
@@ -54,7 +59,6 @@ namespace Winzent {
 
 
         Vector TrainingItem::error(const Vector &actualOutput) const
-                throw(LayerSizeMismatchException)
         {
             if (actualOutput.size() == expectedOutput().size()) {
                 throw LayerSizeMismatchException(
@@ -72,10 +76,42 @@ namespace Winzent {
         }
 
 
+        void TrainingItem::clear()
+        {
+            m_input.clear();
+            m_expectedOutput.clear();
+            m_outputRelevant = false;
+        }
+
+
+        void TrainingItem::fromJSON(const QJsonDocument &json)
+        {
+            clear();
+            QJsonObject o = json.object();
+
+            m_input = from_json(
+                    QJsonDocument(o["input"].toArray()));
+            m_expectedOutput = from_json(
+                    QJsonDocument(o["expectedOutput"].toArray()));
+            m_outputRelevant = (m_expectedOutput.size() > 0);
+        }
+
+
+        QJsonDocument TrainingItem::toJSON() const
+        {
+            QJsonObject o;
+
+            o["input"] = to_json(m_input).array();
+            o["expectedOutput"] = to_json(m_expectedOutput).array();
+
+            return QJsonDocument(o);
+        }
+
+
         TrainingSet::TrainingSet():
                 m_targetError(0),
                 m_maxNumEpochs(std::numeric_limits<size_t>::max()),
-                m_error(std::numeric_limits<qreal>::infinity())
+                m_error(std::numeric_limits<qreal>::max())
         {
         }
 
@@ -86,7 +122,7 @@ namespace Winzent {
                 const size_t &maxNumEpochs):
                     m_targetError(targetError),
                     m_maxNumEpochs(maxNumEpochs),
-                    m_error(std::numeric_limits<qreal>::infinity())
+                    m_error(std::numeric_limits<qreal>::max())
         {
             for (const auto &i: trainingData) {
                 this->trainingData.push_back(TrainingItem(i));
@@ -136,6 +172,54 @@ namespace Winzent {
         {
             trainingData.push_back(item);
             return *this;
+        }
+
+
+        void TrainingSet::clear()
+        {
+            trainingData.clear();
+            m_maxNumEpochs = 0;
+            m_epochs = 0;
+            m_targetError = 0.0;
+            m_error = std::numeric_limits<qreal>::max();
+        }
+
+
+        void TrainingSet::fromJSON(const QJsonDocument &json)
+        {
+            clear();
+            QJsonObject o = json.object();
+
+            m_epochs = static_cast<size_t>(o["epochs"].toInt());
+            m_maxNumEpochs = static_cast<size_t>(o["maxEpochs"].toInt());
+            m_error = o["error"].toDouble();
+            m_targetError = o["targetError"].toDouble();
+
+            QJsonArray jsonTrainingItems = o["trainingItems"].toArray();
+            for (const auto &i: jsonTrainingItems) {
+                TrainingItem ti;
+                ti.fromJSON(QJsonDocument(i.toObject()));
+                trainingData.push_back(ti);
+            }
+        }
+
+
+        QJsonDocument TrainingSet::toJSON() const
+        {
+            QJsonObject o;
+
+            o["epochs"] = static_cast<int>(epochs());
+            o["maxEpochs"] = static_cast<int>(maxEpochs());
+            o["error"] = error();
+            o["targetError"] = targetError();
+
+            QJsonArray jsonTrainingItems;
+            for (const auto &i: trainingData) {
+                jsonTrainingItems.push_back(i.toJSON().object());
+            }
+            o["trainingItems"] = jsonTrainingItems;
+
+            return QJsonDocument(o);
         }
     }
 }
@@ -190,3 +274,7 @@ namespace std {
         return os;
     }
 }
+
+
+constexpr const char Winzent::JsonSchema<Winzent::ANN::TrainingSet>
+        ::schemaURI[];

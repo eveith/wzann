@@ -9,8 +9,9 @@
 #include <QHash>
 #include <QDebug>
 
-#include "Neuron.h"
 #include "Layer.h"
+#include "Neuron.h"
+#include "Vector.h"
 #include "Connection.h"
 #include "ActivationFunction.h"
 #include "NeuralNetwork.h"

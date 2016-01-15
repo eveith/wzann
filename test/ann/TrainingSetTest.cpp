@@ -23,4 +23,25 @@ void TrainingSetTest::testOutputRelevant()
 }
 
 
+void TrainingSetTest::testJsonSerialization()
+{
+    TrainingSet ts;
+    ts.targetError(0.01);
+    ts.maxEpochs(1000);
+    ts
+            << TrainingItem({ 1.0, 1.0, 1.0 })
+            << TrainingItem({ 2.0, 2.0, 2.0}, { 3.0, 3.0, 3.0 });
+
+    auto json = ts.toJSON();
+    qDebug() << json;
+
+    TrainingSet ts2;
+    Winzent::deserialize(ts2, json);
+
+    QCOMPARE(ts2.error(), ts.error());
+    QCOMPARE(ts2.maxEpochs(), ts.maxEpochs());
+    QCOMPARE(ts2.trainingData.size(), ts.trainingData.size());
+}
+
+
 TESTCASE(TrainingSetTest);

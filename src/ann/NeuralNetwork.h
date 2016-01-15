@@ -24,6 +24,7 @@
 
 #include <JsonSerializable.h>
 
+#include "Vector.h"
 #include "Exception.h"
 #include "Winzent-ANN_global.h"
 

@@ -8,7 +8,10 @@
 #include <cstddef>
 #include <ostream>
 
+#include "Vector.h"
 #include "NeuralNetwork.h"
+
+#include <JsonSerializable.h>
 
 
 namespace Winzent {
@@ -28,30 +31,8 @@ namespace Winzent {
          *
          * \sa #rootMeanSquareError
          */
-        class TrainingItem
+        class WINZENTANNSHARED_EXPORT TrainingItem: public JsonSerializable
         {
-        private:
-
-
-            /*!
-             * The input presented to the network
-             */
-            Vector m_input;
-
-
-            /*!
-             * The output expected from the network.
-             */
-            Vector m_expectedOutput;
-
-
-            /*!
-             * \brief Stores whether an expected output to the input exists
-             *  (i.e., the output is relevant) or not.
-             */
-            bool m_outputRelevant;
-
-
         public:
 
 
@@ -80,7 +61,7 @@ namespace Winzent {
             /*!
              * \brief Constructs a new, empty training item.
              */
-            TrainingItem()
+            explicit TrainingItem()
             {
             }
 
@@ -122,8 +103,46 @@ namespace Winzent {
              *  expectedOutput and actualOutput do not match; throws this also
              *  if the output is not relevant for this training item.
              */
-            Vector error(const Vector &actualOutput) const
-                    throw(LayerSizeMismatchException);
+            Vector error(const Vector &actualOutput) const;
+
+
+            //! \brief Clears the TrainingItem
+            virtual void clear() override;
+
+
+            /*!
+             * \brief Serializes the TrainingItem to JSON
+             *
+             * \return The JSON representation of the TrainingItem
+             */
+            virtual QJsonDocument toJSON() const override;
+
+
+            /*!
+             * \brief Reinstates a serialized JSON TrainingItem
+             *
+             * \param[in] json The TrainingItem's JSON representation
+             */
+            virtual void fromJSON(const QJsonDocument &json) override;
+
+
+        private:
+
+
+            //! \brief The input presented to the network
+            Vector m_input;
+
+
+            //! \brief The output expected from the network.
+            Vector m_expectedOutput;
+
+
+            /*!
+             * \brief Stores whether an expected output to the input exists
+             *  (i.e., the output is relevant) or not.
+             */
+            bool m_outputRelevant;
+
         };
 
 
@@ -136,7 +155,7 @@ namespace Winzent {
          * of iteration have been reached. The resulting target error
          * is then stored in the particular training set instance.
          */
-        class TrainingSet
+        class WINZENTANNSHARED_EXPORT TrainingSet: public JsonSerializable
         {
             friend class TrainingAlgorithm;
 
@@ -245,6 +264,29 @@ namespace Winzent {
             TrainingSet &operator <<(const TrainingItem &item);
 
 
+            /*!
+             * \brief Clears the TrainingSet completeley
+             *  and resets all parameters
+             */
+            virtual void clear() override;
+
+
+            /*!
+             * \brief Deserializes an TrainingSet into the current object
+             *
+             * \param[in] json The JSON representation of the TrainingSet
+             */
+            virtual void fromJSON(const QJsonDocument &json) override;
+
+
+            /*!
+             * \brief Serializes the current TrainingSet
+             *
+             * \return The serialized version of the object
+             */
+            virtual QJsonDocument toJSON() const override;
+
+
         private:
 
 
@@ -264,6 +306,14 @@ namespace Winzent {
             qreal m_error;
         };
     } /* namespace ANN */
+
+
+    template <>
+    struct JsonSchema<Winzent::ANN::TrainingSet>
+    {
+        static constexpr const char schemaURI[] =
+                ":/schema/TrainingSetSchema.json";
+    };
 } /* namespace Winzent */
 
 
