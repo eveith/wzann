@@ -175,6 +175,20 @@ namespace Winzent {
         }
 
 
+        void TrainingSet::push_back(const TrainingItem &item)
+        {
+            trainingData.push_back(item);
+        }
+
+
+        void TrainingSet::push_back(const TrainingSet &trainingSet)
+        {
+            for (const auto &i: trainingSet.trainingData) {
+                push_back(TrainingItem(i));
+            }
+        }
+
+
         void TrainingSet::clear()
         {
             trainingData.clear();

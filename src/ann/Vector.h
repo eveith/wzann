@@ -1,6 +1,9 @@
 #ifndef WINZENT_ANN_VECTOR_H
 #define WINZENT_ANN_VECTOR_H
 
+
+#include <ostream>
+
 #include <QVector>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -39,5 +42,11 @@ namespace Winzent {
         }
     } // namespace ANN
 } // namespace Winzent
+
+
+namespace std {
+    ostream &operator <<(ostream &os, const Winzent::ANN::Vector &vector);
+}
+
 
 #endif // WINZENT_ANN_VECTOR_H

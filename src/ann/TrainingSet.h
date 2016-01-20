@@ -254,6 +254,24 @@ namespace Winzent {
 
 
             /*!
+             * \brief Adds a training item to this training set
+             *
+             * \param[in] item The training item
+             */
+            void push_back(const TrainingItem &item);
+
+
+            /*!
+             * \brief Copies all training items from the other training set
+             *  to this one, in the correct order.
+             *
+             * \param[in] trainingSet The training set whose data should be
+             *  appended to this one.
+             */
+            void push_back(const TrainingSet &trainingSet);
+
+
+            /*!
              * \brief Adds a copy of the given TrainingItem to the list of
              *  training items
              *
