@@ -50,8 +50,11 @@ namespace Winzent {
             qreal error = 0.0;
             int n = 0;
 
-            for (; n != actualOutput.size(); ++n) {
-                error += pow(expectedOutput[n] - actualOutput[n], 2);
+            for (auto eit = expectedOutput.begin(),
+                        ait = actualOutput.begin();
+                    eit != expectedOutput.end() && ait != actualOutput.end();
+                    eit++, ait++, n++) {
+                error += pow(*eit - *ait, 2);
             }
 
             error /= static_cast<qreal>(n);

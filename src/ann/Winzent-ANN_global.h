@@ -12,9 +12,6 @@
 
 namespace Winzent {
     namespace ANN {
-
-        //! The most commonly used vector to store floating point values
-        typedef QVector<qreal> Vector;
     }
 }
 

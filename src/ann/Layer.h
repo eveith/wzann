@@ -12,6 +12,7 @@
 
 #include <JsonSerializable.h>
 
+#include "Vector.h"
 #include "Neuron.h"
 #include "Winzent-ANN_global.h"
 

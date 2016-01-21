@@ -65,6 +65,9 @@ set(winzent-ann_HEADERS
     TrainingSet.h
     Vector.h)
 
+set(winzent-ann_RESOURCE_FILES
+    Schemata.qrc)
+
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -87,8 +90,10 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
 endif()
 
 
+qt5_add_resources(winzent-ann_RESOURCES
+    ${winzent-ann_RESOURCE_FILES})
 add_library(winzent-ann
-    SHARED ${winzent-ann_SOURCES})
+    SHARED ${winzent-ann_SOURCES} ${winzent-ann_RESOURCES})
 target_include_directories(winzent-ann
     PUBLIC ${winzent-common_SOURCE_DIR}
     PUBLIC ${winzent-algorithm_SOURCE_DIR}

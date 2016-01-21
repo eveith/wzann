@@ -189,13 +189,7 @@ namespace Winzent {
 namespace std {
     ostream &operator<<(
             ostream &os,
-            const Winzent::ANN::Individual &individual);
-    ostream &operator<<(
-            ostream &os,
             const Winzent::ANN::REvolutionaryTrainingAlgorithm &algorithm);
-    ostream &operator<<(
-            ostream &os,
-            const QList<const Winzent::ANN::Individual *> &population);
 }
 
 

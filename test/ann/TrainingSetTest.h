@@ -11,6 +11,7 @@ public:
     
 private slots:
     void testOutputRelevant();
+    void testJsonSerialization();
 };
 
 #endif // TRAININGSETTEST_H

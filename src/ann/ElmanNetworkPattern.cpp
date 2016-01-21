@@ -6,6 +6,7 @@
 
 #include "Layer.h"
 #include "Neuron.h"
+#include "Vector.h"
 #include "Exception.h"
 #include "Connection.h"
 #include "NeuralNetwork.h"
