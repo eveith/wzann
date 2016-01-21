@@ -160,7 +160,7 @@ namespace Winzent {
                     [this, &trainingSet, &ann](
                         Algorithm::detail::Individual &individual) {
                 evaluateIndividual(individual, ann, trainingSet);
-                return individual.restrictions[0]
+                return individual.restrictions.at(0)
                     <= trainingSet.targetError();
             });
 
@@ -171,58 +171,12 @@ namespace Winzent {
             setFinalError(
                     trainingSet,
                     result.bestIndividual.restrictions.at(0));
-
-            LOG4CXX_DEBUG(
-                    logger,
-                    "Training ended after "
-                        << result.iterationsUsed
-                        << " epochs; "
-                        << "best individual: "
-                        << result.bestIndividual);
         }
     } // namespace ANN
 } // namespace Winzent
 
 
 namespace std {
-    ostream &operator<<(
-            ostream &os,
-            const Winzent::ANN::Individual &individual)
-    {
-        os << "Individual(";
-
-        os << "TTL = " << individual.timeToLive << ", ";
-
-        os << "Parameters = (";
-        for (int i = 0; i < individual.parameters.size(); ++i) {
-            os << individual.parameters.at(i);
-            if (i < individual.parameters.size() - 1) {
-                os << ", ";
-            }
-        }
-
-        os << "), Scatter = (";
-        for (int i = 0; i < individual.scatter.size(); ++i) {
-            os << individual.scatter.at(i);
-            if (i < individual.scatter.size() - 1) {
-                os << ", ";
-            }
-        }
-
-        os << "), Errors = (";
-        for (int i = 0; i < individual.restrictions.size(); ++i) {
-            os << individual.restrictions.at(i);
-            if (i < individual.restrictions.size() - 1) {
-                os << ", ";
-            }
-        }
-
-        os << ")";
-
-        return os;
-    }
-
-
     ostream &operator<<(
             ostream &os,
             const Winzent::ANN::REvolutionaryTrainingAlgorithm &algorithm)
