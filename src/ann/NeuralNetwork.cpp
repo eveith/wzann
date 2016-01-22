@@ -39,6 +39,7 @@
 
 
 using std::function;
+using log4cxx::LogManager;
 
 
 namespace Winzent {
@@ -47,11 +48,8 @@ namespace Winzent {
         const char NeuralNetwork::VERSION[] = "1.0";
 
 
-        log4cxx::LoggerPtr NeuralNetwork::logger =
-                log4cxx::LogManager::getLogger("Winzent.ANN.NeuralNetwork");
-
-
         NeuralNetwork::NeuralNetwork():
+                logger(LogManager::getLogger("Winzent.ANN.NeuralNetwork")),
                 m_biasNeuron(new Neuron(new ConstantActivationFunction()))
         {
             Q_ASSERT(m_connectionSources.size()
@@ -60,6 +58,7 @@ namespace Winzent {
 
 
         NeuralNetwork::NeuralNetwork(const NeuralNetwork &rhs):
+                logger(LogManager::getLogger("Winzent.ANN.NeuralNetwork")),
                 m_biasNeuron(rhs.m_biasNeuron->clone())
         {
             // Clone layers:
@@ -74,7 +73,7 @@ namespace Winzent {
             // end up with pointers to the original. Instead, we need to map
             // via the index in the layer and create connections of our own:
 
-            foreach (Neuron *foreignNeuron, rhs.m_connectionSources.keys()) {
+            for (Neuron *foreignNeuron: rhs.m_connectionSources.keys()) {
 
                 // Ignore unconnected neurons:
 
@@ -91,7 +90,7 @@ namespace Winzent {
                 } else {
                     // First, find the index of the source neuron:
 
-                    for (int i = 0; i != rhs.size(); ++i) {
+                    for (size_type i = 0; i != rhs.size(); ++i) {
                         if (!rhs[i]->contains(foreignNeuron)) {
                             continue;
                         }
@@ -110,11 +109,11 @@ namespace Winzent {
 
                 // Find the index of the destination neurons and re-create:
 
-                foreach (Connection *c, connections) {
+                for (Connection *c: connections) {
                     int dstLayerIndex = -1;
                     int dstNeuronIndex = -1;
 
-                    for (int i = 0; i != rhs.size(); ++i) {
+                    for (size_type i = 0; i != rhs.size(); ++i) {
                         if (!rhs[i]->contains(c->destination())) {
                             continue;
                         }
@@ -213,8 +212,7 @@ namespace Winzent {
         Connection *NeuralNetwork::neuronConnection(
                 const Neuron *const &from,
                 const Neuron *const &to)
-                    const
-                    throw(NoConnectionException)
+                const
         {
             if (!neuronConnectionExists(from, to)) {
                 throw NoConnectionException();
@@ -224,7 +222,7 @@ namespace Winzent {
 
             QList<Connection*> connections =
                     m_connectionSources[const_cast<Neuron*>(from)];
-            foreach(Connection *c, connections) {
+            for (Connection *c: connections) {
                 if (c->destination() == const_cast<Neuron*>(to)) {
                     result = c;
                     break;
@@ -236,8 +234,7 @@ namespace Winzent {
 
         const QList<Connection *> NeuralNetwork::neuronConnectionsFrom(
                 const Neuron *const &neuron)
-                    const
-                    throw(UnknownNeuronException)
+                const
         {
             Q_ASSERT(nullptr != neuron);
 
@@ -251,12 +248,11 @@ namespace Winzent {
 
         QList<Connection *> NeuralNetwork::neuronConnectionsTo(
                 const Neuron *const &neuron)
-                    const
-                    throw(UnknownNeuronException)
+                const
         {
             Q_ASSERT(NULL != neuron);
 
-            if (!containsNeuron(neuron)) {
+            if (! containsNeuron(neuron)) {
                 throw UnknownNeuronException(neuron);
             }
 
@@ -265,7 +261,8 @@ namespace Winzent {
 
 
         void NeuralNetwork::eachLayer(
-                std::function<void (const Layer *const &)> yield) const
+                function<void (const Layer *const &)> yield)
+                const
         {
             std::for_each(m_layers.begin(), m_layers.end(),
                     [&yield](const Layer &l) {
@@ -284,7 +281,7 @@ namespace Winzent {
 
 
         void NeuralNetwork::eachConnection(
-                std::function<void (Connection * const &)> yield)
+                function<void (Connection * const &)> yield)
         {
             eachLayer([this, &yield](Layer *const &layer) {
                 for (Neuron& n: *layer) {
@@ -307,7 +304,8 @@ namespace Winzent {
 
 
         void NeuralNetwork::eachConnection(
-                std::function<void (const Connection *const &)> yield) const
+                std::function<void (const Connection *const &)> yield)
+                const
         {
             eachLayer([this, &yield](const Layer *const &layer) {
                 for (const Neuron& neuron: *layer) {
@@ -333,7 +331,6 @@ namespace Winzent {
         Connection *NeuralNetwork::connectNeurons(
                 Neuron *const &from,
                 Neuron *const &to)
-                    throw(UnknownNeuronException)
         {
             if (from != biasNeuron() && !containsNeuron(from)) {
                 throw UnknownNeuronException(from);
@@ -373,19 +370,19 @@ namespace Winzent {
         }
 
 
-        Layer *NeuralNetwork::layerAt(const size_t &index) const
+        Layer *NeuralNetwork::layerAt(const size_type &index) const
         {
             return &(const_cast<NeuralNetwork *>(this)->m_layers.at(index));
         }
 
 
-        Layer *NeuralNetwork::operator [](const size_t &index) const
+        Layer *NeuralNetwork::operator [](const size_type &index) const
         {
             return layerAt(index);
         }
 
 
-        Layer &NeuralNetwork::operator [](const size_t &index)
+        Layer &NeuralNetwork::operator [](const size_type &index)
         {
             return m_layers[index];
         }
@@ -434,53 +431,6 @@ namespace Winzent {
             m_pattern->configureNetwork(this);
             return *this;
         }
-
-
-#if 0
-        Vector NeuralNetwork::calculateLayer(
-                Layer *const &layer,
-                const Vector &input)
-                    throw(LayerSizeMismatchException)
-        {
-#ifdef QT_DEBUG
-            if (layer->size() != input.size()) {
-                throw LayerSizeMismatchException(input.size(), layer->size());
-            }
-#endif
-
-            Vector output;
-            output.reserve(layer->size());
-
-            for (int i = 0; i != input.size(); ++i) {
-                qreal sum = input.at(i);
-                Neuron *neuron = layer->neuronAt(i);
-
-                // Add bias neuron. We ignore the bias neuron in the input layer
-                // even when it's there; it does not make sense to include the
-                // bias neuron in the input layer since its output would be
-                // overwritten by the input anyways.
-
-                if (&(inputLayer()) != layer
-                        && neuronConnectionExists(biasNeuron(), neuron)) {
-                    sum += neuronConnection(biasNeuron(), neuron)->weight()
-                            * biasNeuron()->activate(1.0);
-                }
-
-                output << neuron->activate(sum);
-            }
-
-            return (output);
-        }
-
-
-        Vector NeuralNetwork::calculateLayer(
-                const int &layerIndex,
-                const Vector &input)
-                    throw(LayerSizeMismatchException)
-        {
-            return this->calculateLayer(layerAt(layerIndex), input);
-        }
-#endif
 
 
         Vector NeuralNetwork::calculateLayerTransition(
@@ -681,10 +631,10 @@ namespace Winzent {
                 }
             }
 
-            for (size_t i = 0; i != size(); ++i) {
+            for (size_type i = 0; i != size(); ++i) {
                 const auto& layer = layerAt(i);
 
-                for (size_t j = 0; j != layer->size(); ++j) {
+                for (Layer::size_type j = 0; j != layer->size(); ++j) {
                     const auto& ourConnections = neuronConnectionsFrom(
                             layer->neuronAt(j));
                     const auto& otherConnections =

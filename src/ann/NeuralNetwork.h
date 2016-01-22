@@ -32,6 +32,7 @@
 class QTextStream;
 
 
+using std::function;
 using boost::ptr_vector;
 
 
@@ -92,6 +93,7 @@ namespace Winzent {
             friend class AbstractTrainingStrategy;
 
 
+            typedef std::size_t size_type;
             typedef ptr_vector<Layer>::iterator LayerIterator;
             typedef ptr_vector<Layer>::const_iterator LayerConstIterator;
 
@@ -180,8 +182,9 @@ namespace Winzent {
              *
              * \return The new connection
              */
-            Connection *connectNeurons(Neuron *const &from, Neuron *const &to)
-                    throw(UnknownNeuronException);
+            Connection *connectNeurons(
+                    Neuron *const &from,
+                    Neuron *const &to);
 
 
             /*!
@@ -201,8 +204,7 @@ namespace Winzent {
             Connection *neuronConnection(
                     const Neuron *const &from,
                     const Neuron *const &to)
-                        const
-                        throw(NoConnectionException);
+                    const;
 
 
             /*!
@@ -220,8 +222,7 @@ namespace Winzent {
              */
             const QList<Connection*> neuronConnectionsFrom(
                     const Neuron *const &neuron)
-                        const
-                        throw(UnknownNeuronException);
+                    const;
 
 
             /*!
@@ -237,8 +238,7 @@ namespace Winzent {
              */
             QList<Connection*> neuronConnectionsTo(
                     const Neuron *const &neuron)
-                        const
-                        throw(UnknownNeuronException);
+                    const;
 
 
 
@@ -248,8 +248,7 @@ namespace Winzent {
              *
              * \param yield The lambda that gets called for each connection.
              */
-            void eachLayer(std::function<void(const Layer *const &)> yield)
-                    const;
+            void eachLayer(function<void(const Layer *const &)> yield) const;
 
 
             /*!
@@ -261,7 +260,7 @@ namespace Winzent {
              * \param yield The lambda that is called for each layer, allowing
              *  layer modification.
              */
-            void eachLayer(std::function<void(Layer *const &)> yield);
+            void eachLayer(function<void(Layer *const &)> yield);
 
 
 
@@ -270,7 +269,7 @@ namespace Winzent {
              *
              * \param yield The lambda that is called for each neuron connection
              */
-            void eachConnection(std::function<void(Connection *const&)> yield);
+            void eachConnection(function<void(Connection *const&)> yield);
 
 
             /*!
@@ -279,7 +278,8 @@ namespace Winzent {
              * \param[in] yield The iterator lambda called for each neuron
              */
             void eachConnection(
-                    std::function<void(const Connection *const &)> yield) const;
+                    function<void(const Connection *const &)> yield)
+                    const;
 
 
             /*!
@@ -305,7 +305,7 @@ namespace Winzent {
              *
              * \sa #operator[]
              */
-            size_t size() const
+            size_type size() const
             {
                 return m_layers.size();
             }
@@ -320,7 +320,7 @@ namespace Winzent {
              *  result of using this method with index >= NeuralNetwork#size()
              *  is undefined.
              */
-            Layer *layerAt(const size_t &index) const;
+            Layer *layerAt(const size_type &index) const;
 
 
             /*!
@@ -332,7 +332,7 @@ namespace Winzent {
              *  result of using this method with index >= NeuralNetwork#size()
              *  is undefined.
              */
-            Layer *operator [](const size_t &index) const;
+            Layer *operator [](const size_type &index) const;
 
 
             /*!
@@ -345,7 +345,7 @@ namespace Winzent {
              *  result of using this method with index >= NeuralNetwork#size()
              *  is undefined.
              */
-            Layer &operator [](const size_t &index);
+            Layer &operator [](const size_type &index);
 
 
             /*!
@@ -410,55 +410,6 @@ namespace Winzent {
              * \return `*this`
              */
             NeuralNetwork &configure(const NeuralNetworkPattern &pattern);
-
-
-#if 0
-            /*!
-             * Feeds each neuron on a given layer and returns the
-             * complete output. The number of values in the
-             * <code>input</code> vector must match the number of
-             * neurons on the layer, otherwise an exception is thrown.
-             *
-             * \param[in] layer The layer whose neurons are to be
-             *  fed
-             * \param[in] input The input for each neuron
-             *
-             * \return  The output of each neuron
-             *
-             * \throws LayerSizeMismatchException If the size of the
-             *  input vector does not match the number of neurons in
-             *  the layer
-             *
-             * \sa Neuron#activate
-             *
-             * \sa #calculateLayer
-             */
-            Vector calculateLayer(
-                    Layer *const &layer,
-                    const Vector &input)
-                        throw(LayerSizeMismatchException);
-
-
-            /*!
-             * A shortcut for
-             *
-             *      calculateLayer(*(network)[layerIndex], input)
-             *
-             * \param layerIndex The index of the layer
-             *
-             * \param input The input to the layer's neurons
-             *
-             * \sa #calculateLayer
-             *
-             * \sa Neuron#activate
-             *
-             * \throw LayerSizeMismatchException
-             */
-            Vector calculateLayer(
-                    const int &layerIndex,
-                    const Vector &input)
-                        throw(LayerSizeMismatchException);
-#endif
 
 
             /*!
@@ -539,7 +490,7 @@ namespace Winzent {
 
 
             //! Internal logger
-            static log4cxx::LoggerPtr logger;
+            log4cxx::LoggerPtr logger;
 
 
         private:
