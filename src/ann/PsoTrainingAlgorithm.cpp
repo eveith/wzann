@@ -1,5 +1,6 @@
 #include <limits>
 #include <cstddef>
+#include <ostream>
 #include <algorithm>
 #include <functional>
 
@@ -79,6 +80,8 @@ namespace Winzent {
                 }
             });
 
+            maxIterations(trainingSet.maxEpochs());
+
             auto result = run(
                     dimensions,
                     [this, &ann, &trainingSet](
@@ -93,3 +96,18 @@ namespace Winzent {
         }
     }
 }
+
+
+#if 0
+namespace std {
+    ostream& operator <<(
+            ostream& os,
+            Winzent::ANN::PsoTrainingAlgorithm const& pso)
+    {
+        auto const& algorithm = static_cast<
+                Winzent::Algorithm::ParticleSwarmOptimization const&>(pso);
+        os << algorithm;
+        return os;
+    }
+}
+#endif

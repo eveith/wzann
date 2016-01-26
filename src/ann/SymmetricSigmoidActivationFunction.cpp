@@ -41,7 +41,7 @@ namespace Winzent {
                 const qreal &,
                 const qreal &result)
         {
-            auto in = clip(result, 0.01f, 0.99f);
+            auto in = clip(result, -0.99f, 0.99f);
             return (2.0 * steepness() * std::exp(-steepness() * in))
                     / std::pow(1.0+std::exp(-steepness() * in), 2);
         }

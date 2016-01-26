@@ -186,6 +186,8 @@ namespace std {
                 << "maxNoSuccessEpochs = " << algorithm.maxNoSuccessEpochs()
                 << ", populationSize = " << algorithm.populationSize()
                 << ", eliteSize = " << algorithm.eliteSize()
+                << ", gradientWeight = " << algorithm.gradientWeight()
+                << ", successWeight = " << algorithm.successWeight()
                 << ", eamin = " << algorithm.eamin()
                 << ", ebmin = " << algorithm.ebmin()
                 << ", ebmax = " << algorithm.ebmax();

@@ -2,6 +2,8 @@
 #define WINZENT_ANN_PSOTRAININGALGORITHM_H_
 
 
+#include <ostream>
+
 #include "ParticleSwarmOptimization.h"
 
 #include "TrainingSet.h"
@@ -90,6 +92,15 @@ namespace Winzent {
         };
     }
 }
+
+
+#if 0
+namespace std {
+    ostream &operator <<(
+            ostream &os,
+            Winzent::ANN::PsoTrainingAlgorithm const& pso);
+}
+#endif
 
 
 #endif
