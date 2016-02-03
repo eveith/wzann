@@ -556,23 +556,16 @@ namespace Winzent {
             for (const auto &i: connections) {
                 QJsonObject c = i.toObject();
 
-                Connection *connection = nullptr;
+                Neuron *src = (c["srcNeuron"] == "BIAS"
+                        ? m_biasNeuron
+                        : layerAt(c["srcLayer"].toInt())
+                                ->neuronAt(c["srcNeuron"].toInt()));
+                Neuron *dst = layerAt(c["dstLayer"].toInt())->neuronAt(
+                            c["dstNeuron"].toInt());
 
-                if (c["srcNeuron"] == "BIAS") {
-                    connection = neuronConnection(
-                            m_biasNeuron,
-                            layerAt(c["dstLayer"].toInt())
-                                ->neuronAt(c["dstNeuron"].toInt()));
-                } else {
-                    connection = &connectNeurons(
-                            layerAt(c["srcLayer"].toInt())->neuronAt(
-                                c["srcNeuron"].toInt()),
-                            layerAt(c["dstLayer"].toInt())->neuronAt(
-                                c["dstNeuron"].toInt()));
-                }
-
-                connection->weight(c["weight"].toDouble());
-                connection->fixedWeight(c["fixedWeight"].toBool());
+                connectNeurons(src, dst)
+                    .weight(c["weight"].toDouble())
+                    .fixedWeight(c["fixedWeight"].toBool());
             }
 
             if (o.contains("pattern") && o["pattern"].isObject()) {

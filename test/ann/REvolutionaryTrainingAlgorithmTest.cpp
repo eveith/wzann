@@ -233,12 +233,12 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     REvolutionaryTrainingAlgorithm::Population population;
     for (size_t i = 0; i != trainingAlgorithm.populationSize(); ++i) {
         NeuralNetwork *n = createNeuralNetwork();
-        population.push_back(new Individual(*n));
+        population.push_back(Individual(*n));
         delete n;
     }
 
     NeuralNetwork *n = createNeuralNetwork();
-    population.push_back(new Individual(*n));
+    population.push_back(Individual(*n));
     auto &i3 = population.back();
     delete n;
 
