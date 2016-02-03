@@ -2,6 +2,8 @@
 #define WINZENT_ANN_SYMMETRICSIGMOIDACTIVATIONFUNCTION_H
 
 
+#include <ClassRegistry.h>
+
 #include "ActivationFunction.h"
 #include "Winzent-ANN_global.h"
 

@@ -6,6 +6,7 @@
 
 #include "Layer.h"
 #include "Neuron.h"
+#include "Connection.h"
 #include "NeuralNetwork.h"
 #include "ActivationFunction.h"
 #include "NeuralNetworkPattern.h"
@@ -85,8 +86,20 @@ namespace Winzent {
 
             // Now connect layers:
 
-            for (size_t i = 0; i != network->size() -1; ++i) {
-                fullyConnectNetworkLayers(network, i, i+1);
+            for (size_t i = 0; i != network->size(); ++i) {
+                if (i > 0) {
+                    for (auto &neuron: (*network)[i]) {
+                        network->connectNeurons(
+                                network->biasNeuron(),
+                                &neuron)
+                            .weight(-1.0)
+                            .fixedWeight(false);
+                    }
+                }
+
+                if (i + 1 < network->size()) {
+                    fullyConnectNetworkLayers(network, i, i+1);
+                }
             }
         }
 
@@ -98,7 +111,9 @@ namespace Winzent {
             Vector output = input; // For the loop
 
             for (size_t i = 0; i != network.size(); ++i) {
-                output = network[i].activate(output);
+                output = network.calculateLayer(
+                        network[i],
+                        output);
 
                 if (i < network.size() - 1) {
                     output = network.calculateLayerTransition(

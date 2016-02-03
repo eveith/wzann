@@ -11,6 +11,7 @@
 
 #include <initializer_list>
 
+#include <QPair>
 #include <QObject>
 #include <QJsonDocument>
 
@@ -48,6 +49,21 @@ namespace Winzent {
         public:
 
 
+            typedef QList<int> LayerSizes;
+            typedef QList<ActivationFunction*> ActivationFunctions;
+
+
+            /*!
+             * \brief Defines a Layer in terms of number of neurons and
+             *  ActivationFunction for each Layer.
+             */
+            typedef QPair<int, ActivationFunction const&> LayerDefinition;
+
+
+            //! \brief Creates a new, empty pattern.
+            NeuralNetworkPattern();
+
+
             /*!
              * Constructs a new pattern and supplies the sizes of the
              * layers.
@@ -60,8 +76,8 @@ namespace Winzent {
              *  that apply to each layer.
              */
             NeuralNetworkPattern(
-                    const QList<int> layerSizes,
-                    const QList<ActivationFunction *> activationFunctions);
+                    LayerSizes const& layerSizes,
+                    ActivationFunctions const& activationFunctions);
 
 
             /*!
@@ -107,6 +123,17 @@ namespace Winzent {
              *  objects supplied for configuring the network.
              */
             virtual ~NeuralNetworkPattern();
+
+
+            /*!
+             * \brief Adds the definition of a layer to the Pattern
+             *
+             * \param[in] layerDefinition Definition of the layer to add:
+             *  size and ActivationFunction
+             *
+             * \return `*this`
+             */
+            NeuralNetworkPattern& add(LayerDefinition const& layerDefinition);
 
 
             //! Clears the pattern completely.
@@ -155,17 +182,14 @@ namespace Winzent {
              * attached to each layer is not defined here, but depends
              * on the concrete pattern.
              */
-            QList<int> m_layerSizes;
+            LayerSizes m_layerSizes;
 
 
             /*!
              * Lists the activation function per layer. The index
              * corresponds to the index of the #m_layerSizes member.
              */
-            QList<ActivationFunction *> m_activationFunctions;
-
-
-            NeuralNetworkPattern();
+            ActivationFunctions m_activationFunctions;
 
 
             /*!

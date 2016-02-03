@@ -54,7 +54,7 @@ void ElmanNetworkPatternTest::testConfigure()
 
     QCOMPARE(network.size(), 4ul);
 
-    // Each input layer neuron has one context neuron: Check
+    // Each hidden layer neuron has one context neuron: Check
 
     for (int i = 1; i != layers.at(1); ++i) {
         for (int j = 1; j != layers.at(1); ++j) {

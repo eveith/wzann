@@ -36,8 +36,9 @@ namespace Winzent {
 
 
         NeuralNetworkPattern::NeuralNetworkPattern(
-                QList<int> layerSizes,
-                QList<ActivationFunction *> activationFunctions):
+                NeuralNetworkPattern::LayerSizes const& layerSizes,
+                NeuralNetworkPattern::ActivationFunctions const&
+                        activationFunctions):
                     QObject(),
                     JsonSerializable(),
                     m_layerSizes(layerSizes),
@@ -69,6 +70,16 @@ namespace Winzent {
         }
 
 
+        NeuralNetworkPattern& NeuralNetworkPattern::add(
+                NeuralNetworkPattern::LayerDefinition const& layerDefinition)
+        {
+            m_layerSizes.push_back(layerDefinition.first);
+            m_activationFunctions.push_back(layerDefinition.second.clone());
+
+            return *this;
+        }
+
+
         void NeuralNetworkPattern::fullyConnectNetworkLayers(
                 NeuralNetwork *network,
                 const int &fromLayer,
@@ -83,8 +94,7 @@ namespace Winzent {
                 for (int j = 0; j != toLayerSize; ++j) {
                     network->connectNeurons(
                             network->layerAt(fromLayer)->neuronAt(i),
-                            network->layerAt(toLayer)->neuronAt(j))
-                                    ->weight(0.0);
+                            network->layerAt(toLayer)->neuronAt(j)).weight(0);
                 }
             }
         }

@@ -64,7 +64,7 @@ namespace Mock {
                     network->connectNeurons(
                             network->layerAt(i-1)->neuronAt(j),
                             network->layerAt(i)->neuronAt(k))
-                    ->weight(1.0);
+                        .weight(1.0);
 
                     QVERIFY(true == network->neuronConnectionExists(
                             network->layerAt(i-1)->neuronAt(j),
@@ -131,7 +131,7 @@ void NeuralNetworkTest::testCalculateLayerTransition()
     QCOMPARE(outVector.size(), pattern.numNeuronsInLayer(toLayer));
 
     for (int i = 0; i != outVector.size(); ++i) {
-        QCOMPARE(outVector[i] + 1.0, 1.0);
+        QCOMPARE(outVector[i] + 1.0, 2.0); // BIAS neuron not added in here.
     }
 }
 
@@ -204,10 +204,10 @@ void NeuralNetworkTest::testConnectionsFromTo()
     QCOMPARE(network->layerAt(1)->neuronAt(0), d);
 
     QCOMPARE(network->neuronConnectionsFrom(s).size(), 1);
-    QCOMPARE(network->neuronConnectionsTo(d).size(), 2);
+    QCOMPARE(network->neuronConnectionsTo(d).size(), 1);
 
     QCOMPARE(network->neuronConnectionsFrom(s)[0]->destination(), d);
-    QCOMPARE(network->neuronConnectionsTo(d)[1]->source(), s);
+    QCOMPARE(network->neuronConnectionsTo(d)[0]->source(), s);
 
     delete network;
 }

@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <cstddef>
+#include <algorithm>
 #include <functional>
 
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -133,11 +134,11 @@ namespace Winzent {
                     Neuron *dstNeuron =
                             layerAt(dstLayerIndex)->neuronAt(dstNeuronIndex);
 
-                    Connection *newConnection = connectNeurons(
+                    Connection &newConnection = connectNeurons(
                             srcNeuron,
                             dstNeuron);
-                    newConnection->weight(c->weight());
-                    newConnection->fixedWeight(c->fixedWeight());
+                    newConnection.weight(c->weight());
+                    newConnection.fixedWeight(c->fixedWeight());
                 }
             }
 
@@ -210,26 +211,19 @@ namespace Winzent {
 
 
         Connection *NeuralNetwork::neuronConnection(
-                const Neuron *const &from,
-                const Neuron *const &to)
-                const
+                const Neuron *from,
+                const Neuron *to)
         {
-            if (!neuronConnectionExists(from, to)) {
-                throw NoConnectionException();
-            }
-
-            Connection *result = nullptr;
-
             QList<Connection*> connections =
                     m_connectionSources[const_cast<Neuron*>(from)];
             for (Connection *c: connections) {
                 if (c->destination() == const_cast<Neuron*>(to)) {
-                    result = c;
-                    break;
+                    return c;
                 }
             }
 
-            return result;
+            throw NoConnectionException();
+            return nullptr;
         }
 
         const QList<Connection *> NeuralNetwork::neuronConnectionsFrom(
@@ -328,9 +322,9 @@ namespace Winzent {
         }
 
 
-        Connection *NeuralNetwork::connectNeurons(
-                Neuron *const &from,
-                Neuron *const &to)
+        Connection &NeuralNetwork::connectNeurons(
+                const Neuron *from,
+                const Neuron *to)
         {
             if (from != biasNeuron() && !containsNeuron(from)) {
                 throw UnknownNeuronException(from);
@@ -340,32 +334,55 @@ namespace Winzent {
                 throw UnknownNeuronException(to);
             }
 
-            Connection *connection = new Connection(from, to, 0.0);
+            Neuron *src = const_cast<Neuron *>(from),
+                    *dst = const_cast<Neuron *>(to);
+
+            Connection *connection = new Connection(src, dst, 0.0);
 
             Q_ASSERT(connection->source() == from);
             Q_ASSERT(connection->destination() == to);
 
-            m_connectionSources[from] << connection;
-            m_connectionDestinations[to] << connection;
+            m_connectionSources[src].push_back(connection);
+            m_connectionDestinations[dst].push_back(connection);
 
-            return connection;
+            return *connection;
         }
 
 
-        NeuralNetwork &NeuralNetwork::operator <<(Layer *const &layer)
+        void NeuralNetwork::disconnectNeurons(
+                const Neuron *from,
+                const Neuron *to)
+        {
+            auto& sources = m_connectionSources[const_cast<Neuron*>(from)];
+            auto connectionIt = std::find_if(
+                    sources.begin(),
+                    sources.end(),
+                    [&from, &to](Connection *connection) {
+                return connection->source() == from
+                        && connection->destination() == to;
+            });
+
+            auto& destinations =
+                    m_connectionDestinations[const_cast<Neuron*>(to)];
+            std::remove_if(
+                    destinations.begin(),
+                    destinations.end(),
+                    [&from, &to](Connection* connection) {
+                return connection->source() == from
+                        && connection->destination() == to ;
+            });
+
+            if (connectionIt != sources.end()) {
+                sources.erase(connectionIt);
+                delete *connectionIt;
+            }
+        }
+
+
+        NeuralNetwork &NeuralNetwork::operator <<(Layer *layer)
         {
             layer->m_parent = this;
             m_layers.push_back(layer);
-
-            // Connect all neurons to the bias neuron, but only if the new
-            // layer is not the input layer.
-
-            if (&(m_layers.front()) != layer) {
-                for (Neuron &n: *layer) {
-                    connectNeurons(biasNeuron(), &n)->weight(-1.0);
-                }
-            }
-
             return *this;
         }
 
@@ -457,16 +474,39 @@ namespace Winzent {
                 for (const auto &c: connections) {
                     Q_ASSERT(c->destination() == toNeuron);
 
-                    if (from.contains(c->source())) {
-                        auto s = from.indexOf(c->source());
-                        output[t] += input.at(s) * c->weight();
-                    } else if (c->source() == m_biasNeuron) {
-                        output[t] += m_biasNeuron->activate(1.0)*c->weight();
+                    if (! from.contains(c->source())) {
+                        continue;
                     }
+                    auto s = from.indexOf(c->source());
+                    output[t] += input.at(s) * c->weight();
                 }
             }
 
-            return (output);
+            return output;
+        }
+
+
+        Vector NeuralNetwork::calculateLayer(
+                Layer &layer,
+                const Vector &input)
+        {
+            Vector biasedInput(input.size());
+
+            auto it = layer.begin();
+            for (Vector::size_type i = 0; i != input.size(); ++i, it++) {
+                auto &neuron = *it;
+                biasedInput[i] = input[i];
+
+                if (! neuronConnectionExists(biasNeuron(), &neuron)) {
+                    continue;
+                }
+
+                const auto *c = neuronConnection(biasNeuron(), &neuron);
+                biasedInput[i] += biasNeuron()->activate(1.0) * c->weight();
+            }
+
+            Q_ASSERT(it == layer.end());
+            return layer.activate(biasedInput);
         }
 
 
@@ -524,7 +564,7 @@ namespace Winzent {
                             layerAt(c["dstLayer"].toInt())
                                 ->neuronAt(c["dstNeuron"].toInt()));
                 } else {
-                    connection = connectNeurons(
+                    connection = &connectNeurons(
                             layerAt(c["srcLayer"].toInt())->neuronAt(
                                 c["srcNeuron"].toInt()),
                             layerAt(c["dstLayer"].toInt())->neuronAt(

@@ -182,14 +182,26 @@ namespace Winzent {
              *
              * \return The new connection
              */
-            Connection *connectNeurons(
-                    Neuron *const &from,
-                    Neuron *const &to);
+            Connection &connectNeurons(const Neuron *from, const Neuron *to);
 
 
             /*!
-             * Retrieves the connection between two neurons.
-             * If no weight exists, an exception is thrown.
+             * \brief Removes the connection between two neurons
+             *
+             * \param[in] from The source neuron
+             *
+             * \param[in] to The destination neuron
+             */
+            void disconnectNeurons(
+                    const Neuron *from,
+                    const Neuron *to);
+
+
+            /*!
+             * \brief Retrieves the connection between two neurons.
+             *
+             * This returns the connection between two neurons. If no such
+             * connection exists, an exception is thrown.
              *
              * \param[in] form The neuron from which the connection
              *  begins
@@ -202,9 +214,8 @@ namespace Winzent {
              * \throw NoConnectionException
              */
             Connection *neuronConnection(
-                    const Neuron *const &from,
-                    const Neuron *const &to)
-                    const;
+                    const Neuron *from,
+                    const Neuron *to);
 
 
             /*!
@@ -283,17 +294,21 @@ namespace Winzent {
 
 
             /*!
-             * Adds a layer to the neural network. The layer is
-             * appended to the end of the network and becomes the new
-             * output layer. If it is the first layer, it also becomes
+             * \brief Adds a layer to the neural network.
+             *
+             * The layer is appended to the end of the network and becomes
+             * the new output layer. If it is the first layer, it also becomes
              * the input layer. If you do not want to follow this
              * logic, you can always explicitly set the input and
              * output layer.
              *
-             * \sa #inputLayer
-             * \sa #outputLayer
+             * This method does not connect the bias neuron.
+             *
+             * \sa #inputLayer()
+             * \sa #outputLayer()
+             * \sa #biasNeuron()
              */
-            NeuralNetwork &operator <<(Layer *const &layer);
+            NeuralNetwork &operator <<(Layer *layer);
 
 
             /*!
@@ -416,9 +431,13 @@ namespace Winzent {
              * \brief Calculates the transition of values from one layer
              *  to another.
              *
-             * The neurons of one layer are connected to neurons in
-             * another layer. These two layers are identified by
-             * their index.
+             * Given the output of one layer, the `from` layer, this method
+             * calculates the input to the destination, the `to` layer, as
+             * it results from the connections of the neurons originating in
+             * `from` leading to the neurons in `to`.
+             *
+             * This method *does not* take the BIAS neuron into account.
+             * The bias neuron is considered only in ::calculateLayer().
              *
              * It is the responsibility of the caller to ensure that
              * a connection between the two layers actually exist.
@@ -444,6 +463,20 @@ namespace Winzent {
                     const Layer &from,
                     const Layer &to,
                     const Vector &input);
+
+
+            /*!
+             * \brief Activates a whole layer of neurons with the given
+             *  input, taking the bias neuron into account.
+             *
+             * \param[in] layer The layer to activate
+             *
+             * \param[in] input The input to the layer's neurons
+             *
+             * \return The result of the activation of each neuron in the
+             *  layer
+             */
+            Vector calculateLayer(Layer &layer, Vector const& input);
 
 
             /*!

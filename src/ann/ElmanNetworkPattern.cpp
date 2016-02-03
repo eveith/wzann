@@ -33,18 +33,6 @@ namespace Winzent {
                 QList<ActivationFunction *> activationFunctions):
                     NeuralNetworkPattern(layerSizes, activationFunctions)
         {
-            // Make sure that we do not get more than three layers here:
-
-            if (layerSizes.size() != 3) {
-                throw LayerSizeMismatchException(layerSizes.size(), 3);
-            }
-
-            // We need to insert the context layer after the input layer.
-
-            m_layerSizes.insert(CONTEXT, layerSizes.at(1));
-            m_activationFunctions.insert(
-                    CONTEXT,
-                    new RememberingActivationFunction(0.5));
         }
 
 
@@ -70,8 +58,10 @@ namespace Winzent {
             // Delete the CONTEXT layer, as the constructor will try to add it
             // and fail if the network has more than three layers:
 
-            layerSizes.removeAt(CONTEXT);
-            activationFunctions.removeAt(CONTEXT);
+            if (layerSizes.size() > 3) {
+                layerSizes.removeAt(CONTEXT);
+                activationFunctions.removeAt(CONTEXT);
+            }
 
             return new ElmanNetworkPattern(
                         layerSizes,
@@ -82,6 +72,20 @@ namespace Winzent {
         void ElmanNetworkPattern::configureNetwork(
                 NeuralNetwork* const& network)
         {
+
+            // Make sure that we do not get more than three layers here:
+
+            if (m_layerSizes.size() != 3) {
+                throw LayerSizeMismatchException(m_layerSizes.size(), 3);
+            }
+
+            // We need to insert the context layer after the input layer.
+
+            m_layerSizes.insert(CONTEXT, m_layerSizes.at(1));
+            m_activationFunctions.insert(
+                    CONTEXT,
+                    new RememberingActivationFunction(1.0));
+
             // Create layers & neurons:
 
             for (int lidx = INPUT; lidx <= OUTPUT; ++lidx) {
@@ -98,31 +102,59 @@ namespace Winzent {
 
             // Set up connections:
 
-            for (int lidx = INPUT; lidx < OUTPUT; ++lidx) {
+            for (int lidx = INPUT; lidx <= OUTPUT; ++lidx) {
                 int layerSize = m_layerSizes.at(lidx);
 
                 switch (lidx) {
-                    case INPUT: {
-                        fullyConnectNetworkLayers(network, lidx, HIDDEN);
-                        break;
-                    }
-                    case CONTEXT: {
-                        fullyConnectNetworkLayers(network, lidx, HIDDEN);
-                        break;
-                    }
-                    case HIDDEN: {
-                        fullyConnectNetworkLayers(network, lidx, OUTPUT);
+                case INPUT: {
+                    fullyConnectNetworkLayers(network, lidx, HIDDEN);
+                    break;
+                }
+                case CONTEXT: {
+                    fullyConnectNetworkLayers(network, lidx, HIDDEN);
+                    break;
+                }
+                case HIDDEN: {
+                    fullyConnectNetworkLayers(network, lidx, OUTPUT);
 
-                        for (int i = 0; i != layerSize; ++i) {
-                            auto *connection = network->connectNeurons(
-                                    network->layerAt(HIDDEN)->neuronAt(i),
-                                    network->layerAt(CONTEXT)->neuronAt(i));
-                            connection->weight(1.0);
-                            connection->fixedWeight(true);
-                        }
-
-                        break;
+                    for (int i = 0; i != layerSize; ++i) {
+                        auto &connection = network->connectNeurons(
+                                network->layerAt(HIDDEN)->neuronAt(i),
+                                network->layerAt(CONTEXT)->neuronAt(i));
+                        connection.weight(1.0);
+                        connection.fixedWeight(true);
                     }
+
+                    for (auto &neuron: (*network)[lidx]) {
+                        network->connectNeurons(
+                                network->biasNeuron(),
+                                &neuron).weight(-1.0).fixedWeight(false);
+                    }
+
+                    break;
+                }
+                case OUTPUT: {
+                    for (auto &neuron: (*network)[lidx]) {
+                        network->connectNeurons(
+                                network->biasNeuron(),
+                                &neuron).weight(-1.0).fixedWeight(false);
+                    }
+
+                   break;
+                }
+                }
+            }
+
+            // Make sure that no connection between a hidden layer unit
+            // and the BIAS neuron exists:
+
+            for (Neuron const& neuron: (*network)[CONTEXT]) {
+                if (network->neuronConnectionExists(
+                        network->biasNeuron(),
+                        &neuron)) {
+                    network->disconnectNeurons(
+                            network->biasNeuron(),
+                            &neuron);
                 }
             }
         }
@@ -142,7 +174,9 @@ namespace Winzent {
                 NeuralNetwork &network,
                 const Vector &input)
         {
-            auto layerInput = network[INPUT].activate(input);
+            auto layerInput = network.calculateLayer(
+                    network[INPUT],
+                    input);
             layerInput = network.calculateLayerTransition(
                     network[INPUT],
                     network[HIDDEN],
@@ -170,7 +204,9 @@ namespace Winzent {
                 }
             }
 
-            auto output = network[HIDDEN].activate(layerInput);
+            auto output = network.calculateLayer(
+                    network[HIDDEN],
+                    layerInput);
 
             // Now re-remember the newly calculated hidden layer results.
             // We can throw away the result since these are just the old
@@ -184,9 +220,9 @@ namespace Winzent {
                     network[HIDDEN],
                     network[OUTPUT],
                     output);
-            output = network[OUTPUT].activate(layerInput);
-
-            return output;
+            return network.calculateLayer(
+                    network[OUTPUT],
+                    layerInput);
         }
     }
 }

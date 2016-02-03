@@ -61,3 +61,7 @@ namespace Winzent {
     } // namespace ANN
 } // namespace Winzent
 
+
+WINZENT_REGISTER_CLASS(
+        Winzent::ANN::SymmetricSigmoidActivationFunction,
+        Winzent::ANN::ActivationFunction)
