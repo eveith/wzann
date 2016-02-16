@@ -36,7 +36,7 @@ void LayerTest::testNeuronAddition()
     QVERIFY(layer.neuronAt(1)->parent() == &layer);
 
     for (const Neuron &n: layer) {
-        QVERIFY(layer.contains(&n));
+        QVERIFY(layer.contains(n));
     }
 }
 

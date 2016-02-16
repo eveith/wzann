@@ -81,7 +81,7 @@ namespace Winzent {
 
 
         void NeuralNetworkPattern::fullyConnectNetworkLayers(
-                NeuralNetwork *network,
+                NeuralNetwork &network,
                 const int &fromLayer,
                 const int &toLayer)
         {
@@ -92,9 +92,10 @@ namespace Winzent {
 
             for (int i = 0; i != fromLayerSize; ++i) {
                 for (int j = 0; j != toLayerSize; ++j) {
-                    network->connectNeurons(
-                            network->layerAt(fromLayer)->neuronAt(i),
-                            network->layerAt(toLayer)->neuronAt(j)).weight(0);
+                    network.connectNeurons(
+                            network[fromLayer][i],
+                            network[toLayer][j])
+                        .weight(0);
                 }
             }
         }

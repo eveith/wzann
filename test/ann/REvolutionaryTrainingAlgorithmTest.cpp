@@ -175,13 +175,14 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     Vector parameters = individual.parameters;
     QList<Connection *> connections;
 
-    for (size_t i = 0; i != neuralNetwork->size(); ++i) {
-        Layer *l = neuralNetwork->layerAt(i);
+    for (NeuralNetwork::size_type i = 0; i != neuralNetwork->size(); ++i) {
+        Layer &layer = (*neuralNetwork)[i];
 
-        for (size_t j = 0; j != l->size(); ++j) {
-            Neuron *n = l->neuronAt(j);
+        for (Layer::size_type j = 0; j != layer.size(); ++j) {
+            Neuron &neuron = layer[j];
 
-            foreach (Connection *c, neuralNetwork->neuronConnectionsFrom(n)) {
+            for (const auto &c: boost::make_iterator_range(
+                     neuralNetwork->connectionsFrom(neuron))) {
                 if (!c->fixedWeight()) {
                     connections.push_back(c);
                 }
@@ -189,9 +190,8 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
         }
     }
 
-    QList<Connection *> biasConnections =
-            neuralNetwork->neuronConnectionsFrom(neuralNetwork->biasNeuron());
-    foreach (Connection *c, biasConnections) {
+    for (Connection *c: boost::make_iterator_range(
+             neuralNetwork->connectionsFrom(neuralNetwork->biasNeuron()))) {
         if (! c->fixedWeight()) {
             connections << c;
         }
@@ -213,7 +213,8 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
         for (size_t j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
 
-            for (const auto &c: neuralNetwork->neuronConnectionsFrom(n)) {
+            for (const auto &c: boost::make_iterator_range(
+                     neuralNetwork->connectionsFrom(*n))) {
                 if (! c->fixedWeight()) {
                     QCOMPARE(c->weight(), 10.10);
                 }

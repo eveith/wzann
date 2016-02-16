@@ -2,6 +2,7 @@
 #include <limits>
 #include <cstddef>
 
+#include <boost/range.hpp>
 #include <boost/random.hpp>
 
 #include "Layer.h"
@@ -15,6 +16,7 @@
 
 
 using std::pow;
+using boost::make_iterator_range;
 
 
 namespace Winzent {
@@ -48,15 +50,15 @@ namespace Winzent {
             auto toCount     = to.size();
 
             for (size_t i = 0; i != fromCount; ++i) {
-                Neuron *neuron = from.neuronAt(i);
+                auto &neuron = from[i];
 
-                for (auto &connection:
-                        network.neuronConnectionsFrom(neuron)) {
+                for (auto &connection: make_iterator_range(
+                        network.connectionsFrom(neuron))) {
                     if (connection->fixedWeight()) {
                         continue;
                     }
 
-                    if (! to.contains(connection->destination())) {
+                    if (! to.contains(*(connection->destination()))) {
                         continue;
                     }
 

@@ -58,15 +58,15 @@ void ElmanNetworkPatternTest::testConfigure()
 
     for (int i = 1; i != layers.at(1); ++i) {
         for (int j = 1; j != layers.at(1); ++j) {
-            bool connection = network.neuronConnectionExists(
-                   network.layerAt(ElmanNetworkPattern::HIDDEN)->neuronAt(i),
-                   network.layerAt(ElmanNetworkPattern::CONTEXT)->neuronAt(j));
+            bool connection = network.connectionExists(
+                    network[ElmanNetworkPattern::HIDDEN][i],
+                    network[ElmanNetworkPattern::CONTEXT][j]);
 
             if (i == j) {
                 QCOMPARE(connection, true);
-                Connection *c = network.neuronConnection(
-                    network.layerAt(ElmanNetworkPattern::HIDDEN)->neuronAt(i),
-                    network.layerAt(ElmanNetworkPattern::CONTEXT)->neuronAt(j));
+                Connection *c = network.connection(
+                        network[ElmanNetworkPattern::HIDDEN][i],
+                        network[ElmanNetworkPattern::CONTEXT][j]);
                 QCOMPARE(c->weight(), 1.0);
                 QCOMPARE(c->fixedWeight(), true);
             } else {

@@ -94,8 +94,7 @@ namespace Winzent {
              * \brief Configures the supplied neural network
              *  to be an perceptron.
              */
-            virtual void configureNetwork(NeuralNetwork *const &network)
-                    override;
+            virtual void configureNetwork(NeuralNetwork &network) override;
 
 
             /*!

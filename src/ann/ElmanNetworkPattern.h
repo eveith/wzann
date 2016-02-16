@@ -99,8 +99,7 @@ namespace Winzent {
              * - Each hidden layer neuron is connected to each
              *   output layer neuron.
              */
-            virtual void configureNetwork(NeuralNetwork *const &network)
-                    override;
+            virtual void configureNetwork(NeuralNetwork &network) override;
 
 
             /*!

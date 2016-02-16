@@ -68,8 +68,9 @@ namespace Winzent {
         {
             Vector r;
 
-            neuralNetwork.eachConnection([&r](const Connection *const &c) {
-                if (!c->fixedWeight()) {
+            const_cast<NeuralNetwork &>(neuralNetwork).eachConnection(
+                    [&r](const Connection *const &c) {
+                if (! c->fixedWeight()) {
                     r.push_back(c->weight());
                 }
             });

@@ -42,9 +42,9 @@ namespace Winzent {
         }
 
 
-        bool Layer::contains(const Neuron *const &neuron) const
+        bool Layer::contains(const Neuron &neuron) const
         {
-            return (neuron->parent() == this);
+            return (neuron.parent() == this);
         }
 
 
@@ -55,6 +55,12 @@ namespace Winzent {
 
 
         Neuron &Layer::operator [](const Layer::size_type &index)
+        {
+            return m_neurons[index];
+        }
+
+
+        const Neuron &Layer::operator [](const Layer::size_type &index) const
         {
             return m_neurons[index];
         }
@@ -80,9 +86,9 @@ namespace Winzent {
         }
 
 
-        Layer::size_type Layer::indexOf(const Neuron *const &neuron) const
+        Layer::size_type Layer::indexOf(const Neuron &neuron) const
         {
-           return m_neuronIndexes.value(const_cast<Neuron* const&>(neuron));
+           return m_neuronIndexes.value(const_cast<Neuron *>(&neuron));
         }
 
 

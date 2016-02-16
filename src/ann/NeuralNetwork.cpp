@@ -1,8 +1,3 @@
-#include <QObject>
-
-#include <QList>
-#include <QVector>
-
 #include <QByteArray>
 #include <QTextStream>
 
@@ -12,10 +7,12 @@
 #include <QJsonDocument>
 
 #include <memory>
+#include <vector>
 #include <cstddef>
 #include <algorithm>
-#include <functional>
+#include <unordered_map>
 
+#include <boost/range.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <log4cxx/logger.h>
@@ -41,6 +38,7 @@
 
 using std::function;
 using log4cxx::LogManager;
+using boost::make_iterator_range;
 
 
 namespace Winzent {
@@ -74,53 +72,48 @@ namespace Winzent {
             // end up with pointers to the original. Instead, we need to map
             // via the index in the layer and create connections of our own:
 
-            for (Neuron *foreignNeuron: rhs.m_connectionSources.keys()) {
+            for (auto connectionSources: rhs.m_connectionSources) {
+                auto foreignNeuron = connectionSources.first;
 
-                // Ignore unconnected neurons:
-
-                if (rhs.neuronConnectionsFrom(foreignNeuron).size() == 0) {
-                    continue;
-                }
-
-                QList<Connection *> connections;
+                ConnectionConstRange connections;
                 int srcLayerIndex   = -1;
                 int srcNeuronIndex  = -1;
 
-                if (rhs.biasNeuron() == foreignNeuron) {
-                    connections = rhs.neuronConnectionsFrom(foreignNeuron);
+                if (&(rhs.biasNeuron()) == foreignNeuron) {
+                    connections = rhs.connectionsFrom(*foreignNeuron);
                 } else {
                     // First, find the index of the source neuron:
 
                     for (size_type i = 0; i != rhs.size(); ++i) {
-                        if (!rhs[i]->contains(foreignNeuron)) {
+                        if (! rhs[i].contains(*foreignNeuron)) {
                             continue;
                         }
 
                         srcLayerIndex = i;
-                        srcNeuronIndex = rhs[i]->indexOf(foreignNeuron);
+                        srcNeuronIndex = rhs[i].indexOf(*foreignNeuron);
                         break;
                     }
 
                     Q_ASSERT(srcLayerIndex >= 0 && srcNeuronIndex >= 0);
 
-                    connections = rhs.neuronConnectionsFrom(foreignNeuron);
+                    connections = rhs.connectionsFrom(*foreignNeuron);
                 }
 
-                Q_ASSERT(connections.size() > 0);
+                Q_ASSERT(connections.second-connections.first > 0);
 
                 // Find the index of the destination neurons and re-create:
 
-                for (Connection *c: connections) {
+                for (Connection *c: make_iterator_range(connections)) {
                     int dstLayerIndex = -1;
                     int dstNeuronIndex = -1;
 
                     for (size_type i = 0; i != rhs.size(); ++i) {
-                        if (!rhs[i]->contains(c->destination())) {
+                        if (!rhs[i].contains(*(c->destination()))) {
                             continue;
                         }
 
                         dstLayerIndex = i;
-                        dstNeuronIndex = rhs[i]->indexOf(c->destination());
+                        dstNeuronIndex = rhs[i].indexOf(*(c->destination()));
                         break;
                     }
 
@@ -128,13 +121,12 @@ namespace Winzent {
 
                     // Now, re-create the connection here:
 
-                    Neuron *srcNeuron = (rhs.biasNeuron() == foreignNeuron
+                    auto &srcNeuron = (&(rhs.biasNeuron()) == foreignNeuron
                             ? biasNeuron()
-                            : layerAt(srcLayerIndex)->neuronAt(srcNeuronIndex));
-                    Neuron *dstNeuron =
-                            layerAt(dstLayerIndex)->neuronAt(dstNeuronIndex);
+                            : (*this)[srcLayerIndex][srcNeuronIndex]);
+                    auto &dstNeuron = (*this)[dstLayerIndex][dstNeuronIndex];
 
-                    Connection &newConnection = connectNeurons(
+                    auto &newConnection = connectNeurons(
                             srcNeuron,
                             dstNeuron);
                     newConnection.weight(c->weight());
@@ -152,7 +144,7 @@ namespace Winzent {
 
         NeuralNetwork::~NeuralNetwork()
         {
-            delete m_biasNeuron;
+            clear();
         }
 
 
@@ -162,23 +154,21 @@ namespace Winzent {
         }
 
 
-        const Neuron *NeuralNetwork::biasNeuron() const
+        const Neuron &NeuralNetwork::biasNeuron() const
         {
-            return m_biasNeuron;
+            return *m_biasNeuron;
         }
 
 
-        Neuron *NeuralNetwork::biasNeuron()
+        Neuron &NeuralNetwork::biasNeuron()
         {
-            return m_biasNeuron;
+            return *m_biasNeuron;
         }
 
 
-        bool NeuralNetwork::containsNeuron(const Neuron *const &neuron) const
+        bool NeuralNetwork::contains(const Neuron &neuron) const
         {
-            Q_ASSERT(nullptr != neuron);
-
-            if (biasNeuron() == neuron) {
+            if (&(biasNeuron()) == &neuron) {
                 return true;
             }
 
@@ -189,158 +179,135 @@ namespace Winzent {
         }
 
 
-        bool NeuralNetwork::neuronConnectionExists(
-                const Neuron *const &from,
-                const Neuron *const &to) const
+        bool NeuralNetwork::connectionExists(
+                const Neuron &from,
+                const Neuron &to)
+                const
         {
-            Q_ASSERT(from != nullptr);
-            Q_ASSERT(to != nullptr);
-
-            if (! m_connectionSources.contains(const_cast<Neuron *>(from))) {
+            auto it = m_connectionDestinations.find(
+                    const_cast<Neuron *>(&to));
+            if (m_connectionDestinations.end() == it) {
                 return false;
             }
 
-            const QList<Connection *> &connections = m_connectionSources[
-                    const_cast<Neuron *>(from)];
-
-            return std::any_of(connections.begin(), connections.end(), [&to](
-                    const Connection *const &c) {
-                return (c->destination() == const_cast<Neuron *>(to));
+            return std::any_of(
+                    it->second.begin(),
+                    it->second.end(),
+                    [&from](const Connection *const &c) {
+                return (c->source() == &from);
             });
         }
 
 
-        Connection *NeuralNetwork::neuronConnection(
-                const Neuron *from,
-                const Neuron *to)
+        Connection *NeuralNetwork::connection(
+                const Neuron &from,
+                const Neuron &to)
         {
-            QList<Connection*> connections =
-                    m_connectionSources[const_cast<Neuron*>(from)];
-            for (Connection *c: connections) {
-                if (c->destination() == const_cast<Neuron*>(to)) {
-                    return c;
-                }
+            auto connections = connectionsTo(to);
+            auto cit = std::find_if(
+                    connections.first,
+                    connections.second,
+                    [&from](const Connection *const &c) {
+                return c->source() == &from;
+            });
+
+            if (cit != connections.second) {
+                return *cit;
             }
 
             throw NoConnectionException();
             return nullptr;
         }
 
-        const QList<Connection *> NeuralNetwork::neuronConnectionsFrom(
-                const Neuron *const &neuron)
-                const
-        {
-            Q_ASSERT(nullptr != neuron);
 
-            if (!containsNeuron(neuron)) {
-                throw UnknownNeuronException(neuron);
+        NeuralNetwork::ConnectionConstRange
+        NeuralNetwork::connectionsFrom(const Neuron &neuron) const
+        {
+            auto *n = const_cast<Neuron *>(&neuron);
+            auto it = m_connectionSources.find(n);
+
+            if (m_connectionSources.end() == it) {
+                return std::make_pair(
+                        ConnectionsVector::const_iterator(),
+                        ConnectionsVector::const_iterator());
+            } else {
+                return std::make_pair(
+                        m_connectionSources.at(n).begin(),
+                        m_connectionSources.at(n).end());
             }
-
-            return m_connectionSources[const_cast<Neuron*>(neuron)];
         }
 
 
-        QList<Connection *> NeuralNetwork::neuronConnectionsTo(
-                const Neuron *const &neuron)
-                const
+        NeuralNetwork::ConnectionRange
+        NeuralNetwork::connectionsFrom(const Neuron &neuron)
         {
-            Q_ASSERT(NULL != neuron);
+            auto *n = const_cast<Neuron *>(&neuron);
+            auto it = m_connectionSources.find(n);
 
-            if (! containsNeuron(neuron)) {
-                throw UnknownNeuronException(neuron);
+            if (m_connectionSources.end() == it) {
+                return std::make_pair(
+                        ConnectionsVector::iterator(),
+                        ConnectionsVector::iterator());
+            } else {
+                return std::make_pair(
+                        m_connectionSources.at(n).begin(),
+                        m_connectionSources.at(n).end());
             }
-
-            return m_connectionDestinations[const_cast<Neuron*>(neuron)];
         }
 
 
-        void NeuralNetwork::eachLayer(
-                function<void (const Layer *const &)> yield)
-                const
+        NeuralNetwork::ConnectionConstRange
+        NeuralNetwork::connectionsTo(const Neuron &neuron) const
         {
-            std::for_each(m_layers.begin(), m_layers.end(),
-                    [&yield](const Layer &l) {
-                yield(&l);
-            });
-        }
+            auto *n = const_cast<Neuron *>(&neuron);
+            auto it = m_connectionDestinations.find(n);
+
+            if (m_connectionDestinations.end() == it) {
+                return std::make_pair(
+                        ConnectionsVector::const_iterator(),
+                        ConnectionsVector::const_iterator());
+            } else {
+                return std::make_pair(
+                        m_connectionDestinations.at(n).begin(),
+                        m_connectionDestinations.at(n).end());
+            }
+       }
 
 
-        void NeuralNetwork::eachLayer(function<void (Layer* const &)> yield)
+        NeuralNetwork::ConnectionRange
+        NeuralNetwork::connectionsTo(const Neuron &neuron)
         {
-            std::for_each(m_layers.begin(), m_layers.end(),
-                    [&yield](Layer &l) {
-                yield(&l);
-            });
-        }
+            auto *n = const_cast<Neuron *>(&neuron);
+            auto it = m_connectionDestinations.find(n);
 
-
-        void NeuralNetwork::eachConnection(
-                function<void (Connection * const &)> yield)
-        {
-            eachLayer([this, &yield](Layer *const &layer) {
-                for (Neuron& n: *layer) {
-                    QList<Connection *> connections =
-                            neuronConnectionsFrom(&n);
-                    std::for_each(
-                            connections.begin(),
-                            connections.end(),
-                            yield);
-                }
-            });
-
-            QList<Connection *> biasNeuronConnections =
-                    neuronConnectionsFrom(biasNeuron());
-            std::for_each(
-                    biasNeuronConnections.begin(),
-                    biasNeuronConnections.end(),
-                    yield);
-        }
-
-
-        void NeuralNetwork::eachConnection(
-                std::function<void (const Connection *const &)> yield)
-                const
-        {
-            eachLayer([this, &yield](const Layer *const &layer) {
-                for (const Neuron& neuron: *layer) {
-                    QList<Connection *> connections =
-                            neuronConnectionsFrom(&neuron);
-                    std::for_each(
-                            connections.begin(),
-                            connections.end(),
-                            yield);
-                }
-            });
-
-            QList<Connection *> biasNeuronConnections =
-                    neuronConnectionsFrom(biasNeuron());
-            std::for_each(
-                    biasNeuronConnections.begin(),
-                    biasNeuronConnections.end(),
-                    yield);
-
+            if (m_connectionDestinations.end() == it) {
+                return std::make_pair(
+                        ConnectionsVector::iterator(),
+                        ConnectionsVector::iterator());
+            } else {
+                return std::make_pair(
+                        m_connectionDestinations.at(n).begin(),
+                        m_connectionDestinations.at(n).end());
+            }
         }
 
 
         Connection &NeuralNetwork::connectNeurons(
-                const Neuron *from,
-                const Neuron *to)
+                const Neuron &from,
+                const Neuron &to)
         {
-            if (from != biasNeuron() && !containsNeuron(from)) {
-                throw UnknownNeuronException(from);
+            if (&from != &biasNeuron() && ! contains(from)) {
+                throw UnknownNeuronException(&from);
             }
 
-            if (!containsNeuron(to)) {
-                throw UnknownNeuronException(to);
+            if (! contains(to)) {
+                throw UnknownNeuronException(&to);
             }
 
-            Neuron *src = const_cast<Neuron *>(from),
-                    *dst = const_cast<Neuron *>(to);
+            Neuron *src = const_cast<Neuron *>(&from),
+                    *dst = const_cast<Neuron *>(&to);
 
             Connection *connection = new Connection(src, dst, 0.0);
-
-            Q_ASSERT(connection->source() == from);
-            Q_ASSERT(connection->destination() == to);
 
             m_connectionSources[src].push_back(connection);
             m_connectionDestinations[dst].push_back(connection);
@@ -350,26 +317,26 @@ namespace Winzent {
 
 
         void NeuralNetwork::disconnectNeurons(
-                const Neuron *from,
-                const Neuron *to)
+                const Neuron &from,
+                const Neuron &to)
         {
-            auto& sources = m_connectionSources[const_cast<Neuron*>(from)];
+            auto &sources = m_connectionSources[const_cast<Neuron *>(&from)];
             auto connectionIt = std::find_if(
                     sources.begin(),
                     sources.end(),
                     [&from, &to](Connection *connection) {
-                return connection->source() == from
-                        && connection->destination() == to;
+                return connection->source() == &from
+                        && connection->destination() == &to;
             });
 
-            auto& destinations =
-                    m_connectionDestinations[const_cast<Neuron*>(to)];
+            auto &destinations = m_connectionDestinations.at(
+                    const_cast<Neuron *>(&to));
             std::remove_if(
                     destinations.begin(),
                     destinations.end(),
-                    [&from, &to](Connection* connection) {
-                return connection->source() == from
-                        && connection->destination() == to ;
+                    [&from, &to](Connection *connection) {
+                return connection->source() == &from
+                        && connection->destination() == &to;
             });
 
             if (connectionIt != sources.end()) {
@@ -393,9 +360,9 @@ namespace Winzent {
         }
 
 
-        Layer *NeuralNetwork::operator [](const size_type &index) const
+        const Layer& NeuralNetwork::operator [](const size_type &index) const
         {
-            return layerAt(index);
+            return m_layers[index];
         }
 
 
@@ -417,27 +384,19 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork::LayerIterator NeuralNetwork::begin()
+        std::pair<
+                NeuralNetwork::LayerConstIterator,
+                NeuralNetwork::LayerConstIterator>
+        NeuralNetwork::layers() const
         {
-            return m_layers.begin();
+            return std::make_pair(m_layers.begin(), m_layers.end());
         }
 
 
-        NeuralNetwork::LayerConstIterator NeuralNetwork::begin() const
+        std::pair<NeuralNetwork::LayerIterator, NeuralNetwork::LayerIterator>
+        NeuralNetwork::layers()
         {
-            return m_layers.begin();
-        }
-
-
-        NeuralNetwork::LayerIterator NeuralNetwork::end()
-        {
-            return m_layers.end();
-        }
-
-
-        NeuralNetwork::LayerConstIterator NeuralNetwork::end() const
-        {
-            return m_layers.end();
+            return std::make_pair(m_layers.begin(), m_layers.end());
         }
 
 
@@ -445,7 +404,7 @@ namespace Winzent {
                 const NeuralNetworkPattern &pattern)
         {
             m_pattern.reset(pattern.clone());
-            m_pattern->configureNetwork(this);
+            m_pattern->configureNetwork(*this);
             return *this;
         }
 
@@ -468,16 +427,17 @@ namespace Winzent {
             output.fill(0.0, toLayerSize);
 
             for (Layer::size_type t = 0; t != toLayerSize; ++t) {
-                const Neuron *toNeuron = to.neuronAt(t);
-                auto connections = neuronConnectionsTo(toNeuron);
+                const Neuron &toNeuron = to[t];
+                auto connections = connectionsTo(toNeuron);
 
-                for (const auto &c: connections) {
-                    Q_ASSERT(c->destination() == toNeuron);
+                for (const auto &c: make_iterator_range(connections)) {
+                    Q_ASSERT(c->destination() == &toNeuron);
 
-                    if (! from.contains(c->source())) {
+                    if (! from.contains(*(c->source()))) {
                         continue;
                     }
-                    auto s = from.indexOf(c->source());
+
+                    auto s = from.indexOf(*(c->source()));
                     output[t] += input.at(s) * c->weight();
                 }
             }
@@ -497,12 +457,12 @@ namespace Winzent {
                 auto &neuron = *it;
                 biasedInput[i] = input[i];
 
-                if (! neuronConnectionExists(biasNeuron(), &neuron)) {
+                if (! connectionExists(biasNeuron(), neuron)) {
                     continue;
                 }
 
-                const auto *c = neuronConnection(biasNeuron(), &neuron);
-                biasedInput[i] += biasNeuron()->activate(1.0) * c->weight();
+                const auto &c = connection(biasNeuron(), neuron);
+                biasedInput[i] += biasNeuron().activate(1.0) * c->weight();
             }
 
             Q_ASSERT(it == layer.end());
@@ -525,9 +485,9 @@ namespace Winzent {
 
         void NeuralNetwork::clear()
         {
-            for (auto const& k: m_connectionSources.keys()) {
-                for (auto& c: m_connectionSources[k]) {
-                    delete c;
+            for (auto &destinations: m_connectionDestinations) {
+                for (auto &connection: destinations.second) {
+                    delete connection;
                 }
             }
 
@@ -556,12 +516,12 @@ namespace Winzent {
             for (const auto &i: connections) {
                 QJsonObject c = i.toObject();
 
-                Neuron *src = (c["srcNeuron"] == "BIAS"
-                        ? m_biasNeuron
-                        : layerAt(c["srcLayer"].toInt())
-                                ->neuronAt(c["srcNeuron"].toInt()));
-                Neuron *dst = layerAt(c["dstLayer"].toInt())->neuronAt(
-                            c["dstNeuron"].toInt());
+                auto &src = (c["srcNeuron"] == "BIAS"
+                        ? biasNeuron()
+                        : (*this)[c["srcLayer"].toInt()][
+                            c["srcNeuron"].toInt()]);
+                auto &dst = (*this)[c["dstLayer"].toInt()][
+                        c["dstNeuron"].toInt()];
 
                 connectNeurons(src, dst)
                     .weight(c["weight"].toDouble())
@@ -593,8 +553,8 @@ namespace Winzent {
             o["layers"] = layers;
 
             QJsonArray connections;
-            for (Neuron* const& n: m_connectionSources.keys()) {
-                for (Connection* const& c: m_connectionSources.value(n)) {
+            for (const auto &connectionSources: m_connectionSources) {
+                for (const auto &c: connectionSources.second) {
                     int srcLayer = -1,
                             dstLayer = -1,
                             srcNeuron = -1,
@@ -603,7 +563,7 @@ namespace Winzent {
 
                     for (size_t i = 0; i != m_layers.size(); ++i) {
                         for (size_t j = 0; j != m_layers.at(i).size(); ++j) {
-                            Neuron* const& n = layerAt(i)->neuronAt(j);
+                            const auto &n = layerAt(i)->neuronAt(j);
 
                             if (n == c->source()) {
                                 srcLayer = i;
@@ -665,19 +625,17 @@ namespace Winzent {
             }
 
             for (size_type i = 0; i != size(); ++i) {
-                const auto& layer = layerAt(i);
+                const auto& layer = (*this)[i];
 
-                for (Layer::size_type j = 0; j != layer->size(); ++j) {
-                    const auto& ourConnections = neuronConnectionsFrom(
-                            layer->neuronAt(j));
+                for (Layer::size_type j = 0; j != layer.size(); ++j) {
+                    const auto& ourConnections = connectionsFrom(layer[j]);
                     const auto& otherConnections =
-                            other.neuronConnectionsFrom(
-                                other.layerAt(i)->neuronAt(j));
+                            other.connectionsFrom(other[i][j]);
 
-                    for (auto it1 = ourConnections.constBegin(),
-                                it2 = otherConnections.constBegin();
-                            it1 != ourConnections.constEnd()
-                                && it2 != otherConnections.constEnd();
+                    for (auto it1 = ourConnections.first,
+                                it2 = otherConnections.first;
+                            it1 != ourConnections.second
+                                && it2 != otherConnections.second;
                             it1++, it2++) {
                         if (**it1 != **it2) {
                             return false;

@@ -85,7 +85,7 @@ namespace Winzent {
              * \brief Checks whether a particular neuron is part
              *  of this layer.
              */
-            bool contains(const Neuron *const &neuron) const;
+            bool contains(const Neuron &neuron) const;
 
 
             /*!
@@ -113,6 +113,17 @@ namespace Winzent {
 
 
             /*!
+             * \brief Returns the neuron at the specified index position.
+             *
+             * Requires `index < size()`.
+             *
+             * \param[in] The index
+             *
+             * \return The neuron at the given position
+             */
+            const Neuron &operator [](const size_type &index) const;
+
+            /*!
              * \brief Activates all neurons in this layer.
              *
              * The given vector contains the inputs for the neurons, in order.
@@ -132,7 +143,7 @@ namespace Winzent {
              *
              * \return The index position, or -1 if no item matched.
              */
-            size_type indexOf(const Neuron *const &neuron) const;
+            size_type indexOf(const Neuron &neuron) const;
 
 
             /*!
