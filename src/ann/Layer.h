@@ -2,11 +2,10 @@
 #define WINZENT_ANN_LAYER_H
 
 
-#include <QMap>
 #include <QJsonDocument>
 
 #include <cstddef>
-#include <functional>
+#include <unordered_map>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -236,7 +235,7 @@ namespace Winzent {
 
 
             //! \brief Maps Neurons to their index for faster #indexOf()
-            QMap<Neuron *, size_t> m_neuronIndexes;
+            std::unordered_map<Neuron *, size_t> m_neuronIndexes;
 
 
             //! The parent network we're contained in.

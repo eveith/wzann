@@ -88,7 +88,7 @@ namespace Winzent {
 
         Layer::size_type Layer::indexOf(const Neuron &neuron) const
         {
-           return m_neuronIndexes.value(const_cast<Neuron *>(&neuron));
+           return m_neuronIndexes.at(const_cast<Neuron *>(&neuron));
         }
 
 
