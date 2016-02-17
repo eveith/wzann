@@ -58,15 +58,15 @@ namespace Winzent {
                         continue;
                     }
 
-                    if (! to.contains(*(connection->destination()))) {
+                    if (! to.contains(connection->destination())) {
                         continue;
                     }
 
                     qreal high = connection->destination()
-                            ->activationFunction()
+                            .activationFunction()
                             ->calculate(std::numeric_limits<qreal>::max());
                     qreal low = connection->destination()
-                            ->activationFunction()
+                            .activationFunction()
                             ->calculate(std::numeric_limits<qreal>::min());
                     qreal b = pow(
                                 toCount,

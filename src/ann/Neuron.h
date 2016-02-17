@@ -171,7 +171,26 @@ namespace Winzent {
             virtual void fromJSON(const QJsonDocument& json) override;
 
 
-            //! Checks for equality of two Neurons
+            /*!
+             * \brief Checks whether two Neurons share the same activation
+             *  function and parameters.
+             *
+             * \param[in] other The other neuron
+             *
+             * \return `true` if the two Neuron's parameters are the same;
+             *  `false` otherwise.
+             */
+            bool equals(const Neuron &other) const;
+
+
+            /*!
+             * \brief Checks for equality of two Neurons
+             *
+             * Two neurons are equal if they are exactly the same object.
+             * I.e., this equality operator checks for the neuron's identity.
+             *
+             * \return `true` iff `this == &other`
+             */
             bool operator ==(const Neuron& other) const;
 
 
