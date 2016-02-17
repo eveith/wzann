@@ -41,7 +41,7 @@ namespace Mock {
         virtual NeuralNetworkPattern* clone() const;
 
 
-        virtual void configureNetwork(NeuralNetwork *const &network) override;
+        virtual void configureNetwork(NeuralNetwork &network) override;
     };
 }
 

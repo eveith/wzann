@@ -1,8 +1,10 @@
-#include <QObject>
+#include <QHash>
 
 #include <cmath>
 #include <limits>
 #include <algorithm>
+
+#include <boost/range.hpp>
 
 #include <log4cxx/logger.h>
 
@@ -23,6 +25,8 @@ using std::accumulate;
 using std::fabs;
 using std::max;
 using std::min;
+
+using boost::make_iterator_range;
 
 
 namespace Winzent {
@@ -108,11 +112,10 @@ namespace Winzent {
         {
             qreal delta = 0.0;
 
-            QList<Connection *> connections = ann.neuronConnectionsFrom(
-                    &neuron);
-            Q_ASSERT(connections.size() > 0);
+            auto connections = ann.connectionsFrom(neuron);
+            Q_ASSERT(connections.second-connections.first > 0);
 
-            for (const Connection *c: connections) {
+            for (const auto &c: make_iterator_range(connections)) {
                 // weight(j,k) * delta(k):
                 delta += neuronDelta(
                             ann,
@@ -146,12 +149,12 @@ namespace Winzent {
 
             // What layer does the neuron live in?
 
-            Q_ASSERT(! ann.inputLayer().contains(&neuron));
+            Q_ASSERT(! ann.inputLayer().contains(neuron));
             qreal delta = 0.0;
 
-            if (ann.outputLayer().contains(&neuron)) {
+            if (ann.outputLayer().contains(neuron)) {
                 qreal error = outputError.at(
-                        ann.outputLayer().indexOf(&neuron));
+                        ann.outputLayer().indexOf(neuron));
                 delta = outputNeuronDelta(neuron, error);
             } else {
                 delta = hiddenNeuronDelta(
@@ -184,7 +187,7 @@ namespace Winzent {
 
                 // Forward pass:
 
-                foreach (TrainingItem item, trainingSet.trainingData) {
+                for (const auto &item: trainingSet.trainingData) {
                     Vector errorVector = feedForward(ann, item);
                     error += accumulate(
                             errorVector.begin(),
@@ -211,9 +214,9 @@ namespace Winzent {
                             return;
                         }
 
-                        const Neuron *dstNeuron = c->destination();
+                        const auto &dstNeuron = c->destination();
 
-                        if (ann.inputLayer().contains(dstNeuron)) {
+                        if (ann.inputLayer().contains(*dstNeuron)) {
                             return;
                         }
 
@@ -282,7 +285,6 @@ namespace Winzent {
                         lastGradients[c] = 0.0;
                     }
 
-                    LOG4CXX_DEBUG(logger, "dw = " << dw);
                     c->weight(c->weight() + dw);
                 });
 

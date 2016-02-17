@@ -204,7 +204,7 @@ namespace Winzent {
              *  neurons
              */
             void fullyConnectNetworkLayers(
-                    NeuralNetwork *network,
+                    NeuralNetwork &network,
                     const int &fromLayer,
                     const int &toLayer);
 
@@ -234,7 +234,7 @@ namespace Winzent {
              *
              * \param[inout] network The neural network to configure
              */
-            virtual void configureNetwork(NeuralNetwork *const &network) = 0;
+            virtual void configureNetwork(NeuralNetwork &network) = 0;
         };
     } /* namespace ANN */
 } /* namespace Winzent */

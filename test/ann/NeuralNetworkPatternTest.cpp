@@ -46,7 +46,7 @@ NeuralNetworkPattern* NeuralNetworkPatternTestDummyPattern::clone() const
 
 
 void NeuralNetworkPatternTestDummyPattern::configureNetwork(
-        NeuralNetwork *const &network)
+        NeuralNetwork &network)
 {
     for (int i = 0; i != numLayers; ++i) {
         Layer *l = new Layer();
@@ -56,7 +56,7 @@ void NeuralNetworkPatternTestDummyPattern::configureNetwork(
             *l << n;
         }
 
-        *network << l;
+        network << l;
 
         if (i > 0) {
             fullyConnectNetworkLayers(network, i-1, i);
@@ -76,9 +76,9 @@ void NeuralNetworkPatternTest::testFullyConnectNetworkLayers()
 
     for (int i = 1; i != pattern.numLayers - 1; ++i) {
         for (int j = 1; j != pattern.numNeuronsPerLayer; ++j) {
-            QVERIFY2(network.neuronConnectionExists(
-                        network.layerAt(i)->neuronAt(j),
-                        network.layerAt(i+1)->neuronAt(j)),
+            QVERIFY2(network.connectionExists(
+                        network[i][j],
+                        network[i+1][j]),
                     "All neurons must be connected to each other.");
         }
     }

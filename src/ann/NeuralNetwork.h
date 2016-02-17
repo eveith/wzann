@@ -9,23 +9,21 @@
 #define NEURALNETWORK_H_
 
 
-#include <QObject>
-#include <QList>
-#include <QVector>
-#include <QHash>
-
+#include <vector>
 #include <memory>
 #include <cstddef>
-#include <functional>
+#include <unordered_map>
 
+#include <boost/range.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <log4cxx/logger.h>
 
 #include <JsonSerializable.h>
 
+#include "Layer.h"
+#include "Neuron.h"
 #include "Vector.h"
-#include "Exception.h"
 #include "Winzent-ANN_global.h"
 
 
@@ -34,12 +32,11 @@ class QTextStream;
 
 using std::function;
 using boost::ptr_vector;
+using boost::make_iterator_range;
 
 
 namespace Winzent {
     namespace ANN {
-        class Layer;
-        class Neuron;
         class Connection;
         class NeuralNetworkPattern;
 
@@ -93,13 +90,23 @@ namespace Winzent {
             friend class AbstractTrainingStrategy;
 
 
+        public:
+
+
             typedef std::size_t size_type;
             typedef ptr_vector<Layer>::iterator LayerIterator;
             typedef ptr_vector<Layer>::const_iterator LayerConstIterator;
 
-
-        public:
-
+            typedef std::vector<Connection *> ConnectionsVector;
+            typedef ConnectionsVector::iterator ConnectionIterator;
+            typedef ConnectionsVector::const_iterator ConnectionConstIterator;
+            typedef std::unordered_map<Neuron *, ConnectionsVector>
+                    NeuronConnectionsMap;
+            typedef std::pair<ConnectionIterator, ConnectionIterator>
+                    ConnectionRange;
+            typedef std::pair<
+                        ConnectionConstIterator,
+                        ConnectionConstIterator> ConnectionConstRange;
 
             //! The library version, needed e.g. for serialization.
             static const char VERSION[];
@@ -130,7 +137,7 @@ namespace Winzent {
              *
              * \return The bias neuron of this Neural Network
              */
-            const Neuron *biasNeuron() const;
+            const Neuron &biasNeuron() const;
 
 
             /*!
@@ -138,7 +145,7 @@ namespace Winzent {
              *
              * \return The bias neuron, modifiable
              */
-            Neuron *biasNeuron();
+            Neuron &biasNeuron();
 
 
             /*!
@@ -150,7 +157,7 @@ namespace Winzent {
              * \return <code>true</code> if it lives in this network,
              *  <code>false</code> otherwise.
              */
-            bool containsNeuron(const Neuron *const &neuron) const;
+            bool contains(const Neuron &neuron) const;
 
 
             /*!
@@ -167,10 +174,7 @@ namespace Winzent {
              * \return <code>true</code> if a connection exists, false
              *  otherwise.
              */
-            bool neuronConnectionExists(
-                    const Neuron *const &from,
-                    const Neuron *const &to)
-                    const;
+            bool connectionExists(const Neuron &from, const Neuron &to) const;
 
 
             /*!
@@ -182,7 +186,7 @@ namespace Winzent {
              *
              * \return The new connection
              */
-            Connection &connectNeurons(const Neuron *from, const Neuron *to);
+            Connection &connectNeurons(const Neuron &from, const Neuron &to);
 
 
             /*!
@@ -192,9 +196,7 @@ namespace Winzent {
              *
              * \param[in] to The destination neuron
              */
-            void disconnectNeurons(
-                    const Neuron *from,
-                    const Neuron *to);
+            void disconnectNeurons(const Neuron &from, const Neuron &to);
 
 
             /*!
@@ -208,14 +210,13 @@ namespace Winzent {
              *
              * \param[in] to The neuron to which the connection leads
              *
-             * \return The connection, or NULL if no such connection exists
-             *  (in which case an exception is thrown anyways).
+             * \return A pointer to the Connection in question, or a
+             *  `nullptr` if the two neurons are not connected.
+             *  Then, an exception is also thrown.
              *
              * \throw NoConnectionException
              */
-            Connection *neuronConnection(
-                    const Neuron *from,
-                    const Neuron *to);
+            Connection *connection(const Neuron &from, const Neuron &to);
 
 
             /*!
@@ -231,9 +232,36 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsTo
              */
-            const QList<Connection*> neuronConnectionsFrom(
-                    const Neuron *const &neuron)
-                    const;
+            ConnectionRange connectionsFrom(const Neuron &neuron);
+
+
+            /*!
+             * Finds all neurons to which a particular neuron is connected.
+             *
+             * The neuron is considered as the source of the connection.
+             *
+             * \param[in] neuron The neuron from which to find all available
+             *  connections.
+             *
+             * \return A list containing all connection where the specified
+             *  neuron is the source.
+             *
+             * \sa #neuronConnectionsTo
+             */
+            ConnectionConstRange connectionsFrom(const Neuron &neuron) const;
+
+            /*!
+             * Finds all neurons which are the source of connections to the
+             * specified one.
+             *
+             * \param[in] neuron The destination neuron
+             *
+             * \return A list containing all neurons that feed the specified
+             *  one.
+             *
+             * \sa #neuronConnectionsFrom
+             */
+            ConnectionRange connectionsTo(const Neuron &neuron);
 
 
             /*!
@@ -247,40 +275,23 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsFrom
              */
-            QList<Connection*> neuronConnectionsTo(
-                    const Neuron *const &neuron)
-                    const;
-
+            ConnectionConstRange connectionsTo(const Neuron &neuron) const;
 
 
             /*!
-             * \brief Iterates over each layer, yielding to the supplied lambda
-             *  for each layer.
+             * \brief Allows to iterate over all layers in the ANN
              *
-             * \param yield The lambda that gets called for each connection.
+             * \return A pair of layer iterators: `[begin, end)`
              */
-            void eachLayer(function<void(const Layer *const &)> yield) const;
+            std::pair<LayerIterator, LayerIterator> layers();
 
 
             /*!
-             * \brief Iterates over all layers.
+             * \brief Allows to iterate over read-only-accessible layers
              *
-             * This is an overloaded method. It yields a modifiable reference
-             * to the layer.
-             *
-             * \param yield The lambda that is called for each layer, allowing
-             *  layer modification.
+             * \return A pair of const iterators over all layers
              */
-            void eachLayer(function<void(Layer *const &)> yield);
-
-
-
-            /*!
-             * \brief Iterates over all neuron connections in this network
-             *
-             * \param yield The lambda that is called for each neuron connection
-             */
-            void eachConnection(function<void(Connection *const&)> yield);
+            std::pair<LayerConstIterator, LayerConstIterator> layers() const;
 
 
             /*!
@@ -288,9 +299,18 @@ namespace Winzent {
              *
              * \param[in] yield The iterator lambda called for each neuron
              */
-            void eachConnection(
-                    function<void(const Connection *const &)> yield)
-                    const;
+            template<class UnaryFunction>
+            void eachConnection(UnaryFunction f)
+            {
+                for (const auto &layer: make_iterator_range(layers())) {
+                    for (const auto &neuron: layer) {
+                        for (const auto &connection: make_iterator_range(
+                                 connectionsTo(neuron))) {
+                            f(connection);
+                        }
+                    }
+                }
+            }
 
 
             /*!
@@ -347,7 +367,7 @@ namespace Winzent {
              *  result of using this method with index >= NeuralNetwork#size()
              *  is undefined.
              */
-            Layer *operator [](const size_type &index) const;
+            const Layer &operator [](const size_type &index) const;
 
 
             /*!
@@ -377,41 +397,6 @@ namespace Winzent {
              * \return The output layer
              */
             Layer &outputLayer();
-
-
-            /*!
-             * \brief Returns a new iterator pointing to the first Layer
-             *
-             * \return A layer iterator, pointing to the first Layer
-             */
-            LayerIterator begin();
-
-
-            /*!
-             * \brief Returns a new const iterator pointing to the first Layer
-             *
-             * \return A layer const iterator, pointing to the first Layer
-             */
-            LayerConstIterator begin() const;
-
-
-            /*!
-             * \brief Returns a new iterator pointing to the Layer after the
-             *  last
-             *
-             * \return A layer iterator, pointing to the Layer after the last
-             */
-            LayerIterator end();
-
-
-            /*!
-             * \brief Returns a new const iterator pointing to the Layer after
-             *  the last
-             *
-             * \return A layer const iterator, pointing to the Layer after the
-             *  last
-             */
-            LayerConstIterator end() const;
 
 
             /*!
@@ -529,8 +514,8 @@ namespace Winzent {
         private:
 
 
-            //! The bias neuron, connected to each neuron in each layer.
-            Neuron *m_biasNeuron;
+            //! \brief The bias neuron
+            std::unique_ptr<Neuron> m_biasNeuron;
 
 
             //! All Layers contained in this Neural Network
@@ -538,17 +523,17 @@ namespace Winzent {
 
 
             /*!
-             * An hash that indixes all connection originating from a certain
-             * neuron.
+             * \brief A hash that indexes all connection originating
+             *  from a certain neuron.
              */
-            QHash<Neuron *, QList<Connection *>> m_connectionSources;
+            NeuronConnectionsMap m_connectionSources;
 
 
             /*!
-             * An hash that indexes all connections that lead to a certain
-             * neuron.
+             * \brief A hash that indexes all connections that lead to a
+             *  certain neuron.
              */
-            QHash<Neuron *, QList<Connection *>> m_connectionDestinations;
+            NeuronConnectionsMap m_connectionDestinations;
 
 
             /*!

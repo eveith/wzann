@@ -40,7 +40,7 @@ namespace Mock {
 
 
     void NeuralNetworkTestDummyPattern::configureNetwork(
-            NeuralNetwork *const &network)
+            NeuralNetwork &network)
     {
         // Connect all neurons of the nth layer with all neurons
         // of the (n+1)th layer.
@@ -53,7 +53,7 @@ namespace Mock {
                 *l << n;
             }
 
-            *network << l;
+            network << l;
 
             if (0 == i) {
                 continue;
@@ -61,14 +61,14 @@ namespace Mock {
 
             for (int j = 0; j != numNeuronsInLayer(i-1); ++j) {
                 for (int k = 0; k != numNeuronsInLayer(i); ++k) {
-                    network->connectNeurons(
-                            network->layerAt(i-1)->neuronAt(j),
-                            network->layerAt(i)->neuronAt(k))
+                    network.connectNeurons(
+                            network[i-1][j],
+                            network[i][k])
                         .weight(1.0);
 
-                    QVERIFY(true == network->neuronConnectionExists(
-                            network->layerAt(i-1)->neuronAt(j),
-                            network->layerAt(i)->neuronAt(k)));
+                    QVERIFY(true == network.connectionExists(
+                            network[i-1][j],
+                            network[i][k]));
                 }
             }
         }
@@ -198,16 +198,18 @@ void NeuralNetworkTest::testConnectionsFromTo()
 
     *network << l1 << l2;
 
-    network->connectNeurons(s, d);
+    network->connectNeurons(*s, *d);
 
     QCOMPARE(network->layerAt(0)->neuronAt(0), s);
     QCOMPARE(network->layerAt(1)->neuronAt(0), d);
 
-    QCOMPARE(network->neuronConnectionsFrom(s).size(), 1);
-    QCOMPARE(network->neuronConnectionsTo(d).size(), 1);
+    auto connectionSources = network->connectionsFrom(*s);
+    auto connectionDestinations = network->connectionsTo(*d);
+    QCOMPARE(connectionSources.second-connectionSources.first, 1l);
+    QCOMPARE(connectionDestinations.second-connectionDestinations.first, 1l);
 
-    QCOMPARE(network->neuronConnectionsFrom(s)[0]->destination(), d);
-    QCOMPARE(network->neuronConnectionsTo(d)[0]->source(), s);
+    QCOMPARE((*connectionSources.first)->destination(), d);
+    QCOMPARE((*connectionDestinations.first)->source(), s);
 
     delete network;
 }
@@ -223,9 +225,9 @@ void NeuralNetworkTest::testClone()
     NeuralNetwork *clone = network.clone();
 
     QCOMPARE(network.size(), clone->size());
-    QVERIFY(network.biasNeuron() != clone->biasNeuron());
+    QVERIFY(&(network.biasNeuron()) != &(clone->biasNeuron()));
 
-    for (size_t i = 0; i != network.size(); ++i) {
+    for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
         Layer *origLayer    = network.layerAt(i);
         Layer *cloneLayer   = clone->layerAt(i);
 
@@ -235,28 +237,28 @@ void NeuralNetworkTest::testClone()
         QCOMPARE(origLayer->parent(), &network);
         QCOMPARE(cloneLayer->parent(), clone);
 
-        for (size_t j = 0; j < origLayer->size(); ++j) {
+        for (Layer::size_type j = 0; j < origLayer->size(); ++j) {
             Neuron *origNeuron  = origLayer->neuronAt(j);
             Neuron *cloneNeuron = cloneLayer->neuronAt(j);
 
             QCOMPARE(origNeuron->parent(), origLayer);
             QCOMPARE(cloneNeuron->parent(), cloneLayer);
 
-            QVERIFY(origLayer->contains(origNeuron));
-            QVERIFY(cloneLayer->contains(cloneNeuron));
+            QVERIFY(origLayer->contains(*origNeuron));
+            QVERIFY(cloneLayer->contains(*cloneNeuron));
 
-            QVERIFY(network.containsNeuron(origNeuron));
-            QVERIFY(clone->containsNeuron(cloneNeuron));
+            QVERIFY(network.contains(*origNeuron));
+            QVERIFY(clone->contains(*cloneNeuron));
 
             QVERIFY(origNeuron->activationFunction()
                     != cloneNeuron->activationFunction());
 
-            QList<Connection *> origConnections =
-                    network.neuronConnectionsFrom(origNeuron);
-            QList<Connection *> cloneConnections =
-                    clone->neuronConnectionsFrom(cloneNeuron);
+            auto origConnections = network.connectionsFrom(*origNeuron);
+            auto cloneConnections = clone->connectionsFrom(*cloneNeuron);
 
-            QCOMPARE(cloneConnections.size(), origConnections.size());
+            QCOMPARE(
+                    cloneConnections.second - cloneConnections.first,
+                    origConnections.second - origConnections.first);
         }
     }
 
@@ -264,7 +266,7 @@ void NeuralNetworkTest::testClone()
 }
 
 
-void NeuralNetworkTest::testEachLayerIterator()
+void NeuralNetworkTest::testLayerIterator()
 {
     QList<const Layer *> layers;
 
@@ -272,9 +274,9 @@ void NeuralNetworkTest::testEachLayerIterator()
     Mock::NeuralNetworkTestDummyPattern pattern;
     network.configure(pattern);
 
-    network.eachLayer([&layers](const Layer *const &layer) {
-        layers.push_back(layer);
-    });
+    for (auto &layer: boost::make_iterator_range(network.layers())) {
+        layers.push_back(&layer);
+    }
 
     QVERIFY(static_cast<size_t>(layers.size()) == network.size());
     QVERIFY(&(network.inputLayer()) == layers.first());
@@ -282,11 +284,11 @@ void NeuralNetworkTest::testEachLayerIterator()
 
     layers.clear();
 
-    network.eachLayer([&layers, &network](const Layer *const &layer) {
-        if (&(network.inputLayer()) == layer) {
-            layers << layer;
+    for (auto &layer: boost::make_iterator_range(network.layers())) {
+        if (&(network.inputLayer()) == &layer) {
+            layers << &layer;
         }
-    });
+    }
 
     QCOMPARE(layers.size(), 1);
     QVERIFY(&(network.inputLayer()) == layers.first());
@@ -301,16 +303,22 @@ void NeuralNetworkTest::testEachConnectionIterator()
     network.configure(pattern);
     QList<Connection *> connections;
 
-    for (size_t i = 0; i != network.size(); ++i) {
-        Layer *l = network.layerAt(i);
+    for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
+        Layer &layer = network[i];
 
-        for (size_t j = 0; j != l->size(); ++j) {
-            Neuron *n = l->neuronAt(j);
-            connections.append(network.neuronConnectionsFrom(n));
+        for (Layer::size_type j = 0; j != layer.size(); ++j) {
+            Neuron &n = layer[j];
+            for (Connection *c: boost::make_iterator_range(
+                     network.connectionsFrom(n))) {
+                connections.append(c);
+            }
         }
     }
 
-    connections.append(network.neuronConnectionsFrom(network.biasNeuron()));
+    for (Connection *c: boost::make_iterator_range(
+             network.connectionsFrom(network.biasNeuron()))) {
+        connections.append(c);
+    }
 
     int iterated = 0;
     network.eachConnection([&iterated, &connections](Connection *const &c) {

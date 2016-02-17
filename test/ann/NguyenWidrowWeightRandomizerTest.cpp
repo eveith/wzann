@@ -41,18 +41,19 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
 
     NguyenWidrowWeightRandomizer().randomize(network);
 
-    for (size_t i = 0; i != network.size(); ++i) {
-        Layer *layer = network.layerAt(i);
+    for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
+        Layer &layer = network[i];
 
-        for (size_t j = 0; j != layer->size(); ++j) {
-            Neuron *neuron = layer->neuronAt(j);
-            for (const auto &c: network.neuronConnectionsFrom(neuron)) {
+        for (Layer::size_type j = 0; j != layer.size(); ++j) {
+            Neuron &neuron = layer[j];
+            for (const auto &c: boost::make_iterator_range(
+                     network.connectionsFrom(neuron))) {
                 QVERIFY(1.0 != 1.0 + c->weight());
             }
         }
 
-        for (const auto &c: network.neuronConnectionsFrom(
-                network.biasNeuron())) {
+        for (const auto &c: boost::make_iterator_range(
+                 network.connectionsFrom(network.biasNeuron()))) {
             QCOMPARE(c->weight(), -1.0);
         }
     }

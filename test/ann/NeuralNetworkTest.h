@@ -40,7 +40,7 @@ namespace Mock {
         }
 
 
-        virtual void configureNetwork(NeuralNetwork *const &network) override;
+        virtual void configureNetwork(NeuralNetwork &network) override;
 
 
         virtual Vector calculate(
@@ -67,7 +67,7 @@ private slots:
     void testInitialLayerSize();
     void testConnectionsFromTo();
     void testClone();
-    void testEachLayerIterator();
+    void testLayerIterator();
     void testEachConnectionIterator();
     void testOperatorEquals();
     void testJsonSerialization();

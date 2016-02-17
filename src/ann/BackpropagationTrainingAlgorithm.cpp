@@ -7,7 +7,8 @@
 #include <cmath>
 
 #include <QHash>
-#include <QDebug>
+
+#include <boost/range.hpp>
 
 #include "Layer.h"
 #include "Neuron.h"
@@ -81,8 +82,8 @@ namespace Winzent {
                     QHash<const Neuron *, qreal> neuronDeltas;
                     QHash<Connection *, qreal> connectionDeltas;
 
-                    // First step: Feed forward and compare the network's output
-                    // with the ideal teaching output:
+                    // First step: Feed forward and compare the network's
+                    // output with the ideal teaching output:
 
                     Vector actualOutput = ann.calculate(it.input());
                     Vector expectedOutput = it.expectedOutput();
@@ -174,10 +175,10 @@ namespace Winzent {
         {
             qreal delta = 0.0;
 
-            const auto connections = ann.neuronConnectionsFrom(&neuron);
-            Q_ASSERT(connections.size() > 0);
+            auto connections = ann.connectionsFrom(neuron);
+            Q_ASSERT(connections.second-connections.first > 0);
 
-            for (const auto &c: connections) {
+            for (const auto &c: boost::make_iterator_range(connections)) {
                 // weight(j,k) * delta(k):
                 delta += neuronDelta(
                             ann,
@@ -203,14 +204,14 @@ namespace Winzent {
                 const Vector &outputError)
                     const
         {
-            Q_ASSERT(! ann.inputLayer().contains(&neuron));
+            Q_ASSERT(! ann.inputLayer().contains(neuron));
 
             if (neuronDeltas.contains(&neuron)) {
                 return neuronDeltas.value(&neuron);
             }
 
-            if (ann.outputLayer().contains(&neuron)) {
-                size_t neuronIdx = ann.outputLayer().indexOf(&neuron);
+            if (ann.outputLayer().contains(neuron)) {
+                size_t neuronIdx = ann.outputLayer().indexOf(neuron);
                 neuronDeltas.insert(
                         &neuron,
                         outputNeuronDelta(neuron, outputError.at(neuronIdx)));

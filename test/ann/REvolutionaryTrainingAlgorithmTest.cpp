@@ -175,13 +175,14 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
     Vector parameters = individual.parameters;
     QList<Connection *> connections;
 
-    for (size_t i = 0; i != neuralNetwork->size(); ++i) {
-        Layer *l = neuralNetwork->layerAt(i);
+    for (NeuralNetwork::size_type i = 0; i != neuralNetwork->size(); ++i) {
+        Layer &layer = (*neuralNetwork)[i];
 
-        for (size_t j = 0; j != l->size(); ++j) {
-            Neuron *n = l->neuronAt(j);
+        for (Layer::size_type j = 0; j != layer.size(); ++j) {
+            Neuron &neuron = layer[j];
 
-            foreach (Connection *c, neuralNetwork->neuronConnectionsFrom(n)) {
+            for (const auto &c: boost::make_iterator_range(
+                     neuralNetwork->connectionsFrom(neuron))) {
                 if (!c->fixedWeight()) {
                     connections.push_back(c);
                 }
@@ -189,9 +190,8 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
         }
     }
 
-    QList<Connection *> biasConnections =
-            neuralNetwork->neuronConnectionsFrom(neuralNetwork->biasNeuron());
-    foreach (Connection *c, biasConnections) {
+    for (Connection *c: boost::make_iterator_range(
+             neuralNetwork->connectionsFrom(neuralNetwork->biasNeuron()))) {
         if (! c->fixedWeight()) {
             connections << c;
         }
@@ -213,7 +213,8 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
         for (size_t j = 0; j != l->size(); ++j) {
             Neuron *n = l->neuronAt(j);
 
-            for (const auto &c: neuralNetwork->neuronConnectionsFrom(n)) {
+            for (const auto &c: boost::make_iterator_range(
+                     neuralNetwork->connectionsFrom(*n))) {
                 if (! c->fixedWeight()) {
                     QCOMPARE(c->weight(), 10.10);
                 }
@@ -233,26 +234,28 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     REvolutionaryTrainingAlgorithm::Population population;
     for (size_t i = 0; i != trainingAlgorithm.populationSize(); ++i) {
         NeuralNetwork *n = createNeuralNetwork();
-        population.push_back(Individual(*n));
+        population.push_back(new Individual(*n));
         delete n;
     }
 
     NeuralNetwork *n = createNeuralNetwork();
-    population.push_back(Individual(*n));
+    population.push_back(new Individual(*n));
     auto &i3 = population.back();
     delete n;
 
     trainingAlgorithm.modifyWorstIndividual(population);
 
     QCOMPARE(
-            i3.parameters.size(),
-            population.front().parameters.size());
+            i3->parameters.size(),
+            population.front()->parameters.size());
 
     std::for_each(population.begin(), population.end() - 1,
-            [&](Individual const& i) {
-        for (auto j = 0; j != i.parameters.size(); ++j) {
-            QVERIFY(i3.parameters.at(j) != i.parameters.at(j));
+            [&](Winzent::Algorithm::detail::Individual *i) {
+        for (auto j = 0; j != i->parameters.size(); ++j) {
+            QVERIFY(i3->parameters.at(j) != i->parameters.at(j));
         }
+
+        delete i;
     });
 }
 

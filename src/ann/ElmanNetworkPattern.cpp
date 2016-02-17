@@ -69,8 +69,7 @@ namespace Winzent {
         }
 
 
-        void ElmanNetworkPattern::configureNetwork(
-                NeuralNetwork* const& network)
+        void ElmanNetworkPattern::configureNetwork(NeuralNetwork &network)
         {
 
             // Make sure that we do not get more than three layers here:
@@ -97,7 +96,7 @@ namespace Winzent {
                             new Neuron(m_activationFunctions[lidx]->clone()));
                 }
 
-                *network << layer;
+                network << layer;
             }
 
             // Set up connections:
@@ -118,26 +117,30 @@ namespace Winzent {
                     fullyConnectNetworkLayers(network, lidx, OUTPUT);
 
                     for (int i = 0; i != layerSize; ++i) {
-                        auto &connection = network->connectNeurons(
-                                network->layerAt(HIDDEN)->neuronAt(i),
-                                network->layerAt(CONTEXT)->neuronAt(i));
+                        auto &connection = network.connectNeurons(
+                                network[HIDDEN][i],
+                                network[CONTEXT][i]);
                         connection.weight(1.0);
                         connection.fixedWeight(true);
                     }
 
-                    for (auto &neuron: (*network)[lidx]) {
-                        network->connectNeurons(
-                                network->biasNeuron(),
-                                &neuron).weight(-1.0).fixedWeight(false);
+                    for (auto &neuron: network[lidx]) {
+                        network.connectNeurons(
+                                network.biasNeuron(),
+                                neuron)
+                            .weight(-1.0)
+                            .fixedWeight(false);
                     }
 
                     break;
                 }
                 case OUTPUT: {
-                    for (auto &neuron: (*network)[lidx]) {
-                        network->connectNeurons(
-                                network->biasNeuron(),
-                                &neuron).weight(-1.0).fixedWeight(false);
+                    for (auto &neuron: network[lidx]) {
+                        network.connectNeurons(
+                                network.biasNeuron(),
+                                neuron)
+                            .weight(-1.0).
+                            fixedWeight(false);
                     }
 
                    break;
@@ -148,13 +151,11 @@ namespace Winzent {
             // Make sure that no connection between a hidden layer unit
             // and the BIAS neuron exists:
 
-            for (Neuron const& neuron: (*network)[CONTEXT]) {
-                if (network->neuronConnectionExists(
-                        network->biasNeuron(),
-                        &neuron)) {
-                    network->disconnectNeurons(
-                            network->biasNeuron(),
-                            &neuron);
+            for (Neuron const& neuron: network[CONTEXT]) {
+                if (network.connectionExists(
+                        network.biasNeuron(),
+                        neuron)) {
+                    network.disconnectNeurons(network.biasNeuron(), neuron);
                 }
             }
         }

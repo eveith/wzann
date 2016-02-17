@@ -67,7 +67,7 @@ namespace Winzent {
 
 
         void PerceptronNetworkPattern::configureNetwork(
-                NeuralNetwork* const& network)
+                NeuralNetwork &network)
         {
             // Add the layers & neurons:
 
@@ -81,23 +81,23 @@ namespace Winzent {
                     layer->addNeuron(new Neuron(af));
                 }
 
-                *network << layer;
+                network << layer;
             }
 
             // Now connect layers:
 
-            for (size_t i = 0; i != network->size(); ++i) {
+            for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
                 if (i > 0) {
-                    for (auto &neuron: (*network)[i]) {
-                        network->connectNeurons(
-                                network->biasNeuron(),
-                                &neuron)
+                    for (auto &neuron: network[i]) {
+                        network.connectNeurons(
+                                network.biasNeuron(),
+                                neuron)
                             .weight(-1.0)
                             .fixedWeight(false);
                     }
                 }
 
-                if (i + 1 < network->size()) {
+                if (i + 1 < network.size()) {
                     fullyConnectNetworkLayers(network, i, i+1);
                 }
             }
