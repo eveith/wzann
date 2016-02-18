@@ -8,6 +8,7 @@
 #ifndef BASICEXCEPTION_H_
 #define BASICEXCEPTION_H_
 
+#include <string>
 #include <QException>
 
 
@@ -69,11 +70,17 @@ namespace Winzent {
             int expectedSize;
 
 
-            LayerSizeMismatchException(int actualSize, int expectedSize):
-                    BasicException(),
-                    actualSize(actualSize),
-                    expectedSize(expectedSize) {}
+            LayerSizeMismatchException(int actualSize, int expectedSize);
 
+
+            virtual const char *what() const noexcept override;
+
+
+        private:
+
+
+            //! \brief Explanatory string
+            std::string m_what;
         };
 
 
