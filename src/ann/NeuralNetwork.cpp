@@ -414,16 +414,16 @@ namespace Winzent {
                 const Layer &to,
                 const Vector &input)
         {
-            auto fromLayerSize= from.size();
-            auto toLayerSize  = to.size();
 
 #ifdef QT_DEBUG
+            auto fromLayerSize= from.size();
             if (static_cast<Layer::size_type>(input.size()) != fromLayerSize){
                 throw LayerSizeMismatchException(input.size(), fromLayerSize);
             }
 #endif
 
             Vector output;
+            auto toLayerSize = to.size();
             output.fill(0.0, toLayerSize);
 
             for (Layer::size_type t = 0; t != toLayerSize; ++t) {
