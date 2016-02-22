@@ -6,6 +6,9 @@
  */
 
 
+#include <string>
+#include <QString>
+
 #include "Exception.h"
 
 
