@@ -133,16 +133,18 @@ namespace Winzent {
         }
 
 
+        bool Neuron::equals(const Neuron &other) const
+        {
+            return (this->lastInput() == other.lastInput()
+                    && this->lastResult() == other.lastResult()
+                    && this->activationFunction()->equals(
+                        other.activationFunction()));
+        }
+
+
         bool Neuron::operator ==(const Neuron& other) const
         {
-            bool equal = true;
-
-            equal &= (m_lastInput + 1.0 == 1.0 + other.m_lastInput);
-            equal &= (m_lastResult + 1.0 == 1.0 + other.m_lastResult);
-            equal &= (m_activationFunction->equals(
-                    other.m_activationFunction.get()));
-
-            return equal;
+            return this == &other;
         }
 
 

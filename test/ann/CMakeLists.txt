@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 set(test-winzent-ann_SOURCES
     ActivationFunctionTest.cpp
     BackpropagationTrainingAlgorithmTest.cpp
-    ConnectionTest.cpp
     ElmanNetworkPatternTest.cpp
     LayerTest.cpp
     NeuralNetworkPatternTest.cpp
@@ -25,7 +24,6 @@ set(test-winzent-ann_SOURCES
 set(test-winzent-ann_HEADERS
     ActivationFunctionTest.h
     BackpropagationTrainingAlgorithmTest.h
-    ConnectionTest.h
     ElmanNetworkPatternTest.h
     LayerTest.h
     NeuralNetworkPatternTest.h

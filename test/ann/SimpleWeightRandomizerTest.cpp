@@ -39,7 +39,7 @@ void SimpleWeightRandomizerTest::testWeightRandomization()
 
     neuralNetwork.eachConnection(
             [&neuralNetwork](const Connection *const &c) {
-        if (c->source() != &(neuralNetwork.biasNeuron())) {
+        if (c->source() != neuralNetwork.biasNeuron()) {
             QCOMPARE(1.0, c->weight() + 1.0);
         }
     });
@@ -49,7 +49,7 @@ void SimpleWeightRandomizerTest::testWeightRandomization()
 
     neuralNetwork.eachConnection(
                 [&neuralNetwork, &swr](const Connection *const &c) {
-        if (c->source() != &(neuralNetwork.biasNeuron())) {
+        if (c->source() != neuralNetwork.biasNeuron()) {
             QVERIFY(1.0 != c->weight() + 1.0);
             QVERIFY(swr.minWeight() <= c->weight());
             QVERIFY(c->weight() <= swr.maxWeight());

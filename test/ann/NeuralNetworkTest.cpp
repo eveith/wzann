@@ -208,8 +208,8 @@ void NeuralNetworkTest::testConnectionsFromTo()
     QCOMPARE(connectionSources.second-connectionSources.first, 1l);
     QCOMPARE(connectionDestinations.second-connectionDestinations.first, 1l);
 
-    QCOMPARE((*connectionSources.first)->destination(), d);
-    QCOMPARE((*connectionDestinations.first)->source(), s);
+    QCOMPARE((*connectionSources.first)->destination(), *d);
+    QCOMPARE((*connectionDestinations.first)->source(), *s);
 
     delete network;
 }

@@ -119,11 +119,11 @@ namespace Winzent {
                 // weight(j,k) * delta(k):
                 delta += neuronDelta(
                             ann,
-                            *(c->destination()),
+                            c->destination(),
                             neuronDeltas,
                             outputError)
                         * c->weight();
-                delta += neuronDeltas.value(c->destination()) * c->weight();
+                delta += neuronDeltas.value(&(c->destination())) *c->weight();
             }
 
             delta *= neuron.activationFunction()->calculateDerivative(
@@ -216,22 +216,22 @@ namespace Winzent {
 
                         const auto &dstNeuron = c->destination();
 
-                        if (ann.inputLayer().contains(*dstNeuron)) {
+                        if (ann.inputLayer().contains(dstNeuron)) {
                             return;
                         }
 
                         qreal delta = neuronDelta(
                                 ann,
-                                *dstNeuron,
+                                dstNeuron,
                                 neuronDeltas,
                                 errorVector);
-                        neuronDeltas.insert(dstNeuron, delta);
+                        neuronDeltas.insert(&dstNeuron, delta);
 
                         // Add upp gradients. The default-constructed value
                         // for a qreal stored in a QHash is 0.0:
 
-                        currentGradients[c] +=
-                                delta * c->source()->lastResult();
+                        currentGradients[c] += delta
+                                * c->source().lastResult();
                     });
                 }
 

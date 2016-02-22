@@ -58,23 +58,38 @@ namespace Winzent {
         }
 
 
-        Vector TrainingItem::error(const Vector &actualOutput) const
+        Vector TrainingItem::squaredErrors(
+                const Vector &actualOutput)
+                const
         {
-            if (actualOutput.size() == expectedOutput().size()) {
-                throw LayerSizeMismatchException(
-                        actualOutput.size(),
-                        expectedOutput().size());
-            }
+            Q_ASSERT(actualOutput.size() == expectedOutput().size());
 
-            Vector r(expectedOutput().size());
+            Vector r;
+            r.reserve(expectedOutput().size());
 
-            for (auto i = 0; i != actualOutput.size(); ++i) {
-                r[i] = expectedOutput().at(i) - actualOutput.at(i);
+            for (Vector::size_type i = 0; i != actualOutput.size(); ++i) {
+                r.push_back(std::pow(
+                        expectedOutput().at(i) - actualOutput.at(i),
+                        2));
             }
 
             return r;
         }
 
+
+        Vector TrainingItem::errors(const Vector &actualOutput) const
+        {
+            Q_ASSERT(actualOutput.size() == expectedOutput().size());
+
+            Vector r;
+            r.reserve(expectedOutput().size());
+
+            for (Vector::size_type i = 0; i != actualOutput.size(); ++i) {
+                r.push_back(expectedOutput().at(i) - actualOutput.at(i));
+            }
+
+            return r;
+        }
 
         void TrainingItem::clear()
         {

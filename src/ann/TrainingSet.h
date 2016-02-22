@@ -96,14 +96,21 @@ namespace Winzent {
              *
              * \param[in] actualOutput The output the network actually emitted
              *
-             * \return The error between the output the network emitted and that
-             *  which is stored in the training item.
-             *
-             * \throw LayerSizeMismatchException If the two vectors
-             *  expectedOutput and actualOutput do not match; throws this also
-             *  if the output is not relevant for this training item.
+             * \return The error between the output the network emitted
+             *  and that which is stored in the training item.
              */
-            Vector error(const Vector &actualOutput) const;
+            Vector errors(const Vector &actualOutput) const;
+
+
+            /*!
+             * \brief Calculates the squared errors for each item in the
+             *  vector provided
+             *
+             * \param[in] actualOutput The output of an ANN
+             *
+             * \return `error[i] = (expected[i]-actual[i])^2`
+             */
+            Vector squaredErrors(const Vector &actualOutput) const;
 
 
             //! \brief Clears the TrainingItem

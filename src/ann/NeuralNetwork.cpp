@@ -108,12 +108,12 @@ namespace Winzent {
                     int dstNeuronIndex = -1;
 
                     for (size_type i = 0; i != rhs.size(); ++i) {
-                        if (!rhs[i].contains(*(c->destination()))) {
+                        if (!rhs[i].contains(c->destination())) {
                             continue;
                         }
 
                         dstLayerIndex = i;
-                        dstNeuronIndex = rhs[i].indexOf(*(c->destination()));
+                        dstNeuronIndex = rhs[i].indexOf(c->destination());
                         break;
                     }
 
@@ -194,7 +194,7 @@ namespace Winzent {
                     it->second.begin(),
                     it->second.end(),
                     [&from](const Connection *const &c) {
-                return (c->source() == &from);
+                return (c->source() == from);
             });
         }
 
@@ -208,7 +208,7 @@ namespace Winzent {
                     connections.first,
                     connections.second,
                     [&from](const Connection *const &c) {
-                return c->source() == &from;
+                return c->source() == from;
             });
 
             if (cit != connections.second) {
@@ -304,13 +304,13 @@ namespace Winzent {
                 throw UnknownNeuronException(&to);
             }
 
-            Neuron *src = const_cast<Neuron *>(&from),
-                    *dst = const_cast<Neuron *>(&to);
+            Neuron &src = const_cast<Neuron &>(from),
+                    &dst = const_cast<Neuron &>(to);
 
             Connection *connection = new Connection(src, dst, 0.0);
 
-            m_connectionSources[src].push_back(connection);
-            m_connectionDestinations[dst].push_back(connection);
+            m_connectionSources[&src].push_back(connection);
+            m_connectionDestinations[&dst].push_back(connection);
 
             return *connection;
         }
@@ -325,8 +325,8 @@ namespace Winzent {
                     sources.begin(),
                     sources.end(),
                     [&from, &to](Connection *connection) {
-                return connection->source() == &from
-                        && connection->destination() == &to;
+                return connection->source() == from
+                        && connection->destination() == to;
             });
 
             auto &destinations = m_connectionDestinations.at(
@@ -335,8 +335,8 @@ namespace Winzent {
                     destinations.begin(),
                     destinations.end(),
                     [&from, &to](Connection *connection) {
-                return connection->source() == &from
-                        && connection->destination() == &to;
+                return connection->source() == from
+                        && connection->destination() == to;
             });
 
             if (connectionIt != sources.end()) {
@@ -431,13 +431,13 @@ namespace Winzent {
                 auto connections = connectionsTo(toNeuron);
 
                 for (const auto &c: make_iterator_range(connections)) {
-                    Q_ASSERT(c->destination() == &toNeuron);
+                    Q_ASSERT(&(c->destination()) == &toNeuron);
 
-                    if (! from.contains(*(c->source()))) {
+                    if (! from.contains(c->source())) {
                         continue;
                     }
 
-                    auto s = from.indexOf(*(c->source()));
+                    auto s = from.indexOf(c->source());
                     output[t] += input.at(s) * c->weight();
                 }
             }
@@ -565,10 +565,10 @@ namespace Winzent {
                         for (size_t j = 0; j != m_layers.at(i).size(); ++j) {
                             const auto &n = layerAt(i)->neuronAt(j);
 
-                            if (n == c->source()) {
+                            if (n == &(c->source())) {
                                 srcLayer = i;
                                 srcNeuron = j;
-                            } else if (n == c->destination()) {
+                            } else if (n == &(c->destination())) {
                                 dstLayer = i;
                                 dstNeuron = j;
                             }
@@ -605,7 +605,7 @@ namespace Winzent {
             bool equal = true;
 
             equal &= size() == other.size();
-            equal &= *m_biasNeuron == *(other.m_biasNeuron);
+            equal &= biasNeuron().equals(other.biasNeuron());
             equal &= ((m_pattern == nullptr && other.m_pattern == nullptr)
                     || (m_pattern != nullptr && other.m_pattern != nullptr
                         && m_pattern->equals(other.m_pattern.get())));
@@ -628,16 +628,16 @@ namespace Winzent {
                 const auto& layer = (*this)[i];
 
                 for (Layer::size_type j = 0; j != layer.size(); ++j) {
-                    const auto& ourConnections = connectionsFrom(layer[j]);
+                    const auto& ourConnections = connectionsTo(layer[j]);
                     const auto& otherConnections =
-                            other.connectionsFrom(other[i][j]);
+                            other.connectionsTo(other[i][j]);
 
                     for (auto it1 = ourConnections.first,
                                 it2 = otherConnections.first;
                             it1 != ourConnections.second
                                 && it2 != otherConnections.second;
                             it1++, it2++) {
-                        if (**it1 != **it2) {
+                        if (! (*it1)->equals(**it2)) {
                             return false;
                         }
                     }

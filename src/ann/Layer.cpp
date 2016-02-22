@@ -182,7 +182,7 @@ namespace Winzent {
             auto i2 = other.begin();
 
             for (; i1 != end() && i2 != other.end(); i1++, i2++) {
-                if (! (*i1 == *i2)) {
+                if (! i1->equals(*i2)) {
                     return false;
                 }
             }

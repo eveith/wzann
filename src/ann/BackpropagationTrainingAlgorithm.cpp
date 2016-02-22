@@ -105,13 +105,13 @@ namespace Winzent {
                     ann.eachConnection([&](Connection *const &c) {
                         auto dn = neuronDelta(
                                 ann,
-                                *(c->destination()),
+                                c->destination(),
                                 neuronDeltas,
                                 errorOutput);
                         connectionDeltas.insert(
                                 c,
                                 learningRate() * dn
-                                    * c->source()->lastResult());
+                                    * c->source().lastResult());
                     });
 
                     for (Connection *c: connectionDeltas.keys()) {
@@ -182,11 +182,11 @@ namespace Winzent {
                 // weight(j,k) * delta(k):
                 delta += neuronDelta(
                             ann,
-                            *(c->destination()),
+                            c->destination(),
                             neuronDeltas,
                             outputError)
                         * c->weight();
-                delta += neuronDeltas[c->destination()] * c->weight();
+                delta += neuronDeltas[&(c->destination())] * c->weight();
             }
 
             delta *= neuron.activationFunction()->calculateDerivative(
