@@ -32,9 +32,7 @@
         }
     },
     "required": [
-        "epochs",
         "maxEpochs",
-        "error",
         "targetError",
         "trainingItems"
     ]

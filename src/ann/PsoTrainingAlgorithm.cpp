@@ -53,7 +53,7 @@ namespace Winzent {
             qreal errorSum = 0;
             size_t i = 0;
 
-            for (const auto &item: trainingSet.trainingData) {
+            for (const auto &item: trainingSet.trainingItems) {
                 auto actual = ann.calculate(item.input());
 
                 if (! item.outputRelevant()) {

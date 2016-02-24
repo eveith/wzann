@@ -140,7 +140,7 @@ namespace Winzent {
                     m_error(std::numeric_limits<qreal>::max())
         {
             for (const auto &i: trainingData) {
-                this->trainingData.push_back(TrainingItem(i));
+                this->trainingItems.push_back(TrainingItem(i));
             }
         }
 
@@ -185,20 +185,20 @@ namespace Winzent {
 
         TrainingSet &TrainingSet::operator <<(const TrainingItem &item)
         {
-            trainingData.push_back(item);
+            trainingItems.push_back(item);
             return *this;
         }
 
 
         void TrainingSet::push_back(const TrainingItem &item)
         {
-            trainingData.push_back(item);
+            trainingItems.push_back(item);
         }
 
 
         void TrainingSet::push_back(const TrainingSet &trainingSet)
         {
-            for (const auto &i: trainingSet.trainingData) {
+            for (const auto &i: trainingSet.trainingItems) {
                 push_back(TrainingItem(i));
             }
         }
@@ -206,7 +206,7 @@ namespace Winzent {
 
         void TrainingSet::clear()
         {
-            trainingData.clear();
+            trainingItems.clear();
             m_maxNumEpochs = 0;
             m_epochs = 0;
             m_targetError = 0.0;
@@ -228,7 +228,7 @@ namespace Winzent {
             for (const auto &i: jsonTrainingItems) {
                 TrainingItem ti;
                 ti.fromJSON(QJsonDocument(i.toObject()));
-                trainingData.push_back(ti);
+                trainingItems.push_back(ti);
             }
         }
 
@@ -243,7 +243,7 @@ namespace Winzent {
             o["targetError"] = targetError();
 
             QJsonArray jsonTrainingItems;
-            for (const auto &i: trainingData) {
+            for (const auto &i: trainingItems) {
                 jsonTrainingItems.push_back(i.toJSON().object());
             }
             o["trainingItems"] = jsonTrainingItems;
@@ -298,7 +298,7 @@ namespace std {
                 << ", Error = " << trainingSet.error()
                 << ", MaxEpochs = " << trainingSet.maxEpochs()
                 << ", epochs = " << trainingSet.epochs()
-                << ", " << trainingSet.trainingData
+                << ", " << trainingSet.trainingItems
                 << ")";
         return os;
     }

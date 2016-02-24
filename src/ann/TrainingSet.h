@@ -175,7 +175,7 @@ namespace Winzent {
 
 
             //! The actual set of training data
-            TrainingItems trainingData;
+            TrainingItems trainingItems;
 
 
             /*!
@@ -196,7 +196,7 @@ namespace Winzent {
              *  yet reached.
              */
             TrainingSet(
-                    TrainingItems trainingData,
+                    TrainingItems trainingItems,
                     const qreal &targetError,
                     const size_t &maxNumEpochs);
 

@@ -40,7 +40,7 @@ void TrainingSetTest::testJsonSerialization()
 
     QCOMPARE(ts2.error(), ts.error());
     QCOMPARE(ts2.maxEpochs(), ts.maxEpochs());
-    QCOMPARE(ts2.trainingData.size(), ts.trainingData.size());
+    QCOMPARE(ts2.trainingItems.size(), ts.trainingItems.size());
 }
 
 

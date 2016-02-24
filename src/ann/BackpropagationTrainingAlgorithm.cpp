@@ -70,7 +70,7 @@ namespace Winzent {
                 // the network. We then calculate the overall error and try to
                 // minimize it.
 
-                for (TrainingItem it: trainingSet.trainingData) {
+                for (TrainingItem it: trainingSet.trainingItems) {
 
                     // Reset memoization fields:
 
@@ -121,8 +121,8 @@ namespace Winzent {
 
                 // It's called MEAN square error for a reason:
 
-                error /= (trainingSet.trainingData.count()
-                        * trainingSet.trainingData.first()
+                error /= (trainingSet.trainingItems.count()
+                        * trainingSet.trainingItems.first()
                             .expectedOutput().count());
             }
 

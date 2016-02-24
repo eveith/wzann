@@ -32,6 +32,7 @@ set(winzent-ann_SOURCES
     SigmoidActivationFunction.cpp
     SymmetricSigmoidActivationFunction.cpp
     SimulatedAnnealingTrainingAlgorithm.cpp
+    TanhActivationFunction.cpp
     TrainingAlgorithm.cpp
     TrainingSet.cpp
     Vector.cpp)
@@ -61,6 +62,7 @@ set(winzent-ann_HEADERS
     SigmoidActivationFunction.h
     SymmetricSigmoidActivationFunction.h
     SimulatedAnnealingTrainingAlgorithm.h
+    TanhActivationFunction.h
     TrainingAlgorithm.h
     TrainingSet.h
     Vector.h)
