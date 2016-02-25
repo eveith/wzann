@@ -1,5 +1,4 @@
 #include <limits>
-#include <cfenv>
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
@@ -23,9 +22,6 @@
 #include "TrainingAlgorithm.h"
 
 #include "REvolutionaryTrainingAlgorithm.h"
-
-
-#pragma STDC FENV_ACCESS ON
 
 
 using std::exp;
@@ -101,9 +97,7 @@ namespace Winzent {
 
         REvolutionaryTrainingAlgorithm::REvolutionaryTrainingAlgorithm():
                 TrainingAlgorithm(),
-                REvol(),
-                logger(log4cxx::LogManager::getLogger(
-                        "Winzent.ANN.REvoluationaryTrainingAlgorithm"))
+                REvol()
         {
         }
 
@@ -131,8 +125,14 @@ namespace Winzent {
 
             for (const auto &item: trainingSet.trainingItems) {
                 Vector output = ann.calculate(item.input());
+                LOG4CXX_DEBUG(
+                        TrainingAlgorithm::logger,
+                        "Calculated " << item.input() << " => " << output);
 
                 if (! item.outputRelevant()) {
+                    LOG4CXX_DEBUG(
+                            TrainingAlgorithm::logger,
+                            "Output is not relevant.");
                     continue;
                 }
 
