@@ -37,12 +37,10 @@ namespace Winzent {
 
 
             /*!
-             * Constructs a new instance given input and expected
-             * output.
+             * \brief Constructs a new instance given input and expected
+             *  output.
              */
-            TrainingItem(
-                    const Vector &input,
-                    const Vector &expectedOutput);
+            TrainingItem(const Vector &input, const Vector &expectedOutput);
 
 
             /*!
@@ -133,6 +131,10 @@ namespace Winzent {
             virtual void fromJSON(const QJsonDocument &json) override;
 
 
+            //! \brief Assignment operator
+            TrainingItem &operator =(const TrainingItem &rhs);
+
+
         private:
 
 
@@ -142,14 +144,6 @@ namespace Winzent {
 
             //! \brief The output expected from the network.
             Vector m_expectedOutput;
-
-
-            /*!
-             * \brief Stores whether an expected output to the input exists
-             *  (i.e., the output is relevant) or not.
-             */
-            bool m_outputRelevant;
-
         };
 
 
@@ -203,6 +197,10 @@ namespace Winzent {
 
             //! Creates an empty training set.
             explicit TrainingSet();
+
+
+            //! \brief Copy constructor
+            TrainingSet(const TrainingSet &other);
 
 
             /*!
@@ -310,6 +308,16 @@ namespace Winzent {
              * \return The serialized version of the object
              */
             virtual QJsonDocument toJSON() const override;
+
+
+            /*!
+             * \brief Assignes another TrainingSet to this one
+             *
+             * \param[in] rhs The other training set to copy from
+             *
+             * \return `*this`
+             */
+            TrainingSet &operator =(const TrainingSet &rhs);
 
 
         private:

@@ -124,7 +124,7 @@ namespace Winzent {
 
 
             for (const auto &item: trainingSet.trainingItems) {
-                Vector output = ann.calculate(item.input());
+                const auto output = ann.calculate(item.input());
                 LOG4CXX_DEBUG(
                         TrainingAlgorithm::logger,
                         "Calculated " << item.input() << " => " << output);

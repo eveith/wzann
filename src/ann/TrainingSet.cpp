@@ -20,8 +20,7 @@ namespace Winzent {
                 const Vector &input,
                 const Vector &expectedOutput):
                     m_input(input),
-                    m_expectedOutput(expectedOutput),
-                    m_outputRelevant(true)
+                    m_expectedOutput(expectedOutput)
         {
         }
 
@@ -29,14 +28,13 @@ namespace Winzent {
         TrainingItem::TrainingItem(const Vector &input):
                 TrainingItem(input, Vector())
         {
-            m_outputRelevant = false;
         }
 
 
         TrainingItem::TrainingItem(const TrainingItem &rhs):
-                TrainingItem(rhs.m_input, rhs.m_expectedOutput)
+                m_input(rhs.m_input),
+                m_expectedOutput(rhs.m_expectedOutput)
         {
-            m_outputRelevant = rhs.outputRelevant();
         }
 
 
@@ -54,7 +52,7 @@ namespace Winzent {
 
         bool TrainingItem::outputRelevant() const
         {
-            return m_outputRelevant;
+            return m_expectedOutput.size() > 0;
         }
 
 
@@ -91,11 +89,11 @@ namespace Winzent {
             return r;
         }
 
+
         void TrainingItem::clear()
         {
             m_input.clear();
             m_expectedOutput.clear();
-            m_outputRelevant = false;
         }
 
 
@@ -108,7 +106,6 @@ namespace Winzent {
                     QJsonDocument(o["input"].toArray()));
             m_expectedOutput = from_json(
                     QJsonDocument(o["expectedOutput"].toArray()));
-            m_outputRelevant = (m_expectedOutput.size() > 0);
         }
 
 
@@ -120,6 +117,19 @@ namespace Winzent {
             o["expectedOutput"] = to_json(m_expectedOutput).array();
 
             return QJsonDocument(o);
+        }
+
+
+        TrainingItem &TrainingItem::operator =(const TrainingItem &rhs)
+        {
+            if (this == &rhs) {
+                return *this;
+            }
+
+            this->m_input = rhs.m_input;
+            this->m_expectedOutput = rhs.m_expectedOutput;
+
+            return *this;
         }
 
 
@@ -142,6 +152,16 @@ namespace Winzent {
             for (const auto &i: trainingData) {
                 this->trainingItems.push_back(TrainingItem(i));
             }
+        }
+
+
+        TrainingSet::TrainingSet(const TrainingSet &other):
+                trainingItems(other.trainingItems),
+                m_targetError(other.m_targetError),
+                m_maxNumEpochs(other.m_maxNumEpochs),
+                m_epochs(other.m_epochs),
+                m_error(other.m_error)
+        {
         }
 
 
@@ -249,6 +269,24 @@ namespace Winzent {
             o["trainingItems"] = jsonTrainingItems;
 
             return QJsonDocument(o);
+        }
+
+
+        TrainingSet &TrainingSet::operator =(const TrainingSet &rhs)
+        {
+            if (this == &rhs) {
+                return *this;
+            }
+
+            this->trainingItems = rhs.trainingItems;
+
+            this->m_epochs      = rhs.m_epochs;
+            this->m_maxNumEpochs= rhs.m_maxNumEpochs;
+
+            this->m_error       = rhs.m_error;
+            this->m_targetError = rhs.m_targetError;
+
+            return *this;
         }
     }
 }
