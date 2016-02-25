@@ -118,8 +118,7 @@ namespace Winzent {
         {
             size_t errorPos = 0;
             qreal totalMSE  = 0.0;
-            individual.restrictions.resize(
-                        trainingSet.trainingItems.size() + 1);
+            individual.restrictions.resize(1);
             Individual::applyParameters(individual, ann);
 
 
@@ -140,8 +139,8 @@ namespace Winzent {
                         output,
                         item.expectedOutput());
 
-                individual.restrictions[++errorPos] = sampleMSE;
                 totalMSE += sampleMSE;
+                errorPos += 1;
             }
 
             individual.restrictions[0] =
