@@ -174,13 +174,6 @@ namespace Winzent {
              */
             virtual void train(NeuralNetwork &ann, TrainingSet &trainingSet)
                     override;
-
-
-        private:
-
-
-            //! Our internal logger
-            log4cxx::LoggerPtr logger;
         };
     } // namespace ANN
 } // namespace Winzent

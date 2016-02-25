@@ -20,12 +20,9 @@ namespace Winzent {
     namespace ANN {
 
 
-        log4cxx::LoggerPtr TrainingAlgorithm::logger =
-                log4cxx::LogManager::getLogger(
-                    "Winzent.ANN.TrainingAlgorithm");
-
-
-        TrainingAlgorithm::TrainingAlgorithm()
+        TrainingAlgorithm::TrainingAlgorithm():
+                logger(log4cxx::LogManager::getLogger(
+                    "Winzent.ANN.TrainingAlgorithm"))
         {
         }
 

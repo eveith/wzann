@@ -101,9 +101,7 @@ namespace Winzent {
 
         REvolutionaryTrainingAlgorithm::REvolutionaryTrainingAlgorithm():
                 TrainingAlgorithm(),
-                REvol(),
-                logger(log4cxx::LogManager::getLogger(
-                        "Winzent.ANN.REvoluationaryTrainingAlgorithm"))
+                REvol()
         {
         }
 
@@ -131,8 +129,12 @@ namespace Winzent {
 
             for (const auto &item: trainingSet.trainingItems) {
                 Vector output = ann.calculate(item.input());
+                LOG4CXX_DEBUG(
+                        logger,
+                        "Calculated " << item.input() << " => " << output);
 
                 if (! item.outputRelevant()) {
+                    LOG4CXX_DEBUG(logger, "Output is not relevant.");
                     continue;
                 }
 

@@ -91,10 +91,8 @@ namespace Winzent {
         protected:
 
 
-            /*!
-             * \brief Internal logger
-             */
-            static log4cxx::LoggerPtr logger;
+            //! \brief Internal logger
+            log4cxx::LoggerPtr logger;
 
 
             /*!
