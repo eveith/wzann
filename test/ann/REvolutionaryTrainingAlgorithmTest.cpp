@@ -243,19 +243,19 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
     auto &i3 = population.back();
     delete n;
 
-    trainingAlgorithm.modifyWorstIndividual(population);
+    trainingAlgorithm.modifyWorstIndividual(
+            population,
+            /* currentSuccess = */ 0.2);
 
     QCOMPARE(
-            i3->parameters.size(),
-            population.front()->parameters.size());
+            i3.parameters.size(),
+            population.front().parameters.size());
 
     std::for_each(population.begin(), population.end() - 1,
-            [&](Winzent::Algorithm::detail::Individual *i) {
-        for (auto j = 0; j != i->parameters.size(); ++j) {
-            QVERIFY(i3->parameters.at(j) != i->parameters.at(j));
+            [&](Winzent::Algorithm::detail::Individual &i) {
+        for (auto j = 0; j != i.parameters.size(); ++j) {
+            QVERIFY(i3.parameters.at(j) != i.parameters.at(j));
         }
-
-        delete i;
     });
 }
 
