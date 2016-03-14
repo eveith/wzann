@@ -81,8 +81,6 @@ find_package(Qt5Concurrent REQUIRED)
 find_package(Boost 1.56.0 REQUIRED)
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
-include_directories(../common)
-
 
 # Tweak for C++14:
 
