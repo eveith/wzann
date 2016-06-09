@@ -48,8 +48,6 @@ find_package(Qt5Test REQUIRED)
 find_package(Qt5Sql REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
 
-include_directories(../../src/common)
-
 
 # Tweak for C++11:
 
@@ -59,13 +57,14 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
 endif()
 
 
-include_directories(../../src/ann)
-
-
 add_executable(tst_ann
     ${test-winzent-ann_SOURCES})
 add_test(tst_ann
     tst_ann)
+target_include_directories(
+    tst_ann
+    PRIVATE ${winzent-ann_SOURCE_DIR}
+    PRIVATE ${winzent-ann_INCLUDE_DIRS})
 add_dependencies(tst_ann
     winzent-common
     winzent-ann)
@@ -75,6 +74,6 @@ target_link_libraries(tst_ann
     Qt5::Test
     Qt5::Sql
     Qt5::Concurrent
-    log4cxx
+    ${log4cxx_LIBRARIES}
     winzent-ann)
 
