@@ -82,11 +82,9 @@ find_package(Boost 1.56.0 REQUIRED)
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
 
-# Tweak for C++14:
-
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
         OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    add_compile_options(-std=c++1y)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -funroll-loops")
 endif()
 
 
@@ -107,7 +105,8 @@ target_link_libraries(winzent-ann
     winzent-common
     winzent-algorithm)
 set_target_properties(winzent-ann
-    PROPERTIES SOVERSION ${winzent-ann_SOVERSION})
+    PROPERTIES SOVERSION ${winzent-ann_SOVERSION}
+    CXX_STANDARD 14)
 
 install(TARGETS winzent-ann LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${winzent-ann_HEADERS} DESTINATION include/winzent/ann)
