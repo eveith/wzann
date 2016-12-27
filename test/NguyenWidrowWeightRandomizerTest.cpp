@@ -9,7 +9,7 @@
 
 #include "NguyenWidrowWeightRandomizer.h"
 
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 
 #include "NguyenWidrowWeightRandomizerTest.h"
 
@@ -25,7 +25,7 @@ NguyenWidrowWeightRandomizerTest::NguyenWidrowWeightRandomizerTest(
 
 
 
-void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
+TEST(NguyenWidrowWeightRandomizerTest, testRandomizeWeights)
 {
     NeuralNetwork network;
     PerceptronNetworkPattern pattern({
@@ -48,16 +48,13 @@ void NguyenWidrowWeightRandomizerTest::testRandomizeWeights()
             Neuron &neuron = layer[j];
             for (const auto &c: boost::make_iterator_range(
                      network.connectionsFrom(neuron))) {
-                QVERIFY(1.0 != 1.0 + c->weight());
+                ASSERT_TRUE(1.0 != 1.0 + c->weight());
             }
         }
 
         for (const auto &c: boost::make_iterator_range(
                  network.connectionsFrom(network.biasNeuron()))) {
-            QCOMPARE(c->weight(), -1.0);
+            ASSERT_EQ(-1.0, c->weight());
         }
     }
 }
-
-
-TESTCASE(NguyenWidrowWeightRandomizerTest);

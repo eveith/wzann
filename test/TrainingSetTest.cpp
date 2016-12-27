@@ -3,7 +3,7 @@
 #include "NeuralNetwork.h"
 #include "TrainingSet.h"
 
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 #include "TrainingSetTest.h"
 
 
@@ -16,18 +16,15 @@ TrainingSetTest::TrainingSetTest(QObject *parent) :
 }
 
 
-void TrainingSetTest::testOutputRelevant()
+TEST(TrainingSetTest, testOutputRelevant)
 {
-    QCOMPARE(
-            TrainingItem(Vector({ 1.0 }), Vector({ 1.0 })).outputRelevant(),
-            true);
-    QCOMPARE(
-            TrainingItem(Vector()).outputRelevant(),
-            false);
+    ASSERT_TRUE(
+            TrainingItem(Vector({ 1.0 }), Vector({ 1.0 })).outputRelevant());
+    ASSERT_FALSE(TrainingItem(Vector()).outputRelevant());
 }
 
 
-void TrainingSetTest::testJsonSerialization()
+TEST(TrainingSetTest, testJsonSerialization)
 {
     TrainingSet ts;
     ts.targetError(0.01);
@@ -42,10 +39,7 @@ void TrainingSetTest::testJsonSerialization()
     TrainingSet ts2;
     Winzent::deserialize(ts2, json);
 
-    QCOMPARE(ts2.error(), ts.error());
-    QCOMPARE(ts2.maxEpochs(), ts.maxEpochs());
-    QCOMPARE(ts2.trainingItems.size(), ts.trainingItems.size());
+    ASSERT_EQ(ts.error(, ts2.error()));
+    ASSERT_EQ(ts.maxEpochs(, ts2.maxEpochs()));
+    ASSERT_EQ(ts.trainingItems.size(, ts2.trainingItems.size()));
 }
-
-
-TESTCASE(TrainingSetTest);

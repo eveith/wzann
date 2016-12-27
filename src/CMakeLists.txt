@@ -1,12 +1,100 @@
-add_subdirectory(common)
-add_subdirectory(test-common)
+set(winzent-ann_SOURCES
+    ActivationFunction.cpp
+    BackpropagationTrainingAlgorithm.cpp
+    Connection.cpp
+    ConstantActivationFunction.cpp
+    ElmanNetworkPattern.cpp
+    Exception.cpp
+    Layer.cpp
+    LinearActivationFunction.cpp
+    NeuralNetwork.cpp
+    NeuralNetworkPattern.cpp
+    Neuron.cpp
+    SimpleWeightRandomizer.cpp
+    NguyenWidrowWeightRandomizer.cpp
+    PerceptronNetworkPattern.cpp
+    RememberingActivationFunction.cpp
+    PsoTrainingAlgorithm.cpp
+    REvolutionaryTrainingAlgorithm.cpp
+    RpropTrainingAlgorithm.cpp
+    SigmoidActivationFunction.cpp
+    SymmetricSigmoidActivationFunction.cpp
+    SimulatedAnnealingTrainingAlgorithm.cpp
+    TanhActivationFunction.cpp
+    TrainingAlgorithm.cpp
+    TrainingSet.cpp
+    Vector.cpp)
 
-add_subdirectory(model)
-add_subdirectory(algorithm)
-add_subdirectory(ann)
-add_subdirectory(messaging)
-add_subdirectory(agent)
-add_subdirectory(simulation)
-add_subdirectory(WinzentSimulationService)
-add_subdirectory(WinzentView)
-add_subdirectory(AnnViewer)
+set(winzent-ann_HEADERS
+    Winzent-ANN_global.h
+    ActivationFunction.h
+    BackpropagationTrainingAlgorithm.h
+    Connection.h
+    ConstantActivationFunction.h
+    ElmanNetworkPattern.h
+    Exception.h
+    Layer.h
+    LinearActivationFunction.h
+    NeuralNetwork.h
+    NeuralNetworkPattern.h
+    Neuron.h
+    WeightRandomizer.h
+    SimpleWeightRandomizer.h
+    NguyenWidrowWeightRandomizer.h
+    PerceptronNetworkPattern.h
+    QtContainerOutput.h
+    RememberingActivationFunction.h
+    PsoTrainingAlgorithm.h
+    REvolutionaryTrainingAlgorithm.h
+    RpropTrainingAlgorithm.h
+    SigmoidActivationFunction.h
+    SymmetricSigmoidActivationFunction.h
+    SimulatedAnnealingTrainingAlgorithm.h
+    TanhActivationFunction.h
+    TrainingAlgorithm.h
+    TrainingSet.h
+    Vector.h)
+
+set(winzent-ann_RESOURCE_FILES
+    Schemata.qrc)
+
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Sql REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
+
+find_package(Boost 1.56.0 REQUIRED)
+pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
+
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
+        OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -funroll-loops")
+endif()
+
+
+qt5_add_resources(winzent-ann_RESOURCES
+    ${winzent-ann_RESOURCE_FILES})
+add_library(winzent-ann
+    SHARED ${winzent-ann_SOURCES} ${winzent-ann_RESOURCES})
+target_include_directories(winzent-ann
+    PUBLIC ${winzent-common_SOURCE_DIR}
+    PUBLIC ${winzent-algorithm_SOURCE_DIR}
+    PUBLIC ${BOOST_INCLUDE_DIRS}
+    PUBLIC ${LOG4CXX_INCLUDE_DIRS})
+target_link_libraries(winzent-ann
+    Qt5::Core
+    Qt5::Sql
+    Qt5::Concurrent
+    ${LOG4CXX_LIBRARIES}
+    winzent-common
+    winzent-algorithm)
+set_target_properties(winzent-ann
+    PROPERTIES SOVERSION ${winzent-ann_SOVERSION}
+    CXX_STANDARD 14)
+
+install(TARGETS winzent-ann LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES ${winzent-ann_HEADERS} DESTINATION include/winzent/ann)

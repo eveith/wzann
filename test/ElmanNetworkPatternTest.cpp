@@ -1,4 +1,4 @@
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 
 #include <QTextStream>
 
@@ -36,7 +36,7 @@ ElmanNetworkPatternTest::ElmanNetworkPatternTest(QObject *parent) :
 }
 
 
-void ElmanNetworkPatternTest::testConfigure()
+TEST(ElmanNetworkPatternTest, testConfigure)
 {
     NeuralNetwork network;
     ElmanNetworkPattern pattern(layers, activationFunctions);
@@ -52,7 +52,7 @@ void ElmanNetworkPatternTest::testConfigure()
     testResultStream.flush();
     testResultFile.close();
 
-    QCOMPARE(network.size(), 4ul);
+    ASSERT_EQ(4ul, network.size());
 
     // Each hidden layer neuron has one context neuron: Check
 
@@ -63,18 +63,15 @@ void ElmanNetworkPatternTest::testConfigure()
                     network[ElmanNetworkPattern::CONTEXT][j]);
 
             if (i == j) {
-                QCOMPARE(connection, true);
+                ASSERT_EQ(true, connection);
                 Connection *c = network.connection(
                         network[ElmanNetworkPattern::HIDDEN][i],
                         network[ElmanNetworkPattern::CONTEXT][j]);
-                QCOMPARE(c->weight(), 1.0);
-                QCOMPARE(c->fixedWeight(), true);
+                ASSERT_EQ(1.0, c->weight());
+                ASSERT_EQ(true, c->fixedWeight());
             } else {
-                QCOMPARE(connection, false);
+                ASSERT_EQ(false, connection);
             }
         }
     }
 }
-
-
-TESTCASE(ElmanNetworkPatternTest)

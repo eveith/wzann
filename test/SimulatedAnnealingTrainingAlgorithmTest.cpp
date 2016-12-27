@@ -15,7 +15,7 @@
 #include "TrainingSet.h"
 #include "SimulatedAnnealingTrainingAlgorithm.h"
 
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 #include "SimulatedAnnealingTrainingAlgorithmTest.h"
 
 
@@ -29,7 +29,7 @@ SimulatedAnnealingTrainingAlgorithmTest::SimulatedAnnealingTrainingAlgorithmTest
 }
 
 
-void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
+TEST(SimulatedAnnealingTrainingAlgorithmTest, testTrainXOR)
 {
     NeuralNetwork network;
     PerceptronNetworkPattern pattern(
@@ -80,22 +80,19 @@ void SimulatedAnnealingTrainingAlgorithmTest::testTrainXOR()
     Vector output;
     output = network.calculate({ 1, 1 });
     qDebug() << "(1, 1) =>" << output;
-    QCOMPARE(qRound(output[0]), 0);
+    ASSERT_EQ(0, qRound(output[0]));
     output = network.calculate({ 1, 0 });
     qDebug() << "(1, 0) =>" << output;
-    QCOMPARE(qRound(output[0]), 1);
+    ASSERT_EQ(1, qRound(output[0]));
     output = network.calculate({ 0, 0 });
     qDebug() << "(0, 0) =>" << output;
-    QCOMPARE(qRound(output[0]), 0);
+    ASSERT_EQ(0, qRound(output[0]));
     output = network.calculate({ 0, 1 });
     qDebug() << "(0, 1) =>" << output;
-    QCOMPARE(qRound(output[0]), 1);
+    ASSERT_EQ(1, qRound(output[0]));
 
 
     testResultStream.flush();
     testResultFile.flush();
     testResultFile.close();
 }
-
-
-TESTCASE(SimulatedAnnealingTrainingAlgorithmTest)

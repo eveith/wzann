@@ -1,4 +1,4 @@
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 
 #include "Neuron.h"
 #include "LinearActivationFunction.h"
@@ -18,30 +18,30 @@ LayerTest::LayerTest(QObject *parent) :
 }
 
 
-void LayerTest::testLayerCreation()
+TEST(LayerTest, testLayerCreation)
 {
     Layer layer;
-    QCOMPARE(layer.size(), 0ul);
+    ASSERT_EQ(0ul, layer.size());
 }
 
 
-void LayerTest::testNeuronAddition()
+TEST(LayerTest, testNeuronAddition)
 {
     Layer layer;
     layer << new Neuron(new LinearActivationFunction());
     layer << new Neuron(new LinearActivationFunction());
 
-    QCOMPARE(layer.size(), 2ul);
-    QVERIFY(layer.neuronAt(0)->parent() == &layer);
-    QVERIFY(layer.neuronAt(1)->parent() == &layer);
+    ASSERT_EQ(2ul, layer.size());
+    ASSERT_TRUE(layer.neuronAt(0)->parent() == &layer);
+    ASSERT_TRUE(layer.neuronAt(1)->parent() == &layer);
 
     for (const Neuron &n: layer) {
-        QVERIFY(layer.contains(n));
+        ASSERT_TRUE(layer.contains(n));
     }
 }
 
 
-void LayerTest::testNeuronIterator()
+TEST(LayerTest, testNeuronIterator)
 {
     QList<const Neuron*> neurons;
 
@@ -53,8 +53,5 @@ void LayerTest::testNeuronIterator()
         neurons << &neuron;
     }
 
-    QCOMPARE(static_cast<size_t>(neurons.size()), layer.size());
+    ASSERT_EQ(layer.size(, static_cast<size_t>(neurons.size())));
 }
-
-
-TESTCASE(LayerTest)

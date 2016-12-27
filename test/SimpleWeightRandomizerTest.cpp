@@ -1,7 +1,7 @@
 #include <QtTest>
 #include <QObject>
 
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 
 #include "Connection.h"
 #include "NeuralNetwork.h"
@@ -25,7 +25,7 @@ SimpleWeightRandomizerTest::SimpleWeightRandomizerTest(QObject *parent):
 }
 
 
-void SimpleWeightRandomizerTest::testWeightRandomization()
+TEST(SimpleWeightRandomizerTest, testWeightRandomization)
 {
     NeuralNetwork neuralNetwork;
     PerceptronNetworkPattern pattern({
@@ -40,7 +40,7 @@ void SimpleWeightRandomizerTest::testWeightRandomization()
     neuralNetwork.eachConnection(
             [&neuralNetwork](const Connection *const &c) {
         if (c->source() != neuralNetwork.biasNeuron()) {
-            QCOMPARE(1.0, c->weight() + 1.0);
+            ASSERT_EQ(c->weight(, 1.0) + 1.0);
         }
     });
 
@@ -50,12 +50,9 @@ void SimpleWeightRandomizerTest::testWeightRandomization()
     neuralNetwork.eachConnection(
                 [&neuralNetwork, &swr](const Connection *const &c) {
         if (c->source() != neuralNetwork.biasNeuron()) {
-            QVERIFY(1.0 != c->weight() + 1.0);
-            QVERIFY(swr.minWeight() <= c->weight());
-            QVERIFY(c->weight() <= swr.maxWeight());
+            ASSERT_TRUE(1.0 != c->weight() + 1.0);
+            ASSERT_TRUE(swr.minWeight() <= c->weight());
+            ASSERT_TRUE(c->weight() <= swr.maxWeight());
         }
     });
 }
-
-
-TESTCASE(SimpleWeightRandomizerTest)

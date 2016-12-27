@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 
 #include "Layer.h"
 #include "Neuron.h"
@@ -70,7 +70,7 @@ NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testIndividualInitialization()
+TEST(REvolutionaryTrainingAlgorithmTest, testIndividualInitialization)
 {
     NeuralNetwork *network = createNeuralNetwork();
     Individual i1(*network);
@@ -82,29 +82,29 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualInitialization()
         }
     });
 
-    QCOMPARE(i1.parameters.size(), nConnections);
-    QCOMPARE(i1.scatter.size(), nConnections);
+    ASSERT_EQ(nConnections, i1.parameters.size());
+    ASSERT_EQ(nConnections, i1.scatter.size());
 
     delete network;
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testAgeIndividual()
+TEST(REvolutionaryTrainingAlgorithmTest, testAgeIndividual)
 {
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
     Individual individual(*neuralNetwork);
 
     individual.timeToLive = 1;
 
-    QCOMPARE(individual.timeToLive, 1l);
+    ASSERT_EQ(1l, individual.timeToLive);
     individual.age();
-    QCOMPARE(individual.timeToLive, 0l);
+    ASSERT_EQ(0l, individual.timeToLive);
 
     delete neuralNetwork;
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
+TEST(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorEquals)
 {
     NeuralNetwork *network = createNeuralNetwork();
 
@@ -116,13 +116,13 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
 
     Individual i1(*network), i2(*network);
 
-    QVERIFY(i1 == i2);
+    ASSERT_TRUE(i1 == i2);
 
     std::for_each(i2.parameters.begin(), i2.parameters.end(), [](qreal &w) {
         w = 1.0;
     });
 
-    QVERIFY(! (i1 == i2));
+    ASSERT_FALSE((i1 == i2));
 
     std::for_each(i2.parameters.begin(), i2.parameters.end(), [](qreal &w) {
         w = 0.0;
@@ -131,20 +131,20 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorEquals()
     i1.scatter[1] = 1.0;
     i2.scatter[1] = 1.1;
 
-    QVERIFY(! (i1 == i2));
+    ASSERT_FALSE((i1 == i2));
     i2.scatter[1] = 1.0;
-    QVERIFY(i1 == i2);
+    ASSERT_TRUE(i1 == i2);
 
     i1.errorVector()[0] = 11.1;
-    QVERIFY(! (i1 == i2));
+    ASSERT_FALSE((i1 == i2));
     i2.errorVector()[0] = 11.1;
-    QVERIFY(i1 == i2);
+    ASSERT_TRUE(i1 == i2);
 
     delete network;
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorAssign()
+TEST(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorAssign)
 {
     NeuralNetwork *n1 = createNeuralNetwork(),
             *n2 = createNeuralNetwork();
@@ -155,19 +155,19 @@ void REvolutionaryTrainingAlgorithmTest::testIndividualOperatorAssign()
         i2.errorVector()[0] = -21.43;
     }
 
-    QVERIFY(! (i1 == i2));
+    ASSERT_FALSE((i1 == i2));
 
     i1 = i2;
 
-    QVERIFY(i1 == i2);
-    QVERIFY(&i1 != &i2);
+    ASSERT_TRUE(i1 == i2);
+    ASSERT_TRUE(&i1 != &i2);
 
     delete n1;
     delete n2;
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
+TEST(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
 {
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
     Individual individual(*neuralNetwork);
@@ -197,7 +197,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
         }
     }
 
-    QCOMPARE(parameters.size(), connections.size());
+    ASSERT_EQ(connections.size(, parameters.size()));
 
     parameters.clear();
     for (int i = 0; i != connections.size(); ++i) {
@@ -216,7 +216,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
             for (const auto &c: boost::make_iterator_range(
                      neuralNetwork->connectionsFrom(*n))) {
                 if (! c->fixedWeight()) {
-                    QCOMPARE(c->weight(), 10.10);
+                    ASSERT_EQ(10.10, c->weight());
                 }
             }
         }
@@ -226,7 +226,7 @@ void REvolutionaryTrainingAlgorithmTest::testParametersSettingAndRetrieval()
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
+TEST(REvolutionaryTrainingAlgorithmTest, testModifyIndividual)
 {
     REvolutionaryTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm.eliteSize(2).populationSize(5);
@@ -247,20 +247,20 @@ void REvolutionaryTrainingAlgorithmTest::testModifyIndividual()
             population,
             /* currentSuccess = */ 0.2);
 
-    QCOMPARE(
-            i3.parameters.size(),
-            population.front().parameters.size());
+    ASSERT_EQ(
+            population.front().parameters.size(),
+            i3.parameters.size());
 
     std::for_each(population.begin(), population.end() - 1,
             [&](Winzent::Algorithm::detail::Individual &i) {
         for (auto j = 0; j != i.parameters.size(); ++j) {
-            QVERIFY(i3.parameters.at(j) != i.parameters.at(j));
+            ASSERT_TRUE(i3.parameters.at(j) != i.parameters.at(j));
         }
     });
 }
 
 
-void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
+TEST(REvolutionaryTrainingAlgorithmTest, testTrainXOR)
 {
     NeuralNetwork network;
     PerceptronNetworkPattern pattern(
@@ -309,16 +309,16 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
 
     auto output = network.calculate({ 1, 1 });
     qDebug() << "(1, 1) =>" << output;
-    QCOMPARE(qRound(output[0]), 0);
+    ASSERT_EQ(0, qRound(output[0]));
     output = network.calculate({ 1, 0 });
     qDebug() << "(1, 0) =>" << output;
-    QCOMPARE(qRound(output[0]), 1);
+    ASSERT_EQ(1, qRound(output[0]));
     output = network.calculate({ 0, 0 });
     qDebug() << "(0, 0) =>" << output;
-    QCOMPARE(qRound(output[0]), 0);
+    ASSERT_EQ(0, qRound(output[0]));
     output = network.calculate({ 0, 1 });
     qDebug() << "(0, 1) =>" << output;
-    QCOMPARE(qRound(output[0]), 1);
+    ASSERT_EQ(1, qRound(output[0]));
 
     QFile annDumpFile("testTrainXOR.out");
     annDumpFile.open(
@@ -327,6 +327,3 @@ void REvolutionaryTrainingAlgorithmTest::testTrainXOR()
     annDumpFile.flush();
     annDumpFile.close();
 }
-
-
-TESTCASE(REvolutionaryTrainingAlgorithmTest)

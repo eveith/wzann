@@ -6,7 +6,7 @@
  */
 
 
-#include "Testrunner.h"
+#include <gtest/gtest.h>
 
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetwork.h"
@@ -65,7 +65,7 @@ void NeuralNetworkPatternTestDummyPattern::configureNetwork(
 }
 
 
-void NeuralNetworkPatternTest::testFullyConnectNetworkLayers()
+TEST(NeuralNetworkPatternTest, testFullyConnectNetworkLayers)
 {
     NeuralNetwork network;
     Mock::NeuralNetworkPatternTestDummyPattern pattern;
@@ -76,13 +76,10 @@ void NeuralNetworkPatternTest::testFullyConnectNetworkLayers()
 
     for (int i = 1; i != pattern.numLayers - 1; ++i) {
         for (int j = 1; j != pattern.numNeuronsPerLayer; ++j) {
-            QVERIFY2(network.connectionExists(
+            ASSERT_TRUE2(network.connectionExists(
                         network[i][j],
                         network[i+1][j]),
                     "All neurons must be connected to each other.");
         }
     }
 }
-
-
-TESTCASE(NeuralNetworkPatternTest)
