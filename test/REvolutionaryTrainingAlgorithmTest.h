@@ -2,14 +2,9 @@
 #define REVOLUTIONARYTRAININGALGORITHMTEST_H
 
 
-#include <QObject>
-#include <QList>
-
-
 namespace Winzent {
     namespace ANN {
         class NeuralNetwork;
-        class Individual;
     }
 }
 
@@ -18,24 +13,11 @@ using Winzent::ANN::NeuralNetwork;
 using Winzent::ANN::Individual;
 
 
-class REvolutionaryTrainingAlgorithmTest: public QObject
+class REvolutionaryTrainingAlgorithmTest: public ::testing::Test
 {
-    Q_OBJECT
-
 private:
-    NeuralNetwork *createNeuralNetwork();
-
-public:
-    explicit REvolutionaryTrainingAlgorithmTest(QObject *parent = 0);
-
-private slots:
-    void testIndividualInitialization();
-    void testAgeIndividual();
-    void testIndividualOperatorEquals();
-    void testIndividualOperatorAssign();
-    void testParametersSettingAndRetrieval();
-    void testModifyIndividual();
-    void testTrainXOR();
+    NeuralNetwork* createNeuralNetwork();
 };
+
 
 #endif // REVOLUTIONARYTRAININGALGORITHMTEST_H

@@ -1,19 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "ActivationFunctionTest.h"
-
 #include "SigmoidActivationFunction.h"
 #include "LinearActivationFunction.h"
 
+#include "ActivationFunctionTest.h"
 
 
 using namespace Winzent::ANN;
-
-
-ActivationFunctionTest::ActivationFunctionTest(QObject *parent):
-        QObject(parent)
-{
-}
 
 
 TEST(ActivationFunctionTest, testSigmoidActivationFunction)

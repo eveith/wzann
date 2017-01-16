@@ -22,8 +22,7 @@ using Winzent::ANN::ActivationFunction;
 using Winzent::ANN::SigmoidActivationFunction;
 
 
-ElmanNetworkPatternTest::ElmanNetworkPatternTest(QObject *parent) :
-    QObject(parent)
+ElmanNetworkPatternTest::ElmanNetworkPatternTest
 {
     layers
             << 1
@@ -36,21 +35,12 @@ ElmanNetworkPatternTest::ElmanNetworkPatternTest(QObject *parent) :
 }
 
 
-TEST(ElmanNetworkPatternTest, testConfigure)
+TEST_F(ElmanNetworkPatternTest, testConfigure)
 {
     NeuralNetwork network;
     ElmanNetworkPattern pattern(layers, activationFunctions);
 
     network.configure(pattern);
-
-    QFile testResultFile(QString(
-            QTest::currentTestFunction()).append(".out"));
-    testResultFile.open(QIODevice::Text
-            | QIODevice::WriteOnly | QIODevice::Truncate);
-    QTextStream testResultStream(&testResultFile);
-    testResultStream << network;
-    testResultStream.flush();
-    testResultFile.close();
 
     ASSERT_EQ(4ul, network.size());
 

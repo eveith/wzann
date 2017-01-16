@@ -1,15 +1,6 @@
-/*!
- * \file	NeuralNetworkPatternTest.h
- * \brief
- * \date	03.01.2013
- * \author	eveith
- */
-
 #ifndef NEURALNETWORKPATTERNTEST_H_
 #define NEURALNETWORKPATTERNTEST_H_
 
-#include <qobject.h>
-#include <QVector>
 
 #include "NeuralNetwork.h"
 #include "NeuralNetworkPattern.h"
@@ -44,19 +35,6 @@ namespace Mock {
         virtual void configureNetwork(NeuralNetwork &network) override;
     };
 }
-
-
-class NeuralNetworkPatternTest: public QObject
-{
-    Q_OBJECT
-
-public:
-
-
-private slots:
-
-    void testFullyConnectNetworkLayers();
-};
 
 
 #endif

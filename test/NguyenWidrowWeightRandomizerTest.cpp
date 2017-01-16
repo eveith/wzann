@@ -17,13 +17,6 @@
 using namespace Winzent::ANN;
 
 
-NguyenWidrowWeightRandomizerTest::NguyenWidrowWeightRandomizerTest(
-        QObject *parent):
-            QObject(parent)
-{
-}
-
-
 
 TEST(NguyenWidrowWeightRandomizerTest, testRandomizeWeights)
 {

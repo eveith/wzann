@@ -1,5 +1,4 @@
-#include <QtTest>
-#include <QObject>
+#include <gtest/gtest.h>
 
 #include <initializer_list>
 
@@ -13,18 +12,10 @@
 #include "TrainingSet.h"
 #include "BackpropagationTrainingAlgorithm.h"
 
-#include <gtest/gtest.h>
 #include "BackpropagationTrainingAlgorithmTest.h"
 
 
 using namespace Winzent::ANN;
-
-
-BackpropagationTrainingAlgorithmTest::BackpropagationTrainingAlgorithmTest(
-        QObject *parent):
-            QObject(parent)
-{
-}
 
 
 TEST(BackpropagationTrainingAlgorithmTest, testTrainXOR)

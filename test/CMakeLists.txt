@@ -13,7 +13,6 @@ set(test-wzann_SOURCES
     REvolutionaryTrainingAlgorithmTest.cpp
     RpropTrainingAlgorithmTest.cpp
     SimulatedAnnealingTrainingAlgorithmTest.cpp
-    Testrunner.cpp
     TrainingSetTest.cpp
     tst_ann.cpp)
 
@@ -32,7 +31,6 @@ set(test-wzann_HEADERS
     REvolutionaryTrainingAlgorithmTest.h
     RpropTrainingAlgorithmTest.h
     SimulatedAnnealingTrainingAlgorithmTest.h
-    Testrunner.h
     TrainingSetTest.h)
 
 

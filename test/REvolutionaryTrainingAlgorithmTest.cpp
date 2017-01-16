@@ -1,6 +1,3 @@
-#include <QtTest>
-#include <QObject>
-
 #include <QFile>
 #include <QTextStream>
 
@@ -43,14 +40,7 @@ using Winzent::ANN::Individual;
 using Winzent::ANN::REvolutionaryTrainingAlgorithm;
 
 
-REvolutionaryTrainingAlgorithmTest::REvolutionaryTrainingAlgorithmTest(
-        QObject *parent):
-            QObject(parent)
-{
-}
-
-
-NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
+NeuralNetwork* REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 {
     NeuralNetwork *net = new NeuralNetwork();
 
@@ -70,7 +60,7 @@ NeuralNetwork *REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 }
 
 
-TEST(REvolutionaryTrainingAlgorithmTest, testIndividualInitialization)
+TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualInitialization)
 {
     NeuralNetwork *network = createNeuralNetwork();
     Individual i1(*network);
@@ -89,7 +79,7 @@ TEST(REvolutionaryTrainingAlgorithmTest, testIndividualInitialization)
 }
 
 
-TEST(REvolutionaryTrainingAlgorithmTest, testAgeIndividual)
+TEST_F(REvolutionaryTrainingAlgorithmTest, testAgeIndividual)
 {
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
     Individual individual(*neuralNetwork);
@@ -104,7 +94,7 @@ TEST(REvolutionaryTrainingAlgorithmTest, testAgeIndividual)
 }
 
 
-TEST(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorEquals)
+TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorEquals)
 {
     NeuralNetwork *network = createNeuralNetwork();
 
@@ -144,7 +134,7 @@ TEST(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorEquals)
 }
 
 
-TEST(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorAssign)
+TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorAssign)
 {
     NeuralNetwork *n1 = createNeuralNetwork(),
             *n2 = createNeuralNetwork();
@@ -167,7 +157,7 @@ TEST(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorAssign)
 }
 
 
-TEST(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
+TEST_F(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
 {
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
     Individual individual(*neuralNetwork);
@@ -226,7 +216,7 @@ TEST(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
 }
 
 
-TEST(REvolutionaryTrainingAlgorithmTest, testModifyIndividual)
+TEST_F(REvolutionaryTrainingAlgorithmTest, testModifyIndividual)
 {
     REvolutionaryTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm.eliteSize(2).populationSize(5);
@@ -260,7 +250,7 @@ TEST(REvolutionaryTrainingAlgorithmTest, testModifyIndividual)
 }
 
 
-TEST(REvolutionaryTrainingAlgorithmTest, testTrainXOR)
+TEST_F(REvolutionaryTrainingAlgorithmTest, testTrainXOR)
 {
     NeuralNetwork network;
     PerceptronNetworkPattern pattern(

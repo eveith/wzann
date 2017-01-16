@@ -8,11 +8,13 @@ include(GNUInstallDirs)
 
 
 find_package(GTest)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Sql REQUIRED)
+find_package(Qt5Concurrent REQUIRED)
+find_package(Boost 1.56.0 REQUIRED)
+find_package(LibVariant 1.0.0 REQUIRED)
+pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
-
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/wzann.spec.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/wzann.spec")
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in"

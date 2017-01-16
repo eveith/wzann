@@ -1,18 +1,11 @@
-/*!
- * \file	NeuralNetworkPatternTest.cpp
- * \brief
- * \date	03.01.2013
- * \author	eveith
- */
-
-
 #include <gtest/gtest.h>
 
-#include "NeuralNetworkPattern.h"
-#include "NeuralNetwork.h"
 #include "Layer.h"
 #include "Neuron.h"
+#include "NeuralNetwork.h"
 #include "SigmoidActivationFunction.h"
+
+#include "NeuralNetworkPattern.h"
 #include "NeuralNetworkPatternTest.h"
 
 

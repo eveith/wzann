@@ -1,4 +1,6 @@
-set(winzent-ann_SOURCES
+set(wzann_SOURCES
+    ClassRegistry.cpp
+    JsonSerializable.cpp
     ActivationFunction.cpp
     BackpropagationTrainingAlgorithm.cpp
     Connection.cpp
@@ -25,8 +27,9 @@ set(winzent-ann_SOURCES
     TrainingSet.cpp
     Vector.cpp)
 
-set(winzent-ann_HEADERS
-    Winzent-ANN_global.h
+set(wzann_HEADERS
+    ClassRegistry.h
+    JsonSerializable.h
     ActivationFunction.h
     BackpropagationTrainingAlgorithm.h
     Connection.h
@@ -55,19 +58,12 @@ set(winzent-ann_HEADERS
     TrainingSet.h
     Vector.h)
 
-set(winzent-ann_RESOURCE_FILES
+set(wzann_RESOURCE_FILES
     Schemata.qrc)
 
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Sql REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
-
-find_package(Boost 1.56.0 REQUIRED)
-pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
@@ -76,25 +72,30 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
 endif()
 
 
-qt5_add_resources(winzent-ann_RESOURCES
-    ${winzent-ann_RESOURCE_FILES})
-add_library(winzent-ann
-    SHARED ${winzent-ann_SOURCES} ${winzent-ann_RESOURCES})
-target_include_directories(winzent-ann
+qt5_add_resources(wzann_RESOURCES
+    ${wzann_RESOURCE_FILES})
+
+add_library(wzann
+    SHARED ${wzann_SOURCES} ${wzann_RESOURCES})
+
+target_include_directories(wzann
     PUBLIC ${winzent-common_SOURCE_DIR}
     PUBLIC ${winzent-algorithm_SOURCE_DIR}
-    PUBLIC ${BOOST_INCLUDE_DIRS}
+    PUBLIC ${Boost_INCLUDE_DIRS}
+    PUBLIC ${LIBVARIANT_INCLUDE_DIRS}
     PUBLIC ${LOG4CXX_INCLUDE_DIRS})
-target_link_libraries(winzent-ann
+
+target_link_libraries(wzann
     Qt5::Core
     Qt5::Sql
     Qt5::Concurrent
     ${LOG4CXX_LIBRARIES}
     winzent-common
     winzent-algorithm)
-set_target_properties(winzent-ann
-    PROPERTIES SOVERSION ${winzent-ann_SOVERSION}
+
+set_target_properties(wzann
+    PROPERTIES SOVERSION "${wzann_VERSION_MAJOR}.${wzann_VERSION_MINOR}"
     CXX_STANDARD 14)
 
-install(TARGETS winzent-ann LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${winzent-ann_HEADERS} DESTINATION include/winzent/ann)
+install(TARGETS wzann LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES ${wzann_HEADERS} DESTINATION include/winzent/ann)

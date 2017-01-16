@@ -43,14 +43,7 @@ using Winzent::ANN::Individual;
 using Winzent::ANN::PsoTrainingAlgorithm;
 
 
-PsoTrainingAlgorithmTest::PsoTrainingAlgorithmTest(
-        QObject *parent):
-            QObject(parent)
-{
-}
-
-
-NeuralNetwork *PsoTrainingAlgorithmTest::createNeuralNetwork()
+NeuralNetwork* PsoTrainingAlgorithmTest::createNeuralNetwork()
 {
     NeuralNetwork *net = new NeuralNetwork();
 
@@ -70,7 +63,7 @@ NeuralNetwork *PsoTrainingAlgorithmTest::createNeuralNetwork()
 }
 
 
-TEST(PsoTrainingAlgorithmTest, testTrainXOR)
+TEST_F(PsoTrainingAlgorithmTest, testTrainXOR)
 {
     NeuralNetwork network;
     PerceptronNetworkPattern pattern(

@@ -11,12 +11,6 @@
 using namespace Winzent::ANN;
 
 
-PerceptronNetworkPatternTest::PerceptronNetworkPatternTest(QObject *parent) :
-    QObject(parent)
-{
-}
-
-
 TEST(PerceptronNetworkPatternTest, testConfigure)
 {
     NeuralNetwork network;

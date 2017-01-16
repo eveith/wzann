@@ -12,12 +12,6 @@ using Winzent::ANN::Neuron;
 using Winzent::ANN::LinearActivationFunction;
 
 
-LayerTest::LayerTest(QObject *parent) :
-    QObject(parent)
-{
-}
-
-
 TEST(LayerTest, testLayerCreation)
 {
     Layer layer;
