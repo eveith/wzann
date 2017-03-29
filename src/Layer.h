@@ -2,18 +2,16 @@
 #define WINZENT_ANN_LAYER_H
 
 
-#include <QJsonDocument>
-
+#include <vector>
 #include <cstddef>
+#include <functional>
 #include <unordered_map>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include <JsonSerializable.h>
-
 #include "Vector.h"
 #include "Neuron.h"
-#include "Winzent-ANN_global.h"
+#include "Serializable.h"
 
 
 using std::function;
@@ -29,7 +27,7 @@ namespace Winzent {
         /*!
          * \brief Represents a layer in a neural network
          */
-        class WINZENTANNSHARED_EXPORT Layer: public JsonSerializable
+        class Layer
         {
             friend class NeuralNetwork;
 
@@ -42,9 +40,7 @@ namespace Winzent {
             typedef boost::ptr_vector<Neuron>::size_type size_type;
 
 
-            /*!
-             * \brief Creates a new, empty layer.
-             */
+            //! \brief Creates a new, empty layer.
             Layer();
 
 
@@ -61,7 +57,7 @@ namespace Winzent {
              *
              * \return The clone
              */
-            Layer *clone() const;
+            Layer* clone() const;
 
 
             /*!
@@ -70,7 +66,7 @@ namespace Winzent {
              * \return The parent neural network, or `nullptr` when the layer
              *  isn't contained in any neural network yet
              */
-            NeuralNetwork *parent() const;
+            NeuralNetwork* parent() const;
 
 
             /*!
@@ -84,7 +80,7 @@ namespace Winzent {
              * \brief Checks whether a particular neuron is part
              *  of this layer.
              */
-            bool contains(const Neuron &neuron) const;
+            bool contains(Neuron const& neuron) const;
 
 
             /*!
@@ -96,7 +92,7 @@ namespace Winzent {
              *
              * \return The neuron at the given position
              */
-            Neuron *neuronAt(const size_t &index) const;
+            Neuron* neuronAt(size_type index) const;
 
 
             /*!
@@ -108,7 +104,7 @@ namespace Winzent {
              *
              * \return The neuron at the given position
              */
-            Neuron &operator [](const size_type &index);
+            Neuron& operator [](size_type index);
 
 
             /*!
@@ -120,7 +116,7 @@ namespace Winzent {
              *
              * \return The neuron at the given position
              */
-            const Neuron &operator [](const size_type &index) const;
+            Neuron const& operator [](size_type index) const;
 
             /*!
              * \brief Activates all neurons in this layer.
@@ -132,7 +128,7 @@ namespace Winzent {
              *
              * \return The results of the activation.
              */
-            Vector activate(const Vector &neuronInputs);
+            Vector activate(Vector const& neuronInputs);
 
 
             /*!
@@ -142,7 +138,7 @@ namespace Winzent {
              *
              * \return The index position, or -1 if no item matched.
              */
-            size_type indexOf(const Neuron &neuron) const;
+            size_type indexOf(Neuron const& neuron) const;
 
 
             /*!
@@ -189,7 +185,7 @@ namespace Winzent {
              *
              * \return `this`
              */
-            Layer &operator<<(Neuron *const &neuron);
+            Layer& operator<<(Neuron* const& neuron);
 
 
             /*!
@@ -200,27 +196,7 @@ namespace Winzent {
              *
              * \return `this`
              */
-            Layer &addNeuron(Neuron *const &neuron);
-
-
-            //! Resets the layer, clearing it.
-            virtual void clear() override;
-
-
-            /*!
-             * \brief Serializes the whole Layer to JSON
-             *
-             * \return The Layer's JSON representation
-             */
-            virtual QJsonDocument toJSON() const override;
-
-
-            /*!
-             * \brief Deserializes the Layer from JSON
-             *
-             * \param[in] json The Layer's JSON representation
-             */
-            virtual void fromJSON(const QJsonDocument &json) override;
+            Layer &addNeuron(Neuron* const& neuron);
 
 
             //! Checks for equality
@@ -239,8 +215,40 @@ namespace Winzent {
 
 
             //! The parent network we're contained in.
-            NeuralNetwork *m_parent;
+            NeuralNetwork* m_parent;
         };
+
+
+        template <>
+        inline libvariant::Variant to_variant(Layer const &layer)
+        {
+            std::vector<libvariant::Variant> v;
+            v.resize(layer.size());
+
+            std::transform(
+                    layer.begin(),
+                    layer.end(),
+                    v.begin(),
+                    [](Neuron const &n) {
+                return to_variant(n);
+            });
+
+            return libvariant::Variant(v);
+        }
+
+
+        template <>
+        inline Layer* new_from_variant(libvariant::Variant const& variant)
+        {
+            assert (variant.IsList());
+            auto* layer = new Layer();
+
+            for (auto const& neuronVariant: variant.AsList()) {
+                layer->addNeuron(new_from_variant<Neuron>(neuronVariant));
+            }
+
+            return layer;
+        }
     } // namespace ANN
 } // namespace Winzent
 

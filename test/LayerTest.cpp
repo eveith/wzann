@@ -1,15 +1,15 @@
 #include <gtest/gtest.h>
 
+#include <list>
+
 #include "Neuron.h"
-#include "LinearActivationFunction.h"
+#include "ActivationFunction.h"
 
 #include "Layer.h"
 #include "LayerTest.h"
 
 
-using Winzent::ANN::Layer;
-using Winzent::ANN::Neuron;
-using Winzent::ANN::LinearActivationFunction;
+using namespace Winzent::ANN;
 
 
 TEST(LayerTest, testLayerCreation)
@@ -22,14 +22,14 @@ TEST(LayerTest, testLayerCreation)
 TEST(LayerTest, testNeuronAddition)
 {
     Layer layer;
-    layer << new Neuron(new LinearActivationFunction());
-    layer << new Neuron(new LinearActivationFunction());
+    layer << new Neuron();
+    layer << new Neuron();
 
     ASSERT_EQ(2ul, layer.size());
     ASSERT_TRUE(layer.neuronAt(0)->parent() == &layer);
     ASSERT_TRUE(layer.neuronAt(1)->parent() == &layer);
 
-    for (const Neuron &n: layer) {
+    for (auto const& n: layer) {
         ASSERT_TRUE(layer.contains(n));
     }
 }
@@ -37,15 +37,39 @@ TEST(LayerTest, testNeuronAddition)
 
 TEST(LayerTest, testNeuronIterator)
 {
-    QList<const Neuron*> neurons;
+    std::vector<Neuron const*> neurons;
 
     Layer layer;
-    layer << new Neuron(new LinearActivationFunction());
-    layer << new Neuron(new LinearActivationFunction());
+    layer << new Neuron();
+    layer << new Neuron();
 
-    for (const Neuron &neuron: layer) {
-        neurons << &neuron;
+    for (auto const& neuron: layer) {
+        neurons.push_back(&neuron);
     }
 
-    ASSERT_EQ(layer.size(, static_cast<size_t>(neurons.size())));
+    ASSERT_EQ(
+            layer.size(),
+            neurons.size());
+}
+
+
+TEST(LayerTest, testSerialization)
+{
+    Layer layer1;
+
+    auto* n1 = new Neuron(), *n2 = new Neuron();
+    n1->activationFunction(ActivationFunction::Logistic);
+    n2->activationFunction(ActivationFunction::Logistic);
+
+    layer1 << n1 << n2;
+
+    auto v = to_variant(layer1);
+    auto* layer2 = new_from_variant<Layer>(v);
+
+    ASSERT_NE(&layer1, layer2);
+    ASSERT_EQ(layer1, *layer2);
+
+    delete layer2;
+
+    std::cerr << libvariant::SerializeJSON(v, true);
 }

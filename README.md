@@ -11,3 +11,5 @@ rough edges until a proper release is made.
 ## License
 
 wzAnn is licensed under GNU GPLv3. See the file `COPYING` for details.
+`src/enum.h` is part of Better Enums, released under the BSD 2-clause license.
+See <http://github.com/aantron/better-enums> for details.

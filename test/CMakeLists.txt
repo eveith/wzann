@@ -1,19 +1,19 @@
 set(test-wzann_SOURCES
     ActivationFunctionTest.cpp
-    BackpropagationTrainingAlgorithmTest.cpp
-    ElmanNetworkPatternTest.cpp
+    #BackpropagationTrainingAlgorithmTest.cpp
+    #ElmanNetworkPatternTest.cpp
     LayerTest.cpp
-    NeuralNetworkPatternTest.cpp
-    NeuralNetworkTest.cpp
+    #NeuralNetworkPatternTest.cpp
+    #NeuralNetworkTest.cpp
     NeuronTest.cpp
-    SimpleWeightRandomizerTest.cpp
-    NguyenWidrowWeightRandomizerTest.cpp
-    PerceptronNetworkPatternTest.cpp
-    PsoTrainingAlgorithmTest.cpp
-    REvolutionaryTrainingAlgorithmTest.cpp
-    RpropTrainingAlgorithmTest.cpp
-    SimulatedAnnealingTrainingAlgorithmTest.cpp
-    TrainingSetTest.cpp
+    #SimpleWeightRandomizerTest.cpp
+    #NguyenWidrowWeightRandomizerTest.cpp
+    #PerceptronNetworkPatternTest.cpp
+    #PsoTrainingAlgorithmTest.cpp
+    #REvolutionaryTrainingAlgorithmTest.cpp
+    #RpropTrainingAlgorithmTest.cpp
+    #SimulatedAnnealingTrainingAlgorithmTest.cpp
+    #TrainingSetTest.cpp
     tst_ann.cpp)
 
 set(test-wzann_HEADERS
@@ -51,4 +51,4 @@ target_link_libraries(tst_ann
     wzann)
 
 
-set_property(TARGET tst_ann PROPERTY CXX_STANDARD 11)
+set_property(TARGET tst_ann PROPERTY CXX_STANDARD 14)

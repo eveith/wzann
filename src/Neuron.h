@@ -2,14 +2,8 @@
 #define NEURON_H_
 
 
-#include <memory>
-#include <QJsonDocument>
-#include <JsonSerializable.h>
-
-#include "Winzent-ANN_global.h"
-
-
-using std::shared_ptr;
+#include "Serializable.h"
+#include "ActivationFunction.h"
 
 
 namespace Winzent {
@@ -17,41 +11,36 @@ namespace Winzent {
 
 
         class Layer;
-        class NeuralNetwork;
-        class ActivationFunction;
 
 
-        class WINZENTANNSHARED_EXPORT Neuron: public JsonSerializable
+        /*!
+         * \brief The Neuron class represents a single neuron in a neural
+         *  network.
+         *
+         * This low-level data structure represents a single neuron. It
+         * is configured with a certain activation function. It also acts as
+         * a cache, storing the last input it received and the last result
+         * of its activation.
+         *
+         * \sa #activationFunction()
+         *
+         * \sa #activate()
+         */
+        class Neuron
         {
             friend class Layer;
+            friend Neuron* new_from_variant<>(libvariant::Variant const&);
 
 
         public:
 
 
             /*!
-             * \brief Creates a new neuron with a specific activation
-             * function
+             * \brief Creates a new neuron
              *
-             * \param[in] activationFunction The activation function
-             *  that is used to calculate the neuron's activation.
-             *  The Neuron object takes ownership of the activation
-             *  function object. If a shared activation function is desiered,
-             *  use the setter that takes a std::shared_ptr.
-             *
-             * \sa #activate
+             * \sa #activationFunction()
              */
-            Neuron(ActivationFunction *const &activationFunction);
-
-
-            /*!
-             * \brief Constructs a new Neuron with a shared activation
-             *  function
-             *
-             * \param[in] activationFunction The activation function for this
-             *  neuron that is shared with other neurons
-             */
-            Neuron(shared_ptr<ActivationFunction> &activationFunction);
+            Neuron();
 
 
             /*!
@@ -62,10 +51,10 @@ namespace Winzent {
              *
              * \sa Neuron#clone()
              */
-            Neuron(const Neuron &) = delete;
+            Neuron(Neuron const&) = delete;
 
 
-            Neuron(Neuron &&) = delete;
+            Neuron(Neuron&&) = delete;
 
 
             virtual ~Neuron();
@@ -80,7 +69,7 @@ namespace Winzent {
              * \sa ActivationFunction#clone
              * \sa #lastResult
              */
-            Neuron *clone() const;
+            Neuron* clone() const;
 
 
             /*!
@@ -91,23 +80,22 @@ namespace Winzent {
              *
              * \sa Layer#addNeuron()
              */
-            Layer *parent() const;
+            Layer* parent() const;
 
 
             //! Returns the last network input for this neuron
-            qreal lastInput() const;
-
+            double lastInput() const;
 
 
             //! Returns the result of the last activation
-            qreal lastResult() const;
+            double lastResult() const;
 
 
             /*!
              * \brief Returns the activation function
              *  this neuron instance uses.
              */
-            ActivationFunction *activationFunction() const;
+            ActivationFunction activationFunction() const;
 
 
             /*!
@@ -117,21 +105,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Neuron &activationFunction(
-                    ActivationFunction *const &activationFunction);
-
-            /*!
-             * \brief Sets a new activation function
-             *
-             * Invoking this method explicitly allows to share an
-             * ActivationFunction object with other neurons.
-             *
-             * \param[in] activationFunction The activation function
-             *
-             * \return `*this`
-             */
-            Neuron &activationFunction(
-                    shared_ptr<ActivationFunction> &activationFunction);
+            Neuron& activationFunction(ActivationFunction activationFunction);
 
 
             /*!
@@ -148,46 +122,20 @@ namespace Winzent {
              * \sa #lastResult
              * \sa #m_activationFunction
              */
-            qreal activate(const qreal &sum);
-
-
-            //! Resets the neuron to a pristine state
-            virtual void clear() override;
-
-
-            /*!
-             * \brief Serializes the Neuron object to JSON
-             *
-             * \return The JSON representation of the neuron
-             */
-            virtual QJsonDocument toJSON() const override;
-
-
-            /*!
-             * \brief Deserializes the Neuron object from JSON
-             *
-             * \param[in] json The JSON representation of the Neuron
-             */
-            virtual void fromJSON(const QJsonDocument& json) override;
-
-
-            /*!
-             * \brief Checks whether two Neurons share the same activation
-             *  function and parameters.
-             *
-             * \param[in] other The other neuron
-             *
-             * \return `true` if the two Neuron's parameters are the same;
-             *  `false` otherwise.
-             */
-            bool equals(const Neuron &other) const;
+            double activate(double sum);
 
 
             /*!
              * \brief Checks for equality of two Neurons
              *
-             * Two neurons are equal if they are exactly the same object.
-             * I.e., this equality operator checks for the neuron's identity.
+             * Two neurons are equal if they are configured with the same
+             * activation function and have the same cache values.
+             *
+             * \sa #activationFunction()
+             *
+             * \sa #lastInput()
+             *
+             * \sa #lastResult()
              *
              * \return `true` iff `this == &other`
              */
@@ -202,7 +150,7 @@ namespace Winzent {
 
 
             //! Our parent layer
-            Layer *m_parent;
+            Layer* m_parent;
 
 
             /*!
@@ -210,16 +158,47 @@ namespace Winzent {
              *
              * \sa #activate()
              */
-            std::shared_ptr<ActivationFunction> m_activationFunction;
+            ActivationFunction m_activationFunction;
 
 
             //! Caches the input that was presented to #activate().
-            qreal m_lastInput;
+            double m_lastInput;
 
 
             //! Caches the result of the last activation
-            qreal m_lastResult;
+            double m_lastResult;
         };
+
+
+        template <>
+        inline libvariant::Variant to_variant(Neuron const& neuron)
+        {
+            libvariant::Variant variant;
+
+            variant["lastInput"] = neuron.lastInput();
+            variant["lastResult"] = neuron.lastResult();
+            variant["activationFunction"] = to_variant(
+                    neuron.activationFunction());
+
+            return variant;
+
+        }
+
+
+        template <>
+        inline Neuron* new_from_variant(libvariant::Variant const& variant)
+        {
+            auto* af = new_from_variant<ActivationFunction>(
+                    variant["activationFunction"]);
+            auto* n = new Neuron();
+
+            n->m_lastInput = variant["lastInput"].AsDouble();
+            n->m_lastResult = variant["lastResult"].AsDouble();
+            n->m_activationFunction = ActivationFunction(*af);
+
+            delete af;
+            return n;
+        }
     } /* namespace ANN */
 } /* namespace Winzent */
 

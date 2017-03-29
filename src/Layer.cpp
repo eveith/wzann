@@ -1,26 +1,18 @@
 #include <cstddef>
+#include <cassert>
 #include <functional>
-
-#include <QMap>
-#include <QVector>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonDocument>
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include <JsonSerializable.h>
-
 #include "Neuron.h"
 #include "Layer.h"
-#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
     namespace ANN {
 
 
-        Layer::Layer(): JsonSerializable(), m_parent(nullptr)
+        Layer::Layer(): m_parent(nullptr)
         {
         }
 
@@ -36,49 +28,47 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork *Layer::parent() const
+        NeuralNetwork* Layer::parent() const
         {
             return m_parent;
         }
 
 
-        bool Layer::contains(const Neuron &neuron) const
+        bool Layer::contains(Neuron const& neuron) const
         {
             return (neuron.parent() == this);
         }
 
 
-        Neuron *Layer::neuronAt(const size_t &index) const
+        Neuron* Layer::neuronAt(Layer::size_type index) const
         {
             return const_cast<Neuron *>(&(m_neurons.at(index)));
         }
 
 
-        Neuron &Layer::operator [](const Layer::size_type &index)
+        Neuron& Layer::operator [](Layer::size_type index)
         {
             return m_neurons[index];
         }
 
 
-        const Neuron &Layer::operator [](const Layer::size_type &index) const
+        Neuron const& Layer::operator [](Layer::size_type index) const
         {
             return m_neurons[index];
         }
 
 
-        Vector Layer::activate(const Vector &neuronInputs)
+        Vector Layer::activate(Vector const& neuronInputs)
         {
-            Q_ASSERT(static_cast<Layer::size_type>(neuronInputs.size())
-                     == size());
+            assert(neuronInputs.size() == size());
 
             Vector result;
             result.reserve(size());
 
-            auto iit = neuronInputs.constBegin();
+            auto iit = neuronInputs.begin();
             auto nit = begin();
 
-            for (; iit != neuronInputs.constEnd() && nit != end();
-                    iit++, nit++) {
+            for (; iit != neuronInputs.end() && nit != end(); iit++, nit++) {
                 result.push_back(nit->activate(*iit));
             }
 
@@ -86,7 +76,7 @@ namespace Winzent {
         }
 
 
-        Layer::size_type Layer::indexOf(const Neuron &neuron) const
+        Layer::size_type Layer::indexOf(Neuron const& neuron) const
         {
            return m_neuronIndexes.at(const_cast<Neuron *>(&neuron));
         }
@@ -116,13 +106,13 @@ namespace Winzent {
         }
 
 
-        Layer &Layer::operator <<(Neuron *const &neuron)
+        Layer& Layer::operator <<(Neuron* const& neuron)
         {
             return addNeuron(neuron);
         }
 
 
-        Layer &Layer::addNeuron(Neuron *const &neuron)
+        Layer& Layer::addNeuron(Neuron* const& neuron)
         {
             neuron->m_parent = this;
             m_neurons.push_back(neuron);
@@ -132,11 +122,11 @@ namespace Winzent {
         }
 
 
-        Layer *Layer::clone() const
+        Layer* Layer::clone() const
         {
-            Layer *clonedLayer = new Layer();
+            Layer* clonedLayer = new Layer();
 
-            for (const auto &n: m_neurons) {
+            for (auto const& n: m_neurons) {
                 clonedLayer->addNeuron(n.clone());
             }
 
@@ -144,45 +134,13 @@ namespace Winzent {
         }
 
 
-        void Layer::clear()
-        {
-            m_neurons.clear();
-            m_neuronIndexes.clear();
-        }
-
-
-        QJsonDocument Layer::toJSON() const
-        {
-            QJsonArray a;
-
-            for (const Neuron &n: m_neurons) {
-                a.push_back(n.toJSON().object());
-            }
-
-            return QJsonDocument(a);
-        }
-
-
-        void Layer::fromJSON(const QJsonDocument &json)
-        {
-            clear();
-            QJsonArray a = json.array();
-
-            for (const auto &i: a) {
-                Neuron *n = new Neuron(nullptr);
-                n->fromJSON(QJsonDocument(i.toObject()));
-                addNeuron(n);
-            }
-        }
-
-
-        bool Layer::operator ==(const Layer &other) const
+        bool Layer::operator ==(Layer const& other) const
         {
             auto i1 = begin();
             auto i2 = other.begin();
 
             for (; i1 != end() && i2 != other.end(); i1++, i2++) {
-                if (! i1->equals(*i2)) {
+                if (*i1 != *i2) {
                     return false;
                 }
             }

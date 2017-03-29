@@ -1,33 +1,36 @@
 set(wzann_SOURCES
-    ClassRegistry.cpp
-    JsonSerializable.cpp
+#    ClassRegistry.cpp
+#    JsonSerializable.cpp
     ActivationFunction.cpp
-    BackpropagationTrainingAlgorithm.cpp
-    Connection.cpp
-    ConstantActivationFunction.cpp
-    ElmanNetworkPattern.cpp
-    Exception.cpp
+#    BackpropagationTrainingAlgorithm.cpp
+#    Connection.cpp
+#    ConstantActivationFunction.cpp
+#    ElmanNetworkPattern.cpp
+#    Exception.cpp
     Layer.cpp
-    LinearActivationFunction.cpp
-    NeuralNetwork.cpp
-    NeuralNetworkPattern.cpp
+#    LinearActivationFunction.cpp
+#    NeuralNetwork.cpp
+#    NeuralNetworkPattern.cpp
     Neuron.cpp
-    SimpleWeightRandomizer.cpp
-    NguyenWidrowWeightRandomizer.cpp
-    PerceptronNetworkPattern.cpp
-    RememberingActivationFunction.cpp
-    PsoTrainingAlgorithm.cpp
-    REvolutionaryTrainingAlgorithm.cpp
-    RpropTrainingAlgorithm.cpp
-    SigmoidActivationFunction.cpp
-    SymmetricSigmoidActivationFunction.cpp
-    SimulatedAnnealingTrainingAlgorithm.cpp
-    TanhActivationFunction.cpp
-    TrainingAlgorithm.cpp
-    TrainingSet.cpp
-    Vector.cpp)
+#    SimpleWeightRandomizer.cpp
+#    NguyenWidrowWeightRandomizer.cpp
+#    PerceptronNetworkPattern.cpp
+#    RememberingActivationFunction.cpp
+#    PsoTrainingAlgorithm.cpp
+#    REvolutionaryTrainingAlgorithm.cpp
+#    RpropTrainingAlgorithm.cpp
+#    SigmoidActivationFunction.cpp
+#    SymmetricSigmoidActivationFunction.cpp
+#    SimulatedAnnealingTrainingAlgorithm.cpp
+#    TanhActivationFunction.cpp
+#    TrainingAlgorithm.cpp
+#    TrainingSet.cpp
+#    Vector.cpp
+)
 
 set(wzann_HEADERS
+    WzannGlobal.h
+    enum.h
     ClassRegistry.h
     JsonSerializable.h
     ActivationFunction.h
@@ -72,30 +75,24 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
 endif()
 
 
-qt5_add_resources(wzann_RESOURCES
-    ${wzann_RESOURCE_FILES})
-
-add_library(wzann
-    SHARED ${wzann_SOURCES} ${wzann_RESOURCES})
+add_library(wzann ${wzann_SOURCES})
 
 target_include_directories(wzann
-    PUBLIC ${winzent-common_SOURCE_DIR}
-    PUBLIC ${winzent-algorithm_SOURCE_DIR}
+    #PUBLIC ${winzent-common_SOURCE_DIR}
+    #PUBLIC ${winzent-algorithm_SOURCE_DIR}
     PUBLIC ${Boost_INCLUDE_DIRS}
-    PUBLIC ${LIBVARIANT_INCLUDE_DIRS}
-    PUBLIC ${LOG4CXX_INCLUDE_DIRS})
+    PUBLIC ${LIBVARIANT_INCLUDE_DIRS})
 
 target_link_libraries(wzann
-    Qt5::Core
-    Qt5::Sql
-    Qt5::Concurrent
-    ${LOG4CXX_LIBRARIES}
-    winzent-common
-    winzent-algorithm)
+    #winzent-common
+    #winzent-algorithm
+    PUBLIC ${LIBVARIANT_LIBRARIES})
 
 set_target_properties(wzann
     PROPERTIES SOVERSION "${wzann_VERSION_MAJOR}.${wzann_VERSION_MINOR}"
     CXX_STANDARD 14)
 
-install(TARGETS wzann LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS wzann
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${wzann_HEADERS} DESTINATION include/winzent/ann)

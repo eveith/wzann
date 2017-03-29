@@ -1,34 +1,65 @@
 #include <gtest/gtest.h>
 
-#include "SigmoidActivationFunction.h"
-#include "LinearActivationFunction.h"
-
+#include "ActivationFunction.h"
 #include "ActivationFunctionTest.h"
 
 
 using namespace Winzent::ANN;
 
 
-TEST(ActivationFunctionTest, testSigmoidActivationFunction)
+TEST(ActivationFunctionTest, testIdentity)
 {
-    SigmoidActivationFunction a;
-
-    ASSERT_TRUE(a.hasDerivative());
-    ASSERT_EQ(1 / (1 + std::exp(-8.0, a.calculate(8.0))));
-    ASSERT_EQ(1.5, 1.0 + a.calculate(0.0));
-    ASSERT_EQ(0.5 * (1.0 - 0.5), a.calculateDerivative(5.0, 0.5));
+    ASSERT_EQ(
+            1.5,
+            calculate(ActivationFunction::Identity, 1.5));
+    ASSERT_EQ(
+            -2.75,
+            calculate(ActivationFunction::Identity, -2.75));
+    ASSERT_EQ(
+            1,
+            calculateDerivative(ActivationFunction::Identity, 3.2));
 }
 
 
-TEST(ActivationFunctionTest, testLinarActivationFunction)
+TEST(ActivationFunctionTest, testBinaryStep)
 {
-    LinearActivationFunction a;
+    ASSERT_EQ(
+            1.,
+            calculate(ActivationFunction::BinaryStep, 1.5));
+    ASSERT_EQ(
+            0.,
+            calculate(ActivationFunction::BinaryStep, -2.75));
+    ASSERT_EQ(
+            0.,
+            calculateDerivative(ActivationFunction::BinaryStep, 3.2));
+}
 
-    ASSERT_TRUE(a.hasDerivative());
-    ASSERT_EQ(1.5, a.calculate(1.5));
-    ASSERT_EQ(-2.75, a.calculate(-2.75));
 
-    LinearActivationFunction b(2.0);
-    ASSERT_EQ(3.0, b.calculate(1.5));
-    ASSERT_EQ(-5.5, b.calculate(-2.75));
+TEST(ActivationFunctionTest, testLogistic)
+{
+    ASSERT_EQ(
+            1.0 / (1.0 + std::exp(-1.5)),
+            calculate(ActivationFunction::Logistic, 1.5));
+    ASSERT_EQ(
+            1.0 / (1.0 + std::exp(2.75)),
+            calculate(ActivationFunction::Logistic, -2.75));
+    ASSERT_EQ(
+            calculate(ActivationFunction::Logistic, 3.2)
+                * (1.0 - calculate(ActivationFunction::Logistic, 3.2)),
+            calculateDerivative(ActivationFunction::Logistic, 3.2));
+}
+
+
+TEST(ActivationFunctionTest, testTanh)
+{
+    ASSERT_EQ(
+            std::tanh(1.5),
+            calculate(ActivationFunction::Tanh, 1.5));
+    ASSERT_EQ(
+            std::tanh(-2.75),
+            calculate(ActivationFunction::Tanh, -2.75));
+    ASSERT_EQ(
+            1. - calculate(ActivationFunction::Tanh, 3.2)
+                * calculate(ActivationFunction::Tanh, 3.2),
+            calculateDerivative(ActivationFunction::Tanh, 3.2));
 }
