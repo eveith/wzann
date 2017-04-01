@@ -70,6 +70,4 @@ TEST(LayerTest, testSerialization)
     ASSERT_EQ(layer1, *layer2);
 
     delete layer2;
-
-    std::cerr << libvariant::SerializeJSON(v, true);
 }

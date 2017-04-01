@@ -2,8 +2,9 @@
 #define WINZENT_SIMULATION_CLASSREGISTRY_H
 
 
-#include <assert>
+#include <atomic>
 #include <string>
+#include <cassert>
 #include <unordered_map>
 
 #include <boost/function.hpp>
@@ -31,9 +32,10 @@ namespace Winzent {
      *
      * Creating a new class can be done in two ways: First, by using
      * ClassRegistration<T>::createNew(), which works at compile time.
-     * If the name of the class is only known at runtime,
-     * ClassRegistry::metaObject() gives access to the registered class's
-     * QMetaObject, which offers a QMetaObject::newInstance() method.
+     * Second, if the name of the class is only known at runtime,
+     * ClassRegistry<BaseClass>::create<DerivedClass>(string const& key)
+     * can be used to create a new instance of `DerivedClass` from the
+     * appropriate ClassRegistry object.
      *
      * To make this work, the public default constructor of the target
      * class must be declared with the `Q_INVOKABLE` macro.
@@ -87,9 +89,10 @@ namespace Winzent {
          *
          * \return The internal ID
          */
-        void registerClass(std::string const& key, Factory const& factory)
+        int registerClass(std::string const& key, Factory const& factory)
         {
             m_registry[key] = factory;
+            return m_nextId++;
         }
 
 
@@ -125,8 +128,12 @@ namespace Winzent {
         std::unordered_map<std::string, Factory> m_registry;
 
 
+        //! \brief The next ID for a registration
+        std::atomic<int> m_nextId;
+
+
         //! Private default constructor
-        explicit ClassRegistry()
+        explicit ClassRegistry(): m_nextId(0)
         {
         }
     };
@@ -154,7 +161,7 @@ namespace Winzent {                                                         \
     const int ClassRegistration<KLASS>::id =                                \
             ClassRegistry<BaseClass>::instance()->registerClass(            \
                 #KLASS,                                                     \
-                []() { return new KLASS (); });                             \
+                []() -> BaseClass* { return new KLASS (); });               \
 }
 
 #endif // WINZENT_SIMULATION_CLASSREGISTRY_H

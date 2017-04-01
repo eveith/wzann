@@ -1,5 +1,5 @@
 set(wzann_SOURCES
-#    ClassRegistry.cpp
+    ClassRegistry.cpp
 #    JsonSerializable.cpp
     ActivationFunction.cpp
 #    BackpropagationTrainingAlgorithm.cpp

@@ -1,5 +1,6 @@
 set(test-wzann_SOURCES
-    ActivationFunctionTest.cpp
+    ClassRegistryTest.cpp
+    #ActivationFunctionTest.cpp
     #BackpropagationTrainingAlgorithmTest.cpp
     #ElmanNetworkPatternTest.cpp
     LayerTest.cpp
@@ -17,6 +18,7 @@ set(test-wzann_SOURCES
     tst_ann.cpp)
 
 set(test-wzann_HEADERS
+    ClassRegistryTest.h
     ActivationFunctionTest.h
     BackpropagationTrainingAlgorithmTest.h
     ElmanNetworkPatternTest.h
