@@ -16,6 +16,12 @@ find_package(LibVariant 1.0.0 REQUIRED)
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
 
+set(WZANN_SCHEMA_PATH
+    "${CMAKE_INSTALL_FULL_DATADIR}/wzann"
+    CACHE FILEPATH
+    "Path to the JSON schema for serialized ANNs")
+
+
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in"
     "${CMAKE_CURRENT_BINARY_DIR}/VERSION")
