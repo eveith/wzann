@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #include "enum.h"
-#include "Serializable.h"
+#include "LibVariantSupport.h"
 
 
 namespace Winzent {
@@ -75,10 +75,17 @@ namespace Winzent {
 
 
         template <>
+        inline ActivationFunction from_variant(libvariant::Variant const& v)
+        {
+            return ActivationFunction::_from_string(v.AsString().c_str());
+        }
+
+
+        template <>
         inline ActivationFunction* new_from_variant(
                 libvariant::Variant const& v)
         {
-            auto af = ActivationFunction::_from_string(v.AsString().c_str());
+            auto af = from_variant<ActivationFunction>(v);
             return new ActivationFunction(af);
         }
     } /* namespace ANN */

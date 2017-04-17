@@ -6,6 +6,7 @@
 
 #ifndef WZANN_SCHEMA_PATH
 #define WZANN_SCHEMA_PATH "@WZANN_SCHEMA_PATH@"
+#endif
 
 
 #endif // WZANN_GLOBAL_H_

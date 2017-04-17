@@ -11,7 +11,7 @@
 
 #include "Vector.h"
 #include "Neuron.h"
-#include "Serializable.h"
+#include "LibVariantSupport.h"
 
 
 using std::function;

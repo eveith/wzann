@@ -1,6 +1,6 @@
 set(test-wzann_SOURCES
     ClassRegistryTest.cpp
-    #ActivationFunctionTest.cpp
+    ActivationFunctionTest.cpp
     #BackpropagationTrainingAlgorithmTest.cpp
     #ElmanNetworkPatternTest.cpp
     LayerTest.cpp

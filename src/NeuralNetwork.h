@@ -17,14 +17,12 @@
 #include <boost/range.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include <log4cxx/logger.h>
-
-#include <JsonSerializable.h>
-
 #include "Layer.h"
 #include "Neuron.h"
 #include "Vector.h"
-#include "Winzent-ANN_global.h"
+#include "WzannGlobal.h"
+#include "JsonSerializable.h"
+#include "LibVariantSupport.h"
 
 
 class QTextStream;
@@ -84,7 +82,7 @@ namespace Winzent {
          *
          * \sa Neuron
          */
-        class WINZENTANNSHARED_EXPORT NeuralNetwork: public JsonSerializable
+        class NeuralNetwork
         {
             friend class NeuralNetworkPattern;
             friend class AbstractTrainingStrategy;
@@ -472,7 +470,7 @@ namespace Winzent {
              *  input neuron. If the size of the vector does not match
              *  the number of input neurons, an exception is thrown.
              */
-            Vector calculate(const Vector &input);
+            Vector calculate(Vector const& input);
 
 
             //! Clears the neural network completely
@@ -502,13 +500,6 @@ namespace Winzent {
 
             //! Checks for inequality of two ANNs.
             bool operator !=(const NeuralNetwork& other) const;
-
-
-        protected:
-
-
-            //! Internal logger
-            log4cxx::LoggerPtr logger;
 
 
         private:
@@ -548,12 +539,6 @@ namespace Winzent {
         };
     } /* namespace ANN */
 } /* namespace Winzent */
-
-
-//! Appends the ANN's JSON representation to the text stream
-QTextStream& operator <<(
-        QTextStream &out,
-        const Winzent::ANN::NeuralNetwork &network);
 
 
 #endif /* NEURALNETWORK_H_ */

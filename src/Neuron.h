@@ -2,7 +2,7 @@
 #define NEURON_H_
 
 
-#include "Serializable.h"
+#include "LibVariantSupport.h"
 #include "ActivationFunction.h"
 
 

@@ -3,7 +3,6 @@
 
 
 #include "NeuralNetwork.h"
-#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
@@ -34,7 +33,7 @@ namespace Winzent {
          *
          * \sa NeuralNetwork::disconnectNeurons()
          */
-        class WINZENTANNSHARED_EXPORT Connection
+        class Connection
         {
         public:
 
@@ -45,19 +44,11 @@ namespace Winzent {
 
 
             /*!
-             * \brief Creates a clone of this connection.
-             *
-             * \return A clone of this connection
-             */
-            Connection *clone() const;
-
-
-            /*!
              * \brief Returns the current weight attached to this connection.
              *
              * \return The connection's weight
              */
-            qreal weight() const;
+            double weight() const;
 
 
             /*!
@@ -68,7 +59,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Connection &weight(const qreal &weight);
+            Connection& weight(double weight);
 
 
             /*!
@@ -82,23 +73,23 @@ namespace Winzent {
              * \brief Sets the connection weight fixed (i.e., untrainable)
              *  or variable.
              */
-            Connection &fixedWeight(const bool &fixed);
+            Connection& fixedWeight(bool fixed);
 
 
             //! \brief The source neuron
-            Neuron &source();
+            Neuron& source();
 
 
             //! \brief The source neuron
-            const Neuron &source() const;
+            const Neuron& source() const;
 
 
             //! \brief The destination neuron
-            Neuron &destination();
+            Neuron& destination();
 
 
             //! \brief The destination neuron
-            const Neuron &destination() const;
+            const Neuron& destination() const;
 
 
             /*!
@@ -108,31 +99,7 @@ namespace Winzent {
              *
              * \return this->weight() * rhs
              */
-            qreal operator *(const qreal &rhs) const;
-
-
-            /*!
-             * \brief Checks whether two Connections are equivalent
-             *
-             * Two Connections are equivalent if their parameters
-             * (weight, fixedWeight) are equals, and if their source and
-             * destination neurons are also equivalent.
-             *
-             * This means that two connections can belong to different
-             * networks, but fulfill the same purpose. If you want to find
-             * out whether two connections really belong to the same network,
-             * compare them using Connection::operator==().
-             *
-             * \param[in] other The other connection
-             *
-             * \return `true` if the two connections are equaivalent,
-             *  `false` if not.
-             *
-             * \sa Connection::operator ==()
-             *
-             * \sa Neuron::equals()
-             */
-            bool equals(const Connection &other) const;
+            double operator *(double rhs) const;
 
 
             /*!
@@ -140,20 +107,14 @@ namespace Winzent {
              *
              * Two connections are equal if they have the same weight, the
              * same "weight fixed" value, and their sources and destinations
-             * are the same. Here, source/destination equality is defined by
-             * the Neuron::operator==() method.
-             *
-             * Thus, this method checks for Connection identity, because
-             * the Neuron::operator ==() also checks for the neuron's
-             * identity. To compare two objects parameter-wise, use
-             * Connection::eqauls().
+             * are the same.
              *
              * \param[in] other The other connection
              *
              * \return True if the connections are equal as explained; false
              *  otherwise.
              */
-            bool operator ==(const Connection& other) const;
+            bool operator ==(Connection const& other) const;
 
 
             /*!
@@ -165,7 +126,7 @@ namespace Winzent {
              *
              * \sa #operator==()
              */
-            bool operator !=(const Connection& other) const;
+            bool operator !=(Connection const& other) const;
 
 
         private:
@@ -181,7 +142,7 @@ namespace Winzent {
             Connection(
                     Neuron &source,
                     Neuron &destination,
-                    const qreal &weight = 0.0);
+                    double weight = 0.0);
 
 
 
@@ -190,7 +151,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Connection &source(Neuron &source);
+            Connection& source(Neuron& source);
 
 
 
@@ -199,32 +160,32 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            Connection &destination(Neuron &destination);
+            Connection& destination(Neuron& destination);
 
 
             /*!
-             * The weight that is attached to this connection.
+             * \brief The weight that is attached to this connection
              */
-            qreal m_weight;
+            double m_weight;
 
 
             /*!
-             * Whether the weight value of this connection is fixed
-             * (i.e., cannot be trained) or may be changed.
+             * \brief Whether the weight value of this connection is fixed
+             *  (i.e., cannot be trained) or may be changed.
              */
             bool m_fixed;
 
 
             /*!
-             * The neuron from which this connection originates.
+             * \brief The neuron from which this connection originates
              */
-            Neuron *m_sourceNeuron;
+            Neuron* m_sourceNeuron;
 
 
             /*!
-             * The destination neuron to which this connection leads.
+             * \brief The destination neuron to which this connection leads
              */
-            Neuron *m_destinationNeuron;
+            Neuron* m_destinationNeuron;
         };
     } // namespace ANN
 } // namespace Winzent

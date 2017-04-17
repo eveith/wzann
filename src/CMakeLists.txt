@@ -1,44 +1,56 @@
 set(wzann_SOURCES
     ClassRegistry.cpp
-#    JsonSerializable.cpp
+    LibVariantSupport.cpp
+    JsonSerializable.cpp
+
+    WeightFixedException.cpp
+    SchemaValidationException.cpp
+
+    Layer.cpp
+    Neuron.cpp
+    Vector.cpp
+    Connection.cpp
+    NeuralNetwork.cpp
     ActivationFunction.cpp
+
 #    BackpropagationTrainingAlgorithm.cpp
-#    Connection.cpp
 #    ElmanNetworkPattern.cpp
 #    Exception.cpp
-    Layer.cpp
 #    LinearActivationFunction.cpp
-#    NeuralNetwork.cpp
-    NeuralNetworkPattern.cpp
-    Neuron.cpp
+#    NeuralNetworkPattern.cpp
 #    SimpleWeightRandomizer.cpp
 #    NguyenWidrowWeightRandomizer.cpp
 #    PerceptronNetworkPattern.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp
 #    RpropTrainingAlgorithm.cpp
-#    SymmetricSigmoidActivationFunction.cpp
 #    SimulatedAnnealingTrainingAlgorithm.cpp
 #    TrainingAlgorithm.cpp
 #    TrainingSet.cpp
-#    Vector.cpp
 )
 
 set(wzann_HEADERS
     WzannGlobal.h
     enum.h
+
     ClassRegistry.h
     JsonSerializable.h
-    ActivationFunction.h
-    BackpropagationTrainingAlgorithm.h
-    Connection.h
-    ElmanNetworkPattern.h
-    Exception.h
+    LibVariantSupport.h
+
+    WeightFixedException.h
+    SchemaValidationException.h
+
     Layer.h
-    LinearActivationFunction.h
-    NeuralNetwork.h
-    NeuralNetworkPattern.h
     Neuron.h
+    Vector.h
+    Connection.h
+    NeuralNetwork.h
+    ActivationFunction.h
+
+    BackpropagationTrainingAlgorithm.h
+    ElmanNetworkPattern.h
+    LinearActivationFunction.h
+    NeuralNetworkPattern.h
     WeightRandomizer.h
     SimpleWeightRandomizer.h
     NguyenWidrowWeightRandomizer.h
@@ -48,8 +60,7 @@ set(wzann_HEADERS
     REvolutionaryTrainingAlgorithm.h
     RpropTrainingAlgorithm.h
     TrainingAlgorithm.h
-    TrainingSet.h
-    Vector.h)
+    TrainingSet.h)
 
 set(wzann_RESOURCE_FILES
     Schemata.qrc)

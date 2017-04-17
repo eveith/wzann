@@ -9,151 +9,74 @@
 #define NEURALNETWORKPATTERN_H_
 
 
-#include <initializer_list>
+#include <list>
+#include <typeinfo>
 
-#include <QPair>
-#include <QObject>
-#include <QJsonDocument>
+#include <boost/core/demangle.hpp>
 
-#include <JsonSerializable.h>
-
+#include "ClassRegistry.h"
 #include "NeuralNetwork.h"
-#include "Winzent-ANN_global.h"
+#include "LibVariantSupport.h"
+#include "ActivationFunction.h"
 
 
-class QString;
-
-
-using std::initializer_list;
+using std::pair;
 
 
 namespace Winzent {
     namespace ANN {
 
 
-        class ActivationFunction;
-
-
-        class WINZENTANNSHARED_EXPORT NeuralNetworkPattern:
-                public QObject,
-                public JsonSerializable
+        class NeuralNetworkPattern
         {
-            Q_OBJECT
-
-
             friend Vector NeuralNetwork::calculate(const Vector &);
             friend NeuralNetwork &NeuralNetwork::configure(
                     const NeuralNetworkPattern &);
-
+            friend libvariant::Variant to_variant<>(
+                    NeuralNetworkPattern const&);
 
         public:
 
 
-            typedef QList<int> LayerSizes;
-            typedef QList<ActivationFunction*> ActivationFunctions;
-
-
             /*!
-             * \brief Defines a Layer in terms of number of neurons and
-             *  ActivationFunction for each Layer.
+             * \brief A simple layer definition that associates an activation
+             *  function to a number of neurons uniformly, i.e., each
+             *  of the n neurons uses the same type of activation function.
+             *
+             * \sa ActivationFunction
              */
-            typedef QPair<int, ActivationFunction const&> LayerDefinition;
+            typedef pair<unsigned, ActivationFunction> SimpleLayerDefinition;
+
+
+            typedef std::list<SimpleLayerDefinition> LayerDefinitionList;
 
 
             //! \brief Creates a new, empty pattern.
             NeuralNetworkPattern();
 
 
-            /*!
-             * Constructs a new pattern and supplies the sizes of the
-             * layers.
-             *
-             * \param layerSizes The size of each layer; which
-             *  semantics apply depends on the actual, derived
-             *  pattern class which is used.
-             *
-             * \param activationFunctions The activation functions
-             *  that apply to each layer.
-             */
-            NeuralNetworkPattern(
-                    LayerSizes const& layerSizes,
-                    ActivationFunctions const& activationFunctions);
+            virtual ~NeuralNetworkPattern();
 
 
             /*!
-             * Constructs a new pattern, but uses C++11
-             * <code>initializer_list</code>s.
-             *
-             * Example:
-             *
-             *      NeuralNetworkPattern({
-             *              2,
-             *              6,
-             *              2
-             *          }, {
-             *              new SigmoidActivationFunction(),
-             *              new SigmoidActivationFunction(),
-             *              new SigmoidActivationFunction()
-             *          });
-             *
-             * \param[in] layerSizes The size of each layer; which
-             *  semantics apply depends on the actual, derived
-             *  pattern class which is used.
-             *
-             * \param[in] activationFunctions The activation functions
-             *  that apply to each layer.
-             */
-            NeuralNetworkPattern(
-                    initializer_list<int> layerSizes,
-                    initializer_list<ActivationFunction *>
-                        activationFunctions);
-
-
-
-            /*!
-             * Clones the instance of the derived pattern.
+             * \brief Clones the (derived) NeuralNetworkPattern object
              *
              * \return A complete clone of the instance
              */
-            virtual NeuralNetworkPattern *clone() const = 0;
-
-
-            /*!
-             * \brief The destructor will also delete all ActivationFunction
-             *  objects supplied for configuring the network.
-             */
-            virtual ~NeuralNetworkPattern();
+            virtual NeuralNetworkPattern* clone() const = 0;
 
 
             /*!
              * \brief Adds the definition of a layer to the Pattern
              *
-             * \param[in] layerDefinition Definition of the layer to add:
-             *  size and ActivationFunction
+             * \param[in] layerDefinition Definition of the layer to add.
              *
-             * \return `*this`
-             */
-            NeuralNetworkPattern& add(LayerDefinition const& layerDefinition);
-
-
-            //! Clears the pattern completely.
-            void clear() override;
-
-
-            /*!
-             * \brief Serializes the pattern to JSON
+             * \return `*this`, for chaining.
              *
-             * \return The pattern's JSON representation
+             * \sa SimpleLayerDefinition
              */
-            QJsonDocument toJSON() const override;
-
-
-            /*!
-             * \brief Deserializes the pattern from JSON
-             *
-             * \param[in] json The pattern's JSON representation
-             */
-            void fromJSON(const QJsonDocument &json) override;
+            NeuralNetworkPattern& addLayer(
+                    SimpleLayerDefinition layerDefinition);
 
 
             /*!
@@ -169,44 +92,28 @@ namespace Winzent {
              *
              * \return True if the two patterns are equal
              */
-            virtual bool equals(const NeuralNetworkPattern* const& other)
-                    const;
+            virtual bool operator ==(NeuralNetworkPattern const& other) const;
+
+
+            //! \brief Equivalent to `! (*this == other)`
+            bool operator !=(NeuralNetworkPattern const& other) const;
 
 
         protected:
 
 
-            /*!
-             * A handy way to store the size of each layer. What index
-             * corresponds to which layer and what semantic is
-             * attached to each layer is not defined here, but depends
-             * on the concrete pattern.
-             */
-            LayerSizes m_layerSizes;
+            LayerDefinitionList m_layerDefinitions;
 
 
             /*!
-             * Lists the activation function per layer. The index
-             * corresponds to the index of the #m_layerSizes member.
+             * \brief Shortcut method that fully connects two layers of an
+             *  neural network.
+             *
+             * \param from The originating layer
+             *
+             * \param to The layer that contains the target neurons
              */
-            ActivationFunctions m_activationFunctions;
-
-
-            /*!
-             * Shortcut method that fully connects two layers of an
-             * neural network.
-             *
-             * \param network The network that contains the layers
-             *
-             * \param fromLayer The originating layer
-             *
-             * \param toLayer The layer that contains the target
-             *  neurons
-             */
-            void fullyConnectNetworkLayers(
-                    NeuralNetwork &network,
-                    const int &fromLayer,
-                    const int &toLayer);
+            void fullyConnectNetworkLayers(Layer& from, Layer& to);
 
 
             /*!
@@ -223,7 +130,7 @@ namespace Winzent {
              */
             virtual Vector calculate(
                     NeuralNetwork &network,
-                    const Vector &input) = 0;
+                    Vector const& input) = 0;
 
 
             /*!
@@ -234,8 +141,43 @@ namespace Winzent {
              *
              * \param[inout] network The neural network to configure
              */
-            virtual void configureNetwork(NeuralNetwork &network) = 0;
+            virtual void configureNetwork(NeuralNetwork& network) = 0;
         };
+
+
+        template <>
+        inline libvariant::Variant to_variant(
+                NeuralNetworkPattern::SimpleLayerDefinition const& d)
+        {
+            return libvariant::Variant({ d.frist, d.second });
+        }
+
+
+        template <>
+        inline libvariant::Variant to_variant(
+                NeuralNetworkPattern const& neuralNetworkPattern)
+        {
+            libvariant::Variant variant;
+
+            variant["type"] = boost::core::demangle(
+                    typeinfo(neuralNetworkPattern).name());
+            variant["layerDefinitions"] = to_variant(
+                    neuralNetworkPattern.m_layerDefinitions);
+
+            return variant;
+        }
+
+
+        template <>
+        inline NeuralNetworkPattern* new_from_variant(
+                libvariant::Variant const& variant)
+        {
+            auto* pattern = ClassRegistry<NeuralNetworkPattern>::instance()
+                    ->create(variant["type"].AsString());
+            pattern->m_layerDefinitions = variant["layerDefinitions"]
+                    .AsList();
+            return pattern;
+        }
     } /* namespace ANN */
 } /* namespace Winzent */
 
