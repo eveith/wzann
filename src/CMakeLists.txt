@@ -4,25 +4,21 @@ set(wzann_SOURCES
     ActivationFunction.cpp
 #    BackpropagationTrainingAlgorithm.cpp
 #    Connection.cpp
-#    ConstantActivationFunction.cpp
 #    ElmanNetworkPattern.cpp
 #    Exception.cpp
     Layer.cpp
 #    LinearActivationFunction.cpp
 #    NeuralNetwork.cpp
-#    NeuralNetworkPattern.cpp
+    NeuralNetworkPattern.cpp
     Neuron.cpp
 #    SimpleWeightRandomizer.cpp
 #    NguyenWidrowWeightRandomizer.cpp
 #    PerceptronNetworkPattern.cpp
-#    RememberingActivationFunction.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp
 #    RpropTrainingAlgorithm.cpp
-#    SigmoidActivationFunction.cpp
 #    SymmetricSigmoidActivationFunction.cpp
 #    SimulatedAnnealingTrainingAlgorithm.cpp
-#    TanhActivationFunction.cpp
 #    TrainingAlgorithm.cpp
 #    TrainingSet.cpp
 #    Vector.cpp
@@ -36,7 +32,6 @@ set(wzann_HEADERS
     ActivationFunction.h
     BackpropagationTrainingAlgorithm.h
     Connection.h
-    ConstantActivationFunction.h
     ElmanNetworkPattern.h
     Exception.h
     Layer.h
@@ -49,14 +44,9 @@ set(wzann_HEADERS
     NguyenWidrowWeightRandomizer.h
     PerceptronNetworkPattern.h
     QtContainerOutput.h
-    RememberingActivationFunction.h
     PsoTrainingAlgorithm.h
     REvolutionaryTrainingAlgorithm.h
     RpropTrainingAlgorithm.h
-    SigmoidActivationFunction.h
-    SymmetricSigmoidActivationFunction.h
-    SimulatedAnnealingTrainingAlgorithm.h
-    TanhActivationFunction.h
     TrainingAlgorithm.h
     TrainingSet.h
     Vector.h)
@@ -73,6 +63,11 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
         OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -funroll-loops")
 endif()
+
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/WzannGlobal.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/WzannGlobal.h")
 
 
 add_library(wzann ${wzann_SOURCES})
