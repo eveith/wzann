@@ -1,11 +1,3 @@
-#include <QByteArray>
-#include <QTextStream>
-
-#include <QJsonValue>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QJsonDocument>
-
 #include <memory>
 #include <vector>
 #include <cstddef>
@@ -21,19 +13,15 @@
 #include <ClassRegistry.h>
 #include <JsonSerializable.h>
 
-#include "QtContainerOutput.h"
-
 #include "Layer.h"
 #include "Neuron.h"
-#include "Exception.h"
 #include "Connection.h"
-#include "NeuralNetworkPattern.h"
-
 #include "ActivationFunction.h"
-#include "ConstantActivationFunction.h"
+#include "NeuralNetworkPattern.h"
+#include "LayerSizeMismatchException.h"
 
 #include "NeuralNetwork.h"
-#include "Winzent-ANN_global.h"
+#include "WzannGlobal.h"
 
 
 using std::function;
@@ -47,22 +35,18 @@ namespace Winzent {
         const char NeuralNetwork::VERSION[] = "1.0";
 
 
-        NeuralNetwork::NeuralNetwork():
-                logger(LogManager::getLogger("Winzent.ANN.NeuralNetwork")),
-                m_biasNeuron(new Neuron(new ConstantActivationFunction()))
+        NeuralNetwork::NeuralNetwork(): m_biasNeuron(new Neuron())
         {
-            Q_ASSERT(m_connectionSources.size()
-                     == m_connectionDestinations.size());
+            m_biasNeuron->activationFunction(ActivationFunction::Identity);
         }
 
 
-        NeuralNetwork::NeuralNetwork(const NeuralNetwork &rhs):
-                logger(LogManager::getLogger("Winzent.ANN.NeuralNetwork")),
+        NeuralNetwork::NeuralNetwork(NeuralNetwork const& rhs):
                 m_biasNeuron(rhs.m_biasNeuron->clone())
         {
             // Clone layers:
 
-            for (const Layer &l: rhs.m_layers) {
+            for (auto const& l: rhs.m_layers) {
                 Layer *layerClone = l.clone();
                 *this << layerClone;
             }
@@ -94,12 +78,12 @@ namespace Winzent {
                         break;
                     }
 
-                    Q_ASSERT(srcLayerIndex >= 0 && srcNeuronIndex >= 0);
+                    assert(srcLayerIndex >= 0 && srcNeuronIndex >= 0);
 
                     connections = rhs.connectionsFrom(*foreignNeuron);
                 }
 
-                Q_ASSERT(connections.second-connections.first > 0);
+                assert(connections.second-connections.first > 0);
 
                 // Find the index of the destination neurons and re-create:
 
@@ -117,7 +101,7 @@ namespace Winzent {
                         break;
                     }
 
-                    Q_ASSERT(dstLayerIndex >= 0 && dstNeuronIndex >= 0);
+                    assert(dstLayerIndex >= 0 && dstNeuronIndex >= 0);
 
                     // Now, re-create the connection here:
 
@@ -144,7 +128,6 @@ namespace Winzent {
 
         NeuralNetwork::~NeuralNetwork()
         {
-            clear();
         }
 
 
@@ -154,34 +137,34 @@ namespace Winzent {
         }
 
 
-        const Neuron &NeuralNetwork::biasNeuron() const
+        Neuron const& NeuralNetwork::biasNeuron() const
         {
             return *m_biasNeuron;
         }
 
 
-        Neuron &NeuralNetwork::biasNeuron()
+        Neuron& NeuralNetwork::biasNeuron()
         {
             return *m_biasNeuron;
         }
 
 
-        bool NeuralNetwork::contains(const Neuron &neuron) const
+        bool NeuralNetwork::contains(Neuron const& neuron) const
         {
             if (&(biasNeuron()) == &neuron) {
                 return true;
             }
 
             return std::any_of(m_layers.begin(), m_layers.end(), [&neuron](
-                    const Layer &layer) {
+                    Layer const& layer) {
                 return layer.contains(neuron);
             });
         }
 
 
         bool NeuralNetwork::connectionExists(
-                const Neuron &from,
-                const Neuron &to)
+                Neuron const& from,
+                Neuron const& to)
                 const
         {
             auto it = m_connectionDestinations.find(
@@ -199,9 +182,9 @@ namespace Winzent {
         }
 
 
-        Connection *NeuralNetwork::connection(
-                const Neuron &from,
-                const Neuron &to)
+        Connection* NeuralNetwork::connection(
+                Neuron const& from,
+                Neuron const& to)
         {
             auto connections = connectionsTo(to);
             auto cit = std::find_if(
@@ -346,7 +329,7 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork &NeuralNetwork::operator <<(Layer *layer)
+        NeuralNetwork& NeuralNetwork::operator <<(Layer* layer)
         {
             layer->m_parent = this;
             m_layers.push_back(layer);
@@ -354,54 +337,50 @@ namespace Winzent {
         }
 
 
-        Layer *NeuralNetwork::layerAt(const size_type &index) const
+        Layer* NeuralNetwork::layerAt(size_type index) const
         {
-            return &(const_cast<NeuralNetwork *>(this)->m_layers.at(index));
+            return &(const_cast<NeuralNetwork*>(this)->m_layers.at(index));
         }
 
 
-        const Layer& NeuralNetwork::operator [](const size_type &index) const
-        {
-            return m_layers[index];
-        }
-
-
-        Layer &NeuralNetwork::operator [](const size_type &index)
+        Layer const& NeuralNetwork::operator [](size_type index) const
         {
             return m_layers[index];
         }
 
 
-        Layer &NeuralNetwork::inputLayer()
+        Layer& NeuralNetwork::operator [](size_type index)
+        {
+            return m_layers[index];
+        }
+
+
+        Layer& NeuralNetwork::inputLayer()
         {
             return m_layers.front();
         }
 
 
-        Layer &NeuralNetwork::outputLayer()
+        Layer& NeuralNetwork::outputLayer()
         {
             return m_layers.back();
         }
 
 
-        std::pair<
-                NeuralNetwork::LayerConstIterator,
-                NeuralNetwork::LayerConstIterator>
-        NeuralNetwork::layers() const
+        NeuralNetwork::LayerConstRange NeuralNetwork::layers() const
         {
             return std::make_pair(m_layers.begin(), m_layers.end());
         }
 
 
-        std::pair<NeuralNetwork::LayerIterator, NeuralNetwork::LayerIterator>
-        NeuralNetwork::layers()
+        NeuralNetwork::LayerRange NeuralNetwork::layers()
         {
             return std::make_pair(m_layers.begin(), m_layers.end());
         }
 
 
         NeuralNetwork &NeuralNetwork::configure(
-                const NeuralNetworkPattern &pattern)
+                NeuralNetworkPattern const& pattern)
         {
             m_pattern.reset(pattern.clone());
             m_pattern->configureNetwork(*this);
@@ -410,28 +389,27 @@ namespace Winzent {
 
 
         Vector NeuralNetwork::calculateLayerTransition(
-                const Layer &from,
-                const Layer &to,
-                const Vector &input)
+                Layer const& from,
+                Layer const& to,
+                Vector const& input)
         {
-
-#ifdef QT_DEBUG
-            auto fromLayerSize= from.size();
+#ifdef WZANN_DEBUG
+            auto fromLayerSize = from.size();
             if (static_cast<Layer::size_type>(input.size()) != fromLayerSize){
-                throw LayerSizeMismatchException(input.size(), fromLayerSize);
+                throw LayerSizeMismatchException(fromLayerSize, input.size());
             }
 #endif
 
             Vector output;
             auto toLayerSize = to.size();
-            output.fill(0.0, toLayerSize);
+            output.resize(0.0, toLayerSize);
 
             for (Layer::size_type t = 0; t != toLayerSize; ++t) {
                 const Neuron &toNeuron = to[t];
                 auto connections = connectionsTo(toNeuron);
 
                 for (const auto &c: make_iterator_range(connections)) {
-                    Q_ASSERT(&(c->destination()) == &toNeuron);
+                    assert(&(c->destination()) == &toNeuron);
 
                     if (! from.contains(c->source())) {
                         continue;
@@ -461,16 +439,16 @@ namespace Winzent {
                     continue;
                 }
 
-                const auto &c = connection(biasNeuron(), neuron);
+                auto const& c = connection(biasNeuron(), neuron);
                 biasedInput[i] += biasNeuron().activate(1.0) * c->weight();
             }
 
-            Q_ASSERT(it == layer.end());
+            assert(it == layer.end());
             return layer.activate(biasedInput);
         }
 
 
-        Vector NeuralNetwork::calculate(const Vector &input)
+        Vector NeuralNetwork::calculate(Vector const& input)
         {
             if (static_cast<Layer::size_type>(input.size())
                     != m_layers.front().size()) {
@@ -483,129 +461,12 @@ namespace Winzent {
         }
 
 
-        void NeuralNetwork::clear()
-        {
-            for (auto &destinations: m_connectionDestinations) {
-                for (auto &connection: destinations.second) {
-                    delete connection;
-                }
-            }
-
-            m_pattern.reset(nullptr);
-            m_layers.clear();
-            m_connectionSources.clear();
-            m_connectionDestinations.clear();
-        }
-
-
-        void NeuralNetwork::fromJSON(const QJsonDocument &json)
-        {
-            clear();
-            QJsonObject o = json.object();
-
-            m_biasNeuron->fromJSON(QJsonDocument(o["biasNeuron"].toObject()));
-
-            QJsonArray layers = o["layers"].toArray();
-            for (const auto &i: layers) {
-                Layer *l = new Layer();
-                l->fromJSON(QJsonDocument(i.toArray()));
-                *this << l;
-            }
-
-            QJsonArray connections = o["connections"].toArray();
-            for (const auto &i: connections) {
-                QJsonObject c = i.toObject();
-
-                auto &src = (c["srcNeuron"] == "BIAS"
-                        ? biasNeuron()
-                        : (*this)[c["srcLayer"].toInt()][
-                            c["srcNeuron"].toInt()]);
-                auto &dst = (*this)[c["dstLayer"].toInt()][
-                        c["dstNeuron"].toInt()];
-
-                connectNeurons(src, dst)
-                    .weight(c["weight"].toDouble())
-                    .fixedWeight(c["fixedWeight"].toBool());
-            }
-
-            if (o.contains("pattern") && o["pattern"].isObject()) {
-                QJsonObject pattern = o["pattern"].toObject();
-                m_pattern.reset(
-                        ClassRegistry<NeuralNetworkPattern>::instance()
-                            ->create(pattern["type"].toString()));
-                Q_ASSERT(m_pattern != nullptr);
-                m_pattern->fromJSON(QJsonDocument(pattern));
-            }
-        }
-
-
-        QJsonDocument NeuralNetwork::toJSON() const
-        {
-            QJsonObject o;
-
-            o["version"] = VERSION;
-            o["biasNeuron"] = m_biasNeuron->toJSON().object();
-
-            QJsonArray layers;
-            for (const Layer &l: m_layers) {
-                layers.push_back(l.toJSON().array());
-            }
-            o["layers"] = layers;
-
-            QJsonArray connections;
-            for (const auto &connectionSources: m_connectionSources) {
-                for (const auto &c: connectionSources.second) {
-                    int srcLayer = -1,
-                            dstLayer = -1,
-                            srcNeuron = -1,
-                            dstNeuron = -1;
-                    QJsonObject connection;
-
-                    for (size_t i = 0; i != m_layers.size(); ++i) {
-                        for (size_t j = 0; j != m_layers.at(i).size(); ++j) {
-                            const auto &n = layerAt(i)->neuronAt(j);
-
-                            if (n == &(c->source())) {
-                                srcLayer = i;
-                                srcNeuron = j;
-                            } else if (n == &(c->destination())) {
-                                dstLayer = i;
-                                dstNeuron = j;
-                            }
-                        }
-                    }
-
-                    connection["srcLayer"] = srcLayer;
-                    connection["srcNeuron"] = srcNeuron;
-                    connection["dstLayer"] = dstLayer;
-                    connection["dstNeuron"] = dstNeuron;
-                    connection["weight"] = c->weight();
-                    connection["fixedWeight"] = c->fixedWeight();
-
-                    if (-1 == srcNeuron) {
-                        connection["srcNeuron"] = "BIAS";
-                    }
-
-                    connections.push_back(connection);
-                }
-            }
-            o["connections"] = connections;
-
-            o["pattern"] = QJsonValue::Null;
-            if (m_pattern != nullptr) {
-                o["pattern"] = m_pattern->toJSON().object();
-            }
-
-            return QJsonDocument(o);
-        }
-
-
         bool NeuralNetwork::operator ==(const NeuralNetwork &other) const
         {
             bool equal = true;
 
             equal &= size() == other.size();
-            equal &= biasNeuron().equals(other.biasNeuron());
+            equal &= biasNeuron() == other.biasNeuron();
             equal &= ((m_pattern == nullptr && other.m_pattern == nullptr)
                     || (m_pattern != nullptr && other.m_pattern != nullptr
                         && m_pattern->equals(other.m_pattern.get())));
@@ -654,13 +515,4 @@ namespace Winzent {
             return !(*this == other);
         }
     }
-}
-
-
-QTextStream &operator<<(
-        QTextStream &out,
-        Winzent::ANN::NeuralNetwork const& network)
-{
-    out << network.toJSON().toJson();
-    return out;
 }

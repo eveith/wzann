@@ -2,13 +2,11 @@
 #define WINZENT_ANN_CONNECTION_H
 
 
-#include "NeuralNetwork.h"
-
-
 namespace Winzent {
     namespace ANN {
 
         class Neuron;
+        class NeuralNetwork;
 
 
         /*!

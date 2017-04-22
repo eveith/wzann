@@ -17,15 +17,17 @@
 #include <boost/range.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
+#include <Variant/Variant.h>
+#include <Variant/VariantDefines.h>
+
 #include "Layer.h"
 #include "Neuron.h"
 #include "Vector.h"
+#include "Connection.h"
 #include "WzannGlobal.h"
 #include "JsonSerializable.h"
 #include "LibVariantSupport.h"
-
-
-class QTextStream;
+#include "NeuralNetworkPattern.h"
 
 
 using std::function;
@@ -35,11 +37,9 @@ using boost::make_iterator_range;
 
 namespace Winzent {
     namespace ANN {
-        class Connection;
-        class NeuralNetworkPattern;
-
         class TrainingSet;
         class TrainingAlgorithm;
+        class NeuralNetworkPattern;
 
 
         /*!
@@ -87,24 +87,38 @@ namespace Winzent {
             friend class NeuralNetworkPattern;
             friend class AbstractTrainingStrategy;
 
+            friend libvariant::Variant to_variant<>(NeuralNetwork const&);
+            friend NeuralNetwork from_variant<>(libvariant::Variant const&);
+
 
         public:
 
 
             typedef std::size_t size_type;
+
             typedef ptr_vector<Layer>::iterator LayerIterator;
             typedef ptr_vector<Layer>::const_iterator LayerConstIterator;
+            typedef std::pair<
+                    LayerIterator,
+                    LayerIterator> LayerRange;
+            typedef std::pair<
+                    LayerConstIterator,
+                    LayerConstIterator> LayerConstRange;
 
-            typedef std::vector<Connection *> ConnectionsVector;
+            typedef std::vector<Connection*> ConnectionsVector;
             typedef ConnectionsVector::iterator ConnectionIterator;
             typedef ConnectionsVector::const_iterator ConnectionConstIterator;
-            typedef std::unordered_map<Neuron *, ConnectionsVector>
-                    NeuronConnectionsMap;
-            typedef std::pair<ConnectionIterator, ConnectionIterator>
-                    ConnectionRange;
+
+            typedef std::unordered_map<
+                    Neuron*,
+                    ConnectionsVector> NeuronConnectionsMap;
             typedef std::pair<
-                        ConnectionConstIterator,
-                        ConnectionConstIterator> ConnectionConstRange;
+                    ConnectionIterator,
+                    ConnectionIterator> ConnectionRange;
+            typedef std::pair<
+                    ConnectionConstIterator,
+                    ConnectionConstIterator> ConnectionConstRange;
+
 
             //! The library version, needed e.g. for serialization.
             static const char VERSION[];
@@ -127,7 +141,7 @@ namespace Winzent {
              *
              * \return A clone of this current network.
              */
-            NeuralNetwork *clone() const;
+            NeuralNetwork* clone() const;
 
 
             /*!
@@ -135,7 +149,7 @@ namespace Winzent {
              *
              * \return The bias neuron of this Neural Network
              */
-            const Neuron &biasNeuron() const;
+            Neuron const& biasNeuron() const;
 
 
             /*!
@@ -143,7 +157,7 @@ namespace Winzent {
              *
              * \return The bias neuron, modifiable
              */
-            Neuron &biasNeuron();
+            Neuron& biasNeuron();
 
 
             /*!
@@ -155,7 +169,7 @@ namespace Winzent {
              * \return <code>true</code> if it lives in this network,
              *  <code>false</code> otherwise.
              */
-            bool contains(const Neuron &neuron) const;
+            bool contains(Neuron const& neuron) const;
 
 
             /*!
@@ -172,7 +186,7 @@ namespace Winzent {
              * \return <code>true</code> if a connection exists, false
              *  otherwise.
              */
-            bool connectionExists(const Neuron &from, const Neuron &to) const;
+            bool connectionExists(Neuron const& from, Neuron const& to) const;
 
 
             /*!
@@ -184,7 +198,7 @@ namespace Winzent {
              *
              * \return The new connection
              */
-            Connection &connectNeurons(const Neuron &from, const Neuron &to);
+            Connection& connectNeurons(Neuron const& from, Neuron const& to);
 
 
             /*!
@@ -194,7 +208,7 @@ namespace Winzent {
              *
              * \param[in] to The destination neuron
              */
-            void disconnectNeurons(const Neuron &from, const Neuron &to);
+            void disconnectNeurons(Neuron const& from, Neuron const& to);
 
 
             /*!
@@ -214,7 +228,7 @@ namespace Winzent {
              *
              * \throw NoConnectionException
              */
-            Connection *connection(const Neuron &from, const Neuron &to);
+            Connection* connection(Neuron const& from, Neuron const& to);
 
 
             /*!
@@ -230,7 +244,7 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsTo
              */
-            ConnectionRange connectionsFrom(const Neuron &neuron);
+            ConnectionRange connectionsFrom(Neuron const& neuron);
 
 
             /*!
@@ -246,7 +260,8 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsTo
              */
-            ConnectionConstRange connectionsFrom(const Neuron &neuron) const;
+            ConnectionConstRange connectionsFrom(Neuron const& neuron) const;
+
 
             /*!
              * Finds all neurons which are the source of connections to the
@@ -281,7 +296,7 @@ namespace Winzent {
              *
              * \return A pair of layer iterators: `[begin, end)`
              */
-            std::pair<LayerIterator, LayerIterator> layers();
+            LayerRange layers();
 
 
             /*!
@@ -289,7 +304,7 @@ namespace Winzent {
              *
              * \return A pair of const iterators over all layers
              */
-            std::pair<LayerConstIterator, LayerConstIterator> layers() const;
+            LayerConstRange layers() const;
 
 
             /*!
@@ -297,7 +312,7 @@ namespace Winzent {
              *
              * \param[in] yield The iterator lambda called for each neuron
              */
-            template<class UnaryFunction>
+            template <class UnaryFunction>
             void eachConnection(UnaryFunction f)
             {
                 for (const auto &layer: make_iterator_range(layers())) {
@@ -326,7 +341,7 @@ namespace Winzent {
              * \sa #outputLayer()
              * \sa #biasNeuron()
              */
-            NeuralNetwork &operator <<(Layer *layer);
+            NeuralNetwork& operator <<(Layer* layer);
 
 
             /*!
@@ -353,7 +368,7 @@ namespace Winzent {
              *  result of using this method with index >= NeuralNetwork#size()
              *  is undefined.
              */
-            Layer *layerAt(const size_type &index) const;
+            Layer* layerAt(size_type index) const;
 
 
             /*!
@@ -365,7 +380,7 @@ namespace Winzent {
              *  result of using this method with index >= NeuralNetwork#size()
              *  is undefined.
              */
-            const Layer &operator [](const size_type &index) const;
+            Layer const& operator [](size_type index) const;
 
 
             /*!
@@ -378,7 +393,7 @@ namespace Winzent {
              *  result of using this method with index >= NeuralNetwork#size()
              *  is undefined.
              */
-            Layer &operator [](const size_type &index);
+            Layer& operator [](size_type index);
 
 
             /*!
@@ -386,7 +401,7 @@ namespace Winzent {
              *
              * \return The input layer
              */
-            Layer &inputLayer();
+            Layer& inputLayer();
 
 
             /*!
@@ -394,7 +409,7 @@ namespace Winzent {
              *
              * \return The output layer
              */
-            Layer &outputLayer();
+            Layer& outputLayer();
 
 
             /*!
@@ -407,7 +422,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            NeuralNetwork &configure(const NeuralNetworkPattern &pattern);
+            NeuralNetwork& configure(NeuralNetworkPattern const& pattern);
 
 
             /*!
@@ -443,9 +458,9 @@ namespace Winzent {
              * \throw LayerSizeMismatchException
              */
             Vector calculateLayerTransition(
-                    const Layer &from,
-                    const Layer &to,
-                    const Vector &input);
+                    Layer const& from,
+                    Layer const& to,
+                    Vector const& input);
 
 
             /*!
@@ -471,27 +486,6 @@ namespace Winzent {
              *  the number of input neurons, an exception is thrown.
              */
             Vector calculate(Vector const& input);
-
-
-            //! Clears the neural network completely
-            void clear() override;
-
-
-            /*!
-             * \brief Initializes (deserializes) the ANN from its JSON
-             *  representation
-             *
-             * \param[in] json The ANNs JSON representation
-             */
-            void fromJSON(QJsonDocument const& json) override;
-
-
-            /*!
-             * \brief Serializes the ANN to JSON
-             *
-             * \return The JSON representation of the ANN
-             */
-            QJsonDocument toJSON() const override;
 
 
             //! Checks for equality of two ANNs.
@@ -537,6 +531,113 @@ namespace Winzent {
              */
             std::unique_ptr<NeuralNetworkPattern> m_pattern;
         };
+
+
+        template <>
+        libvariant::Variant to_variant(NeuralNetwork const& network)
+        {
+            libvariant::Variant o;
+
+            o["version"] = NeuralNetwork::VERSION;
+            o["biasNeuron"] = to_variant(network.m_biasNeuron);
+
+            libvariant::Variant::List layers;
+            for (auto const& layer: network.m_layers) {
+                layers.push_back(to_variant(layer));
+            }
+            o["layers"] = layers;
+
+            libvariant::Variant::List connections;
+            for (auto const& connectionSources: network.m_connectionSources) {
+                for (auto const& c: connectionSources.second) {
+                    int srcLayer = -1,
+                            dstLayer = -1,
+                            srcNeuron = -1,
+                            dstNeuron = -1;
+                    libvariant::Variant connection;
+
+                    for (NeuralNetwork::size_type i = 0;
+                            i != network.m_layers.size(); ++i) {
+                        for (NeuralNetwork::size_type j = 0;
+                                j != network.m_layers.at(i).size(); ++j) {
+                            auto const& n = network.layerAt(i)->neuronAt(j);
+
+                            if (n == &(c->source())) {
+                                srcLayer = i;
+                                srcNeuron = j;
+                            } else if (n == &(c->destination())) {
+                                dstLayer = i;
+                                dstNeuron = j;
+                            }
+                        }
+                    }
+
+                    connection["srcLayer"] = srcLayer;
+                    connection["srcNeuron"] = srcNeuron;
+                    connection["dstLayer"] = dstLayer;
+                    connection["dstNeuron"] = dstNeuron;
+                    connection["weight"] = c->weight();
+                    connection["fixedWeight"] = c->fixedWeight();
+
+                    if (-1 == srcNeuron) {
+                        connection["srcNeuron"] = "BIAS";
+                    }
+
+                    connections.push_back(connection);
+                }
+            }
+            o["connections"] = connections;
+
+            o["pattern"] = libvariant::Variant(
+                    libvariant::VariantDefines::NullType);
+            if (network.m_pattern != nullptr) {
+                o["pattern"] = to_variant(network.m_pattern);
+            }
+
+            return o;
+        }
+
+
+        template <>
+        NeuralNetwork from_variant(libvariant::Variant const& variant)
+        {
+            NeuralNetwork ann;
+
+            ann.m_biasNeuron.reset(new_from_variant<Neuron>(
+                    variant["biasNeuron"]));
+
+            auto const& layers = variant["layers"].AsList();
+            for (auto const& i: layers) {
+                ann << new_from_variant<Layer>(i);
+            }
+
+            auto const& connections = variant["connections"].AsList();
+            for (auto const& c: connections) {
+                auto &src = (c["srcNeuron"] == "BIAS"
+                        ? ann.biasNeuron()
+                        : ann[c["srcLayer"].AsUnsigned()][
+                            c["srcNeuron"].AsUnsigned()]);
+                auto &dst = ann[c["dstLayer"].AsUnsigned()][
+                        c["dstNeuron"].AsUnsigned()];
+
+                ann.connectNeurons(src, dst)
+                    .weight(c["weight"].AsDouble())
+                    .fixedWeight(c["fixedWeight"].AsBool());
+            }
+
+            if (variant.Contains("pattern")) {
+                ann.m_pattern.reset(new_from_variant<NeuralNetworkPattern>(
+                        variant["pattern"]));
+                assert(ann.m_pattern != nullptr);
+            }
+        }
+
+
+        template <>
+        NeuralNetwork* new_from_variant(libvariant::Variant const& variant)
+        {
+            return new NeuralNetwork(from_variant<NeuralNetwork>(variant));
+        }
     } /* namespace ANN */
 } /* namespace Winzent */
 

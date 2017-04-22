@@ -240,7 +240,7 @@ namespace Winzent {
         template <>
         inline Layer* new_from_variant(libvariant::Variant const& variant)
         {
-            assert (variant.IsList());
+            assert(variant.IsList());
             auto* layer = new Layer();
 
             for (auto const& neuronVariant: variant.AsList()) {

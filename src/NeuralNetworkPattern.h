@@ -15,7 +15,6 @@
 #include <boost/core/demangle.hpp>
 
 #include "ClassRegistry.h"
-#include "NeuralNetwork.h"
 #include "LibVariantSupport.h"
 #include "ActivationFunction.h"
 
@@ -25,13 +24,13 @@ using std::pair;
 
 namespace Winzent {
     namespace ANN {
+        class NeuralNetwork;
 
 
         class NeuralNetworkPattern
         {
-            friend Vector NeuralNetwork::calculate(const Vector &);
-            friend NeuralNetwork &NeuralNetwork::configure(
-                    const NeuralNetworkPattern &);
+            friend class NeuralNetwork;
+
             friend libvariant::Variant to_variant<>(
                     NeuralNetworkPattern const&);
 
@@ -149,7 +148,19 @@ namespace Winzent {
         inline libvariant::Variant to_variant(
                 NeuralNetworkPattern::SimpleLayerDefinition const& d)
         {
-            return libvariant::Variant({ d.frist, d.second });
+            return libvariant::Variant({
+                    libvariant::Variant(d.first),
+                    to_variant(d.second) });
+        }
+
+
+        template <>
+        inline NeuralNetworkPattern::SimpleLayerDefinition from_variant(
+                libvariant::Variant const& variant)
+        {
+            return NeuralNetworkPattern::SimpleLayerDefinition(
+                    variant.AsList()[0].AsUnsigned(),
+                    from_variant<ActivationFunction>(variant.AsList()[1]));
         }
 
 
@@ -160,7 +171,7 @@ namespace Winzent {
             libvariant::Variant variant;
 
             variant["type"] = boost::core::demangle(
-                    typeinfo(neuralNetworkPattern).name());
+                    typeid(neuralNetworkPattern).name());
             variant["layerDefinitions"] = to_variant(
                     neuralNetworkPattern.m_layerDefinitions);
 
@@ -174,8 +185,12 @@ namespace Winzent {
         {
             auto* pattern = ClassRegistry<NeuralNetworkPattern>::instance()
                     ->create(variant["type"].AsString());
-            pattern->m_layerDefinitions = variant["layerDefinitions"]
-                    .AsList();
+
+            for (auto const& i: variant["layerDefinitions"].AsList()) {
+                pattern->addLayer(from_variant<
+                        NeuralNetworkPattern::SimpleLayerDefinition>(i));
+            }
+
             return pattern;
         }
     } /* namespace ANN */

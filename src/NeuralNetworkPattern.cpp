@@ -5,9 +5,6 @@
 #include "NeuralNetworkPattern.h"
 
 
-using std::initializer_list;
-
-
 namespace Winzent {
     namespace ANN {
         NeuralNetworkPattern::NeuralNetworkPattern()
@@ -30,10 +27,10 @@ namespace Winzent {
             assert(from.parent() == to.parent());
             auto* neuralNetwork = from.parent();
 
-            for (auto& fromNeuron: from) {
-                for (auto& toNeuron: to) {
+            for (auto const& fromNeuron: from) {
+                for (auto const& toNeuron: to) {
                     neuralNetwork->connectNeurons(fromNeuron, toNeuron)
-                            ->weight(0.0);
+                            .weight(0.0);
                 }
             }
         }

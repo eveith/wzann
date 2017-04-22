@@ -5,6 +5,7 @@ set(wzann_SOURCES
 
     WeightFixedException.cpp
     SchemaValidationException.cpp
+    LayerSizeMismatchException.cpp
 
     Layer.cpp
     Neuron.cpp
@@ -39,6 +40,7 @@ set(wzann_HEADERS
 
     WeightFixedException.h
     SchemaValidationException.h
+    LayerSizeMismatchException.h
 
     Layer.h
     Neuron.h
@@ -82,6 +84,10 @@ configure_file(
 
 
 add_library(wzann ${wzann_SOURCES})
+
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    target_compile_definitions(wzann PUBLIC "WZANN_DEBUG")
+endif()
 
 target_include_directories(wzann
     #PUBLIC ${winzent-common_SOURCE_DIR}
