@@ -7,64 +7,34 @@
 #define WINZENT_ANN_PERCEPTRONNETWORKPATTERN_H
 
 
-#include <initializer_list>
-
-#include <QObject>
-#include <QList>
-
-#include <ClassRegistry.h>
-
-#include "NeuralNetwork.h"
+#include "Vector.h"
 #include "NeuralNetworkPattern.h"
-
-#include "Winzent-ANN_global.h"
-
-
-using std::initializer_list;
 
 
 namespace Winzent {
     namespace ANN {
+        class NeuralNetwork;
 
-        class ActivationFunction;
 
         /*!
          * \brief Instances of this class represent the pattern to create a
          *  (potentially multi-layered), feed-forward perceptron without
          *  recurrent connections, shortcut connections or other specialities.
          */
-        class WINZENTANNSHARED_EXPORT PerceptronNetworkPattern:
-                public NeuralNetworkPattern
+        class PerceptronNetworkPattern : public NeuralNetworkPattern
         {
-            Q_OBJECT
-
-            friend class Winzent::ClassRegistration<PerceptronNetworkPattern>;
-
-
         public:
 
 
             /*!
-             * Creates a new perceptron pattern given the number of neuron
-             * in the particular layers and their activation functions.
+             * \brief Creates a new, empty PerceptronNetworkPattern.
              *
-             * \sa NeuralNetworkPattern#NeuralNetworkPattern
+             * \sa NeuralNetworkPattern#addLayer()
              */
-            PerceptronNetworkPattern(
-                    QList<int> layerSizes,
-                    QList<ActivationFunction *> activationFunctions);
+            PerceptronNetworkPattern();
 
 
-            /*!
-             * Creates a new perceptron pattern given the number of neuron
-             * in the particular layers and their activation functions.
-             *
-             * \sa NeuralNetworkPattern#NeuralNetworkPattern
-             */
-            PerceptronNetworkPattern(
-                    initializer_list<int> layerSizes,
-                    initializer_list<ActivationFunction *>
-                        activationFunctions);
+            virtual ~PerceptronNetworkPattern();
 
 
             /*!
@@ -72,7 +42,7 @@ namespace Winzent {
              *
              * \sa NeuralNetworkPattern#clone
              */
-            virtual NeuralNetworkPattern *clone() const override;
+            virtual NeuralNetworkPattern* clone() const override;
 
 
             /*!
@@ -83,7 +53,7 @@ namespace Winzent {
              * \return True if the two are of the same class and have the
              *  same parameters
              */
-            virtual bool equals(const NeuralNetworkPattern* const& other)
+            virtual bool operator ==(NeuralNetworkPattern const& other)
                     const override;
 
 
@@ -94,22 +64,19 @@ namespace Winzent {
              * \brief Configures the supplied neural network
              *  to be an perceptron.
              */
-            virtual void configureNetwork(NeuralNetwork &network) override;
+            virtual void configureNetwork(NeuralNetwork& network) override;
 
 
             /*!
+             * \brief Calculates the result of running an input vector through
+             *  a Perceptron.
+             *
              * \sa NeuralNetworkPattern#calculate
              */
             virtual Vector calculate(
-                    NeuralNetwork &network,
-                    const Vector &input)
+                    NeuralNetwork& network,
+                    Vector const& input)
                     override;
-
-
-        private:
-
-
-            PerceptronNetworkPattern();
         };
     } // namespace ANN
 } // namespace Winzent

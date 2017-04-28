@@ -2,9 +2,9 @@
 
 #include "Layer.h"
 #include "NeuralNetwork.h"
-#include "SigmoidActivationFunction.h"
-#include "PerceptronNetworkPattern.h"
+#include "ActivationFunction.h"
 
+#include "PerceptronNetworkPattern.h"
 #include "PerceptronNetworkPatternTest.h"
 
 
@@ -14,15 +14,11 @@ using namespace Winzent::ANN;
 TEST(PerceptronNetworkPatternTest, testConfigure)
 {
     NeuralNetwork network;
-    PerceptronNetworkPattern pattern({
-                2,
-                3,
-                1
-            }, {
-                new SigmoidActivationFunction(),
-                new SigmoidActivationFunction(),
-                new SigmoidActivationFunction()
-            });
+    PerceptronNetworkPattern pattern;
+
+    pattern.addLayer({ 2, ActivationFunction::Logistic });
+    pattern.addLayer({ 3, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
     network.configure(pattern);
 
     for (size_t i = 0; i != network.size() - 1; ++i) {
@@ -50,18 +46,14 @@ TEST(PerceptronNetworkPatternTest, testConfigure)
 TEST(PerceptronNetworkPatternTest, testCalculate)
 {
     NeuralNetwork network;
-    PerceptronNetworkPattern pattern({
-                2,
-                3,
-                1
-            }, {
-                new SigmoidActivationFunction(),
-                new SigmoidActivationFunction(),
-                new SigmoidActivationFunction()
-            });
+    PerceptronNetworkPattern pattern;
+
+    pattern.addLayer({ 2, ActivationFunction::Logistic });
+    pattern.addLayer({ 3, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
     network.configure(pattern);
 
     Vector input = { 1.0, 0.0 };
     Vector output = network.calculate(input);
-    ASSERT_TRUE(1.0f != output.first() + 1.0);
+    ASSERT_TRUE(1.0f != output[0] + 1.0);
 }

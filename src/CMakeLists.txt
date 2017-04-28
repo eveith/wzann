@@ -17,6 +17,7 @@ set(wzann_SOURCES
     ActivationFunction.cpp
 
     NeuralNetworkPattern.cpp
+    PerceptronNetworkPattern.cpp
 
 #    BackpropagationTrainingAlgorithm.cpp
 #    ElmanNetworkPattern.cpp
@@ -24,7 +25,6 @@ set(wzann_SOURCES
 #    LinearActivationFunction.cpp
 #    SimpleWeightRandomizer.cpp
 #    NguyenWidrowWeightRandomizer.cpp
-#    PerceptronNetworkPattern.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp
 #    RpropTrainingAlgorithm.cpp

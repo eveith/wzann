@@ -7,12 +7,12 @@ set(test-wzann_SOURCES
     ActivationFunctionTest.cpp
 
     NeuralNetworkPatternTest.cpp
+    PerceptronNetworkPatternTest.cpp
 
     #BackpropagationTrainingAlgorithmTest.cpp
     #ElmanNetworkPatternTest.cpp
     #SimpleWeightRandomizerTest.cpp
     #NguyenWidrowWeightRandomizerTest.cpp
-    #PerceptronNetworkPatternTest.cpp
     #PsoTrainingAlgorithmTest.cpp
     #REvolutionaryTrainingAlgorithmTest.cpp
     #RpropTrainingAlgorithmTest.cpp

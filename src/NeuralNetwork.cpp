@@ -170,7 +170,7 @@ namespace Winzent {
                 const
         {
             auto it = m_connectionDestinations.find(
-                    const_cast<Neuron *>(&to));
+                    const_cast<Neuron*>(&to));
             if (m_connectionDestinations.end() == it) {
                 return false;
             }
@@ -178,7 +178,7 @@ namespace Winzent {
             return std::any_of(
                     it->second.begin(),
                     it->second.end(),
-                    [&from](const Connection *const &c) {
+                    [&from](const Connection* const& c) {
                 return (c->source() == from);
             });
         }
@@ -278,8 +278,8 @@ namespace Winzent {
 
 
         Connection &NeuralNetwork::connectNeurons(
-                const Neuron &from,
-                const Neuron &to)
+                Neuron const& from,
+                Neuron const& to)
         {
             if (&from != &biasNeuron() && ! contains(from)) {
                 throw UnknownNeuronException(from);
@@ -289,10 +289,10 @@ namespace Winzent {
                 throw UnknownNeuronException(to);
             }
 
-            Neuron &src = const_cast<Neuron &>(from),
-                    &dst = const_cast<Neuron &>(to);
+            Neuron& src = const_cast<Neuron&>(from),
+                    &dst = const_cast<Neuron&>(to);
 
-            Connection *connection = new Connection(src, dst, 0.0);
+            auto* connection = new Connection(src, dst, 0.0);
 
             m_connections.push_back(connection);
             m_connectionSources[&src].push_back(connection);
