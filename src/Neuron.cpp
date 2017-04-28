@@ -11,7 +11,9 @@ namespace Winzent {
     namespace ANN {
         Neuron::Neuron():
                 m_parent(nullptr),
-                m_activationFunction(ActivationFunction::Null)
+                m_activationFunction(ActivationFunction::Null),
+                m_lastInput(0.0),
+                m_lastResult(0.0)
         {
         }
 
