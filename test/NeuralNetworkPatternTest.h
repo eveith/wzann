@@ -12,24 +12,24 @@ using Winzent::ANN::NeuralNetworkPattern;
 
 
 namespace Mock {
-    class NeuralNetworkPatternTestDummyPattern: public NeuralNetworkPattern
+    class NeuralNetworkPatternTestDummyPattern : public NeuralNetworkPattern
     {
     public:
 
-        int numLayers;
-        int numNeuronsPerLayer;
+        size_t numLayers;
+        size_t numNeuronsPerLayer;
 
 
         NeuralNetworkPatternTestDummyPattern();
 
 
         virtual Vector calculate(
-                NeuralNetwork &network,
-                const Vector &input)
+                NeuralNetwork& network,
+                Vector const& input)
                 override;
 
 
-        virtual NeuralNetworkPattern* clone() const;
+        virtual NeuralNetworkPattern* clone() const override;
 
 
         virtual void configureNetwork(NeuralNetwork &network) override;

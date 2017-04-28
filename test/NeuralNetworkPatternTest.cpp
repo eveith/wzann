@@ -3,7 +3,6 @@
 #include "Layer.h"
 #include "Neuron.h"
 #include "NeuralNetwork.h"
-#include "SigmoidActivationFunction.h"
 
 #include "NeuralNetworkPattern.h"
 #include "NeuralNetworkPatternTest.h"
@@ -15,18 +14,20 @@ using namespace Winzent::ANN;
 
 
 NeuralNetworkPatternTestDummyPattern::NeuralNetworkPatternTestDummyPattern():
-        NeuralNetworkPattern(QList<int>(), QList<ActivationFunction *>()),
-        numLayers(3), numNeuronsPerLayer(10)
+        NeuralNetworkPattern(),
+        numLayers(3),
+        numNeuronsPerLayer(10)
 {
-    for (int i = 0; i != numLayers; ++i) {
-        m_layerSizes << numNeuronsPerLayer;
-        m_activationFunctions << new SigmoidActivationFunction();
+    for (size_t i = 0; i != numLayers; ++i) {
+        addLayer(SimpleLayerDefinition(
+                numNeuronsPerLayer,
+                ActivationFunction::Identity));
     }
 }
 
 
 Vector NeuralNetworkPatternTestDummyPattern::calculate(
-        NeuralNetwork &, const Vector &input)
+        NeuralNetwork &, Vector const& input)
 {
     return input;
 }
@@ -41,18 +42,19 @@ NeuralNetworkPattern* NeuralNetworkPatternTestDummyPattern::clone() const
 void NeuralNetworkPatternTestDummyPattern::configureNetwork(
         NeuralNetwork &network)
 {
-    for (int i = 0; i != numLayers; ++i) {
-        Layer *l = new Layer();
+    for (size_t i = 0; i != numLayers; ++i) {
+        auto* l = new Layer();
 
-        for (int j = 0; j != numNeuronsPerLayer; ++j) {
-            Neuron *n = new Neuron(new SigmoidActivationFunction());
+        for (size_t j = 0; j != numNeuronsPerLayer; ++j) {
+            auto* n = new Neuron();
+            n->activationFunction(ActivationFunction::Identity);
             *l << n;
         }
 
         network << l;
 
         if (i > 0) {
-            fullyConnectNetworkLayers(network, i-1, i);
+            fullyConnectNetworkLayers(network[i-1], network[i]);
         }
     }
 }
@@ -67,12 +69,11 @@ TEST(NeuralNetworkPatternTest, testFullyConnectNetworkLayers)
 
     // Check fully connected state:
 
-    for (int i = 1; i != pattern.numLayers - 1; ++i) {
-        for (int j = 1; j != pattern.numNeuronsPerLayer; ++j) {
-            ASSERT_TRUE2(network.connectionExists(
-                        network[i][j],
-                        network[i+1][j]),
-                    "All neurons must be connected to each other.");
+    for (size_t i = 1; i != pattern.numLayers - 1; ++i) {
+        for (size_t j = 1; j != pattern.numNeuronsPerLayer; ++j) {
+            ASSERT_TRUE(network.connectionExists(
+                    network[i][j],
+                    network[i+1][j]));
         }
     }
 }

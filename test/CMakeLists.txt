@@ -6,9 +6,10 @@ set(test-wzann_SOURCES
     NeuralNetworkTest.cpp
     ActivationFunctionTest.cpp
 
+    NeuralNetworkPatternTest.cpp
+
     #BackpropagationTrainingAlgorithmTest.cpp
     #ElmanNetworkPatternTest.cpp
-    #NeuralNetworkPatternTest.cpp
     #SimpleWeightRandomizerTest.cpp
     #NguyenWidrowWeightRandomizerTest.cpp
     #PerceptronNetworkPatternTest.cpp
