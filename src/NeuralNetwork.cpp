@@ -18,6 +18,8 @@
 #include "Connection.h"
 #include "ActivationFunction.h"
 #include "NeuralNetworkPattern.h"
+#include "NoConnectionException.h"
+#include "UnknownNeuronException.h"
 #include "LayerSizeMismatchException.h"
 
 #include "NeuralNetwork.h"
@@ -198,7 +200,7 @@ namespace Winzent {
                 return *cit;
             }
 
-            throw NoConnectionException();
+            throw NoConnectionException(from, to);
             return nullptr;
         }
 
@@ -280,11 +282,11 @@ namespace Winzent {
                 const Neuron &to)
         {
             if (&from != &biasNeuron() && ! contains(from)) {
-                throw UnknownNeuronException(&from);
+                throw UnknownNeuronException(from);
             }
 
             if (! contains(to)) {
-                throw UnknownNeuronException(&to);
+                throw UnknownNeuronException(to);
             }
 
             Neuron &src = const_cast<Neuron &>(from),
@@ -292,6 +294,7 @@ namespace Winzent {
 
             Connection *connection = new Connection(src, dst, 0.0);
 
+            m_connections.push_back(connection);
             m_connectionSources[&src].push_back(connection);
             m_connectionDestinations[&dst].push_back(connection);
 
@@ -300,32 +303,36 @@ namespace Winzent {
 
 
         void NeuralNetwork::disconnectNeurons(
-                const Neuron &from,
-                const Neuron &to)
+                Neuron const& from,
+                Neuron const& to)
         {
+            auto connection = std::find_if(
+                    m_connections.begin(),
+                    m_connections.end(),
+                    [&from, &to](Connection const& c) {
+                return &(c.source()) == &from
+                        && &(c.destination()) == &to;
+            });
+
+            if (connection == m_connections.end()) {
+                throw NoConnectionException(from, to);
+            }
+
             auto &sources = m_connectionSources[const_cast<Neuron *>(&from)];
-            auto connectionIt = std::find_if(
+            std::remove(
                     sources.begin(),
                     sources.end(),
-                    [&from, &to](Connection *connection) {
-                return connection->source() == from
-                        && connection->destination() == to;
-            });
+                    &(*connection));
 
             auto &destinations = m_connectionDestinations.at(
                     const_cast<Neuron *>(&to));
-            std::remove_if(
+            std::remove(
                     destinations.begin(),
                     destinations.end(),
-                    [&from, &to](Connection *connection) {
-                return connection->source() == from
-                        && connection->destination() == to;
-            });
+                    &(*connection));
 
-            if (connectionIt != sources.end()) {
-                sources.erase(connectionIt);
-                delete *connectionIt;
-            }
+            m_connections.erase(connection);
+            delete &(*connection);
         }
 
 
@@ -402,7 +409,7 @@ namespace Winzent {
 
             Vector output;
             auto toLayerSize = to.size();
-            output.resize(0.0, toLayerSize);
+            output.resize(toLayerSize, 0.0);
 
             for (Layer::size_type t = 0; t != toLayerSize; ++t) {
                 const Neuron &toNeuron = to[t];
@@ -426,7 +433,7 @@ namespace Winzent {
 
         Vector NeuralNetwork::calculateLayer(
                 Layer &layer,
-                const Vector &input)
+                Vector const& input)
         {
             Vector biasedInput(input.size());
 
@@ -469,7 +476,7 @@ namespace Winzent {
             equal &= biasNeuron() == other.biasNeuron();
             equal &= ((m_pattern == nullptr && other.m_pattern == nullptr)
                     || (m_pattern != nullptr && other.m_pattern != nullptr
-                        && m_pattern->equals(other.m_pattern.get())));
+                        && *m_pattern == *(other.m_pattern)));
             equal &= (m_connectionSources.size()
                     == other.m_connectionSources.size());
 
@@ -498,7 +505,7 @@ namespace Winzent {
                             it1 != ourConnections.second
                                 && it2 != otherConnections.second;
                             it1++, it2++) {
-                        if (! (*it1)->equals(**it2)) {
+                        if (**it1 != **it2) {
                             return false;
                         }
                     }
@@ -510,7 +517,7 @@ namespace Winzent {
         }
 
 
-        bool NeuralNetwork::operator !=(const NeuralNetwork& other) const
+        bool NeuralNetwork::operator !=(NeuralNetwork const& other) const
         {
             return !(*this == other);
         }

@@ -24,7 +24,6 @@
 #include "Neuron.h"
 #include "Vector.h"
 #include "Connection.h"
-#include "WzannGlobal.h"
 #include "JsonSerializable.h"
 #include "LibVariantSupport.h"
 #include "NeuralNetworkPattern.h"
@@ -503,8 +502,12 @@ namespace Winzent {
             std::unique_ptr<Neuron> m_biasNeuron;
 
 
-            //! All Layers contained in this Neural Network
+            //! \brief All Layers contained in this NeuralNetwork
             boost::ptr_vector<Layer> m_layers;
+
+
+            //! \brief All connections between neurons in this NeuralNetwork
+            boost::ptr_vector<Connection> m_connections;
 
 
             /*!
@@ -534,12 +537,12 @@ namespace Winzent {
 
 
         template <>
-        libvariant::Variant to_variant(NeuralNetwork const& network)
+        inline libvariant::Variant to_variant(NeuralNetwork const& network)
         {
             libvariant::Variant o;
 
             o["version"] = NeuralNetwork::VERSION;
-            o["biasNeuron"] = to_variant(network.m_biasNeuron);
+            o["biasNeuron"] = to_variant(*(network.m_biasNeuron));
 
             libvariant::Variant::List layers;
             for (auto const& layer: network.m_layers) {
@@ -591,7 +594,7 @@ namespace Winzent {
             o["pattern"] = libvariant::Variant(
                     libvariant::VariantDefines::NullType);
             if (network.m_pattern != nullptr) {
-                o["pattern"] = to_variant(network.m_pattern);
+                o["pattern"] = to_variant(*(network.m_pattern));
             }
 
             return o;
@@ -599,7 +602,7 @@ namespace Winzent {
 
 
         template <>
-        NeuralNetwork from_variant(libvariant::Variant const& variant)
+        inline NeuralNetwork from_variant(libvariant::Variant const& variant)
         {
             NeuralNetwork ann;
 
@@ -630,11 +633,13 @@ namespace Winzent {
                         variant["pattern"]));
                 assert(ann.m_pattern != nullptr);
             }
+
+            return ann;
         }
 
 
-        template <>
-        NeuralNetwork* new_from_variant(libvariant::Variant const& variant)
+        template <> inline NeuralNetwork*
+        new_from_variant(libvariant::Variant const& variant)
         {
             return new NeuralNetwork(from_variant<NeuralNetwork>(variant));
         }
