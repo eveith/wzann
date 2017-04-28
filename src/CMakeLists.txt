@@ -4,6 +4,8 @@ set(wzann_SOURCES
     JsonSerializable.cpp
 
     WeightFixedException.cpp
+    NoConnectionException.cpp
+    UnknownNeuronException.cpp
     SchemaValidationException.cpp
     LayerSizeMismatchException.cpp
 
@@ -14,11 +16,12 @@ set(wzann_SOURCES
     NeuralNetwork.cpp
     ActivationFunction.cpp
 
+    NeuralNetworkPattern.cpp
+
 #    BackpropagationTrainingAlgorithm.cpp
 #    ElmanNetworkPattern.cpp
 #    Exception.cpp
 #    LinearActivationFunction.cpp
-#    NeuralNetworkPattern.cpp
 #    SimpleWeightRandomizer.cpp
 #    NguyenWidrowWeightRandomizer.cpp
 #    PerceptronNetworkPattern.cpp
@@ -39,6 +42,8 @@ set(wzann_HEADERS
     LibVariantSupport.h
 
     WeightFixedException.h
+    NoConnectionException.h
+    UnknownNeuronException.h
     SchemaValidationException.h
     LayerSizeMismatchException.h
 
@@ -49,10 +54,11 @@ set(wzann_HEADERS
     NeuralNetwork.h
     ActivationFunction.h
 
+    NeuralNetworkPattern.h
+
     BackpropagationTrainingAlgorithm.h
     ElmanNetworkPattern.h
     LinearActivationFunction.h
-    NeuralNetworkPattern.h
     WeightRandomizer.h
     SimpleWeightRandomizer.h
     NguyenWidrowWeightRandomizer.h

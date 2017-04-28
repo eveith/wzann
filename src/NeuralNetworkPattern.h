@@ -11,9 +11,12 @@
 
 #include <list>
 #include <typeinfo>
+#include <iterator>
+#include <algorithm>
 
 #include <boost/core/demangle.hpp>
 
+#include "Vector.h"
 #include "ClassRegistry.h"
 #include "LibVariantSupport.h"
 #include "ActivationFunction.h"
@@ -24,6 +27,7 @@ using std::pair;
 
 namespace Winzent {
     namespace ANN {
+        class Layer;
         class NeuralNetwork;
 
 
@@ -47,7 +51,7 @@ namespace Winzent {
             typedef pair<unsigned, ActivationFunction> SimpleLayerDefinition;
 
 
-            typedef std::list<SimpleLayerDefinition> LayerDefinitionList;
+            typedef std::vector<SimpleLayerDefinition> SimpleLayerDefinitions;
 
 
             //! \brief Creates a new, empty pattern.
@@ -101,7 +105,7 @@ namespace Winzent {
         protected:
 
 
-            LayerDefinitionList m_layerDefinitions;
+            SimpleLayerDefinitions m_layerDefinitions;
 
 
             /*!
@@ -148,9 +152,10 @@ namespace Winzent {
         inline libvariant::Variant to_variant(
                 NeuralNetworkPattern::SimpleLayerDefinition const& d)
         {
-            return libvariant::Variant({
-                    libvariant::Variant(d.first),
-                    to_variant(d.second) });
+            return libvariant::Variant::List({
+                    libvariant::Variant(std::get<0>(d)),
+                    to_variant(std::get<1>(d))
+            });
         }
 
 
@@ -161,6 +166,24 @@ namespace Winzent {
             return NeuralNetworkPattern::SimpleLayerDefinition(
                     variant.AsList()[0].AsUnsigned(),
                     from_variant<ActivationFunction>(variant.AsList()[1]));
+        }
+
+
+        template <>
+        inline libvariant::Variant to_variant(
+                NeuralNetworkPattern::SimpleLayerDefinitions const& ld)
+        {
+            libvariant::Variant::List v;
+
+            std::transform(
+                    ld.begin(),
+                    ld.end(),
+                    std::back_inserter(v),
+                    [](NeuralNetworkPattern::SimpleLayerDefinition const& d) {
+                return to_variant(d);
+            });
+
+            return v;
         }
 
 

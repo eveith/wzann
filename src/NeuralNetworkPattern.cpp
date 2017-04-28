@@ -12,6 +12,11 @@ namespace Winzent {
         }
 
 
+        NeuralNetworkPattern::~NeuralNetworkPattern()
+        {
+        }
+
+
         NeuralNetworkPattern& NeuralNetworkPattern::addLayer(
                 NeuralNetworkPattern::SimpleLayerDefinition layerDefinition)
         {
