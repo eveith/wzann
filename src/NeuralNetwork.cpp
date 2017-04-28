@@ -169,17 +169,11 @@ namespace Winzent {
                 Neuron const& to)
                 const
         {
-            auto it = m_connectionDestinations.find(
-                    const_cast<Neuron*>(&to));
-            if (m_connectionDestinations.end() == it) {
-                return false;
-            }
-
             return std::any_of(
-                    it->second.begin(),
-                    it->second.end(),
-                    [&from](const Connection* const& c) {
-                return (c->source() == from);
+                    m_connections.begin(),
+                    m_connections.end(),
+                    [&from, &to](Connection const& c) {
+                return &(c.source()) == &from && &(c.destination()) == &to;
             });
         }
 
