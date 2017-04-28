@@ -10,6 +10,7 @@
 
 
 #include <list>
+#include <cstddef>
 #include <typeinfo>
 #include <iterator>
 #include <algorithm>
@@ -48,7 +49,7 @@ namespace Winzent {
              *
              * \sa ActivationFunction
              */
-            typedef pair<unsigned, ActivationFunction> SimpleLayerDefinition;
+            typedef pair<size_t, ActivationFunction> SimpleLayerDefinition;
 
 
             typedef std::vector<SimpleLayerDefinition> SimpleLayerDefinitions;
