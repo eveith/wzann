@@ -2,6 +2,8 @@
 #define NEURALNETWORKTEST_H_
 
 
+#include "ClassRegistry.h"
+
 #include "NeuralNetwork.h"
 #include "NeuralNetworkPattern.h"
 
@@ -37,9 +39,14 @@ namespace Mock {
                 const Vector& input)
                 override;
 
-        virtual NeuralNetworkPattern* clone() const;
+        virtual NeuralNetworkPattern* clone() const override;
     };
 }
+
+
+WINZENT_REGISTER_CLASS(
+        Mock::NeuralNetworkTestDummyPattern,
+        Winzent::ANN::NeuralNetworkPattern)
 
 
 #endif /* NEURALNETWORKTEST_H_ */

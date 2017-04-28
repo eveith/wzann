@@ -1,12 +1,14 @@
 set(test-wzann_SOURCES
     ClassRegistryTest.cpp
+
+    NeuronTest.cpp
+    LayerTest.cpp
+    NeuralNetworkTest.cpp
     ActivationFunctionTest.cpp
+
     #BackpropagationTrainingAlgorithmTest.cpp
     #ElmanNetworkPatternTest.cpp
-    LayerTest.cpp
     #NeuralNetworkPatternTest.cpp
-    #NeuralNetworkTest.cpp
-    NeuronTest.cpp
     #SimpleWeightRandomizerTest.cpp
     #NguyenWidrowWeightRandomizerTest.cpp
     #PerceptronNetworkPatternTest.cpp

@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
-#include "LinearActivationFunction.h"
+#include <vector>
+
 #include "Neuron.h"
 #include "Layer.h"
 #include "Connection.h"
+#include "ActivationFunction.h"
 #include "NeuralNetworkPattern.h"
-#include "NeuralNetwork.h"
 
+#include "NeuralNetwork.h"
 #include "NeuralNetworkTest.h"
 
 
@@ -18,18 +20,23 @@ const int Mock::NeuralNetworkTestDummyPattern::numLayers = 3;
 
 namespace Mock {
     NeuralNetworkTestDummyPattern::NeuralNetworkTestDummyPattern():
-            NeuralNetworkPattern(QList<int>(), QList<ActivationFunction*>())
+            NeuralNetworkPattern()
     {
-        for (int i = 0; i != numLayers; ++i) {
-            m_layerSizes << numNeuronsInLayer(i);
-            m_activationFunctions << new LinearActivationFunction();
-        }
+
     }
 
 
     void NeuralNetworkTestDummyPattern::configureNetwork(
             NeuralNetwork &network)
     {
+        if (m_layerDefinitions.empty()) {
+            for (int i = 0; i != numLayers; ++i) {
+                addLayer(NeuralNetworkPattern::SimpleLayerDefinition(
+                        i,
+                        ActivationFunction::Identity));
+            }
+        }
+
         // Connect all neurons of the nth layer with all neurons
         // of the (n+1)th layer.
 
@@ -37,7 +44,8 @@ namespace Mock {
             Layer* l = new Layer();
 
             for (int j = 0; j != numNeuronsInLayer(i); ++j) {
-                Neuron *n = new Neuron(new LinearActivationFunction(1.0));
+                Neuron *n = new Neuron();
+                n->activationFunction(std::get<1>(m_layerDefinitions[j]));
                 *l << n;
             }
 
@@ -116,9 +124,9 @@ TEST(NeuralNetworkTest, testCalculateLayerTransition)
             network[toLayer],
             inVector);
 
-    ASSERT_EQ(pattern.numNeuronsInLayer(toLayer, outVector.size()));
+    ASSERT_EQ(pattern.numNeuronsInLayer(toLayer), outVector.size());
 
-    for (int i = 0; i != outVector.size(); ++i) {
+    for (Vector::size_type i = 0; i != outVector.size(); ++i) {
         ASSERT_EQ(2.0, outVector[i] + 1.0); // BIAS neuron not added in here.
     }
 }
@@ -130,18 +138,18 @@ TEST(NeuralNetworkTest, testCalculateLayer)
     Mock::NeuralNetworkTestDummyPattern pattern;
     network.configure(pattern);
 
-    const qreal inValue = 1.0;
-    const int layer     = 2;
+    const int layer = 2;
+    const double inValue = 1.0;
 
     Vector inVector(pattern.numNeuronsInLayer(layer), inValue);
     Vector outVector = network[layer].activate(inVector);
 
-    ASSERT_EQ(pattern.numNeuronsInLayer(layer, outVector.size()));
-    ASSERT_EQ(inVector.size(, outVector.size()));
+    ASSERT_EQ(pattern.numNeuronsInLayer(layer), outVector.size());
+    ASSERT_EQ(inVector.size(), outVector.size());
 
     for (const auto& d: outVector) {
         ASSERT_EQ(
-                1.0 + LinearActivationFunction().calculate(inValue),
+                1.0 + calculate(ActivationFunction::Identity, inValue),
                 1.0 + d);
     }
 }
@@ -149,18 +157,15 @@ TEST(NeuralNetworkTest, testCalculateLayer)
 
 TEST(NeuralNetworkTest, testSerialization)
 {
-    QFile testResultFile(QString(QTest::currentTestFunction()).append(".out"));
-    testResultFile.open(QIODevice::Text
-            | QIODevice::WriteOnly | QIODevice::Truncate);
-    QTextStream testResultStream(&testResultFile);
-
     NeuralNetwork network;
     Mock::NeuralNetworkTestDummyPattern pattern;
     network.configure(pattern);
 
-    testResultStream << network;
-    testResultStream.flush();
-    testResultFile.close();
+    auto json = to_json(network);
+    auto* ann2 = new_from_json<NeuralNetwork>(json);
+
+    ASSERT_EQ(network, *ann2);
+    delete ann2;
 }
 
 
@@ -175,11 +180,13 @@ TEST(NeuralNetworkTest, testConnectionsFromTo)
 {
     NeuralNetwork *network = new NeuralNetwork();
 
-    Neuron *s = new Neuron(new LinearActivationFunction());
-    Neuron *d = new Neuron(new LinearActivationFunction());
+    auto* s = new Neuron();
+    auto* d = new Neuron();
+    s->activationFunction(ActivationFunction::Identity);
+    d->activationFunction(ActivationFunction::Identity);
 
-    Layer *l1 = new Layer();
-    Layer *l2 = new Layer();
+    auto* l1 = new Layer();
+    auto* l2 = new Layer();
 
     *l1 << s;
     *l2 << d;
@@ -210,9 +217,9 @@ TEST(NeuralNetworkTest, testClone)
 
     network.configure(pattern);
 
-    NeuralNetwork *clone = network.clone();
+    auto* clone = network.clone();
 
-    ASSERT_EQ(clone->size(, network.size()));
+    ASSERT_EQ(clone->size(), network.size());
     ASSERT_TRUE(&(network.biasNeuron()) != &(clone->biasNeuron()));
 
     for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
@@ -220,14 +227,14 @@ TEST(NeuralNetworkTest, testClone)
         Layer *cloneLayer   = clone->layerAt(i);
 
         ASSERT_TRUE(origLayer != cloneLayer);
-        ASSERT_EQ(cloneLayer->size(, origLayer->size()));
+        ASSERT_EQ(cloneLayer->size(), origLayer->size());
 
         ASSERT_EQ(&network, origLayer->parent());
         ASSERT_EQ(clone, cloneLayer->parent());
 
         for (Layer::size_type j = 0; j < origLayer->size(); ++j) {
-            Neuron *origNeuron  = origLayer->neuronAt(j);
-            Neuron *cloneNeuron = cloneLayer->neuronAt(j);
+            auto* origNeuron  = origLayer->neuronAt(j);
+            auto* cloneNeuron = cloneLayer->neuronAt(j);
 
             ASSERT_EQ(origLayer, origNeuron->parent());
             ASSERT_EQ(cloneLayer, cloneNeuron->parent());
@@ -239,7 +246,7 @@ TEST(NeuralNetworkTest, testClone)
             ASSERT_TRUE(clone->contains(*cloneNeuron));
 
             ASSERT_TRUE(origNeuron->activationFunction()
-                    != cloneNeuron->activationFunction());
+                    == cloneNeuron->activationFunction());
 
             auto origConnections = network.connectionsFrom(*origNeuron);
             auto cloneConnections = clone->connectionsFrom(*cloneNeuron);
@@ -256,7 +263,7 @@ TEST(NeuralNetworkTest, testClone)
 
 TEST(NeuralNetworkTest, testLayerIterator)
 {
-    QList<const Layer *> layers;
+    std::vector<Layer const*> layers;
 
     NeuralNetwork network;
     Mock::NeuralNetworkTestDummyPattern pattern;
@@ -267,19 +274,19 @@ TEST(NeuralNetworkTest, testLayerIterator)
     }
 
     ASSERT_TRUE(static_cast<size_t>(layers.size()) == network.size());
-    ASSERT_TRUE(&(network.inputLayer()) == layers.first());
-    ASSERT_TRUE(&(network.outputLayer()) == layers.last());
+    ASSERT_TRUE(&(network.inputLayer()) == *(layers.begin()));
+    ASSERT_TRUE(&(network.outputLayer()) == *(layers.end() - 1));
 
     layers.clear();
 
     for (auto &layer: boost::make_iterator_range(network.layers())) {
         if (&(network.inputLayer()) == &layer) {
-            layers << &layer;
+            layers.push_back(&layer);
         }
     }
 
     ASSERT_EQ(1, layers.size());
-    ASSERT_TRUE(&(network.inputLayer()) == layers.first());
+    ASSERT_TRUE(&(network.inputLayer()) == *(layers.begin()));
 }
 
 
@@ -289,7 +296,7 @@ TEST(NeuralNetworkTest, testEachConnectionIterator)
     Mock::NeuralNetworkTestDummyPattern pattern;
 
     network.configure(pattern);
-    QList<Connection *> connections;
+    std::vector<Connection *> connections;
 
     for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
         Layer &layer = network[i];
@@ -298,23 +305,25 @@ TEST(NeuralNetworkTest, testEachConnectionIterator)
             Neuron &n = layer[j];
             for (Connection *c: boost::make_iterator_range(
                      network.connectionsFrom(n))) {
-                connections.append(c);
+                connections.push_back(c);
             }
         }
     }
 
-    for (Connection *c: boost::make_iterator_range(
+    for (auto* c: boost::make_iterator_range(
              network.connectionsFrom(network.biasNeuron()))) {
-        connections.append(c);
+        connections.push_back(c);
     }
 
     int iterated = 0;
     network.eachConnection([&iterated, &connections](Connection *const &c) {
         iterated++;
-        ASSERT_TRUE(connections.contains(c));
+        ASSERT_NE(
+                std::find(connections.begin(), connections.end(), c),
+                connections.end());
     });
 
-    ASSERT_EQ(connections.size(, iterated));
+    ASSERT_EQ(connections.size(), iterated);
 }
 
 
@@ -351,22 +360,4 @@ TEST(NeuralNetworkTest, testOperatorEquals)
     });
 
     ASSERT_TRUE(n1 == n2);
-}
-
-
-TEST(NeuralNetworkTest, testJsonSerialization)
-{
-    NeuralNetwork n1, n2;
-    Mock::NeuralNetworkTestDummyPattern pattern;
-
-    n1.configure(pattern);
-    n1.eachConnection([](Connection* const& c) {
-        if (! c->fixedWeight()) {
-            c->weight(12.20);
-        }
-    });
-
-    ASSERT_TRUE(n1 != n2);
-    n2.fromJSON(n1.toJSON());
-    ASSERT_TRUE(n2 == n1);
 }
