@@ -10,10 +10,10 @@ set(test-wzann_SOURCES
     PerceptronNetworkPatternTest.cpp
 
     SimpleWeightRandomizerTest.cpp
+    NguyenWidrowWeightRandomizerTest.cpp
 
     #BackpropagationTrainingAlgorithmTest.cpp
     #ElmanNetworkPatternTest.cpp
-    #NguyenWidrowWeightRandomizerTest.cpp
     #PsoTrainingAlgorithmTest.cpp
     #REvolutionaryTrainingAlgorithmTest.cpp
     #RpropTrainingAlgorithmTest.cpp

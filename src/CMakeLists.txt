@@ -20,12 +20,12 @@ set(wzann_SOURCES
     PerceptronNetworkPattern.cpp
 
     SimpleWeightRandomizer.cpp
+    NguyenWidrowWeightRandomizer.cpp
 
 #    BackpropagationTrainingAlgorithm.cpp
 #    ElmanNetworkPattern.cpp
 #    Exception.cpp
 #    LinearActivationFunction.cpp
-#    NguyenWidrowWeightRandomizer.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp
 #    RpropTrainingAlgorithm.cpp

@@ -1,16 +1,15 @@
+#include <gtest/gtest.h>
+
 #include <cstddef>
 
-#include "NeuralNetwork.h"
 #include "Layer.h"
 #include "Neuron.h"
 #include "Connection.h"
-#include "SigmoidActivationFunction.h"
+#include "NeuralNetwork.h"
+#include "ActivationFunction.h"
 #include "PerceptronNetworkPattern.h"
 
 #include "NguyenWidrowWeightRandomizer.h"
-
-#include <gtest/gtest.h>
-
 #include "NguyenWidrowWeightRandomizerTest.h"
 
 
@@ -21,25 +20,21 @@ using namespace Winzent::ANN;
 TEST(NguyenWidrowWeightRandomizerTest, testRandomizeWeights)
 {
     NeuralNetwork network;
-    PerceptronNetworkPattern pattern({
-            1,
-            2,
-            3
-            }, {
-                new SigmoidActivationFunction(),
-                new SigmoidActivationFunction(),
-                new SigmoidActivationFunction()
-            });
+    PerceptronNetworkPattern pattern;
+
+    pattern.addLayer({ 1, ActivationFunction::Identity });
+    pattern.addLayer({ 2, ActivationFunction::Logistic });
+    pattern.addLayer({ 3, ActivationFunction::Logistic });
     network.configure(pattern);
 
     NguyenWidrowWeightRandomizer().randomize(network);
 
     for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
-        Layer &layer = network[i];
+        auto& layer = network[i];
 
         for (Layer::size_type j = 0; j != layer.size(); ++j) {
-            Neuron &neuron = layer[j];
-            for (const auto &c: boost::make_iterator_range(
+            auto& neuron = layer[j];
+            for (auto const& c: boost::make_iterator_range(
                      network.connectionsFrom(neuron))) {
                 ASSERT_TRUE(1.0 != 1.0 + c->weight());
             }

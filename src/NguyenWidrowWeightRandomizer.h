@@ -1,10 +1,3 @@
-/*!
- * \file
- * \author Eric MSP Veith <eveith@veith-m.de<
- * \date 2013-03-28
- */
-
-
 #ifndef NGUYENWIDROWWEIGHTRANDOMIZER_H
 #define NGUYENWIDROWWEIGHTRANDOMIZER_H
 
@@ -21,31 +14,11 @@ namespace Winzent {
 
 
         /*!
-         * Randomizes the weights of a neural network based on the algorithm
-         * developed by Nguyen and Widrow.
+         * \brief Randomizes the weights of a neural network based on
+         *  the algorithm developed by Nguyen and Widrow.
          */
-        class NguyenWidrowWeightRandomizer: public WeightRandomizer
+        class NguyenWidrowWeightRandomizer : public WeightRandomizer
         {
-        private:
-
-
-            /*!
-             * Randomizes one synapse, i.e. the connection from one layer to
-             * another.
-             *
-             * \param[in] network The neural network that contains both layers
-             *
-             * \param[in] from The layer from which the connections originate
-             *
-             * \param[in] to The layer where all connections lead to.
-             */
-            void randomizeSynapse(
-                    NeuralNetwork &network,
-                    Layer &from,
-                    Layer &to)
-                    const;
-
-
         public:
 
 
@@ -65,7 +38,28 @@ namespace Winzent {
              * \param[inout] network The network whose weights
              *  shall be randomized.
              */
-            void randomize(NeuralNetwork &network);
+            void randomize(NeuralNetwork& network);
+
+
+        private:
+
+
+            /*!
+             * Randomizes one synapse, i.e. the connection from one layer to
+             * another.
+             *
+             * \param[in] network The neural network that contains both layers
+             *
+             * \param[in] from The layer from which the connections originate
+             *
+             * \param[in] to The layer where all connections lead to.
+             */
+            void randomizeSynapse(
+                    NeuralNetwork& network,
+                    Layer& from,
+                    Layer& to)
+                    const;
+
         };
     }
 }

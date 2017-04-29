@@ -45,7 +45,7 @@ namespace Winzent {
                 const
         {
             boost::random::mt11213b rng;
-            boost::random::uniform_01<qreal> rDistribution;
+            boost::random::uniform_01<double> rDistribution;
             auto fromCount   = from.size();
             auto toCount     = to.size();
 
@@ -62,18 +62,18 @@ namespace Winzent {
                         continue;
                     }
 
-                    qreal high = connection->destination()
-                            .activationFunction()
-                            ->calculate(std::numeric_limits<qreal>::max());
-                    qreal low = connection->destination()
-                            .activationFunction()
-                            ->calculate(std::numeric_limits<qreal>::min());
-                    qreal b = pow(
+                    double low = calculate(
+                            connection->destination().activationFunction(),
+                            std::numeric_limits<double>::min());
+                    double high = calculate(
+                            connection->destination().activationFunction(),
+                            std::numeric_limits<double>::max());
+                    double b = pow(
                                 toCount,
-                                (1.0 / static_cast<qreal>(fromCount)))
+                                (1.0 / static_cast<double>(fromCount)))
                             / (high-low) * 0.7;
 
-                    connection->weight(-b + rDistribution(rng) * 2 * b);
+                    connection->weight(-b + rDistribution(rng) * 2.0 * b);
                 }
             }
         }
