@@ -26,8 +26,7 @@
 #include "WzannGlobal.h"
 
 
-using std::function;
-using log4cxx::LogManager;
+using std::make_pair;
 using boost::make_iterator_range;
 
 
@@ -61,7 +60,7 @@ namespace Winzent {
             for (auto connectionSources: rhs.m_connectionSources) {
                 auto foreignNeuron = connectionSources.first;
 
-                ConnectionConstRange connections;
+                ConnectionPtrConstRange connections;
                 int srcLayerIndex   = -1;
                 int srcNeuronIndex  = -1;
 
@@ -200,16 +199,28 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork::ConnectionConstRange
-        NeuralNetwork::connectionsFrom(const Neuron &neuron) const
+        NeuralNetwork::ConnectionRange NeuralNetwork::connections()
+        {
+            return make_pair(m_connections.begin(), m_connections.end());
+        }
+
+
+        NeuralNetwork::ConnectionConstRange NeuralNetwork::connections() const
+        {
+            return make_pair(m_connections.cbegin(), m_connections.cend());
+        }
+
+
+        NeuralNetwork::ConnectionPtrConstRange
+        NeuralNetwork::connectionsFrom(Neuron const& neuron) const
         {
             auto *n = const_cast<Neuron *>(&neuron);
             auto it = m_connectionSources.find(n);
 
             if (m_connectionSources.end() == it) {
-                return std::make_pair(
-                        ConnectionsVector::const_iterator(),
-                        ConnectionsVector::const_iterator());
+                return make_pair(
+                        ConnectionPtrConstIterator(),
+                        ConnectionPtrConstIterator());
             } else {
                 return std::make_pair(
                         m_connectionSources.at(n).begin(),
@@ -218,16 +229,16 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork::ConnectionRange
-        NeuralNetwork::connectionsFrom(const Neuron &neuron)
+        NeuralNetwork::ConnectionPtrRange
+        NeuralNetwork::connectionsFrom(Neuron const& neuron)
         {
             auto *n = const_cast<Neuron *>(&neuron);
             auto it = m_connectionSources.find(n);
 
             if (m_connectionSources.end() == it) {
-                return std::make_pair(
-                        ConnectionsVector::iterator(),
-                        ConnectionsVector::iterator());
+                return make_pair(
+                        ConnectionPtrIterator(),
+                        ConnectionPtrIterator());
             } else {
                 return std::make_pair(
                         m_connectionSources.at(n).begin(),
@@ -236,16 +247,16 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork::ConnectionConstRange
+        NeuralNetwork::ConnectionPtrConstRange
         NeuralNetwork::connectionsTo(const Neuron &neuron) const
         {
             auto *n = const_cast<Neuron *>(&neuron);
             auto it = m_connectionDestinations.find(n);
 
             if (m_connectionDestinations.end() == it) {
-                return std::make_pair(
-                        ConnectionsVector::const_iterator(),
-                        ConnectionsVector::const_iterator());
+                return make_pair(
+                        ConnectionPtrConstIterator(),
+                        ConnectionPtrConstIterator());
             } else {
                 return std::make_pair(
                         m_connectionDestinations.at(n).begin(),
@@ -254,16 +265,16 @@ namespace Winzent {
        }
 
 
-        NeuralNetwork::ConnectionRange
+        NeuralNetwork::ConnectionPtrRange
         NeuralNetwork::connectionsTo(const Neuron &neuron)
         {
             auto *n = const_cast<Neuron *>(&neuron);
             auto it = m_connectionDestinations.find(n);
 
             if (m_connectionDestinations.end() == it) {
-                return std::make_pair(
-                        ConnectionsVector::iterator(),
-                        ConnectionsVector::iterator());
+                return make_pair(
+                        ConnectionPtrIterator(),
+                        ConnectionPtrIterator());
             } else {
                 return std::make_pair(
                         m_connectionDestinations.at(n).begin(),

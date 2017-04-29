@@ -29,9 +29,7 @@
 #include "NeuralNetworkPattern.h"
 
 
-using std::function;
 using boost::ptr_vector;
-using boost::make_iterator_range;
 
 
 namespace Winzent {
@@ -104,13 +102,26 @@ namespace Winzent {
                     LayerConstIterator,
                     LayerConstIterator> LayerConstRange;
 
-            typedef std::vector<Connection*> ConnectionsVector;
-            typedef ConnectionsVector::iterator ConnectionIterator;
-            typedef ConnectionsVector::const_iterator ConnectionConstIterator;
+            typedef std::vector<Connection*> ConnectionsPtrVector;
+            typedef ConnectionsPtrVector::iterator
+                    ConnectionPtrIterator;
+            typedef ConnectionsPtrVector::const_iterator
+                    ConnectionPtrConstIterator;
 
             typedef std::unordered_map<
                     Neuron*,
-                    ConnectionsVector> NeuronConnectionsMap;
+                    ConnectionsPtrVector> NeuronConnectionsMap;
+            typedef std::pair<
+                    ConnectionPtrIterator,
+                    ConnectionPtrIterator> ConnectionPtrRange;
+            typedef std::pair<
+                    ConnectionPtrConstIterator,
+                    ConnectionPtrConstIterator> ConnectionPtrConstRange;
+
+            typedef boost::ptr_vector<Connection>::iterator
+                    ConnectionIterator;
+            typedef boost::ptr_vector<Connection>::const_iterator
+                    ConnectionConstIterator;
             typedef std::pair<
                     ConnectionIterator,
                     ConnectionIterator> ConnectionRange;
@@ -231,19 +242,25 @@ namespace Winzent {
 
 
             /*!
-             * Finds all neurons to which a particular neuron is connected.
+             * \brief Provides an const interator range over all connections
+             *  in this neural network
              *
-             * The neuron is considered as the source of the connection.
+             * The connections appear every time in the same order.
              *
-             * \param[in] neuron The neuron from which to find all available
-             *  connections.
-             *
-             * \return A list containing all connection where the specified
-             *  neuron is the source.
-             *
-             * \sa #neuronConnectionsTo
+             * \return A range of const iterators over all connections.
              */
-            ConnectionRange connectionsFrom(Neuron const& neuron);
+            ConnectionRange connections();
+
+
+            /*!
+             * \brief Provides an const interator range over all connections
+             *  in this neural network
+             *
+             * The connections appear every time in the same order.
+             *
+             * \return A range of const iterators over all connections.
+             */
+            ConnectionConstRange connections() const;
 
 
             /*!
@@ -259,7 +276,24 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsTo
              */
-            ConnectionConstRange connectionsFrom(Neuron const& neuron) const;
+            ConnectionPtrRange connectionsFrom(Neuron const& neuron);
+
+
+            /*!
+             * Finds all neurons to which a particular neuron is connected.
+             *
+             * The neuron is considered as the source of the connection.
+             *
+             * \param[in] neuron The neuron from which to find all available
+             *  connections.
+             *
+             * \return A list containing all connection where the specified
+             *  neuron is the source.
+             *
+             * \sa #neuronConnectionsTo
+             */
+            ConnectionPtrConstRange connectionsFrom(Neuron const& neuron)
+                    const;
 
 
             /*!
@@ -273,7 +307,7 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsFrom
              */
-            ConnectionRange connectionsTo(const Neuron &neuron);
+            ConnectionPtrRange connectionsTo(const Neuron &neuron);
 
 
             /*!
@@ -287,7 +321,7 @@ namespace Winzent {
              *
              * \sa #neuronConnectionsFrom
              */
-            ConnectionConstRange connectionsTo(const Neuron &neuron) const;
+            ConnectionPtrConstRange connectionsTo(const Neuron &neuron) const;
 
 
             /*!
@@ -304,25 +338,6 @@ namespace Winzent {
              * \return A pair of const iterators over all layers
              */
             LayerConstRange layers() const;
-
-
-            /*!
-             * \brief Iterates over all neuron connections read-only
-             *
-             * \param[in] yield The iterator lambda called for each neuron
-             */
-            template <class UnaryFunction>
-            void eachConnection(UnaryFunction f)
-            {
-                for (const auto &layer: make_iterator_range(layers())) {
-                    for (const auto &neuron: layer) {
-                        for (const auto &connection: make_iterator_range(
-                                 connectionsTo(neuron))) {
-                            f(connection);
-                        }
-                    }
-                }
-            }
 
 
             /*!
