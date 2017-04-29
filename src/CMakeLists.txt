@@ -19,11 +19,12 @@ set(wzann_SOURCES
     NeuralNetworkPattern.cpp
     PerceptronNetworkPattern.cpp
 
+    SimpleWeightRandomizer.cpp
+
 #    BackpropagationTrainingAlgorithm.cpp
 #    ElmanNetworkPattern.cpp
 #    Exception.cpp
 #    LinearActivationFunction.cpp
-#    SimpleWeightRandomizer.cpp
 #    NguyenWidrowWeightRandomizer.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp
@@ -55,15 +56,15 @@ set(wzann_HEADERS
     ActivationFunction.h
 
     NeuralNetworkPattern.h
+    PerceptronNetworkPattern.h
+
+    WeightRandomizer.h
+    SimpleWeightRandomizer.h
+    NguyenWidrowWeightRandomizer.h
 
     BackpropagationTrainingAlgorithm.h
     ElmanNetworkPattern.h
     LinearActivationFunction.h
-    WeightRandomizer.h
-    SimpleWeightRandomizer.h
-    NguyenWidrowWeightRandomizer.h
-    PerceptronNetworkPattern.h
-    QtContainerOutput.h
     PsoTrainingAlgorithm.h
     REvolutionaryTrainingAlgorithm.h
     RpropTrainingAlgorithm.h

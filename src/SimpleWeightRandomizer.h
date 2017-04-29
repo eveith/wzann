@@ -2,50 +2,29 @@
 #define WINZENT_ANN_SIMPLEWEIGHTRANDOMIZER_H
 
 
-#include <QtGlobal>
-
 #include "WeightRandomizer.h"
-#include "Winzent-ANN_global.h"
 
 
 namespace Winzent {
     namespace ANN {
-
-
         class NeuralNetwork;
 
 
-        class WINZENTANNSHARED_EXPORT SimpleWeightRandomizer:
-                public WeightRandomizer
+        class SimpleWeightRandomizer : public WeightRandomizer
         {
-        private:
-
-
-            /*!
-             * \brief The absolute minimum weight of this instance
-             */
-            qreal m_minWeight;
-
-
-            /*!
-             * \brief The absolute maximum weight of this instance
-             */
-            qreal m_maxWeight;
-
-
         public:
 
 
             /*!
              * \brief The default minimum weight
              */
-            static constexpr qreal defaultMinWeight = -0.1;
+            static constexpr double defaultMinWeight = -0.1;
 
 
             /*!
              * \brief The default maximum weight
              */
-            static constexpr qreal defaultMaxWeight = +0.1;
+            static constexpr double defaultMaxWeight = +0.1;
 
 
             /*!
@@ -64,7 +43,7 @@ namespace Winzent {
              *
              * \return The smallest possible weight value
              */
-            qreal minWeight() const;
+            double minWeight() const;
 
 
             /*!
@@ -74,7 +53,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            SimpleWeightRandomizer &minWeight(const qreal &weight);
+            SimpleWeightRandomizer& minWeight(double weight);
 
 
             /*!
@@ -82,7 +61,7 @@ namespace Winzent {
              *
              * \return The smallest possible weight value
              */
-            qreal maxWeight() const;
+            double maxWeight() const;
 
 
             /*!
@@ -92,7 +71,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            SimpleWeightRandomizer &maxWeight(const qreal &weight);
+            SimpleWeightRandomizer& maxWeight(double weight);
 
 
             /*!
@@ -106,7 +85,18 @@ namespace Winzent {
              *
              * \sa #maxWeight()
              */
-            virtual void randomize(NeuralNetwork &neuralNetwork) override;
+            virtual void randomize(NeuralNetwork& neuralNetwork) override;
+
+
+        private:
+
+
+            //! \brief The absolute minimum weight of this instance
+            double m_minWeight;
+
+
+            //! \brief The absolute maximum weight of this instance
+            double m_maxWeight;
         };
     } // namespace ANN
 } // namespace Winzent

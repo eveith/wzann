@@ -1,5 +1,4 @@
-#include <QtGlobal>
-
+#include <boost/range.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/random_number_generator.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
@@ -7,6 +6,9 @@
 #include "Connection.h"
 #include "NeuralNetwork.h"
 #include "SimpleWeightRandomizer.h"
+
+
+using boost::make_iterator_range;
 
 
 namespace Winzent {
@@ -18,47 +20,47 @@ namespace Winzent {
         }
 
 
-        qreal SimpleWeightRandomizer::minWeight() const
+        double SimpleWeightRandomizer::minWeight() const
         {
             return m_minWeight;
         }
 
 
         SimpleWeightRandomizer &SimpleWeightRandomizer::minWeight(
-                const qreal &weight)
+                double weight)
         {
             m_minWeight = weight;
             return *this;
         }
 
 
-        qreal SimpleWeightRandomizer::maxWeight() const
+        double SimpleWeightRandomizer::maxWeight() const
         {
             return m_maxWeight;
         }
 
 
         SimpleWeightRandomizer &SimpleWeightRandomizer::maxWeight(
-                const qreal &weight)
+                double weight)
         {
             m_maxWeight = weight;
             return *this;
         }
 
 
-        void SimpleWeightRandomizer::randomize(NeuralNetwork &neuralNetwork)
+        void SimpleWeightRandomizer::randomize(NeuralNetwork& neuralNetwork)
         {
             boost::random::mt11213b rng;
-            boost::random::uniform_real_distribution<qreal> rDistribution(
+            boost::random::uniform_real_distribution<double> rDistribution(
                     m_minWeight,
                     m_maxWeight);
 
-            neuralNetwork.eachConnection(
-                    [&rng, &rDistribution](Connection *const &c) {
-                if (!c->fixedWeight()) {
-                    c->weight(rDistribution(rng));
+            for (Connection& c:
+                    make_iterator_range(neuralNetwork.connections())) {
+                if (! c.fixedWeight()) {
+                    c.weight(rDistribution(rng));
                 }
-            });
+            }
         }
     } // namespace ANN
 } // namespace Winzent
