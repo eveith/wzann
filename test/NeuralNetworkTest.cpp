@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <iostream>
 
 #include "Neuron.h"
 #include "Layer.h"
@@ -62,8 +63,17 @@ namespace Mock {
                             network[i][k])
                         .weight(1.0);
 
-                    ASSERT_TRUE(true == network.connectionExists(
+                    ASSERT_TRUE(network.connectionExists(
                             network[i-1][j],
+                            network[i][k]));
+
+                    network.connectNeurons(
+                            network.biasNeuron(),
+                            network[i][k])
+                        .weight(-1.0);
+
+                    ASSERT_TRUE(network.connectionExists(
+                            network.biasNeuron(),
                             network[i][k]));
                 }
             }
@@ -155,6 +165,18 @@ TEST(NeuralNetworkTest, testCalculateLayer)
 }
 
 
+TEST(NeuralNetworkTest, testSerializeEmpty)
+{
+    NeuralNetwork ann;
+
+    auto json = to_json(ann);
+    auto* ann2 = new_from_json<NeuralNetwork>(json);
+
+    ASSERT_EQ(ann, *ann2);
+    delete ann2;
+}
+
+
 TEST(NeuralNetworkTest, testSerialization)
 {
     NeuralNetwork network;
@@ -164,6 +186,7 @@ TEST(NeuralNetworkTest, testSerialization)
     auto json = to_json(network);
     auto* ann2 = new_from_json<NeuralNetwork>(json);
 
+    ASSERT_TRUE(network == *ann2);
     ASSERT_EQ(network, *ann2);
     delete ann2;
 }
@@ -296,7 +319,7 @@ TEST(NeuralNetworkTest, testConnectionIterator)
     Mock::NeuralNetworkTestDummyPattern pattern;
 
     network.configure(pattern);
-    std::vector<Connection *> connections;
+    std::vector<Connection*> connections;
 
     for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
         Layer &layer = network[i];
@@ -304,26 +327,48 @@ TEST(NeuralNetworkTest, testConnectionIterator)
         for (Layer::size_type j = 0; j != layer.size(); ++j) {
             Neuron &n = layer[j];
             for (Connection *c: boost::make_iterator_range(
-                     network.connectionsFrom(n))) {
+                     network.connectionsTo(n))) {
                 connections.push_back(c);
             }
         }
     }
 
-    for (auto* c: boost::make_iterator_range(
-             network.connectionsFrom(network.biasNeuron()))) {
-        connections.push_back(c);
-    }
 
-    int iterated = 0;
-    for (auto const& c: boost::make_iterator_range(network.connections())) {
+    size_t iterated = 0;
+    size_t biasNeuronConnections = 0;
+    for (auto* c: boost::make_iterator_range(network.connections())) {
         iterated++;
+        if (&(c->source()) == &(network.biasNeuron())) {
+            biasNeuronConnections++;
+        }
         ASSERT_NE(
-                std::find(connections.begin(), connections.end(), &c),
+                std::find(connections.begin(), connections.end(), c),
                 connections.end());
     }
 
+    ASSERT_TRUE(biasNeuronConnections > 0);
     ASSERT_EQ(connections.size(), iterated);
+}
+
+
+TEST(NeuralNetworkTest, testConnectionIteratorOrder)
+{
+    NeuralNetwork network;
+    Mock::NeuralNetworkTestDummyPattern pattern;
+
+    network.configure(pattern);
+    std::vector<Connection const*> connections;
+
+    for (auto* c: boost::make_iterator_range(network.connections())) {
+        connections.push_back(c);
+    }
+
+    auto cit = network.connections().first;
+    for (std::vector<Connection const*>::size_type i = 0;
+            i != connections.size(); ++i, cit++) {
+        ASSERT_EQ(connections.at(i), *cit);
+    }
+    ASSERT_EQ(cit, network.connections().second);
 }
 
 
@@ -339,23 +384,23 @@ TEST(NeuralNetworkTest, testOperatorEquals)
     n2.configure(pattern);
     ASSERT_TRUE(n1 == n2);
 
-    for (auto& c: boost::make_iterator_range(n1.connections())) {
-        if (! c.fixedWeight()) {
-            c.weight(42.23);
+    for (auto* c: boost::make_iterator_range(n1.connections())) {
+        if (! c->fixedWeight()) {
+            c->weight(42.23);
         }
     }
 
-    for (auto& c: boost::make_iterator_range(n2.connections())) {
-        if (! c.fixedWeight()) {
-            c.weight(1.0);
+    for (auto* c: boost::make_iterator_range(n2.connections())) {
+        if (! c->fixedWeight()) {
+            c->weight(1.0);
         }
     }
 
     ASSERT_NE(n1, n2);
 
-    for (auto& c: boost::make_iterator_range(n2.connections())) {
-        if (! c.fixedWeight()) {
-            c.weight(42.23);
+    for (auto* c: boost::make_iterator_range(n2.connections())) {
+        if (! c->fixedWeight()) {
+            c->weight(42.23);
         }
     }
 

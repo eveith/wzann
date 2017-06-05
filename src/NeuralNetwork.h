@@ -107,16 +107,16 @@ namespace Winzent {
                     ConnectionPtrIterator;
             typedef ConnectionsPtrVector::const_iterator
                     ConnectionPtrConstIterator;
-
-            typedef std::unordered_map<
-                    Neuron*,
-                    ConnectionsPtrVector> NeuronConnectionsMap;
             typedef std::pair<
                     ConnectionPtrIterator,
                     ConnectionPtrIterator> ConnectionPtrRange;
             typedef std::pair<
                     ConnectionPtrConstIterator,
                     ConnectionPtrConstIterator> ConnectionPtrConstRange;
+
+            typedef std::unordered_map<
+                    Neuron*,
+                    ConnectionsPtrVector> NeuronConnectionsMap;
 
             typedef boost::ptr_vector<Connection>::iterator
                     ConnectionIterator;
@@ -238,7 +238,8 @@ namespace Winzent {
              *
              * \throw NoConnectionException
              */
-            Connection* connection(Neuron const& from, Neuron const& to);
+            Connection* connection(Neuron const& from, Neuron const& to)
+                    const;
 
 
             /*!
@@ -249,7 +250,7 @@ namespace Winzent {
              *
              * \return A range of const iterators over all connections.
              */
-            ConnectionRange connections();
+            ConnectionPtrRange connections();
 
 
             /*!
@@ -260,7 +261,7 @@ namespace Winzent {
              *
              * \return A range of const iterators over all connections.
              */
-            ConnectionConstRange connections() const;
+            ConnectionPtrConstRange connections() const;
 
 
             /*!
@@ -522,7 +523,7 @@ namespace Winzent {
 
 
             //! \brief All connections between neurons in this NeuralNetwork
-            boost::ptr_vector<Connection> m_connections;
+            ConnectionsPtrVector m_connections;
 
 
             /*!
@@ -643,7 +644,9 @@ namespace Winzent {
                     .fixedWeight(c["fixedWeight"].AsBool());
             }
 
-            if (variant.Contains("pattern")) {
+            if (variant.Contains("pattern")
+                    && variant["pattern"].GetType()
+                        != libvariant::VariantDefines::NullType) {
                 ann.m_pattern.reset(new_from_variant<NeuralNetworkPattern>(
                         variant["pattern"]));
                 assert(ann.m_pattern != nullptr);

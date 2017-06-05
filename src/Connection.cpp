@@ -96,7 +96,7 @@ namespace Winzent {
         bool Connection::operator ==(const Connection& other) const
         {
             return (fixedWeight() == other.fixedWeight()
-                    && 1.0 + weight() == 1.0 + other.weight()
+                    && weight() == other.weight()
                     && source() == other.source()
                     && destination() == other.destination());
         }

@@ -129,6 +129,9 @@ namespace Winzent {
 
         NeuralNetwork::~NeuralNetwork()
         {
+            for (auto* c: m_connections) {
+                delete c;
+            }
         }
 
 
@@ -181,13 +184,14 @@ namespace Winzent {
         Connection* NeuralNetwork::connection(
                 Neuron const& from,
                 Neuron const& to)
+                const
         {
             auto connections = connectionsTo(to);
             auto cit = std::find_if(
                     connections.first,
                     connections.second,
                     [&from](const Connection *const &c) {
-                return c->source() == from;
+                return &(c->source()) == &(from);
             });
 
             if (cit != connections.second) {
@@ -199,13 +203,14 @@ namespace Winzent {
         }
 
 
-        NeuralNetwork::ConnectionRange NeuralNetwork::connections()
+        NeuralNetwork::ConnectionPtrRange NeuralNetwork::connections()
         {
             return make_pair(m_connections.begin(), m_connections.end());
         }
 
 
-        NeuralNetwork::ConnectionConstRange NeuralNetwork::connections() const
+        NeuralNetwork::ConnectionPtrConstRange NeuralNetwork::connections()
+                const
         {
             return make_pair(m_connections.cbegin(), m_connections.cend());
         }
@@ -283,7 +288,7 @@ namespace Winzent {
         }
 
 
-        Connection &NeuralNetwork::connectNeurons(
+        Connection& NeuralNetwork::connectNeurons(
                 Neuron const& from,
                 Neuron const& to)
         {
@@ -301,6 +306,7 @@ namespace Winzent {
             auto* connection = new Connection(src, dst, 0.0);
 
             m_connections.push_back(connection);
+            assert(m_connections.back() == connection);
             m_connectionSources[&src].push_back(connection);
             m_connectionDestinations[&dst].push_back(connection);
 
@@ -315,30 +321,27 @@ namespace Winzent {
             auto connection = std::find_if(
                     m_connections.begin(),
                     m_connections.end(),
-                    [&from, &to](Connection const& c) {
-                return &(c.source()) == &from
-                        && &(c.destination()) == &to;
+                    [&from, &to](Connection* const& c) {
+                return &(c->source()) == &from
+                        && &(c->destination()) == &to;
             });
 
             if (connection == m_connections.end()) {
                 throw NoConnectionException(from, to);
             }
 
-            auto &sources = m_connectionSources[const_cast<Neuron *>(&from)];
-            std::remove(
-                    sources.begin(),
-                    sources.end(),
-                    &(*connection));
+            auto &sources = m_connectionSources[const_cast<Neuron*>(&from)];
+            std::remove(sources.begin(), sources.end(), *connection);
 
             auto &destinations = m_connectionDestinations.at(
-                    const_cast<Neuron *>(&to));
+                    const_cast<Neuron*>(&to));
             std::remove(
                     destinations.begin(),
                     destinations.end(),
-                    &(*connection));
+                    *connection);
 
             m_connections.erase(connection);
-            delete &(*connection);
+            delete *connection;
         }
 
 
@@ -483,41 +486,62 @@ namespace Winzent {
             equal &= ((m_pattern == nullptr && other.m_pattern == nullptr)
                     || (m_pattern != nullptr && other.m_pattern != nullptr
                         && *m_pattern == *(other.m_pattern)));
-            equal &= (m_connectionSources.size()
-                    == other.m_connectionSources.size());
+            equal &= (m_connections.size() == other.m_connections.size());
 
             if (! equal) { // Short cut in order to save time:
                 return equal;
             }
 
-            auto lit1 = m_layers.begin(), lit2 = other.m_layers.begin();
-            for (; lit1 != m_layers.end() && lit2 != other.m_layers.end();
-                    lit1++, lit2++) {
-                if (! (*lit1 == *lit2)) {
-                    return false;
+            for (auto const* connection: m_connections) {
+                int dstLayer = -1;
+                for (size_type l = 0; l != size(); ++l) {
+                    if (&((*this)[l]) == connection->destination().parent()) {
+                        dstLayer = static_cast<int>(l);
+                    }
                 }
-            }
+                assert (dstLayer != -1);
 
-            for (size_type i = 0; i != size(); ++i) {
-                const auto& layer = (*this)[i];
+                auto dstNeuron = connection->destination().parent()->indexOf(
+                        connection->destination());
 
-                for (Layer::size_type j = 0; j != layer.size(); ++j) {
-                    const auto& ourConnections = connectionsTo(layer[j]);
-                    const auto& otherConnections =
-                            other.connectionsTo(other[i][j]);
+                if (&(connection->source()) == &(biasNeuron())) {
+                    if (! other.connectionExists(
+                                other.biasNeuron(),
+                                other[dstLayer][dstNeuron])) {
+                        return false;
+                    }
 
-                    for (auto it1 = ourConnections.first,
-                                it2 = otherConnections.first;
-                            it1 != ourConnections.second
-                                && it2 != otherConnections.second;
-                            it1++, it2++) {
-                        if (**it1 != **it2) {
-                            return false;
+                    auto *otherConnection = other.connection(
+                                other.biasNeuron(),
+                                other[dstLayer][dstNeuron]);
+                    if (*connection != *otherConnection) {
+                        return false;
+                    }
+                } else {
+                    int srcLayer = -1;
+                    for (size_type l = 0; l != size(); ++l) {
+                        if (&((*this)[l]) == connection->source().parent()) {
+                            srcLayer = static_cast<int>(l);
                         }
+                    }
+                    assert (srcLayer != -1);
+
+                    auto srcNeuron = connection->source().parent()->indexOf(
+                            connection->source());
+
+                    if (! other.connectionExists(
+                                other[srcLayer][srcNeuron],
+                                other[dstLayer][dstNeuron])) {
+                        return false;
+                    }
+
+                    if (*connection != *(other.connection(
+                                other[srcLayer][srcNeuron],
+                                other[dstLayer][dstNeuron]))) {
+                        return false;
                     }
                 }
             }
-
 
             return equal;
         }
