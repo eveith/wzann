@@ -1,0 +1,52 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use JSON;
+use Data::Dumper;
+
+
+my $ann = decode_json(<>);
+
+
+print <<EOF;
+#!/usr/bin/env dot
+
+digraph ANN {
+    Neuron_BIAS [label="BIAS"];
+
+EOF
+
+for (my $l = 0; $l < scalar(@{ $ann->{layers} }); $l++) {
+    print "    subgraph Layer_$l {\n        label=\"Layer $l\";\n\n";
+
+    for (my $n = 0; $n < scalar(@{ $ann->{layers}[$l] }); $n++) {
+        print "        Neuron_${l}_$n ".
+            "[label=\"$ann->{layers}[$l][$n]{activationFunction}\"];\n";
+    }
+
+    print "    }\n\n";
+}
+
+foreach my $connection (@{ $ann->{connections} }) {
+    print "    Neuron_";
+
+    if ($connection->{srcNeuron} eq 'BIAS') {
+        print 'BIAS';
+    } else {
+        print "$connection->{srcLayer}_$connection->{srcNeuron}";
+    }
+
+    print " -> ".
+        "Neuron_$connection->{dstLayer}_$connection->{dstNeuron} ".
+        "[label=\"$connection->{weight}\"";
+
+    if ($connection->{fixedWeight}) {
+        print ",style=dashed";
+    }
+
+    print "];\n";
+}
+
+print "}\n";

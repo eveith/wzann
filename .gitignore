@@ -43,7 +43,7 @@ Makefile.*
 *.unsuccessfulbuild
 ipch/
 obj/
-[Bb]in
+Bin
 [Dd]ebug*/
 [Rr]elease*/
 Ankh.NoLoad
