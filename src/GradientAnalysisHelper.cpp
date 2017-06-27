@@ -4,7 +4,7 @@
 #include "NeuralNetwork.h"
 #include "ActivationFunction.h"
 
-#include "GradientAnalysis.h"
+#include "GradientAnalysisHelper.h"
 
 namespace Winzent {
     namespace ANN {

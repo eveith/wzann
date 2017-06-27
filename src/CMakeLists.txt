@@ -25,8 +25,7 @@ set(wzann_SOURCES
     TrainingSet.cpp
     TrainingItem.cpp
     TrainingAlgorithm.cpp
-
-    GradientAnalysis.cpp
+    GradientAnalysisHelper.cpp
     RpropTrainingAlgorithm.cpp
     BackpropagationTrainingAlgorithm.cpp
 #    ElmanNetworkPattern.cpp
@@ -68,9 +67,8 @@ set(wzann_HEADERS
     TrainingSet.h
     TrainingItem.h
     TrainingAlgorithm.h
-
-    GradientAnalysis.h
     PsoTrainingAlgorithm.h
+    GradientAnalysisHelper.h
     RpropTrainingAlgorithm.h
     REvolutionaryTrainingAlgorithm.h
     BackpropagationTrainingAlgorithm.h)

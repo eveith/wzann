@@ -15,8 +15,8 @@
 #include "Connection.h"
 #include "TrainingSet.h"
 #include "NeuralNetwork.h"
-#include "GradientAnalysis.h"
 #include "ActivationFunction.h"
+#include "GradientAnalysisHelper.h"
 
 #include "BackpropagationTrainingAlgorithm.h"
 
