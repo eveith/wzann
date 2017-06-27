@@ -4,16 +4,14 @@
 
 #include <gtest/gtest.h>
 
-#include "ActivationFunction.h"
+#include "NeuralNetworkPattern.h"
 
 
 class ElmanNetworkPatternTest: public ::testing::Test
 {
 
-private:
-    QList<int> layers;
-    QList<Winzent::ANN::ActivationFunction*>
-        activationFunctions;
+protected:
+    Winzent::ANN::NeuralNetworkPattern::SimpleLayerDefinitions m_layers;
 
 protected:
     ElmanNetworkPatternTest();

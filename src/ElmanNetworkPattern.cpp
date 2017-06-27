@@ -1,99 +1,68 @@
-#include <initializer_list>
-#include <QVector>
-#include <QList>
-
-#include <ClassRegistry.h>
-
 #include "Layer.h"
 #include "Neuron.h"
 #include "Vector.h"
-#include "Exception.h"
 #include "Connection.h"
 #include "NeuralNetwork.h"
-
+#include "ClassRegistry.h"
 #include "ActivationFunction.h"
-#include "RememberingActivationFunction.h"
+#include "LayerSizeMismatchException.h"
 
 #include "NeuralNetworkPattern.h"
 #include "ElmanNetworkPattern.h"
 
 
-using std::initializer_list;
-
-
 namespace Winzent {
     namespace ANN {
-        ElmanNetworkPattern::ElmanNetworkPattern()
+        ElmanNetworkPattern::ElmanNetworkPattern() : NeuralNetworkPattern()
         {
         }
 
 
-        ElmanNetworkPattern::ElmanNetworkPattern(
-                QList<int> layerSizes,
-                QList<ActivationFunction *> activationFunctions):
-                    NeuralNetworkPattern(layerSizes, activationFunctions)
-        {
-        }
-
-
-        ElmanNetworkPattern::ElmanNetworkPattern(
-                initializer_list<int> layerSizes,
-                initializer_list<ActivationFunction*> activationFunctions):
-                    ElmanNetworkPattern(
-                        QList<int>(layerSizes), // Cast necessary!
-                        QList<ActivationFunction *>(activationFunctions))
+        ElmanNetworkPattern::~ElmanNetworkPattern()
         {
         }
 
 
         NeuralNetworkPattern* ElmanNetworkPattern::clone() const
         {
-            QList<int> layerSizes = m_layerSizes;
-            QList<ActivationFunction *> activationFunctions;
+            auto* patternClone = new ElmanNetworkPattern();
 
-            for (const auto &f: m_activationFunctions) {
-                activationFunctions.push_back(f->clone());
+            for (auto const& layerDefinition: m_layerDefinitions) {
+                patternClone->addLayer(
+                        SimpleLayerDefinition(layerDefinition));
             }
 
-            // Delete the CONTEXT layer, as the constructor will try to add it
-            // and fail if the network has more than three layers:
-
-            if (layerSizes.size() > 3) {
-                layerSizes.removeAt(CONTEXT);
-                activationFunctions.removeAt(CONTEXT);
-            }
-
-            return new ElmanNetworkPattern(
-                        layerSizes,
-                        activationFunctions);
+            return patternClone;
         }
 
 
-        void ElmanNetworkPattern::configureNetwork(NeuralNetwork &network)
+        void ElmanNetworkPattern::configureNetwork(NeuralNetwork& network)
         {
-
             // Make sure that we do not get more than three layers here:
 
-            if (m_layerSizes.size() != 3) {
-                throw LayerSizeMismatchException(m_layerSizes.size(), 3);
+            if (m_layerDefinitions.size() != 3) {
+                throw LayerSizeMismatchException(
+                        3,
+                        m_layerDefinitions.size());
             }
 
             // We need to insert the context layer after the input layer.
 
-            m_layerSizes.insert(CONTEXT, m_layerSizes.at(1));
-            m_activationFunctions.insert(
-                    CONTEXT,
-                    new RememberingActivationFunction(1.0));
+            m_layerDefinitions.insert(
+                    m_layerDefinitions.begin() + HIDDEN,
+                    m_layerDefinitions.at(1));
 
             // Create layers & neurons:
 
-            for (int lidx = INPUT; lidx <= OUTPUT; ++lidx) {
-                Layer *layer = new Layer();
-                int layerSize = m_layerSizes.at(lidx);
+            for (auto const& layerDefinition: m_layerDefinitions) {
+                auto* layer = new Layer();
+                auto layerSize = layerDefinition.first;
 
-                for (int i = 0; i != layerSize; ++i) {
-                    layer->addNeuron(
-                            new Neuron(m_activationFunctions[lidx]->clone()));
+                for (SimpleLayerDefinition::first_type i = 0; i != layerSize;
+                        ++i) {
+                    auto* neuron = new Neuron();
+                    neuron->activationFunction(layerDefinition.second);
+                    layer->addNeuron(neuron);
                 }
 
                 network << layer;
@@ -101,22 +70,24 @@ namespace Winzent {
 
             // Set up connections:
 
-            for (int lidx = INPUT; lidx <= OUTPUT; ++lidx) {
-                int layerSize = m_layerSizes.at(lidx);
+            for (NeuralNetwork::size_type lidx = INPUT; lidx <= OUTPUT;
+                    ++lidx) {
+                auto layerSize = m_layerDefinitions.at(lidx).first;
 
                 switch (lidx) {
                 case INPUT: {
-                    fullyConnectNetworkLayers(network, lidx, HIDDEN);
+                    fullyConnectNetworkLayers(network[lidx], network[HIDDEN]);
                     break;
                 }
                 case CONTEXT: {
-                    fullyConnectNetworkLayers(network, lidx, HIDDEN);
+                    fullyConnectNetworkLayers(network[lidx], network[HIDDEN]);
                     break;
                 }
                 case HIDDEN: {
-                    fullyConnectNetworkLayers(network, lidx, OUTPUT);
+                    fullyConnectNetworkLayers(network[lidx], network[OUTPUT]);
 
-                    for (int i = 0; i != layerSize; ++i) {
+                    for (NeuralNetwork::size_type i = 0; i != layerSize;
+                            ++i) {
                         auto &connection = network.connectNeurons(
                                 network[HIDDEN][i],
                                 network[CONTEXT][i]);
@@ -161,19 +132,19 @@ namespace Winzent {
         }
 
 
-        bool ElmanNetworkPattern::equals(
-                const NeuralNetworkPattern* const &other)
+        bool ElmanNetworkPattern::operator ==(
+                NeuralNetworkPattern const& other)
                 const
         {
-            return reinterpret_cast<const ElmanNetworkPattern* const&>(
-                        other) != nullptr
-                    && NeuralNetworkPattern::equals(other);
+            return reinterpret_cast<ElmanNetworkPattern const*>(&other)
+                        != nullptr
+                    && NeuralNetworkPattern::operator ==(other);
         }
 
 
         Vector ElmanNetworkPattern::calculate(
-                NeuralNetwork &network,
-                const Vector &input)
+                NeuralNetwork& network,
+                Vector const& input)
         {
             auto layerInput = network.calculateLayer(
                     network[INPUT],

@@ -16,6 +16,7 @@ set(wzann_SOURCES
     NeuralNetwork.cpp
     ActivationFunction.cpp
 
+    ElmanNetworkPattern.cpp
     NeuralNetworkPattern.cpp
     PerceptronNetworkPattern.cpp
 
@@ -28,7 +29,6 @@ set(wzann_SOURCES
     GradientAnalysisHelper.cpp
     RpropTrainingAlgorithm.cpp
     BackpropagationTrainingAlgorithm.cpp
-#    ElmanNetworkPattern.cpp
 #    Exception.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp

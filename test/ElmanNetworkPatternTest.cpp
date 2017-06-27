@@ -1,44 +1,35 @@
 #include <gtest/gtest.h>
 
-#include <QTextStream>
 
-#include <initializer_list>
-
-#include "ElmanNetworkPatternTest.h"
-
-#include "ElmanNetworkPattern.h"
 #include "NeuralNetwork.h"
 #include "Layer.h"
 #include "Neuron.h"
 #include "Connection.h"
 #include "ActivationFunction.h"
-#include "SigmoidActivationFunction.h"
+
+#include "ElmanNetworkPattern.h"
+#include "ElmanNetworkPatternTest.h"
 
 
-using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::Connection;
-using Winzent::ANN::ElmanNetworkPattern;
-using Winzent::ANN::ActivationFunction;
-using Winzent::ANN::SigmoidActivationFunction;
+using namespace Winzent::ANN;
 
 
-ElmanNetworkPatternTest::ElmanNetworkPatternTest
+ElmanNetworkPatternTest::ElmanNetworkPatternTest()
 {
-    layers
-            << 1
-            << 10
-            << 1;
-    activationFunctions
-            << new SigmoidActivationFunction()
-            << new SigmoidActivationFunction()
-            << new SigmoidActivationFunction();
+    m_layers.push_back({ 1, ActivationFunction::ReLU });
+    m_layers.push_back({ 10, ActivationFunction::Logistic });
+    m_layers.push_back({ 1, ActivationFunction::Logistic });
 }
 
 
 TEST_F(ElmanNetworkPatternTest, testConfigure)
 {
     NeuralNetwork network;
-    ElmanNetworkPattern pattern(layers, activationFunctions);
+    ElmanNetworkPattern pattern;
+
+    for (auto const& layerDefinition : m_layers) {
+        pattern.addLayer(layerDefinition);
+    }
 
     network.configure(pattern);
 
@@ -46,8 +37,8 @@ TEST_F(ElmanNetworkPatternTest, testConfigure)
 
     // Each hidden layer neuron has one context neuron: Check
 
-    for (int i = 1; i != layers.at(1); ++i) {
-        for (int j = 1; j != layers.at(1); ++j) {
+    for (Layer::size_type i = 1; i != m_layers[1].first; ++i) {
+        for (Layer::size_type j = 1; j != m_layers[1].first; ++j) {
             bool connection = network.connectionExists(
                     network[ElmanNetworkPattern::HIDDEN][i],
                     network[ElmanNetworkPattern::CONTEXT][j]);

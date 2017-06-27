@@ -2,27 +2,15 @@
 #define WINZENT_ANN_ELMANNETWORKPATTERN_H_
 
 
-#include <initializer_list>
-
-#include <QObject>
-#include <QList>
-
-#include <ClassRegistry.h>
-
 #include "NeuralNetworkPattern.h"
-
-#include "Winzent-ANN_global.h"
-
-
-using std::initializer_list;
 
 
 namespace Winzent {
     namespace ANN {
 
         /*!
-         * Represents the general layout and wokring mode of an
-         * <em>Elman</em> network.
+         * \brief This ANN pattern implements the layout of Elman Simple
+         *  Recurrent Networks.
          *
          * Elman networks have three layers,
          * the input, hidden and output layer. Each neuron in the
@@ -31,20 +19,14 @@ namespace Winzent {
          * output of its corresponding hidden neuron and feed it
          * again to the hidden neuron upon next activation.
          */
-        class WINZENTANNSHARED_EXPORT ElmanNetworkPattern:
-                public NeuralNetworkPattern
+        class ElmanNetworkPattern : public NeuralNetworkPattern
         {
-            Q_OBJECT
-
-            friend class Winzent::ClassRegistration<ElmanNetworkPattern>;
-
-
         public:
 
 
             //! \brief Index constants for the layers we generate.
             enum Layers {
-                INPUT,
+                INPUT = 0,
                 CONTEXT,
                 HIDDEN,
                 OUTPUT
@@ -52,32 +34,14 @@ namespace Winzent {
 
 
             /*!
-             * Creates a new network pattern.
+             * \brief Creates a new, empty pattern
              *
-             * This constructor automagically takes care of the
-             * context layer, i.e. you do not have to supply
-             * the definition for this one manually.
-             *
-             * \sa NeuralNetworkPattern#NeuralNetworkPattern
+             * \sa NeuralNetworkPattern#addLayer()
              */
-            ElmanNetworkPattern(
-                    QList<int> layerSizes,
-                    QList<ActivationFunction *> activationFunctions);
+            explicit ElmanNetworkPattern();
 
 
-            /*!
-             * Creates a new network pattern.
-             *
-             * This constructor automagically takes care of the
-             * context layer, i.e. you do not have to supply
-             * the definition for this one manually.
-             *
-             * \sa NeuralNetworkPattern#NeuralNetworkPattern
-             */
-            ElmanNetworkPattern(
-                    initializer_list<int> layerSizes,
-                    initializer_list<ActivationFunction *>
-                        activationFunctions);
+            virtual ~ElmanNetworkPattern();
 
 
             //! \brief Clones this pattern
@@ -110,9 +74,8 @@ namespace Winzent {
              * \return True if the two are of the same class and have the
              *  same parameters
              */
-            virtual bool equals(const NeuralNetworkPattern* const& other)
+            virtual bool operator ==(NeuralNetworkPattern const& other)
                     const override;
-
 
         protected:
 
@@ -123,15 +86,9 @@ namespace Winzent {
              * \sa NeuralNetworkPattern#calculate()
              */
             virtual Vector calculate(
-                    NeuralNetwork &network,
-                    const Vector &input)
+                    NeuralNetwork& network,
+                    Vector const& input)
                     override;
-
-
-        private:
-
-
-            ElmanNetworkPattern();
         };
     } /* namespace ANN */
 } /* namespace Winzent */
