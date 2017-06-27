@@ -109,6 +109,8 @@ namespace Winzent {
             variant["input"] = to_variant(trainingItem.m_input);
             variant["expectedOutput"] = to_variant(
                     trainingItem.m_expectedOutput);
+
+            return variant;
         }
 
 
