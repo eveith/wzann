@@ -22,16 +22,18 @@ set(wzann_SOURCES
     SimpleWeightRandomizer.cpp
     NguyenWidrowWeightRandomizer.cpp
 
-#    BackpropagationTrainingAlgorithm.cpp
+    TrainingSet.cpp
+    TrainingItem.cpp
+    TrainingAlgorithm.cpp
+
+    GradientAnalysis.cpp
+    RpropTrainingAlgorithm.cpp
+    BackpropagationTrainingAlgorithm.cpp
 #    ElmanNetworkPattern.cpp
 #    Exception.cpp
-#    LinearActivationFunction.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp
-#    RpropTrainingAlgorithm.cpp
 #    SimulatedAnnealingTrainingAlgorithm.cpp
-#    TrainingAlgorithm.cpp
-#    TrainingSet.cpp
 )
 
 set(wzann_HEADERS
@@ -55,6 +57,7 @@ set(wzann_HEADERS
     NeuralNetwork.h
     ActivationFunction.h
 
+    ElmanNetworkPattern.h
     NeuralNetworkPattern.h
     PerceptronNetworkPattern.h
 
@@ -62,14 +65,16 @@ set(wzann_HEADERS
     SimpleWeightRandomizer.h
     NguyenWidrowWeightRandomizer.h
 
-    BackpropagationTrainingAlgorithm.h
-    ElmanNetworkPattern.h
-    LinearActivationFunction.h
-    PsoTrainingAlgorithm.h
-    REvolutionaryTrainingAlgorithm.h
-    RpropTrainingAlgorithm.h
+    TrainingSet.h
+    TrainingItem.h
     TrainingAlgorithm.h
-    TrainingSet.h)
+
+    GradientAnalysis.h
+    PsoTrainingAlgorithm.h
+    RpropTrainingAlgorithm.h
+    REvolutionaryTrainingAlgorithm.h
+    BackpropagationTrainingAlgorithm.h)
+
 
 set(wzann_RESOURCE_FILES
     Schemata.qrc)

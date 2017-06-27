@@ -2,16 +2,13 @@
 #define TRAININGSET_H_
 
 
-#include <QtGlobal>
-#include <QList>
-
 #include <cstddef>
 #include <ostream>
 
-#include "Vector.h"
+#include "TrainingItem.h"
 #include "NeuralNetwork.h"
-
-#include <JsonSerializable.h>
+#include "JsonSerializable.h"
+#include "LibVariantSupport.h"
 
 
 namespace Winzent {
@@ -21,130 +18,7 @@ namespace Winzent {
         class TrainingAlgorithm;
 
 
-        /*!
-         * \brief Represents one training input and expected output
-         *
-         * This class represents one item a net can train on. It
-         * contains the input values and the expected output values.
-         * It also contains a method to calculate the RMSE if an
-         * actual output is given.
-         *
-         * \sa #rootMeanSquareError
-         */
-        class WINZENTANNSHARED_EXPORT TrainingItem: public JsonSerializable
-        {
-        public:
 
-
-            /*!
-             * \brief Constructs a new instance given input and expected
-             *  output.
-             */
-            TrainingItem(const Vector &input, const Vector &expectedOutput);
-
-
-            /*!
-             * Constructs a new training item without an expected output: This
-             * Items is fed to the network during training, but its output is
-             * discarded and not added in during error calculation. Useful for
-             * recurrent networks.
-             *
-             * \param[in] input The input that is fed to the neural network.
-             *
-             * \sa #outputRelevant
-             */
-            TrainingItem(const Vector &input);
-
-
-            /*!
-             * \brief Constructs a new, empty training item.
-             */
-            explicit TrainingItem()
-            {
-            }
-
-
-            /*!
-             * Creates a copy of the other training item.
-             */
-            TrainingItem(const TrainingItem &rhs);
-
-
-            /*!
-             * \return The input for the net
-             */
-            const Vector input() const;
-
-
-            /*!
-             * \return The output that is expected of the net
-             */
-            const Vector expectedOutput() const;
-
-
-            /*!
-             * \return Whether an expected output exists and is relevant or not
-             */
-            bool outputRelevant() const;
-
-
-            /*!
-             * Calculates the error of each item in a vector. This method
-             * applies the simple formula `error[i] = expected[i]-actual[i]`.
-             *
-             * \param[in] actualOutput The output the network actually emitted
-             *
-             * \return The error between the output the network emitted
-             *  and that which is stored in the training item.
-             */
-            Vector errors(const Vector &actualOutput) const;
-
-
-            /*!
-             * \brief Calculates the squared errors for each item in the
-             *  vector provided
-             *
-             * \param[in] actualOutput The output of an ANN
-             *
-             * \return `error[i] = (expected[i]-actual[i])^2`
-             */
-            Vector squaredErrors(const Vector &actualOutput) const;
-
-
-            //! \brief Clears the TrainingItem
-            virtual void clear() override;
-
-
-            /*!
-             * \brief Serializes the TrainingItem to JSON
-             *
-             * \return The JSON representation of the TrainingItem
-             */
-            virtual QJsonDocument toJSON() const override;
-
-
-            /*!
-             * \brief Reinstates a serialized JSON TrainingItem
-             *
-             * \param[in] json The TrainingItem's JSON representation
-             */
-            virtual void fromJSON(const QJsonDocument &json) override;
-
-
-            //! \brief Assignment operator
-            TrainingItem &operator =(const TrainingItem &rhs);
-
-
-        private:
-
-
-            //! \brief The input presented to the network
-            Vector m_input;
-
-
-            //! \brief The output expected from the network.
-            Vector m_expectedOutput;
-        };
 
 
         /*!
@@ -156,19 +30,20 @@ namespace Winzent {
          * of iteration have been reached. The resulting target error
          * is then stored in the particular training set instance.
          */
-        class WINZENTANNSHARED_EXPORT TrainingSet: public JsonSerializable
+        class TrainingSet
         {
             friend class TrainingAlgorithm;
+            friend TrainingSet from_variant<>(libvariant::Variant const&);
 
 
         public:
 
 
-            //! A vector or list of training items
-            typedef QList<TrainingItem> TrainingItems;
+            //! \brief A vector of training items
+            typedef std::vector<TrainingItem> TrainingItems;
 
 
-            //! The actual set of training data
+            //! \brief The actual set of training data
             TrainingItems trainingItems;
 
 
@@ -178,7 +53,7 @@ namespace Winzent {
              *
              * \param[in] trainingData The data used for training, given
              *  as a Hash mapping input to output. Both are
-             *  <code>qreal[]</code>, where each array index
+             *  <code>double[]</code>, where each array index
              *  corresponds to a neuron.
              *
              * \param[in] targetError The target mean square error after
@@ -191,8 +66,8 @@ namespace Winzent {
              */
             TrainingSet(
                     TrainingItems trainingItems,
-                    const qreal &targetError,
-                    const size_t &maxNumEpochs);
+                    double targetError,
+                    size_t maxNumEpochs);
 
 
             //! Creates an empty training set.
@@ -209,7 +84,7 @@ namespace Winzent {
              *
              * \return The actual, current error
              */
-            qreal error() const;
+            double error() const;
 
 
             /*!
@@ -217,7 +92,7 @@ namespace Winzent {
              *
              * \return The target error
              */
-            qreal targetError() const;
+            double targetError() const;
 
 
             /*!
@@ -227,7 +102,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            TrainingSet &targetError(const qreal &targetError);
+            TrainingSet &targetError(double targetError);
 
 
             /*!
@@ -248,7 +123,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            TrainingSet &maxEpochs(const size_t &maxEpochs);
+            TrainingSet& maxEpochs(size_t maxEpochs);
 
 
             /*!
@@ -259,11 +134,11 @@ namespace Winzent {
 
 
             /*!
-             * \brief Adds a training item to this training set
+             * \brief Move-adds a training item to this training set
              *
              * \param[in] item The training item
              */
-            void push_back(const TrainingItem &item);
+            void push_back(TrainingItem&& item);
 
 
             /*!
@@ -273,41 +148,18 @@ namespace Winzent {
              * \param[in] trainingSet The training set whose data should be
              *  appended to this one.
              */
-            void push_back(const TrainingSet &trainingSet);
+            void push_back(TrainingSet const& trainingSet);
 
 
             /*!
-             * \brief Adds a copy of the given TrainingItem to the list of
-             *  training items
+             * \brief Adds the given TrainingItem to the list of
+             *  training items by moving it into the TrainingSet.
              *
              * \param[in] item The new item
              *
              * \return `*this`
              */
-            TrainingSet &operator <<(const TrainingItem &item);
-
-
-            /*!
-             * \brief Clears the TrainingSet completeley
-             *  and resets all parameters
-             */
-            virtual void clear() override;
-
-
-            /*!
-             * \brief Deserializes an TrainingSet into the current object
-             *
-             * \param[in] json The JSON representation of the TrainingSet
-             */
-            virtual void fromJSON(const QJsonDocument &json) override;
-
-
-            /*!
-             * \brief Serializes the current TrainingSet
-             *
-             * \return The serialized version of the object
-             */
-            virtual QJsonDocument toJSON() const override;
+            TrainingSet &operator <<(TrainingItem&& item);
 
 
             /*!
@@ -324,7 +176,7 @@ namespace Winzent {
 
 
             //! The target MSE
-            qreal m_targetError;
+            double m_targetError;
 
 
             //! Maximum number of epochs the training will run for.
@@ -336,30 +188,69 @@ namespace Winzent {
 
 
             //! The actual MSE after training ran
-            qreal m_error;
+            double m_error;
         };
+
+
+        template <>
+        inline libvariant::Variant to_variant(TrainingSet const& ts)
+        {
+            libvariant::Variant v;
+
+            v["epochs"] = ts.epochs();
+            v["maxEpochs"] = ts.maxEpochs();
+            v["error"] = ts.error();
+            v["targetError"] = ts.targetError();
+
+            libvariant::Variant::List trainingItems;
+            for (auto const& i: ts.trainingItems) {
+                trainingItems.push_back(to_variant(i));
+            }
+            v["trainingItems"] = trainingItems;
+
+            return v;
+        }
+
+
+        template <>
+        inline TrainingSet from_variant(libvariant::Variant const& variant)
+        {
+            TrainingSet ts;
+
+            ts.m_epochs = static_cast<size_t>(
+                    variant["epochs"].AsUnsigned());
+            ts.maxEpochs(static_cast<size_t>(
+                    variant["maxEpochs"].AsUnsigned()));
+            ts.m_error = variant["error"].AsDouble();
+            ts.targetError(variant["targetError"].AsDouble());
+
+            for (const auto &i: variant["trainingItems"].AsList()) {
+                ts.push_back(from_variant<TrainingItem>(i));
+            }
+
+            return ts;
+        }
+
+
+#if 0
+        template <>
+        struct JsonSchema<Winzent::ANN::TrainingSet>
+        {
+            static constexpr const char schemaURI[] =
+                    ":/schema/TrainingSetSchema.json";
+        };
+#endif
     } /* namespace ANN */
-
-
-    template <>
-    struct JsonSchema<Winzent::ANN::TrainingSet>
-    {
-        static constexpr const char schemaURI[] =
-                ":/schema/TrainingSetSchema.json";
-    };
 } /* namespace Winzent */
 
 
 namespace std {
-    ostream &operator <<(
-            ostream &os,
-            const Winzent::ANN::TrainingItem &trainingItem);
-    ostream &operator <<(
-            ostream &os,
-            const Winzent::ANN::TrainingSet::TrainingItems &trainingData);
-    ostream &operator <<(
-            ostream &os,
-            const Winzent::ANN::TrainingSet &trainingSet);
+    ostream& operator <<(
+            ostream& os,
+            Winzent::ANN::TrainingSet::TrainingItems const& trainingData);
+    ostream& operator <<(
+            ostream& os,
+            Winzent::ANN::TrainingSet const& trainingSet);
 }
 
 #endif /* TRAININGSET_H_ */

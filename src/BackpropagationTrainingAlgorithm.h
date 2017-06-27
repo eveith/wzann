@@ -1,8 +1,9 @@
-#ifndef WINZENT_MODEL_FORECASTER_ANN_BACKPROPAGATIONTRAININGALGORITHM_H
-#define WINZENT_MODEL_FORECASTER_ANN_BACKPROPAGATIONTRAININGALGORITHM_H
+#ifndef BACKPROPAGATIONTRAININGALGORITHM_H
+#define BACKPROPAGATIONTRAININGALGORITHM_H
 
 
-#include <QHash>
+#include <cmath>
+#include <unordered_map>
 
 #include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
@@ -13,82 +14,20 @@ namespace Winzent {
 
 
         class Neuron;
-        class NeuralNetwork;
         class TrainingSet;
+        class NeuralNetwork;
 
 
-        class BackpropagationTrainingAlgorithm: public TrainingAlgorithm
+        class BackpropagationTrainingAlgorithm : public TrainingAlgorithm
         {
-        private:
-
-
-            /*!
-             * The neural network we are currently training.
-             */
-            NeuralNetwork *m_neuralNetwork;
-
-
-            /*!
-             * Caches the ouptut neuron errors (diffs) of the current epoch.
-             */
-            Vector m_outputError;
-
-
-            /*!
-             * Delta values for the neurons, which are consecutively index
-             *
-             * \sa NeuralNetwork#m_weightMatrix
-             */
-            QHash<Neuron *, qreal> m_deltas;
-
-
-            /*!
-             * The learning rate applied to each weight change
-             */
-            qreal m_learningRate;
-
-
-            /*!
-             * Calculates the error per neuron between the actual and the
-             * expected output of the neural net.
-             */
-            Vector outputError(
-                    const Vector &actual,
-                    const Vector &expected)
-                        const;
-
-
-            /*!
-             * \brief Calculates the neuron delta for one given neuron,
-             *  assuming it is an output layer neuron.
-             */
-            qreal outputNeuronDelta(const Neuron &neuron, const qreal &error)
-                    const;
-
-
-            /*!
-             * Calculates the neuron delta for a neuron in an hidden layer.
-             */
-            qreal hiddenNeuronDelta(
-                    NeuralNetwork &ann,
-                    const Neuron &neuron,
-                    QHash<const Neuron *, qreal> &neuronDeltas,
-                    const Vector &outputError)
-                        const;
-
-
-            /*!
-             * Calculates the delta value of a neuron.
-             */
-            qreal neuronDelta(
-                    NeuralNetwork &ann,
-                    const Neuron &neuron,
-                    QHash<const Neuron *, qreal> &neuronDeltas,
-                    const Vector &outputError)
-                        const;
-
-
         public:
+
+            typedef std::unordered_map<
+                    Connection*,
+                    double> ConnectionDeltaMap;
+
+
+            const double DEFAULT_LEARNING_RATE = 0.7;
 
 
             /*!
@@ -102,13 +41,13 @@ namespace Winzent {
              *
              * \param parent The parent object
              */
-            BackpropagationTrainingAlgorithm(qreal learningRate = 0.7);
+            BackpropagationTrainingAlgorithm();
 
 
             /*!
              * \return The learning rate applied to each weight change
              */
-            qreal learningRate() const;
+            double learningRate() const;
 
 
             /*!
@@ -119,7 +58,7 @@ namespace Winzent {
              *
              * \return `*this`
              */
-            BackpropagationTrainingAlgorithm &learningRate(const qreal &rate);
+            BackpropagationTrainingAlgorithm& learningRate(double rate);
 
 
             /*!
@@ -128,10 +67,16 @@ namespace Winzent {
              * \param[in] trainingSet A set of sample inputs and expected
              *  outputs.
              */
-            virtual void train(NeuralNetwork &ann, TrainingSet &trainingSet)
+            virtual void train(NeuralNetwork& ann, TrainingSet& trainingSet)
                     override;
+
+
+        private:
+
+            //! \brief The learning rate applied to each weight change
+            double m_learningRate;
         };
     } // namespace ANN
 } // namespace Winzent
 
-#endif // WINZENT_MODEL_FORECASTER_ANN_BACKPROPAGATIONTRAININGALGORITHM_H
+#endif // BACKPROPAGATIONTRAININGALGORITHM_H

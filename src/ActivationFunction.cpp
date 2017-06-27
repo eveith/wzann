@@ -18,7 +18,7 @@ namespace Winzent {
                 fx = x;
                 break;
             case ActivationFunction::BinaryStep:
-                fx = x < 0 ? 0. : 1.;
+                fx = x + 1. < 1. ? 0. : 1.;
                 break;
             case ActivationFunction::Logistic:
                 fx = 1. / (1. + std::exp(-x));
@@ -27,7 +27,7 @@ namespace Winzent {
                 fx = std::tanh(x);
                 break;
             case ActivationFunction::ReLU:
-                fx = x < 0 ? 0. : x;
+                fx = x + 1. < 1. ? 0. : x;
                 break;
             case ActivationFunction::Gaussian:
                 fx = std::exp(- std::pow(x, 2));
@@ -61,7 +61,7 @@ namespace Winzent {
                 fx = 1. - std::pow(calculate(f, x), 2);
                 break;
             case ActivationFunction::ReLU:
-                fx = x < 0 ? 0. : 1;
+                fx = x + 1. < 1. ? 0. : 1.;
                 break;
             case ActivationFunction::Gaussian:
                 fx = -2. * x * std::exp(- std::pow(x, 2));

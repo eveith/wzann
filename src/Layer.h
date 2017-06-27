@@ -196,11 +196,15 @@ namespace Winzent {
              *
              * \return `this`
              */
-            Layer &addNeuron(Neuron* const& neuron);
+            Layer& addNeuron(Neuron* const& neuron);
 
 
-            //! Checks for equality
-            bool operator ==(const Layer &other) const;
+            //! \brief Checks for equality
+            bool operator ==(Layer const& other) const;
+
+
+            //! \brief `!(*this == other)`
+            bool operator !=(Layer const& other) const;
 
 
         private:

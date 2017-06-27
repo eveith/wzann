@@ -1,28 +1,14 @@
-/*!
- * \file TrainingAlgorithm.h
- */
-
-
-#ifndef WINZENT_MODEL_FORECASTER_ANN_TRAININGALGORITHM_H
-#define WINZENT_MODEL_FORECASTER_ANN_TRAININGALGORITHM_H
-
+#ifndef TRAININGALGORITHM_H
+#define TRAININGALGORITHM_H
 
 
 #include <cstddef>
 
-#include <log4cxx/logger.h>
-
-#include "Exception.h"
-#include "NeuralNetwork.h"
-#include "Winzent-ANN_global.h"
-
 
 namespace Winzent {
     namespace ANN {
-
-
-        class NeuralNetwork;
         class TrainingSet;
+        class NeuralNetwork;
 
 
         /*!
@@ -51,13 +37,14 @@ namespace Winzent {
              * \throws LayerSizeMismatchException if the number of
              *  neurons in one input vector differs from the other.
              */
-            static qreal calculateMeanSquaredError(
-                    const Vector &actualOutput,
-                    const Vector &expectedOutput)
-                    throw(LayerSizeMismatchException);
+            static double calculateMeanSquaredError(
+                    const Vector& actualOutput,
+                    const Vector& expectedOutput);
 
 
             TrainingAlgorithm();
+
+
             virtual ~TrainingAlgorithm();
 
 
@@ -84,15 +71,11 @@ namespace Winzent {
              * \sa NeuralNetwork#train
              */
             virtual void train(
-                    NeuralNetwork &neuralNetwork,
-                    TrainingSet &trainingSet) = 0;
+                    NeuralNetwork& neuralNetwork,
+                    TrainingSet& trainingSet) = 0;
 
 
         protected:
-
-
-            //! \brief Internal logger
-            log4cxx::LoggerPtr logger;
 
 
             /*!
@@ -103,8 +86,7 @@ namespace Winzent {
              *
              * \param[in] error The final error
              */
-            void setFinalError(TrainingSet &trainingSet, const qreal &error)
-                    const;
+            void setFinalError(TrainingSet& trainingSet, double error) const;
 
 
             /*!
@@ -115,13 +97,11 @@ namespace Winzent {
              *
              * \param[in] epochs The number of epochs the training took.
              */
-            void setFinalNumEpochs(
-                    TrainingSet &trainingSet,
-                    const size_t &epochs)
+            void setFinalNumEpochs(TrainingSet& trainingSet, size_t epochs)
                     const;
 
         };
     } // namespace ANN
 } // namespace Winzent
 
-#endif // WINZENT_MODEL_FORECASTER_ANN_TRAININGALGORITHM_H
+#endif // TRAININGALGORITHM_H

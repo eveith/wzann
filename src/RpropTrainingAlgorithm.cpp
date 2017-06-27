@@ -1,31 +1,27 @@
-#include <QHash>
-
 #include <cmath>
 #include <limits>
 #include <algorithm>
 
 #include <boost/range.hpp>
-
-#include <log4cxx/logger.h>
-
-#include "NeuralNetwork.h"
-#include "TrainingSet.h"
+#include <boost/range/adaptor/reversed.hpp>
 
 #include "Layer.h"
-#include "Connection.h"
-
 #include "Neuron.h"
+#include "Connection.h"
+#include "TrainingSet.h"
+#include "NeuralNetwork.h"
+#include "GradientAnalysis.h"
 #include "ActivationFunction.h"
 
-#include "TrainingAlgorithm.h"
 #include "RpropTrainingAlgorithm.h"
 
 
-using std::accumulate;
 using std::fabs;
 using std::max;
 using std::min;
+using std::accumulate;
 
+using boost::adaptors::reverse;
 using boost::make_iterator_range;
 
 
@@ -33,23 +29,23 @@ namespace Winzent {
     namespace ANN {
 
 
-
-        const qreal RpropTrainingAlgorithm::ETA_POSITIVE =  1.2;
-        const qreal RpropTrainingAlgorithm::ETA_NEGATIVE = -0.5;
-        const qreal RpropTrainingAlgorithm::ZERO_TOLERANCE =
+        const double RpropTrainingAlgorithm::ETA_POSITIVE =  1.2;
+        const double RpropTrainingAlgorithm::ETA_NEGATIVE = -0.5;
+        const double RpropTrainingAlgorithm::ZERO_TOLERANCE =
                 0.00000000000000001;
-        const qreal RpropTrainingAlgorithm::DEFAULT_INITIAL_UPDATE = 0.1;
-        const qreal RpropTrainingAlgorithm::DELTA_MIN = 1e-6;
-        const qreal RpropTrainingAlgorithm::MAX_STEP = 50.0;
+        const double RpropTrainingAlgorithm::DEFAULT_INITIAL_UPDATE = 0.1;
+        const double RpropTrainingAlgorithm::DELTA_MIN = 1e-6;
+        const double RpropTrainingAlgorithm::MAX_STEP = 50.0;
 
 
 
-        RpropTrainingAlgorithm::RpropTrainingAlgorithm(): TrainingAlgorithm()
+        RpropTrainingAlgorithm::RpropTrainingAlgorithm() :
+                TrainingAlgorithm()
         {
         }
 
 
-        int RpropTrainingAlgorithm::sgn(const qreal &x)
+        int RpropTrainingAlgorithm::sgn(double x)
         {
             if (fabs(x) < ZERO_TOLERANCE) {
                 return 0;
@@ -63,218 +59,95 @@ namespace Winzent {
         }
 
 
-        Vector RpropTrainingAlgorithm::feedForward(
-                NeuralNetwork &network,
-                const TrainingItem &trainingItem)
-                const
-        {
-            Vector actualOutput = network.calculate(
-                    trainingItem.input());
-            return outputError(trainingItem.expectedOutput(), actualOutput);
-        }
-
-
-        Vector RpropTrainingAlgorithm::outputError(
-                const Vector &expected,
-                const Vector &actual)
-                const
-        {
-            Q_ASSERT(expected.size() == actual.size());
-
-            Vector error;
-            error.reserve(actual.size());
-
-            for (auto i = 0; i != actual.size(); ++i) {
-                error.push_back(expected.at(i) - actual.at(i));
-            }
-
-            return error;
-        }
-
-
-        qreal RpropTrainingAlgorithm::outputNeuronDelta(
-                const Neuron &neuron,
-                const qreal &error)
-                const
-        {
-            return error * neuron.activationFunction()->calculateDerivative(
-                    neuron.lastInput(),
-                    neuron.lastResult());
-        }
-
-
-        qreal RpropTrainingAlgorithm::hiddenNeuronDelta(
-                NeuralNetwork &ann,
-                const Neuron &neuron,
-                QHash<const Neuron *, qreal> &neuronDeltas,
-                const Vector &outputError)
-                const
-        {
-            qreal delta = 0.0;
-
-            auto connections = ann.connectionsFrom(neuron);
-            Q_ASSERT(connections.second-connections.first > 0);
-
-            for (const auto &c: make_iterator_range(connections)) {
-                // weight(j,k) * delta(k):
-                delta += neuronDelta(
-                            ann,
-                            c->destination(),
-                            neuronDeltas,
-                            outputError)
-                        * c->weight();
-                delta += neuronDeltas.value(&(c->destination())) *c->weight();
-            }
-
-            delta *= neuron.activationFunction()->calculateDerivative(
-                    neuron.lastInput(),
-                    neuron.lastResult());
-
-            return delta;
-        }
-
-
-        qreal RpropTrainingAlgorithm::neuronDelta(
-                NeuralNetwork &ann,
-                const Neuron &neuron,
-                QHash<const Neuron *, qreal> &neuronDeltas,
-                const Vector &outputError)
-                const
-        {
-            // Apply memoization, where possible:
-
-            if (neuronDeltas.contains(&neuron)) {
-                return neuronDeltas.value(&neuron);
-            }
-
-            // What layer does the neuron live in?
-
-            Q_ASSERT(! ann.inputLayer().contains(neuron));
-            qreal delta = 0.0;
-
-            if (ann.outputLayer().contains(neuron)) {
-                qreal error = outputError.at(
-                        ann.outputLayer().indexOf(neuron));
-                delta = outputNeuronDelta(neuron, error);
-            } else {
-                delta = hiddenNeuronDelta(
-                        ann,
-                        neuron,
-                        neuronDeltas,
-                        outputError);
-            }
-
-            neuronDeltas.insert(&neuron, delta);
-            return delta;
-        }
-
-
         void RpropTrainingAlgorithm::train(
                 NeuralNetwork &ann,
                 TrainingSet &trainingSet)
         {
-            QHash<const Connection *, qreal> currentGradients;
-            QHash<const Connection *, qreal> lastGradients;
-            QHash<const Connection *, qreal> updateValues;
-            QHash<const Connection *, qreal> lastWeightChange;
-            qreal error         = std::numeric_limits<qreal>::max();
-            size_t epoch           = 0;
+            ConnectionGradientMap currentGradients;
+            ConnectionGradientMap lastGradients;
+            ConnectionGradientMap updateValues;
+            ConnectionGradientMap lastWeightChange;
+            double error = std::numeric_limits<double>::max();
+            size_t epoch = 0;
 
-            while (error >= trainingSet.targetError()
-                   && ++epoch < trainingSet.maxEpochs()) {
+            for(; epoch < trainingSet.maxEpochs()
+                        && error > trainingSet.targetError();
+                    ++epoch) {
                 error = 0.0;
                 currentGradients.clear();
+                size_t numRelevantItems = 0;
 
                 // Forward pass:
 
-                for (const auto &item: trainingSet.trainingItems) {
-                    Vector errorVector = feedForward(ann, item);
-                    error += accumulate(
-                            errorVector.begin(),
-                            errorVector.end(),
-                            0.0,
-                            [](const qreal &error, const qreal &delta)
-                                    -> qreal {
-                                return error + delta * delta;
-                            });
+                for (auto const& ti: trainingSet.trainingItems) {
+                    const Vector actualOutput = ann.calculate(ti.input());
+                    if (! ti.outputRelevant()) {
+                        continue;
+                    }
 
+                    numRelevantItems++;
+                    Vector errorOutput;
+                    errorOutput.reserve(actualOutput.size());
+                    error += GradientAnalysisHelper::errors(
+                            make_iterator_range(actualOutput),
+                            make_iterator_range(ti.expectedOutput()),
+                            std::back_inserter(errorOutput));
 
-                    QHash<const Neuron *, qreal> neuronDeltas;
+                    GradientAnalysisHelper::NeuronDeltaMap neuronDeltas;
 
-                    // Calculate error delta of all neurons in the forward pass:
+                    // Calculate error delta of all neurons
+                    // in the forward pass:
 
-                    ann.eachConnection([
-                            this,
-                            &ann,
-                            &neuronDeltas,
-                            &errorVector,
-                            &currentGradients ]
-                            (const Connection *c) {
+                    for (auto* c: reverse(ann.connections())) {
                         if (c->fixedWeight()) {
-                            return;
+                            continue;
                         }
 
-                        const auto &dstNeuron = c->destination();
-
-                        if (ann.inputLayer().contains(dstNeuron)) {
-                            return;
-                        }
-
-                        qreal delta = neuronDelta(
+                        auto const& dstNeuron = c->destination();
+                        auto delta = GradientAnalysisHelper::neuronDelta(
                                 ann,
-                                dstNeuron,
+                                c->destination(),
                                 neuronDeltas,
-                                errorVector);
-                        neuronDeltas.insert(&dstNeuron, delta);
+                                errorOutput);
+                        neuronDeltas[&dstNeuron] = delta;
 
-                        // Add upp gradients. The default-constructed value
-                        // for a qreal stored in a QHash is 0.0:
+                        // Add up gradients. The default-constructed value
+                        // in for value-initalization is zero initialization:
 
-                        currentGradients[c] += delta
-                                * c->source().lastResult();
-                    });
+                        currentGradients[c] += delta*c->source().lastResult();
+                    }
                 }
 
                 // Calculate mean of all errors:
 
-                error /= (trainingSet.trainingItems.size()
-                        * ann.outputLayer().size());
+                error /= numRelevantItems;
 
                 // Now, learn:
 
-                ann.eachConnection([
-                        this,
-                        &currentGradients,
-                        &lastGradients,
-                        &updateValues,
-                        &lastWeightChange ]
-                        (Connection *const &c) {
-                    if (c->fixedWeight()) {
-                        return;
-                    }
+                for (auto const& gradient: currentGradients) {
+                    auto* c = gradient.first;
 
                     int change = sgn(currentGradients[c] * lastGradients[c]);
-                    qreal dw = 0.0;
+                    double dw = 0.0;
 
-                    qreal updateValue = DEFAULT_INITIAL_UPDATE;
-                    if (updateValues.contains(c)) {
+                    double updateValue = DEFAULT_INITIAL_UPDATE;
+                    if (updateValues.find(c) != updateValues.end()) {
                         updateValue = updateValues[c];
                     }
 
                     if (0 == change) {
-                        qreal delta = updateValue;
+                        double delta = updateValue;
                         dw = sgn(currentGradients[c]) * delta;
                         lastGradients[c] = currentGradients[c];
                     } else if (change > 0) { // Retained sign, increase step:
-                        qreal delta = updateValue * ETA_POSITIVE;
+                        double delta = updateValue * ETA_POSITIVE;
                         delta = min(delta, MAX_STEP);
                         dw = sgn(currentGradients[c]) * delta;
                         updateValues[c] = delta;
                         lastGradients[c] = currentGradients[c];
-
                         lastWeightChange[c] = dw;
                     } else { // change < 0 --- Last delta was too big
-                        qreal delta = updateValue * ETA_NEGATIVE;
+                        double delta = updateValue * ETA_NEGATIVE;
                         delta = max(delta, DELTA_MIN);
                         updateValues[c] = delta;
                         dw = -lastWeightChange[c];
@@ -285,13 +158,8 @@ namespace Winzent {
                         lastGradients[c] = 0.0;
                     }
 
-                    c->weight(c->weight() + dw);
-                });
-
-
-                LOG4CXX_DEBUG(
-                        logger,
-                        "Epoch: " << epoch << ", error: " << error);
+                    c->weight(c->weight() - dw);
+                }
             }
 
             setFinalError(trainingSet, error);

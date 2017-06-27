@@ -134,12 +134,12 @@ namespace Winzent {
             static const char VERSION[];
 
 
-            //! Constructs an empty, uninitialized network.
+            //! \brief Constructs an empty, uninitialized network.
             NeuralNetwork();
 
 
-            //! Copy constructor
-            NeuralNetwork(const NeuralNetwork &rhs);
+            //! \brief Copy constructor
+            NeuralNetwork(NeuralNetwork const& rhs);
 
 
             //! Deletes all neurons, connections, and activation functions

@@ -253,9 +253,9 @@ namespace Winzent {
 
 
         NeuralNetwork::ConnectionPtrConstRange
-        NeuralNetwork::connectionsTo(const Neuron &neuron) const
+        NeuralNetwork::connectionsTo(Neuron const& neuron) const
         {
-            auto *n = const_cast<Neuron *>(&neuron);
+            auto* n = const_cast<Neuron*>(&neuron);
             auto it = m_connectionDestinations.find(n);
 
             if (m_connectionDestinations.end() == it) {
@@ -292,7 +292,7 @@ namespace Winzent {
                 Neuron const& from,
                 Neuron const& to)
         {
-            if (&from != &biasNeuron() && ! contains(from)) {
+            if (&from != &(biasNeuron()) && ! contains(from)) {
                 throw UnknownNeuronException(from);
             }
 

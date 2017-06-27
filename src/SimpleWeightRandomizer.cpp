@@ -55,10 +55,9 @@ namespace Winzent {
                     m_minWeight,
                     m_maxWeight);
 
-            for (Connection& c:
-                    make_iterator_range(neuralNetwork.connections())) {
-                if (! c.fixedWeight()) {
-                    c.weight(rDistribution(rng));
+            for (auto* c: make_iterator_range(neuralNetwork.connections())) {
+                if (! c->fixedWeight()) {
+                    c->weight(rDistribution(rng));
                 }
             }
         }

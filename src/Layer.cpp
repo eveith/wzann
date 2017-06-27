@@ -147,6 +147,12 @@ namespace Winzent {
 
             return i1 == end() && i2 == other.end();
         }
+
+
+        bool Layer::operator !=(Layer const& other) const
+        {
+            return !(*this == other);
+        }
     } // namespace ANN
 } // namespace Winzent
 

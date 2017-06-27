@@ -6,41 +6,45 @@
 #include <limits>
 #include <cmath>
 
-#include <QHash>
-
 #include <boost/range.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 
 #include "Layer.h"
 #include "Neuron.h"
 #include "Vector.h"
 #include "Connection.h"
-#include "ActivationFunction.h"
-#include "NeuralNetwork.h"
 #include "TrainingSet.h"
-#include "Exception.h"
+#include "NeuralNetwork.h"
+#include "GradientAnalysis.h"
+#include "ActivationFunction.h"
 
 #include "BackpropagationTrainingAlgorithm.h"
 
 
+using std::pow;
+using std::accumulate;
+
+using boost::adaptors::reverse;
+using boost::make_iterator_range;
+
+
 namespace Winzent {
     namespace ANN {
-
-        BackpropagationTrainingAlgorithm::BackpropagationTrainingAlgorithm(
-                qreal learningRate):
-                    TrainingAlgorithm(),
-                    m_learningRate(learningRate)
+        BackpropagationTrainingAlgorithm::BackpropagationTrainingAlgorithm() :
+                TrainingAlgorithm(),
+                m_learningRate(DEFAULT_LEARNING_RATE)
         {
         }
 
 
-        qreal BackpropagationTrainingAlgorithm::learningRate() const
+        double BackpropagationTrainingAlgorithm::learningRate() const
         {
             return m_learningRate;
         }
 
 
-        BackpropagationTrainingAlgorithm &
-        BackpropagationTrainingAlgorithm::learningRate(const qreal &rate)
+        BackpropagationTrainingAlgorithm&
+        BackpropagationTrainingAlgorithm::learningRate(double rate)
         {
             m_learningRate = rate;
             return *this;
@@ -48,82 +52,66 @@ namespace Winzent {
 
 
         void BackpropagationTrainingAlgorithm::train(
-                NeuralNetwork &ann,
-                TrainingSet &trainingSet)
+                NeuralNetwork& ann,
+                TrainingSet& trainingSet)
         {
             // Initialize the state variables:
 
-            size_t epochs  = 0;
-            qreal error = std::numeric_limits<qreal>::max();
+            size_t epochs = 0;
+            double error = std::numeric_limits<double>::max();
 
             for(; epochs < trainingSet.maxEpochs()
                         && error > trainingSet.targetError();
                     ++epochs) {
-
-                // Begin this run with an error of 0, and clear the state
-                // variables:
-
                 error = 0.0;
+                size_t numRelevantItems = 0;
 
-                // We present each training pattern once per epoch. An epoch
-                // is complete once we've presented the complete training set to
-                // the network. We then calculate the overall error and try to
-                // minimize it.
-
-                for (TrainingItem it: trainingSet.trainingItems) {
-
-                    // Reset memoization fields:
-
-                    m_deltas.clear();
-                    m_outputError.clear();
-
-                    // Set up state storage:
-
-                    QHash<const Neuron *, qreal> neuronDeltas;
-                    QHash<Connection *, qreal> connectionDeltas;
+                for (auto const& ti: trainingSet.trainingItems) {
+                    GradientAnalysisHelper::NeuronDeltaMap neuronDeltas;
+                    ConnectionDeltaMap connectionDeltas;
 
                     // First step: Feed forward and compare the network's
                     // output with the ideal teaching output:
 
-                    Vector actualOutput = ann.calculate(it.input());
-                    Vector expectedOutput = it.expectedOutput();
-                    Vector errorOutput = outputError(
-                            actualOutput,
-                            expectedOutput);
-
-                    // Add squared error for this run:
-
-                    for (const auto &d: errorOutput) {
-                        error += d*d;
+                    const Vector actualOutput = ann.calculate(ti.input());
+                    if (! ti.outputRelevant()) {
+                        continue;
                     }
 
-                    // Backpropagation works in two phases: First, the error is
-                    // propagated backwarts from the output layer and the
-                    // weight deltas are calculated, then the deltas are
-                    // applied.
+                    numRelevantItems++;
+                    Vector errorOutput;
+                    errorOutput.reserve(actualOutput.size());
+                    error += GradientAnalysisHelper::errors(
+                            make_iterator_range(actualOutput),
+                            make_iterator_range(ti.expectedOutput()),
+                            std::back_inserter(errorOutput));
 
-                    ann.eachConnection([&](Connection *const &c) {
-                        auto dn = neuronDelta(
-                                ann,
-                                c->destination(),
-                                neuronDeltas,
-                                errorOutput);
-                        connectionDeltas.insert(
-                                c,
-                                learningRate() * dn
-                                    * c->source().lastResult());
-                    });
+                    // Propagate the error backwards:
 
-                    for (Connection *c: connectionDeltas.keys()) {
-                        c->weight(c->weight() + connectionDeltas[c]);
+                    for (auto* c: reverse(ann.connections())) {
+                        connectionDeltas[c] =
+                                GradientAnalysisHelper::neuronDelta(
+                                    ann,
+                                    c->destination(),
+                                    neuronDeltas,
+                                    errorOutput);
+                    }
+
+                    // Apply calculated delta values:
+
+                    for (auto& cd: connectionDeltas) {
+                        auto* connection = cd.first;
+                        auto delta = cd.second;
+
+                        connection->weight(connection->weight()
+                                - (learningRate() * delta
+                                   * connection->source().lastResult()));
                     }
                 }
 
                 // It's called MEAN square error for a reason:
 
-                error /= (trainingSet.trainingItems.count()
-                        * trainingSet.trainingItems.first()
-                            .expectedOutput().count());
+                error /= numRelevantItems;
             }
 
             // Store final training results:
@@ -132,100 +120,5 @@ namespace Winzent {
             setFinalNumEpochs(trainingSet, epochs);
         }
 
-
-        Vector BackpropagationTrainingAlgorithm::outputError(
-                const Vector &actual,
-                const Vector &expected)
-                    const
-        {
-            if (actual.size() != expected.size()) {
-                throw LayerSizeMismatchException(
-                        actual.size(),
-                        expected.size());
-            }
-
-            Vector error;
-
-            for (int i = 0; i != actual.size(); ++i) {
-                error << expected[i] - actual[i];
-            }
-
-            return error;
-        }
-
-
-        qreal BackpropagationTrainingAlgorithm::outputNeuronDelta(
-                const Neuron &neuron,
-                const qreal &error)
-                    const
-        {
-            return neuron.activationFunction()->calculateDerivative(
-                            neuron.lastInput(),
-                            neuron.lastResult())
-                    * error;
-        }
-
-
-        qreal BackpropagationTrainingAlgorithm::hiddenNeuronDelta(
-                NeuralNetwork &ann,
-                const Neuron &neuron,
-                QHash<const Neuron *, qreal> &neuronDeltas,
-                const Vector &outputError)
-                    const
-        {
-            qreal delta = 0.0;
-
-            auto connections = ann.connectionsFrom(neuron);
-            Q_ASSERT(connections.second-connections.first > 0);
-
-            for (const auto &c: boost::make_iterator_range(connections)) {
-                // weight(j,k) * delta(k):
-                delta += neuronDelta(
-                            ann,
-                            c->destination(),
-                            neuronDeltas,
-                            outputError)
-                        * c->weight();
-                delta += neuronDeltas[&(c->destination())] * c->weight();
-            }
-
-            delta *= neuron.activationFunction()->calculateDerivative(
-                    neuron.lastInput(),
-                    neuron.lastResult());
-
-            return delta;
-        }
-
-
-        qreal BackpropagationTrainingAlgorithm::neuronDelta(
-                NeuralNetwork &ann,
-                const Neuron &neuron,
-                QHash<const Neuron *, qreal> &neuronDeltas,
-                const Vector &outputError)
-                    const
-        {
-            Q_ASSERT(! ann.inputLayer().contains(neuron));
-
-            if (neuronDeltas.contains(&neuron)) {
-                return neuronDeltas.value(&neuron);
-            }
-
-            if (ann.outputLayer().contains(neuron)) {
-                size_t neuronIdx = ann.outputLayer().indexOf(neuron);
-                neuronDeltas.insert(
-                        &neuron,
-                        outputNeuronDelta(neuron, outputError.at(neuronIdx)));
-            } else {
-                neuronDeltas.insert(
-                        &neuron,
-                        hiddenNeuronDelta(
-                            ann,
-                            neuron,
-                            neuronDeltas,
-                            outputError));
-            }
-
-            return neuronDeltas.value(&neuron);
-        }
     }
 }

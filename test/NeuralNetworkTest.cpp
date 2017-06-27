@@ -15,6 +15,8 @@
 
 using namespace Winzent::ANN;
 
+using std::distance;
+
 
 const int Mock::NeuralNetworkTestDummyPattern::numLayers = 3;
 
@@ -230,6 +232,35 @@ TEST(NeuralNetworkTest, testConnectionsFromTo)
     ASSERT_EQ(*s, (*connectionDestinations.first)->source());
 
     delete network;
+}
+
+
+TEST(NeuralNetworkTest, testCreateConnection)
+{
+    NeuralNetwork ann;
+
+    Layer* l1 = new Layer(),
+            *l2 = new Layer();
+    l1->addNeuron(new Neuron());
+    l2->addNeuron(new Neuron());
+
+    ann << l1 << l2;
+    auto& connection = ann.connectNeurons((*l1)[0], (*l2)[0]);
+
+    auto allConnections = ann.connections();
+    auto connectionsTo = ann.connectionsTo((*l2)[0]);
+    auto connectionsFrom = ann.connectionsFrom((*l1)[0]);
+
+    ASSERT_EQ(1, distance(allConnections.first, allConnections.second));
+    ASSERT_EQ(1, distance(connectionsTo.first, connectionsTo.second));
+    ASSERT_EQ(1, distance(connectionsFrom.first, connectionsFrom.second));
+
+    ASSERT_EQ(&connection, *(allConnections.first));
+    ASSERT_EQ(&connection, *(connectionsTo.first));
+    ASSERT_EQ(&connection, *(connectionsFrom.first));
+    ASSERT_EQ(*(connectionsTo.first), *(connectionsFrom.first));
+    ASSERT_TRUE(*(allConnections.first) == *(connectionsTo.first));
+    ASSERT_TRUE(*(allConnections.first) == *(connectionsFrom.first));
 }
 
 

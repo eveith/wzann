@@ -27,6 +27,9 @@ TEST(PerceptronNetworkPatternTest, testConfigure)
                 ASSERT_TRUE(network.connectionExists(
                     network[i][j],
                     network[i+1][k]));
+                ASSERT_TRUE(network.connectionExists(
+                    network.biasNeuron(),
+                    network[i+1][k]));
             }
         }
     }

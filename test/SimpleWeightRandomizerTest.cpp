@@ -27,20 +27,20 @@ TEST(SimpleWeightRandomizerTest, testWeightRandomization)
     pattern.addLayer({ 20, ActivationFunction::Identity });
     neuralNetwork.configure(pattern);
 
-    for (auto const& c: make_iterator_range(neuralNetwork.connections())) {
-        if (&(c.source()) != &(neuralNetwork.biasNeuron())) {
-            ASSERT_EQ(c.weight() + 1.0, 1.0);
+    for (auto const* c: make_iterator_range(neuralNetwork.connections())) {
+        if (&(c->source()) != &(neuralNetwork.biasNeuron())) {
+            ASSERT_EQ(c->weight() + 1.0, 1.0);
         }
     }
 
     SimpleWeightRandomizer swr;
     swr.randomize(neuralNetwork);
 
-    for (auto const& c: make_iterator_range(neuralNetwork.connections())) {
-        if (&(c.source()) != &(neuralNetwork.biasNeuron())) {
-            ASSERT_TRUE(1.0 != c.weight() + 1.0);
-            ASSERT_TRUE(swr.minWeight() <= c.weight());
-            ASSERT_TRUE(c.weight() <= swr.maxWeight());
+    for (auto const* c: make_iterator_range(neuralNetwork.connections())) {
+        if (&(c->source()) != &(neuralNetwork.biasNeuron())) {
+            ASSERT_TRUE(1.0 != c->weight() + 1.0);
+            ASSERT_TRUE(swr.minWeight() <= c->weight());
+            ASSERT_TRUE(c->weight() <= swr.maxWeight());
         }
     }
 }

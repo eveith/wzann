@@ -12,11 +12,11 @@ set(test-wzann_SOURCES
     SimpleWeightRandomizerTest.cpp
     NguyenWidrowWeightRandomizerTest.cpp
 
-    #BackpropagationTrainingAlgorithmTest.cpp
     #ElmanNetworkPatternTest.cpp
     #PsoTrainingAlgorithmTest.cpp
     #REvolutionaryTrainingAlgorithmTest.cpp
-    #RpropTrainingAlgorithmTest.cpp
+    RpropTrainingAlgorithmTest.cpp
+    BackpropagationTrainingAlgorithmTest.cpp
     #SimulatedAnnealingTrainingAlgorithmTest.cpp
     #TrainingSetTest.cpp
     tst_ann.cpp)

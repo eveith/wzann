@@ -1,14 +1,9 @@
-#include <QtGlobal>
-
 #include <cmath>
 #include <cstddef>
 
-#include <log4cxx/logger.h>
-#include <log4cxx/logmanager.h>
-
-#include "Exception.h"
 #include "TrainingSet.h"
 #include "NeuralNetwork.h"
+#include "LayerSizeMismatchException.h"
 
 #include "TrainingAlgorithm.h"
 
@@ -18,11 +13,7 @@ using std::pow;
 
 namespace Winzent {
     namespace ANN {
-
-
-        TrainingAlgorithm::TrainingAlgorithm():
-                logger(log4cxx::LogManager::getLogger(
-                    "Winzent.ANN.TrainingAlgorithm"))
+        TrainingAlgorithm::TrainingAlgorithm()
         {
         }
 
@@ -32,19 +23,19 @@ namespace Winzent {
         }
 
 
-        qreal TrainingAlgorithm::calculateMeanSquaredError(
-                const Vector &actualOutput,
-                const Vector &expectedOutput)
-                throw(LayerSizeMismatchException)
+        double TrainingAlgorithm::calculateMeanSquaredError(
+                Vector const& actualOutput,
+                Vector const& expectedOutput)
         {
+#ifdef WZANN_DEBUG
             if (actualOutput.size() != expectedOutput.size()) {
                 throw LayerSizeMismatchException(
                         actualOutput.size(),
                         expectedOutput.size());
             }
+#endif
 
-
-            qreal error = 0.0;
+            double error = 0.0;
             int n = 0;
 
             for (auto eit = expectedOutput.begin(),
@@ -54,14 +45,14 @@ namespace Winzent {
                 error += pow(*eit - *ait, 2);
             }
 
-            error /= static_cast<qreal>(n);
+            error /= static_cast<double>(n);
             return error;
         }
 
 
         void TrainingAlgorithm::setFinalError(
-                TrainingSet &trainingSet,
-                const qreal &error)
+                TrainingSet& trainingSet,
+                double error)
                 const
         {
             trainingSet.m_error = error;
@@ -69,8 +60,8 @@ namespace Winzent {
 
 
         void TrainingAlgorithm::setFinalNumEpochs(
-                TrainingSet &trainingSet,
-                const size_t &epochs)
+                TrainingSet& trainingSet,
+                size_t epochs)
                 const
         {
             trainingSet.m_epochs = epochs;
