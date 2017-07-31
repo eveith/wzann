@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "Vector.h"
 #include "Neuron.h"
 #include "Connection.h"

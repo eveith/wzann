@@ -1,5 +1,6 @@
 #include <cmath>
 #include <limits>
+#include <numeric>
 #include <algorithm>
 
 #include <boost/range.hpp>

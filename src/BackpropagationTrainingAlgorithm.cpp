@@ -3,8 +3,9 @@
  */
 
 
-#include <limits>
 #include <cmath>
+#include <limits>
+#include <numeric>
 
 #include <boost/range.hpp>
 #include <boost/range/adaptor/reversed.hpp>
