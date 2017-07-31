@@ -54,6 +54,9 @@ namespace wzann {
 
 
         typedef std::unordered_map<std::string, Factory> Registry;
+        typedef std::pair<
+                typename Registry::const_iterator,
+                typename Registry::const_iterator> RegistryConstRange;
 
 
         /*!
@@ -85,7 +88,15 @@ namespace wzann {
         }
 
 
-
+        /*!
+         * \brief Introspectional, read-only access to the registry
+         *
+         * \return A RegistryConstRange over the whole registry
+         */
+        RegistryConstRange registry() const
+        {
+            return std::make_pair(m_registry.begin(), m_registry.end());
+        }
 
 
         /*!

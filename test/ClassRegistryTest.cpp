@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <boost/range.hpp>
+
 #include "ClassRegistry.h"
 #include "ClassRegistryTest.h"
 
@@ -19,6 +21,20 @@ namespace Mock {
 
 
 WZANN_REGISTER_CLASS(Mock::DClass, Mock::BClass)
+
+
+TEST(ClassRegistryTest, testRegistryIterator)
+{
+    int iterated = 0;
+    auto* cr = wzann::ClassRegistry<Mock::BClass>::instance();
+
+    for (auto const& i : boost::make_iterator_range(cr->registry())) {
+        ASSERT_EQ(i.first, "Mock::DClass");
+        iterated += 1;
+    }
+
+    ASSERT_EQ(iterated, 1);
+}
 
 
 TEST(ClassRegistryTest, testClassCreation)

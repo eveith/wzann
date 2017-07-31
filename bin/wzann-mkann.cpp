@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <boost/range.hpp>
 #include <boost/program_options.hpp>
 
 #include "WzannGlobal.h"
@@ -12,7 +13,12 @@ namespace po = boost::program_options;
 
 void listAnnPatterns()
 {
+    std::cout << "Known ANN patterns:\n";
+
     auto* cr = wzann::ClassRegistry<wzann::NeuralNetworkPattern>::instance();
+    for (auto const& rv : boost::make_iterator_range(cr->registry())) {
+        std::cout << "  * " << rv.first << "\n";
+    }
 }
 
 
