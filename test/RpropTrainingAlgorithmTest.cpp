@@ -10,7 +10,7 @@
 #include "RpropTrainingAlgorithmTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 TEST(RpropTrainingAlgorithmTest, testTrainXOR)

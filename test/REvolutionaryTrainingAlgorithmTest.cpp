@@ -22,22 +22,22 @@
 #include "REvolutionaryTrainingAlgorithmTest.h"
 
 
-using Winzent::ANN::Layer;
-using Winzent::ANN::Neuron;
-using Winzent::ANN::Connection;
-using Winzent::ANN::Vector;
-using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::ElmanNetworkPattern;
-using Winzent::ANN::SimpleWeightRandomizer;
-using Winzent::ANN::PerceptronNetworkPattern;
-using Winzent::ANN::LinearActivationFunction;
-using Winzent::ANN::SigmoidActivationFunction;
+using wzann::Layer;
+using wzann::Neuron;
+using wzann::Connection;
+using wzann::Vector;
+using wzann::NeuralNetwork;
+using wzann::ElmanNetworkPattern;
+using wzann::SimpleWeightRandomizer;
+using wzann::PerceptronNetworkPattern;
+using wzann::LinearActivationFunction;
+using wzann::SigmoidActivationFunction;
 
-using Winzent::ANN::TrainingSet;
-using Winzent::ANN::TrainingItem;
+using wzann::TrainingSet;
+using wzann::TrainingItem;
 
-using Winzent::ANN::Individual;
-using Winzent::ANN::REvolutionaryTrainingAlgorithm;
+using wzann::Individual;
+using wzann::REvolutionaryTrainingAlgorithm;
 
 
 NeuralNetwork* REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()

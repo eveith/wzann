@@ -13,7 +13,7 @@
 #include "NguyenWidrowWeightRandomizerTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 

@@ -14,104 +14,102 @@
 using std::get;
 
 
-namespace Winzent {
-    namespace ANN {
-        PerceptronNetworkPattern::PerceptronNetworkPattern()
-        {
+namespace wzann {
+    PerceptronNetworkPattern::PerceptronNetworkPattern()
+    {
+    }
+
+
+    PerceptronNetworkPattern::~PerceptronNetworkPattern()
+    {
+    }
+
+
+    NeuralNetworkPattern* PerceptronNetworkPattern::clone() const
+    {
+        auto* patternClone = new PerceptronNetworkPattern();
+
+        for (auto const& layerDefinition: m_layerDefinitions) {
+            patternClone->addLayer(
+                    SimpleLayerDefinition(layerDefinition));
         }
 
-
-        PerceptronNetworkPattern::~PerceptronNetworkPattern()
-        {
-        }
+        return patternClone;
+    }
 
 
-        NeuralNetworkPattern* PerceptronNetworkPattern::clone() const
-        {
-            auto* patternClone = new PerceptronNetworkPattern();
+    bool PerceptronNetworkPattern::operator ==(
+            NeuralNetworkPattern const& other)
+            const
+    {
+        return reinterpret_cast<PerceptronNetworkPattern const*>(&other)
+                    != nullptr
+                && NeuralNetworkPattern::operator ==(other);
+    }
 
-            for (auto const& layerDefinition: m_layerDefinitions) {
-                patternClone->addLayer(
-                        SimpleLayerDefinition(layerDefinition));
+
+    void PerceptronNetworkPattern::configureNetwork(
+            NeuralNetwork& network)
+    {
+        // Add the layers & neurons:
+
+        for (auto const& layerDefinition: m_layerDefinitions) {
+            auto* layer = new Layer();
+
+            for (Layer::size_type i = 0; i != get<0>(layerDefinition);
+                    ++i) {
+                auto* neuron = new Neuron();
+                neuron->activationFunction(get<1>(layerDefinition));
+                layer->addNeuron(neuron);
             }
 
-            return patternClone;
+            network << layer;
         }
 
+        // Now connect layers:
 
-        bool PerceptronNetworkPattern::operator ==(
-                NeuralNetworkPattern const& other)
-                const
-        {
-            return reinterpret_cast<PerceptronNetworkPattern const*>(&other)
-                        != nullptr
-                    && NeuralNetworkPattern::operator ==(other);
-        }
-
-
-        void PerceptronNetworkPattern::configureNetwork(
-                NeuralNetwork& network)
-        {
-            // Add the layers & neurons:
-
-            for (auto const& layerDefinition: m_layerDefinitions) {
-                auto* layer = new Layer();
-
-                for (Layer::size_type i = 0; i != get<0>(layerDefinition);
-                        ++i) {
-                    auto* neuron = new Neuron();
-                    neuron->activationFunction(get<1>(layerDefinition));
-                    layer->addNeuron(neuron);
-                }
-
-                network << layer;
-            }
-
-            // Now connect layers:
-
-            for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
-                if (i > 0) {
-                    for (auto const& neuron: network[i]) {
-                        network.connectNeurons(
-                                network.biasNeuron(),
-                                neuron)
-                            .weight(-1.0)
-                            .fixedWeight(false);
-                    }
-                }
-
-                if (i + 1 < network.size()) {
-                    fullyConnectNetworkLayers(network[i], network[i+1]);
+        for (NeuralNetwork::size_type i = 0; i != network.size(); ++i) {
+            if (i > 0) {
+                for (auto const& neuron: network[i]) {
+                    network.connectNeurons(
+                            network.biasNeuron(),
+                            neuron)
+                        .weight(-1.0)
+                        .fixedWeight(false);
                 }
             }
+
+            if (i + 1 < network.size()) {
+                fullyConnectNetworkLayers(network[i], network[i+1]);
+            }
         }
+    }
 
 
-        Vector PerceptronNetworkPattern::calculate(
-                NeuralNetwork& network,
-                Vector const& input)
-        {
-            Vector output = input; // For the loop
+    Vector PerceptronNetworkPattern::calculate(
+            NeuralNetwork& network,
+            Vector const& input)
+    {
+        Vector output = input; // For the loop
 
-            for (size_t i = 0; i != network.size(); ++i) {
-                output = network.calculateLayer(
+        for (size_t i = 0; i != network.size(); ++i) {
+            output = network.calculateLayer(
+                    network[i],
+                    output);
+
+            if (i < network.size() - 1) {
+                output = network.calculateLayerTransition(
                         network[i],
+                        network[i+1],
                         output);
-
-                if (i < network.size() - 1) {
-                    output = network.calculateLayerTransition(
-                            network[i],
-                            network[i+1],
-                            output);
-                }
             }
-
-            return output;
         }
-    } // namespace ANN
-} // namespace Winzent
+
+        return output;
+    }
+} // namespace wzann
 
 
-WINZENT_REGISTER_CLASS(
-        Winzent::ANN::PerceptronNetworkPattern,
-        Winzent::ANN::NeuralNetworkPattern)
+WZANN_REGISTER_CLASS(
+        wzann::PerceptronNetworkPattern,
+        wzann::NeuralNetworkPattern)

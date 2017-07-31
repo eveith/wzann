@@ -1,19 +1,17 @@
-#ifndef WINZENT_ANN_PSOTRAININGALGORITHM_H_
-#define WINZENT_ANN_PSOTRAININGALGORITHM_H_
+#ifndef WZANN_PSOTRAININGALGORITHM_H_
+#define WZANN_PSOTRAININGALGORITHM_H_
 
 
 #include <ostream>
 
-#include "ParticleSwarmOptimization.h"
+#include <ParticleSwarmOptimization.h>
 
 #include "TrainingSet.h"
 #include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
-#include "Winzent-ANN_global.h"
 
 
-namespace Winzent {
-    namespace ANN {
+namespace wzann {
 
 
         /*!
@@ -22,7 +20,7 @@ namespace Winzent {
          *
          * \sa Winzent::Algorithm::ParticleSwarmOptimization
          */
-        class WINZENTANNSHARED_EXPORT PsoTrainingAlgorithm:
+        class PsoTrainingAlgorithm :
                 public TrainingAlgorithm,
                 public Algorithm::ParticleSwarmOptimization
         {

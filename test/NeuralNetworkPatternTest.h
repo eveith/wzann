@@ -6,9 +6,9 @@
 #include "NeuralNetworkPattern.h"
 
 
-using Winzent::ANN::Vector;
-using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::NeuralNetworkPattern;
+using wzann::Vector;
+using wzann::NeuralNetwork;
+using wzann::NeuralNetworkPattern;
 
 
 namespace Mock {

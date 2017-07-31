@@ -11,7 +11,7 @@ class ElmanNetworkPatternTest: public ::testing::Test
 {
 
 protected:
-    Winzent::ANN::NeuralNetworkPattern::SimpleLayerDefinitions m_layers;
+    wzann::NeuralNetworkPattern::SimpleLayerDefinitions m_layers;
 
 protected:
     ElmanNetworkPatternTest();

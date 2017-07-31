@@ -18,16 +18,16 @@ namespace Mock {
 }
 
 
-WINZENT_REGISTER_CLASS(Mock::DClass, Mock::BClass)
+WZANN_REGISTER_CLASS(Mock::DClass, Mock::BClass)
 
 
 TEST(ClassRegistryTest, testClassCreation)
 {
     ASSERT_EQ(
             1,
-            Winzent::ClassRegistration<Mock::DClass>::Defined);
+            wzann::ClassRegistration<Mock::DClass>::Defined);
 
-    Mock::BClass* b = Winzent::ClassRegistry<Mock::BClass>::instance()
+    Mock::BClass* b = wzann::ClassRegistry<Mock::BClass>::instance()
             ->create("Mock::DClass");
     ASSERT_TRUE(b->exists());
     ASSERT_NE(
@@ -35,7 +35,7 @@ TEST(ClassRegistryTest, testClassCreation)
             reinterpret_cast<Mock::DClass*>(b));
     delete b;
 
-    Mock::DClass* d = Winzent::ClassRegistry<Mock::BClass>::instance()
+    Mock::DClass* d = wzann::ClassRegistry<Mock::BClass>::instance()
             ->create<Mock::DClass>("Mock::DClass");
     ASSERT_TRUE(d->exists());
     ASSERT_EQ(

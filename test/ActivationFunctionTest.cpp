@@ -4,7 +4,7 @@
 #include "ActivationFunctionTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 TEST(ActivationFunctionTest, testIdentity)

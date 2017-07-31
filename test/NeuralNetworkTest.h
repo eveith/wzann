@@ -8,13 +8,13 @@
 #include "NeuralNetworkPattern.h"
 
 
-using Winzent::ANN::Vector;
-using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::NeuralNetworkPattern;
+using wzann::Vector;
+using wzann::NeuralNetwork;
+using wzann::NeuralNetworkPattern;
 
 
 namespace Mock {
-    class NeuralNetworkTestDummyPattern: public NeuralNetworkPattern
+    class NeuralNetworkTestDummyPattern : public NeuralNetworkPattern
     {
     public:
 
@@ -35,7 +35,7 @@ namespace Mock {
 
 
         virtual Vector calculate(
-                Winzent::ANN::NeuralNetwork &network,
+                wzann::NeuralNetwork &network,
                 const Vector& input)
                 override;
 
@@ -44,9 +44,9 @@ namespace Mock {
 }
 
 
-WINZENT_REGISTER_CLASS(
+WZANN_REGISTER_CLASS(
         Mock::NeuralNetworkTestDummyPattern,
-        Winzent::ANN::NeuralNetworkPattern)
+        wzann::NeuralNetworkPattern)
 
 
 #endif /* NEURALNETWORKTEST_H_ */

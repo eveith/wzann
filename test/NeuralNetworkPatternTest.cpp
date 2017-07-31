@@ -10,7 +10,7 @@
 
 using Mock::NeuralNetworkPatternTestDummyPattern;
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 NeuralNetworkPatternTestDummyPattern::NeuralNetworkPatternTestDummyPattern():

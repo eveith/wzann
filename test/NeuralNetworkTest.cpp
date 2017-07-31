@@ -13,7 +13,7 @@
 #include "NeuralNetworkTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 using std::distance;
 

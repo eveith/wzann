@@ -13,8 +13,8 @@ namespace Winzent {
 }
 
 
-using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::Individual;
+using wzann::NeuralNetwork;
+using wzann::Individual;
 
 
 class PsoTrainingAlgorithmTest: public ::testing::Test

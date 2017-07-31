@@ -1,37 +1,32 @@
-#ifndef WINZENT_ANN_WEIGHTRANDOMIZER_H
-#define WINZENT_ANN_WEIGHTRANDOMIZER_H
+#ifndef WZANN_WEIGHTRANDOMIZER_H_
+#define WZANN_WEIGHTRANDOMIZER_H_
 
 
-namespace Winzent {
-    namespace ANN {
+namespace wzann {
+    class NeuralNetwork;
 
 
-        class NeuralNetwork;
+    /*!
+     * \brief Interface for ANN weight randomizer strategies
+     *
+     * This interface provides a common method for weight randomization
+     * strategies that initializes the weights of an artificial neural
+     * network.
+     */
+    class WeightRandomizer
+    {
+    public:
 
 
         /*!
-         * \brief Interface for ANN weight randomizer strategies
+         * \brief Randomizes the weights of the given ANN according to the
+         *  implementing strategy.
          *
-         * This interface provides a common method for weight randomization
-         * strategies that initializes the weights of an artificial neural
-         * network.
+         * \param[in] neuralNetwork The neural network
          */
-        class WeightRandomizer
-        {
-        public:
+        virtual void randomize(NeuralNetwork& neuralNetwork) = 0;
+    };
+} // namespace wzann
 
 
-            /*!
-             * \brief Randomizes the weights of the given ANN according to the
-             *  implementing strategy.
-             *
-             * \param[in] neuralNetwork The neural network
-             */
-            virtual void randomize(NeuralNetwork &neuralNetwork) = 0;
-        };
-    }
-}
-
-
-#endif // WINZENT_ANN_WEIGHTRANDOMIZER
-
+#endif // WZANN_WEIGHTRANDOMIZER_H_

@@ -11,11 +11,11 @@
 
 using boost::make_iterator_range;
 
-using Winzent::ANN::Connection;
-using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::ActivationFunction;
-using Winzent::ANN::SimpleWeightRandomizer;
-using Winzent::ANN::PerceptronNetworkPattern;
+using wzann::Connection;
+using wzann::NeuralNetwork;
+using wzann::ActivationFunction;
+using wzann::SimpleWeightRandomizer;
+using wzann::PerceptronNetworkPattern;
 
 
 TEST(SimpleWeightRandomizerTest, testWeightRandomization)

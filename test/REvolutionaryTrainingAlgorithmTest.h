@@ -9,8 +9,8 @@ namespace Winzent {
 }
 
 
-using Winzent::ANN::NeuralNetwork;
-using Winzent::ANN::Individual;
+using wzann::NeuralNetwork;
+using wzann::Individual;
 
 
 class REvolutionaryTrainingAlgorithmTest: public ::testing::Test

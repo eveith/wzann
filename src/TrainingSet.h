@@ -1,5 +1,5 @@
-#ifndef TRAININGSET_H_
-#define TRAININGSET_H_
+#ifndef WZANN_TRAININGSET_H_
+#define WZANN_TRAININGSET_H_
 
 
 #include <cstddef>
@@ -12,244 +12,237 @@
 #include "LibVariantSupport.h"
 
 
-namespace Winzent {
-    namespace ANN {
+namespace wzann {
+    class TrainingAlgorithm;
 
 
-        class TrainingAlgorithm;
+    /*!
+     * \brief Represents a complete set of training data.
+     *
+     * A set of training data is a collection of inputs together with
+     * their desired outputs. The training set is used to train the
+     * network until either the target error or the maximum number
+     * of iteration have been reached. The resulting target error
+     * is then stored in the particular training set instance.
+     */
+    class TrainingSet
+    {
+        friend class TrainingAlgorithm;
+        friend TrainingSet from_variant<>(libvariant::Variant const&);
 
 
+    public:
 
+
+        //! \brief A vector of training items
+        typedef std::vector<TrainingItem> TrainingItems;
+
+
+        //! \brief The actual set of training data
+        TrainingItems trainingItems;
 
 
         /*!
-         * \brief Represents a complete set of training data.
+         * Constructs a new TrainingSet by supplying the training
+         * data and the relevant paramters.
          *
-         * A set of training data is a collection of inputs together with
-         * their desired outputs. The training set is used to train the
-         * network until either the target error or the maximum number
-         * of iteration have been reached. The resulting target error
-         * is then stored in the particular training set instance.
+         * \param[in] trainingData The data used for training, given
+         *  as a Hash mapping input to output. Both are
+         *  <code>double[]</code>, where each array index
+         *  corresponds to a neuron.
+         *
+         * \param[in] targetError The target mean square error after
+         *  which the training stops
+         *
+         * \param[in] maxNumEpochs The maximum number of epochs the
+         *  training runs for. If this number is reached the
+         *  training will end, even if the target error is not
+         *  yet reached.
          */
-        class TrainingSet
-        {
-            friend class TrainingAlgorithm;
-            friend TrainingSet from_variant<>(libvariant::Variant const&);
+        TrainingSet(
+                TrainingItems trainingItems,
+                double targetError,
+                size_t maxNumEpochs);
 
 
-        public:
+        //! Creates an empty training set.
+        explicit TrainingSet();
 
 
-            //! \brief A vector of training items
-            typedef std::vector<TrainingItem> TrainingItems;
+        //! \brief Copy constructor
+        TrainingSet(const TrainingSet &other);
 
 
-            //! \brief The actual set of training data
-            TrainingItems trainingItems;
+        /*!
+         * \brief Returns the mean square error after the current
+         *  training epoch.
+         *
+         * \return The actual, current error
+         */
+        double error() const;
 
 
-            /*!
-             * Constructs a new TrainingSet by supplying the training
-             * data and the relevant paramters.
-             *
-             * \param[in] trainingData The data used for training, given
-             *  as a Hash mapping input to output. Both are
-             *  <code>double[]</code>, where each array index
-             *  corresponds to a neuron.
-             *
-             * \param[in] targetError The target mean square error after
-             *  which the training stops
-             *
-             * \param[in] maxNumEpochs The maximum number of epochs the
-             *  training runs for. If this number is reached the
-             *  training will end, even if the target error is not
-             *  yet reached.
-             */
-            TrainingSet(
-                    TrainingItems trainingItems,
-                    double targetError,
-                    size_t maxNumEpochs);
+        /*!
+         * \brief Returns the previously set target error.
+         *
+         * \return The target error
+         */
+        double targetError() const;
 
 
-            //! Creates an empty training set.
-            explicit TrainingSet();
+        /*!
+         * \brief Sets the target mean squared error
+         *
+         * \param[in] targetError The target MSE
+         *
+         * \return `*this`
+         */
+        TrainingSet &targetError(double targetError);
 
 
-            //! \brief Copy constructor
-            TrainingSet(const TrainingSet &other);
+        /*!
+         * \brief Returns the maximum number of epochs that are allowed
+         *  for training.
+         *
+         * \return The maximum number of iterations the training algorithm
+         *  may use
+         */
+        size_t maxEpochs() const;
 
 
-            /*!
-             * \brief Returns the mean square error after the current
-             *  training epoch.
-             *
-             * \return The actual, current error
-             */
-            double error() const;
+        /*!
+         * \brief Sets the maximum number of iterations a training
+         *  algorithm may use
+         *
+         * \param[in] maxEpochs The maximum number of epochs
+         *
+         * \return `*this`
+         */
+        TrainingSet& maxEpochs(size_t maxEpochs);
 
 
-            /*!
-             * \brief Returns the previously set target error.
-             *
-             * \return The target error
-             */
-            double targetError() const;
+        /*!
+         * Returns the number of epochs needed to complete
+         * the training.
+         */
+        size_t epochs() const;
 
 
-            /*!
-             * \brief Sets the target mean squared error
-             *
-             * \param[in] targetError The target MSE
-             *
-             * \return `*this`
-             */
-            TrainingSet &targetError(double targetError);
+        /*!
+         * \brief Move-adds a training item to this training set
+         *
+         * \param[in] item The training item
+         */
+        void push_back(TrainingItem&& item);
 
 
-            /*!
-             * \brief Returns the maximum number of epochs that are allowed
-             *  for training.
-             *
-             * \return The maximum number of iterations the training algorithm
-             *  may use
-             */
-            size_t maxEpochs() const;
+        /*!
+         * \brief Copies all training items from the other training set
+         *  to this one, in the correct order.
+         *
+         * \param[in] trainingSet The training set whose data should be
+         *  appended to this one.
+         */
+        void push_back(TrainingSet const& trainingSet);
 
 
-            /*!
-             * \brief Sets the maximum number of iterations a training
-             *  algorithm may use
-             *
-             * \param[in] maxEpochs The maximum number of epochs
-             *
-             * \return `*this`
-             */
-            TrainingSet& maxEpochs(size_t maxEpochs);
+        /*!
+         * \brief Adds the given TrainingItem to the list of
+         *  training items by moving it into the TrainingSet.
+         *
+         * \param[in] item The new item
+         *
+         * \return `*this`
+         */
+        TrainingSet &operator <<(TrainingItem&& item);
 
 
-            /*!
-             * Returns the number of epochs needed to complete
-             * the training.
-             */
-            size_t epochs() const;
+        /*!
+         * \brief Assignes another TrainingSet to this one
+         *
+         * \param[in] rhs The other training set to copy from
+         *
+         * \return `*this`
+         */
+        TrainingSet &operator =(const TrainingSet &rhs);
 
 
-            /*!
-             * \brief Move-adds a training item to this training set
-             *
-             * \param[in] item The training item
-             */
-            void push_back(TrainingItem&& item);
+    private:
 
 
-            /*!
-             * \brief Copies all training items from the other training set
-             *  to this one, in the correct order.
-             *
-             * \param[in] trainingSet The training set whose data should be
-             *  appended to this one.
-             */
-            void push_back(TrainingSet const& trainingSet);
+        //! The target MSE
+        double m_targetError;
 
 
-            /*!
-             * \brief Adds the given TrainingItem to the list of
-             *  training items by moving it into the TrainingSet.
-             *
-             * \param[in] item The new item
-             *
-             * \return `*this`
-             */
-            TrainingSet &operator <<(TrainingItem&& item);
+        //! Maximum number of epochs the training will run for.
+        size_t m_maxNumEpochs;
 
 
-            /*!
-             * \brief Assignes another TrainingSet to this one
-             *
-             * \param[in] rhs The other training set to copy from
-             *
-             * \return `*this`
-             */
-            TrainingSet &operator =(const TrainingSet &rhs);
+        //! Actual number of epochs it took to complete the training.
+        size_t m_epochs;
 
 
-        private:
+        //! The actual MSE after training ran
+        double m_error;
+    };
 
 
-            //! The target MSE
-            double m_targetError;
+    template <>
+    inline libvariant::Variant to_variant(TrainingSet const& ts)
+    {
+        libvariant::Variant v;
+
+        v["epochs"] = ts.epochs();
+        v["maxEpochs"] = ts.maxEpochs();
+        v["error"] = ts.error();
+        v["targetError"] = ts.targetError();
+
+        libvariant::Variant::List trainingItems;
+        for (auto const& i: ts.trainingItems) {
+            trainingItems.push_back(to_variant(i));
+        }
+        v["trainingItems"] = trainingItems;
+
+        return v;
+    }
 
 
-            //! Maximum number of epochs the training will run for.
-            size_t m_maxNumEpochs;
+    template <>
+    inline TrainingSet from_variant(libvariant::Variant const& variant)
+    {
+        TrainingSet ts;
 
+        ts.m_epochs = static_cast<size_t>(
+                variant["epochs"].AsUnsigned());
+        ts.maxEpochs(static_cast<size_t>(
+                variant["maxEpochs"].AsUnsigned()));
+        ts.m_error = variant["error"].AsDouble();
+        ts.targetError(variant["targetError"].AsDouble());
 
-            //! Actual number of epochs it took to complete the training.
-            size_t m_epochs;
-
-
-            //! The actual MSE after training ran
-            double m_error;
-        };
-
-
-        template <>
-        inline libvariant::Variant to_variant(TrainingSet const& ts)
-        {
-            libvariant::Variant v;
-
-            v["epochs"] = ts.epochs();
-            v["maxEpochs"] = ts.maxEpochs();
-            v["error"] = ts.error();
-            v["targetError"] = ts.targetError();
-
-            libvariant::Variant::List trainingItems;
-            for (auto const& i: ts.trainingItems) {
-                trainingItems.push_back(to_variant(i));
-            }
-            v["trainingItems"] = trainingItems;
-
-            return v;
+        for (const auto &i: variant["trainingItems"].AsList()) {
+            ts.push_back(from_variant<TrainingItem>(i));
         }
 
-
-        template <>
-        inline TrainingSet from_variant(libvariant::Variant const& variant)
-        {
-            TrainingSet ts;
-
-            ts.m_epochs = static_cast<size_t>(
-                    variant["epochs"].AsUnsigned());
-            ts.maxEpochs(static_cast<size_t>(
-                    variant["maxEpochs"].AsUnsigned()));
-            ts.m_error = variant["error"].AsDouble();
-            ts.targetError(variant["targetError"].AsDouble());
-
-            for (const auto &i: variant["trainingItems"].AsList()) {
-                ts.push_back(from_variant<TrainingItem>(i));
-            }
-
-            return ts;
-        }
+        return ts;
+    }
 
 
-        template <>
-        struct JsonSchema<Winzent::ANN::TrainingSet>
-        {
-            static constexpr const char schemaURI[] = WZANN_SCHEMA_PATH
-                    "/schema/TrainingSetSchema.json";
-        };
-    } /* namespace ANN */
-} /* namespace Winzent */
+    template <>
+    struct JsonSchema<wzann::TrainingSet>
+    {
+        static constexpr const char schemaURI[] = WZANN_SCHEMA_PATH
+                "/schema/TrainingSetSchema.json";
+    };
+} // namespace wzann
 
 
 namespace std {
     ostream& operator <<(
             ostream& os,
-            Winzent::ANN::TrainingSet::TrainingItems const& trainingData);
+            wzann::TrainingSet::TrainingItems const& trainingData);
     ostream& operator <<(
             ostream& os,
-            Winzent::ANN::TrainingSet const& trainingSet);
+            wzann::TrainingSet const& trainingSet);
 }
 
-#endif /* TRAININGSET_H_ */
+#endif /* WZANN_TRAININGSET_H_ */

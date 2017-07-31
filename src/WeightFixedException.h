@@ -1,30 +1,27 @@
-#ifndef WEIGHTFIXEDEXCEPTION_H
-#define WEIGHTFIXEDEXCEPTION_H
+#ifndef WZANN_WEIGHTFIXEDEXCEPTION_H_
+#define WZANN_WEIGHTFIXEDEXCEPTION_H_
 
 
 #include <stdexcept>
 
 
-namespace Winzent {
-    namespace ANN {
+namespace wzann {
 
 
-        /*!
-         * \brief The WeightFixedException class indicates a logic error and
-         *  is thrown when the weight of a connection whose weight value is
-         *  fixed should be changed.
-         */
-        class WeightFixedException: public std::logic_error
-        {
-        public:
+    /*!
+     * \brief The WeightFixedException class indicates a logic error and
+     *  is thrown when the weight of a connection whose weight value is
+     *  fixed should be changed.
+     */
+    class WeightFixedException : public std::logic_error
+    {
+    public:
 
 
-            WeightFixedException();
+        WeightFixedException();
 
-            virtual ~WeightFixedException();
-        };
+        virtual ~WeightFixedException();
+    };
+} // namespace wzann
 
-    } // namespace ANN
-} // namespace Winzent
-
-#endif // WEIGHTFIXEDEXCEPTION_H
+#endif // WZANN_WEIGHTFIXEDEXCEPTION_H_

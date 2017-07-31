@@ -9,7 +9,7 @@
 #include "TrainingSetTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 TEST(TrainingSetTest, testOutputRelevant)

@@ -1,13 +1,8 @@
 #include "Vector.h"
 
-namespace Winzent {
-    namespace ANN {
-    } // namespace ANN
-} // namespace Winzent
-
 
 namespace std {
-    ostream &operator <<(ostream &os, const Winzent::ANN::Vector &vector)
+    ostream &operator <<(ostream& os, wzann::Vector const& vector)
     {
         os << "(";
 

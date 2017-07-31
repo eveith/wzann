@@ -29,7 +29,6 @@ set(wzann_SOURCES
     GradientAnalysisHelper.cpp
     RpropTrainingAlgorithm.cpp
     BackpropagationTrainingAlgorithm.cpp
-#    Exception.cpp
 #    PsoTrainingAlgorithm.cpp
 #    REvolutionaryTrainingAlgorithm.cpp
 #    SimulatedAnnealingTrainingAlgorithm.cpp

@@ -9,7 +9,7 @@
 #include "LayerTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 TEST(LayerTest, testLayerCreation)

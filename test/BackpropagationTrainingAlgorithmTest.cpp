@@ -13,7 +13,7 @@
 #include "BackpropagationTrainingAlgorithmTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 TEST(BackpropagationTrainingAlgorithmTest, testTrainXOR)

@@ -1,5 +1,5 @@
-#ifndef WINZENT_SIMULATION_CLASSREGISTRY_H
-#define WINZENT_SIMULATION_CLASSREGISTRY_H
+#ifndef WZANN_CLASSREGISTRY_H_
+#define WZANN_CLASSREGISTRY_H_
 
 
 #include <atomic>
@@ -11,7 +11,7 @@
 #include <boost/functional/factory.hpp>
 
 
-namespace Winzent {
+namespace wzann {
 
 
     template <class C>
@@ -144,8 +144,8 @@ namespace Winzent {
 } // namespace Winzent
 
 
-#define WINZENT_REGISTER_CLASS(KLASS, BaseClass)                            \
-namespace Winzent {                                                         \
+#define WZANN_REGISTER_CLASS(KLASS, BaseClass)                              \
+namespace wzann {                                                           \
     template <>                                                             \
     struct ClassRegistration<KLASS>                                         \
     {                                                                       \
@@ -164,4 +164,4 @@ namespace Winzent {                                                         \
                 []() -> BaseClass* { return new KLASS (); });               \
 }
 
-#endif // WINZENT_SIMULATION_CLASSREGISTRY_H
+#endif // WZANN_CLASSREGISTRY_H_

@@ -19,7 +19,7 @@
 #include "SimulatedAnnealingTrainingAlgorithmTest.h"
 
 
-using namespace Winzent::ANN;
+using namespace wzann;
 
 
 SimulatedAnnealingTrainingAlgorithmTest::SimulatedAnnealingTrainingAlgorithmTest(

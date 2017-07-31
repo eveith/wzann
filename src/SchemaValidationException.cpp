@@ -5,27 +5,23 @@
 #include "SchemaValidationException.h"
 
 
-namespace Winzent {
-    namespace ANN {
-
-        SchemaValidationException::SchemaValidationException(
-                libvariant::SchemaResult r):
-                    std::runtime_error(r.PrettyPrintMessage().c_str()),
-                    m_schemaResult(r)
-        {
-        }
+namespace wzann {
+    SchemaValidationException::SchemaValidationException(
+            libvariant::SchemaResult r):
+                std::runtime_error(r.PrettyPrintMessage().c_str()),
+                m_schemaResult(r)
+    {
+    }
 
 
-        SchemaValidationException::~SchemaValidationException()
-        {
-        }
+    SchemaValidationException::~SchemaValidationException()
+    {
+    }
 
 
-        libvariant::SchemaResult const&
-        SchemaValidationException::schemaResult() const
-        {
-            return m_schemaResult;
-        }
-
-    } // namespace ANN
-} // namespace Winzent
+    libvariant::SchemaResult const&
+    SchemaValidationException::schemaResult() const
+    {
+        return m_schemaResult;
+    }
+} // namespace wzann
