@@ -53,10 +53,12 @@ namespace Winzent {
                 std::extent<decltype(Winzent::ANN::JsonSchema<C>::schemaURI)>
                     ::value > 1),
                 int>::type = 0>
-        inline C from_json(std::string& json)
+        inline C from_json(
+                    std::string& json,
+                    char const schemaURI[] = Winzent::ANN::JsonSchema<C>::schemaURI)
         {
             libvariant::Variant jsonSchema(libvariant::DeserializeJSONFile(
-                    Winzent::ANN::JsonSchema<C>::schemaURI));
+                    schemaURI));
             libvariant::Variant jsonData = libvariant::DeserializeJSON(
                     json);
             auto r(libvariant::SchemaValidate(
@@ -65,10 +67,9 @@ namespace Winzent {
 
             if (r.Error()) {
                 throw Winzent::ANN::SchemaValidationException(r);
-                return;
             }
 
-            return from_variant<C>();
+            return from_variant<C>(jsonData);
         }
 
 

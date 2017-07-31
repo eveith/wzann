@@ -22,6 +22,7 @@ set(test-wzann_SOURCES
     tst_ann.cpp)
 
 set(test-wzann_HEADERS
+    TestSchemaPath.h
     ClassRegistryTest.h
     ActivationFunctionTest.h
     BackpropagationTrainingAlgorithmTest.h
@@ -40,6 +41,15 @@ set(test-wzann_HEADERS
     TrainingSetTest.h)
 
 
+get_filename_component(
+    WZANN_TEST_SCHEMA_PATH
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/schema"
+    REALPATH)
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/TestSchemaPath.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/TestSchemaPath.h")
+
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
@@ -48,6 +58,7 @@ add_test(tst_ann tst_ann)
 
 target_include_directories(tst_ann
     PUBLIC ${wzann_SOURCE_DIR}/src
+    PUBLIC ${wzann_BINARY_DIR}/src
     PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(tst_ann

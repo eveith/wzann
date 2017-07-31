@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <ostream>
 
+#include "WzannGlobal.h"
 #include "TrainingItem.h"
 #include "NeuralNetwork.h"
 #include "JsonSerializable.h"
@@ -232,14 +233,12 @@ namespace Winzent {
         }
 
 
-#if 0
         template <>
         struct JsonSchema<Winzent::ANN::TrainingSet>
         {
-            static constexpr const char schemaURI[] =
-                    ":/schema/TrainingSetSchema.json";
+            static constexpr const char schemaURI[] = WZANN_SCHEMA_PATH
+                    "/schema/TrainingSetSchema.json";
         };
-#endif
     } /* namespace ANN */
 } /* namespace Winzent */
 

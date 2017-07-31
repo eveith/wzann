@@ -156,7 +156,5 @@ namespace std {
 } // namespace std
 
 
-#if 0
-constexpr const char Winzent::JsonSchema<Winzent::ANN::TrainingSet>
+constexpr const char Winzent::ANN::JsonSchema<Winzent::ANN::TrainingSet>
         ::schemaURI[];
-#endif
