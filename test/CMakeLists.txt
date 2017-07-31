@@ -41,10 +41,7 @@ set(test-wzann_HEADERS
     TrainingSetTest.h)
 
 
-get_filename_component(
-    WZANN_TEST_SCHEMA_PATH
-    "${CMAKE_CURRENT_SOURCE_DIR}/../src/schema"
-    REALPATH)
+set(WZANN_TEST_SCHEMA_PATH "${wzann_SOURCE_DIR}/lib/schema")
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/TestSchemaPath.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/TestSchemaPath.h")
@@ -57,8 +54,8 @@ add_executable(tst_ann ${test-wzann_SOURCES})
 add_test(tst_ann tst_ann)
 
 target_include_directories(tst_ann
-    PUBLIC ${wzann_SOURCE_DIR}/src
-    PUBLIC ${wzann_BINARY_DIR}/src
+    PUBLIC ${wzann_SOURCE_DIR}/lib
+    PUBLIC ${wzann_BINARY_DIR}/lib
     PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(tst_ann

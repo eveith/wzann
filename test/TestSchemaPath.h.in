@@ -2,7 +2,7 @@
 #define TESTSCHEMAPATH_H_IN
 
 #ifdef WZANN_SCHEMA_PATH
-#indef WZANN_SCHEMA_PATH
+#undef WZANN_SCHEMA_PATH
 #endif
 
 #ifndef WZANN_SCHEMA_PATH

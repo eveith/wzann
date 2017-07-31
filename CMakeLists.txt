@@ -11,7 +11,7 @@ find_package(GTest)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Sql REQUIRED)
 find_package(Qt5Concurrent REQUIRED)
-find_package(Boost 1.56.0 REQUIRED)
+find_package(Boost 1.56.0 REQUIRED COMPONENTS program_options)
 find_package(LibVariant 1.0.0 REQUIRED)
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
 
@@ -38,7 +38,8 @@ add_custom_target(srctar
         "README" "COPYING" "VERSION.in" "wzann.spec.in")
 
 
-add_subdirectory(src)
+add_subdirectory(lib)
+add_subdirectory(bin)
 
 if (${DOXYGEN_FOUND})
     add_subdirectory(doc)

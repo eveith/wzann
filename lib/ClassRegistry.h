@@ -53,6 +53,9 @@ namespace wzann {
         typedef boost::function<BaseClass* ()> Factory;
 
 
+        typedef std::unordered_map<std::string, Factory> Registry;
+
+
         /*!
          * \brief Returns the ClassRegistry's singleton instance
          *
@@ -80,6 +83,9 @@ namespace wzann {
         {
             return m_registry.find(key) != m_registry.end();
         }
+
+
+
 
 
         /*!
@@ -125,7 +131,7 @@ namespace wzann {
 
 
         //! \brief The actual name => class mapping registry
-        std::unordered_map<std::string, Factory> m_registry;
+        Registry m_registry;
 
 
         //! \brief The next ID for a registration

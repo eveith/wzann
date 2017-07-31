@@ -73,10 +73,6 @@ set(wzann_HEADERS
     BackpropagationTrainingAlgorithm.h)
 
 
-set(wzann_RESOURCE_FILES
-    Schemata.qrc)
-
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
