@@ -158,7 +158,7 @@ namespace wzann {
 
     template <class BaseClass>
     ClassRegistry<BaseClass>* ClassRegistry<BaseClass>::m_instance = nullptr;
-} // namespace Winzent
+} // namespace wzann
 
 
 #define WZANN_REGISTER_CLASS(KLASS, BaseClass)                              \

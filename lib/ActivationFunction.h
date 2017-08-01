@@ -36,7 +36,7 @@ namespace wzann {
             Logistic,
             Tanh,
             ReLU,
-            Gaussian);
+            Gaussian)
 
     /*!
      * \brief Calculates $f(x)$

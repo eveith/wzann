@@ -88,7 +88,7 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/WzannGlobal.h")
 
 
-add_library(wzann ${wzann_SOURCES})
+add_library(wzann SHARED ${wzann_SOURCES})
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     target_compile_definitions(wzann PUBLIC "WZANN_DEBUG")
