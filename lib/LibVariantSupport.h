@@ -35,7 +35,7 @@ namespace wzann {
 
 
     /*!
-     * \brief Creates a new object of the type T on the stack         *
+     * \brief Creates a new object of the type T on the stack
      *
      * This general function is actually a stub: Classes that wish to
      * be available for deserialization from a libvariant::Variant must

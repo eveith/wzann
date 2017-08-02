@@ -115,3 +115,8 @@ namespace wzann {
         setFinalNumEpochs(trainingSet, epochs);
     }
 } // namespace wzann
+
+
+WZANN_REGISTER_CLASS(
+        wzann::BackpropagationTrainingAlgorithm,
+        wzann::TrainingAlgorithm)

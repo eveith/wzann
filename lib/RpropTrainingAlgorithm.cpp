@@ -10,6 +10,7 @@
 #include "Neuron.h"
 #include "Connection.h"
 #include "TrainingSet.h"
+#include "ClassRegistry.h"
 #include "NeuralNetwork.h"
 #include "ActivationFunction.h"
 #include "GradientAnalysisHelper.h"
@@ -164,3 +165,8 @@ namespace wzann {
         setFinalNumEpochs(trainingSet, epoch);
     }
 } // namespace wzann
+
+
+WZANN_REGISTER_CLASS(
+        wzann::RpropTrainingAlgorithm,
+        wzann::TrainingAlgorithm)

@@ -153,4 +153,4 @@ namespace std {
 } // namespace std
 
 
-//constexpr const char wzann::JsonSchema<wzann::TrainingSet>:schemaURI[];
+constexpr char const wzann::JsonSchema<wzann::TrainingSet>::schemaURI[];

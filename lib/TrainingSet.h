@@ -29,6 +29,7 @@ namespace wzann {
     {
         friend class TrainingAlgorithm;
         friend TrainingSet from_variant<>(libvariant::Variant const&);
+        friend TrainingSet* new_from_variant<>(libvariant::Variant const&);
 
 
     public:
@@ -221,6 +222,26 @@ namespace wzann {
 
         for (const auto &i: variant["trainingItems"].AsList()) {
             ts.push_back(from_variant<TrainingItem>(i));
+        }
+
+        return ts;
+    }
+
+
+    template <>
+    inline TrainingSet* new_from_variant(libvariant::Variant const& variant)
+    {
+        TrainingSet* ts = new TrainingSet();
+
+        ts->m_epochs = static_cast<size_t>(
+                variant["epochs"].AsUnsigned());
+        ts->maxEpochs(static_cast<size_t>(
+                variant["maxEpochs"].AsUnsigned()));
+        ts->m_error = variant["error"].AsDouble();
+        ts->targetError(variant["targetError"].AsDouble());
+
+        for (const auto& i : variant["trainingItems"].AsList()) {
+            ts->push_back(from_variant<TrainingItem>(i));
         }
 
         return ts;

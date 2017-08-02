@@ -100,7 +100,7 @@ namespace wzann {
 
         if (r.Error()) {
             throw SchemaValidationException(r);
-            return;
+            return nullptr;
         }
 
         return new_from_variant<C>(jsonData);

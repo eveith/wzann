@@ -7,13 +7,21 @@ include_directories(
 add_executable(wzann-mkann
     wzann-mkann.cpp)
 
+add_executable(wzann-train
+    wzann-train.cpp)
+
 
 set_target_properties(
     wzann-mkann
+    wzann-train
     PROPERTIES
         CXX_STANDARD 14)
 
 
 target_link_libraries(wzann-mkann
+    wzann
+    ${Boost_LIBRARIES})
+
+target_link_libraries(wzann-train
     wzann
     ${Boost_LIBRARIES})

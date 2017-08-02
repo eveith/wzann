@@ -4,6 +4,8 @@
 
 #include <cstddef>
 
+#include "Vector.h"
+
 
 namespace wzann {
     class TrainingSet;
@@ -17,6 +19,10 @@ namespace wzann {
     class TrainingAlgorithm
     {
     public:
+
+
+        //! \brief Data type to specify a number of iterations (epochs).
+        typedef size_t epoch_t;
 
 
         /*!

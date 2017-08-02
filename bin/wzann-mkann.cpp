@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
                 "Adds a (simple) layer definition. "
                     "Format: NumNeurons:ActivationFunction")
         ("list-patterns,P", "Lists all available ANN patterns")
-        ("list-activation-functions,A", "Lista all available "
+        ("list-activation-functions,A", "Lists all available "
             "activation functions")
         ("help,h", "Produces this help message")
         ("version,v", "Prints \"wzann-mkann " WZANN_VERSION "\"");
