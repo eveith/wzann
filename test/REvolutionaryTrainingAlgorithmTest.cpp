@@ -1,20 +1,19 @@
-#include <QFile>
-#include <QTextStream>
-
+#include <vector>
 #include <iostream>
 
 #include <gtest/gtest.h>
+
+#include <boost/range.hpp>
 
 #include "Layer.h"
 #include "Neuron.h"
 #include "Connection.h"
 #include "NeuralNetwork.h"
+#include "ActivationFunction.h"
 #include "SimpleWeightRandomizer.h"
 
 #include "ElmanNetworkPattern.h"
 #include "PerceptronNetworkPattern.h"
-#include "LinearActivationFunction.h"
-#include "SigmoidActivationFunction.h"
 
 #include "TrainingSet.h"
 
@@ -24,99 +23,98 @@
 
 using wzann::Layer;
 using wzann::Neuron;
-using wzann::Connection;
 using wzann::Vector;
+using wzann::Connection;
+using wzann::TrainingSet;
+using wzann::TrainingItem;
 using wzann::NeuralNetwork;
+using wzann::ActivationFunction;
 using wzann::ElmanNetworkPattern;
 using wzann::SimpleWeightRandomizer;
 using wzann::PerceptronNetworkPattern;
-using wzann::LinearActivationFunction;
-using wzann::SigmoidActivationFunction;
-
-using wzann::TrainingSet;
-using wzann::TrainingItem;
-
-using wzann::Individual;
 using wzann::REvolutionaryTrainingAlgorithm;
+
+using wzalgorithm::REvol;
+using Individual = wzalgorithm::REvol::Individual;
 
 
 NeuralNetwork* REvolutionaryTrainingAlgorithmTest::createNeuralNetwork()
 {
     NeuralNetwork *net = new NeuralNetwork();
 
-    static ElmanNetworkPattern pattern({
-            2,
-            3,
-            1
-        },
-        {
-            new SigmoidActivationFunction(),
-            new SigmoidActivationFunction(),
-            new SigmoidActivationFunction()
-        });
-    net->configure(pattern);
+    ElmanNetworkPattern pattern;
+    pattern.addLayer({ 2, ActivationFunction::Logistic });
+    pattern.addLayer({ 3, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
 
+    net->configure(pattern);
     return net;
 }
 
 
 TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualInitialization)
 {
-    NeuralNetwork *network = createNeuralNetwork();
-    Individual i1(*network);
+    auto* ann = createNeuralNetwork();
+    Individual i1;
+    REvolutionaryTrainingAlgorithm::getWeights(*ann, i1.parameters);
 
     int nConnections = 0;
-    network->eachConnection([&nConnections](Connection *const &c) {
+    for (auto const& c : boost::make_iterator_range(ann->connections())) {
         if (!c->fixedWeight()) {
             nConnections++;
         }
-    });
+    }
 
     ASSERT_EQ(nConnections, i1.parameters.size());
-    ASSERT_EQ(nConnections, i1.scatter.size());
 
-    delete network;
+    delete ann;
 }
 
 
 TEST_F(REvolutionaryTrainingAlgorithmTest, testAgeIndividual)
 {
-    NeuralNetwork *neuralNetwork = createNeuralNetwork();
-    Individual individual(*neuralNetwork);
+    auto* ann = createNeuralNetwork();
+    Individual i1;
+    REvolutionaryTrainingAlgorithm::getWeights(*ann, i1.parameters);
 
-    individual.timeToLive = 1;
+    i1.timeToLive = 1;
 
-    ASSERT_EQ(1l, individual.timeToLive);
-    individual.age();
-    ASSERT_EQ(0l, individual.timeToLive);
+    ASSERT_EQ(1l, i1.timeToLive);
+    i1.age();
+    ASSERT_EQ(0l, i1.timeToLive);
 
-    delete neuralNetwork;
+    delete ann;
 }
 
 
 TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorEquals)
 {
-    NeuralNetwork *network = createNeuralNetwork();
+    auto* ann = createNeuralNetwork();
 
-    network->eachConnection([](Connection *const &c) {
+    for (auto const& c : boost::make_iterator_range(ann->connections())) {
         if (! c->fixedWeight()) {
             c->weight(0.0);
         }
-    });
+    }
 
-    Individual i1(*network), i2(*network);
+    Individual i1, i2;
+    REvolutionaryTrainingAlgorithm::getWeights(*ann, i1.parameters);
+    REvolutionaryTrainingAlgorithm::getWeights(*ann, i2.parameters);
 
     ASSERT_TRUE(i1 == i2);
 
-    std::for_each(i2.parameters.begin(), i2.parameters.end(), [](qreal &w) {
+    std::for_each(i2.parameters.begin(), i2.parameters.end(), [](double& w) {
         w = 1.0;
     });
 
     ASSERT_FALSE((i1 == i2));
 
-    std::for_each(i2.parameters.begin(), i2.parameters.end(), [](qreal &w) {
+    std::for_each(i2.parameters.begin(), i2.parameters.end(), [](double& w) {
         w = 0.0;
     });
+
+    i1.scatter.resize(i1.parameters.size());
+    i2.scatter.resize(i2.parameters.size());
 
     i1.scatter[1] = 1.0;
     i2.scatter[1] = 1.1;
@@ -125,24 +123,26 @@ TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorEquals)
     i2.scatter[1] = 1.0;
     ASSERT_TRUE(i1 == i2);
 
-    i1.errorVector()[0] = 11.1;
+    i1.restrictions.push_back(11.1);
     ASSERT_FALSE((i1 == i2));
-    i2.errorVector()[0] = 11.1;
+    i2.restrictions.push_back(11.1);
     ASSERT_TRUE(i1 == i2);
 
-    delete network;
+    delete ann;
 }
 
 
 TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorAssign)
 {
-    NeuralNetwork *n1 = createNeuralNetwork(),
+    auto* n1 = createNeuralNetwork(),
             *n2 = createNeuralNetwork();
-    Individual i1(*n1), i2(*n2);
+    Individual i1, i2;
+    REvolutionaryTrainingAlgorithm::getWeights(*n1, i1.parameters);
+    REvolutionaryTrainingAlgorithm::getWeights(*n2, i2.parameters);
 
     if (i1 == i2) {
-        i1.errorVector()[0] = 421.43;
-        i2.errorVector()[0] = -21.43;
+        i1.restrictions.push_back(421.43);
+        i2.restrictions.push_back(-21.43);
     }
 
     ASSERT_FALSE((i1 == i2));
@@ -160,18 +160,21 @@ TEST_F(REvolutionaryTrainingAlgorithmTest, testIndividualOperatorAssign)
 TEST_F(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
 {
     NeuralNetwork *neuralNetwork = createNeuralNetwork();
-    Individual individual(*neuralNetwork);
+    Individual individual;
+    REvolutionaryTrainingAlgorithm::getWeights(
+            *neuralNetwork,
+            individual.parameters);
 
+    std::vector<Connection*> connections;
     Vector parameters = individual.parameters;
-    QList<Connection *> connections;
 
     for (NeuralNetwork::size_type i = 0; i != neuralNetwork->size(); ++i) {
-        Layer &layer = (*neuralNetwork)[i];
+        Layer& layer = (*neuralNetwork)[i];
 
         for (Layer::size_type j = 0; j != layer.size(); ++j) {
-            Neuron &neuron = layer[j];
+            Neuron& neuron = layer[j];
 
-            for (const auto &c: boost::make_iterator_range(
+            for (const auto &c : boost::make_iterator_range(
                      neuralNetwork->connectionsFrom(neuron))) {
                 if (!c->fixedWeight()) {
                     connections.push_back(c);
@@ -180,22 +183,24 @@ TEST_F(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
         }
     }
 
-    for (Connection *c: boost::make_iterator_range(
+    for (auto const& c : boost::make_iterator_range(
              neuralNetwork->connectionsFrom(neuralNetwork->biasNeuron()))) {
         if (! c->fixedWeight()) {
-            connections << c;
+            connections.push_back(c);
         }
     }
 
-    ASSERT_EQ(connections.size(, parameters.size()));
+    ASSERT_EQ(connections.size(), parameters.size());
 
     parameters.clear();
-    for (int i = 0; i != connections.size(); ++i) {
-        parameters << 10.10;
+    for (size_t i = 0; i != connections.size(); ++i) {
+        parameters.push_back(10.10);
     }
 
     individual.parameters = parameters;
-    Individual::applyParameters(individual, *neuralNetwork);
+    REvolutionaryTrainingAlgorithm::applyParameters(
+            individual.parameters,
+            *neuralNetwork);
 
     for (size_t i = 0; i != neuralNetwork->size(); ++i) {
         Layer *l = neuralNetwork->layerAt(i);
@@ -216,104 +221,53 @@ TEST_F(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
 }
 
 
-TEST_F(REvolutionaryTrainingAlgorithmTest, testModifyIndividual)
-{
-    REvolutionaryTrainingAlgorithm trainingAlgorithm;
-    trainingAlgorithm.eliteSize(2).populationSize(5);
-
-    REvolutionaryTrainingAlgorithm::Population population;
-    for (size_t i = 0; i != trainingAlgorithm.populationSize(); ++i) {
-        NeuralNetwork *n = createNeuralNetwork();
-        population.push_back(new Individual(*n));
-        delete n;
-    }
-
-    NeuralNetwork *n = createNeuralNetwork();
-    population.push_back(new Individual(*n));
-    auto &i3 = population.back();
-    delete n;
-
-    trainingAlgorithm.modifyWorstIndividual(
-            population,
-            /* currentSuccess = */ 0.2);
-
-    ASSERT_EQ(
-            population.front().parameters.size(),
-            i3.parameters.size());
-
-    std::for_each(population.begin(), population.end() - 1,
-            [&](Winzent::Algorithm::detail::Individual &i) {
-        for (auto j = 0; j != i.parameters.size(); ++j) {
-            ASSERT_TRUE(i3.parameters.at(j) != i.parameters.at(j));
-        }
-    });
-}
-
-
 TEST_F(REvolutionaryTrainingAlgorithmTest, testTrainXOR)
 {
     NeuralNetwork network;
-    PerceptronNetworkPattern pattern(
-            {
-                2,
-                3,
-                1
-            }, {
-                new LinearActivationFunction(),
-                new SigmoidActivationFunction(),
-                new SigmoidActivationFunction()
-            });
+    PerceptronNetworkPattern pattern;
+    pattern.addLayer({ 2, ActivationFunction::Identity });
+    pattern.addLayer({ 3, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
     network.configure(pattern);
     SimpleWeightRandomizer().randomize(network);
 
     // Build training data:
 
-    QList<TrainingItem> trainingItems;
-    trainingItems
+    double targetVariance = 1e-2;
+    double targetTrainingError = targetVariance * targetVariance / 9.;
+
+    TrainingSet trainingSet;
+    trainingSet.targetError(targetTrainingError).maxEpochs(100000)
             << TrainingItem({ 0.0, 0.0 }, { 0.0 })
             << TrainingItem({ 0.0, 1.0 }, { 1.0 })
             << TrainingItem({ 1.0, 0.0 }, { 1.0 })
             << TrainingItem({ 1.0, 1.0 }, { 0.0 });
 
-    TrainingSet trainingSet(
-            trainingItems,
-            1e-2,
-            15000);
-
     REvolutionaryTrainingAlgorithm trainingAlgorithm;
     trainingAlgorithm
-            .populationSize(50)
-            .eliteSize(5)
+            .populationSize(30)
+            .eliteSize(3)
             .maxNoSuccessEpochs(trainingSet.maxEpochs())
             .startTTL(100)
             .gradientWeight(3.0)
             .successWeight(0.1)
             .ebmin(1e-2)
             .ebmax(2.0);
-
-    QDateTime dt1 = QDateTime::currentDateTime();
     trainingAlgorithm.train(network, trainingSet);
-    QDateTime dt2 = QDateTime::currentDateTime();
 
-    qDebug() << "Trained XOR(x, y) in" << dt1.msecsTo(dt2) << "msec";
+    std::cout << "Error: " << trainingSet.error()
+            << ", Epochs: " << trainingSet.epochs() << "\n";
 
-    auto output = network.calculate({ 1, 1 });
-    qDebug() << "(1, 1) =>" << output;
-    ASSERT_EQ(0, qRound(output[0]));
+    Vector output;
+    output = network.calculate({ 1., 1. });
+    ASSERT_NEAR(0, output[0], targetVariance);
     output = network.calculate({ 1, 0 });
-    qDebug() << "(1, 0) =>" << output;
-    ASSERT_EQ(1, qRound(output[0]));
+    ASSERT_NEAR(1, output[0], targetVariance);
     output = network.calculate({ 0, 0 });
-    qDebug() << "(0, 0) =>" << output;
-    ASSERT_EQ(0, qRound(output[0]));
+    ASSERT_NEAR(0, output[0], targetVariance);
     output = network.calculate({ 0, 1 });
-    qDebug() << "(0, 1) =>" << output;
-    ASSERT_EQ(1, qRound(output[0]));
+    ASSERT_NEAR(1, output[0], targetVariance);
 
-    QFile annDumpFile("testTrainXOR.out");
-    annDumpFile.open(
-            QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Text);
-    annDumpFile.write(network.toJSON().toJson());
-    annDumpFile.flush();
-    annDumpFile.close();
+    ASSERT_LE(trainingSet.error(), targetTrainingError);
+    ASSERT_TRUE(trainingSet.epochs() < trainingSet.maxEpochs());
 }

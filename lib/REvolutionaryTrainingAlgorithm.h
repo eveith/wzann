@@ -1,189 +1,112 @@
-/*!
- * \file
- * \author Eric MSP Veith <eveith@veith-m.de>
- * \date 2013-03-19
- */
+#ifndef WZANN_EVOLUTIONARYTRAININGALGORITHM_H_
+#define WZANN_EVOLUTIONARYTRAININGALGORITHM_H_
 
-
-#ifndef WINZENT_ANN_EVOLUTIONARYTRAININGALGORITHM_H
-#define WINZENT_ANN_EVOLUTIONARYTRAININGALGORITHM_H
-
-
-#include <QObject>
 
 #include <cstddef>
 #include <ostream>
 
-#include <log4cxx/logger.h>
-
 #include <boost/random.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "REvol.h"
+#include <wzalgorithm/REvol.h>
+#include <wzalgorithm/config.h>
 
-#include "NeuralNetwork.h"
 #include "TrainingAlgorithm.h"
 
-#include "Winzent-ANN_global.h"
+
+namespace wzann {
+    class TrainingSet;
+    class NeuralNetwork;
 
 
-using std::size_t;
-using std::ptrdiff_t;
-
-
-namespace Winzent {
-    namespace ANN {
-
-
-        class Weight;
-        class TrainingSet;
+    class REvolutionaryTrainingAlgorithm :
+            public TrainingAlgorithm,
+            public wzalgorithm::REvol
+    {
+    public:
 
 
         /*!
-         * \brief The Individual class represents an individual during the
-         *  training phase of the evolutionary algorithm
+         * \brief Creates a new instance of the multi-part evolutionary
+         *  training algorithm for training artificial neural networks.
          */
-        struct Individual: public Winzent::Algorithm::detail::Individual
-        {
-            /*!
-             * \brief Constructs an empty Individual
-             *
-             * Initializes the Individual's TTL to 0.
-             */
-            Individual();
+        REvolutionaryTrainingAlgorithm();
 
 
-            /*!
-             * \brief Copy constructor for the base class
-             *
-             * \param[in] individual The individual to copy
-             */
-            Individual(const Algorithm::detail::Individual &individual);
+        /*!
+         * \brief Reads the current weight vector of an artificial neural
+         *  network and writes it to the supplied paramter vector
+         *
+         * \param[in] ann The artificial neural network to read the parameters
+         *  from
+         *
+         * \param[inout] parameters The vector to write the weight values to;
+         *  assumes an empty parameters vector
+         */
+        static void getWeights(
+                NeuralNetwork const& ann,
+                wzalgorithm::vector_t& parameters);
 
 
-            /*!
-             * \brief Creates a new individual given a neural network
-             *
-             * \param[in] neuralNetwork The ANN from which we initialize
-             *  the parameters and scatter vector
-             */
-            Individual(const NeuralNetwork &neuralNetwork);
+        /*!
+         * \brief Applies an individual's parameter vector to the weights of
+         *  an artificial neural network
+         *
+         * \param[in] parameters The individual's parameter vector
+         *
+         * \param[inout] ann The artificial neural network to apply the
+         *  parameter vector to
+         *
+         */
+        static void applyParameters(
+                wzalgorithm::vector_t const& parameters,
+                NeuralNetwork& ann);
 
 
-            /*!
-             * \brief Retrieves parameters from the supplied ANN
-             *
-             * \param[in] neuralNetwork The ANN from which the parameters
-             *  shall be retrieved
-             *
-             * \return The parameters vector
-             */
-            static Vector parametersFromNeuralNetwork(
-                    const NeuralNetwork &neuralNetwork);
+        /*!
+         * \brief Evaluates one individual
+         *
+         * This method uses the given training set to evaluate the
+         * indicited individual. It feeds the patterns to the individual,
+         * notes the errors, and calculates the training error. The training
+         * error is saved in the
+         *
+         * \param[inout] individual The individual: its parameter vector is
+         *  applied to the artificial neural network's connections, and the
+         *  training set is then run in order to calculate the error value.
+         *
+         * \param[in] ann The Artificial Neural Network the individual
+         *  applies to
+         *
+         * \param[in] trainingSet The training set that should be used to
+         *  evaluate the individual
+         *
+         * \return `true` if the current individual satisfies the target
+         *  error set in the trainingSet, `false` otherwise.
+         */
+        static bool individualSucceeds(
+                wzalgorithm::REvol::Individual& individual,
+                NeuralNetwork& ann,
+                TrainingSet const& trainingSet);
 
 
-            /*!
-             * \brief Applies the parameters of this individual to
-             *  the supplied ANN
-             *
-             * \param[in] The individual from which that parameters are taken
-             *
-             * \param[inout] neuralNetwork The Artificial Neural Network to
-             *  which the parameters stored in the Individual shall be applied
-             *
-             * \return `*this`
-             */
-            static void applyParameters(
-                    const Individual &individual,
-                    NeuralNetwork &neuralNetwork);
-
-
-            /*!
-             * \brief Allows access to the error vector
-             *
-             * \return A modifiable reference to the error vector
-             */
-            Vector &errorVector();
-
-
-            /*!
-             * \brief Returns a read-only copy of the error vector
-             *
-             * \return The error vector write-protected
-             */
-            const Vector &errorVector() const;
-        };
-
-
-        class WINZENTANNSHARED_EXPORT REvolutionaryTrainingAlgorithm:
-                public TrainingAlgorithm,
-                public Winzent::Algorithm::REvol
-        {
-        public:
-
-
-            /*!
-             * \brief Creates a new instance of the
-             *  evolutionary training algorithm for
-             *  training a particular network.
-             */
-            REvolutionaryTrainingAlgorithm();
-
-
-            /*!
-             * \brief Generates the initial population from the supplied base
-             *  network
-             *
-             * \param[in] baseNetwork The base network the user supplied for
-             *  training
-             *
-             * \return The population, including the elite
-             */
-            Population generateInitialPopulation(
-                    const NeuralNetwork &baseNetwork);
-
-
-            /*!
-             * \brief Evaluates one individual
-             *
-             * This method uses the given training set to evaluate the
-             * indicited individual. It feeds the patterns to the individual,
-             * notes the errors, and calculates the mean squared error (MSE).
-             *
-             * \param[in] individual The individual. Its error vector must
-             *  have the size necessary to store the MSE and all error values.
-             *
-             * \param[in] ann The Artificial Neural Network the individual
-             *  applies to
-             *
-             * \param[in] trainingSet The training set that should be used to
-             *  evaluate the individual
-             */
-            void evaluateIndividual(
-                    Algorithm::detail::Individual &individual,
-                    NeuralNetwork& ann,
-                    const TrainingSet &trainingSet);
-
-
-
-            /*!
-             * \brief Trains the Neural Network using Ruppert's evolutionary
-             *  training algorithm.
-             *
-             * \param trainingSet
-             */
-            virtual void train(NeuralNetwork &ann, TrainingSet &trainingSet)
-                    override;
-        };
-    } // namespace ANN
-} // namespace Winzent
+        /*!
+         * \brief Trains the Neural Network using Ruppert's evolutionary
+         *  training algorithm.
+         *
+         * \param trainingSet
+         */
+        virtual void train(NeuralNetwork& ann, TrainingSet& trainingSet)
+                override;
+    };
+} // namespace wzann
 
 
 namespace std {
     ostream &operator<<(
-            ostream &os,
-            const Winzent::ANN::REvolutionaryTrainingAlgorithm &algorithm);
+            ostream& os,
+            wzann::REvolutionaryTrainingAlgorithm const& algorithm);
 }
 
 
-#endif // WINZENT_ANN_EVOLUTIONARYTRAININGALGORITHM_H
+#endif // WZANN_EVOLUTIONARYTRAININGALGORITHM_H_

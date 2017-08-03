@@ -28,11 +28,11 @@ set(wzann_SOURCES
     TrainingAlgorithm.cpp
     GradientAnalysisHelper.cpp
     RpropTrainingAlgorithm.cpp
-    BackpropagationTrainingAlgorithm.cpp
-#    PsoTrainingAlgorithm.cpp
-#    REvolutionaryTrainingAlgorithm.cpp
-#    SimulatedAnnealingTrainingAlgorithm.cpp
-)
+    BackpropagationTrainingAlgorithm.cpp)
+
+set(wzann_wzalgorithm_SOURCES
+   #PsoTrainingAlgorithm.cpp
+   REvolutionaryTrainingAlgorithm.cpp)
 
 set(wzann_HEADERS
     WzannGlobal.h
@@ -73,7 +73,11 @@ set(wzann_HEADERS
     BackpropagationTrainingAlgorithm.h)
 
 
-set(CMAKE_AUTOMOC ON)
+if (${LIBWZALGORITHM_FOUND})
+    list(APPEND wzann_SOURCES ${wzann_wzalgorithm_SOURCES})
+endif()
+
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
@@ -95,19 +99,22 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 endif()
 
 target_include_directories(wzann
-    #PUBLIC ${winzent-common_SOURCE_DIR}
-    #PUBLIC ${winzent-algorithm_SOURCE_DIR}
     PUBLIC ${Boost_INCLUDE_DIRS}
     PUBLIC ${LIBVARIANT_INCLUDE_DIRS})
 
 target_link_libraries(wzann
-    #winzent-common
-    #winzent-algorithm
     PUBLIC ${LIBVARIANT_LIBRARIES})
 
 set_target_properties(wzann
     PROPERTIES SOVERSION "${wzann_VERSION_MAJOR}.${wzann_VERSION_MINOR}"
     CXX_STANDARD 14)
+
+
+if (${LIBWZALGORITHM_FOUND})
+    target_include_directories(wzann PUBLIC ${libwzalgorithm_INCLUDE_DIRS})
+    target_link_libraries(wzann PUBLIC ${libwzalgorithm_LIBRARIES})
+endif()
+
 
 install(TARGETS wzann
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -8,13 +8,11 @@ include(GNUInstallDirs)
 
 
 find_package(GTest)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Sql REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
 find_package(Boost 1.56.0 REQUIRED
     COMPONENTS program_options filesystem system)
 find_package(LibVariant 1.0.0 REQUIRED)
 pkg_check_modules(LOG4CXX REQUIRED liblog4cxx>=0.10.0)
+pkg_check_modules(LIBWZALGORITHM libwzalgorithm>=0.8.0)
 
 
 set(WZANN_SCHEMA_PATH

@@ -1,21 +1,18 @@
-#ifndef REVOLUTIONARYTRAININGALGORITHMTEST_H
-#define REVOLUTIONARYTRAININGALGORITHMTEST_H
+#ifndef REVOLUTIONARYTRAININGALGORITHMTEST_H_
+#define REVOLUTIONARYTRAININGALGORITHMTEST_H_
 
 
-namespace Winzent {
-    namespace ANN {
-        class NeuralNetwork;
-    }
+namespace wzann {
+    class NeuralNetwork;
 }
 
 
 using wzann::NeuralNetwork;
-using wzann::Individual;
 
 
 class REvolutionaryTrainingAlgorithmTest: public ::testing::Test
 {
-private:
+public:
     NeuralNetwork* createNeuralNetwork();
 };
 

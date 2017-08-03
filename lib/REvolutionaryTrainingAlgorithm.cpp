@@ -3,16 +3,10 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include <QPair>
-#include <QList>
+#include <boost/range.hpp>
 
-#include <log4cxx/logger.h>
-#include <log4cxx/logmanager.h>
-
-#include <boost/random.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-
-#include "REvol.h"
+#include <wzalgorithm/REvol.h>
+#include <wzalgorithm/config.h>
 
 #include "Layer.h"
 #include "Connection.h"
@@ -28,158 +22,131 @@ using std::exp;
 using std::fabs;
 using std::numeric_limits;
 
-using Winzent::Algorithm::REvol;
+using boost::make_iterator_range;
+
+using wzalgorithm::REvol;
 
 
-namespace Winzent {
-    namespace ANN {
-        Individual::Individual(): Algorithm::detail::Individual()
-        {
-        }
-
-
-        Individual::Individual(
-                const Algorithm::detail::Individual &individual):
-                    Algorithm::detail::Individual(individual)
-        {
-        }
-
-
-        Individual::Individual(const NeuralNetwork &neuralNetwork):
-                Individual()
-        {
-            restrictions.push_back(numeric_limits<qreal>::infinity());
-
-            this->parameters = parametersFromNeuralNetwork(neuralNetwork);
-            this->scatter.reserve(parameters.size());
-
-            for (auto i = 0; i != parameters.size(); ++i) {
-                this->scatter.push_back(0.2);
-            }
-        }
-
-
-        Vector Individual::parametersFromNeuralNetwork(
-                const NeuralNetwork &neuralNetwork)
-        {
-            Vector r;
-
-            const_cast<NeuralNetwork &>(neuralNetwork).eachConnection(
-                    [&r](const Connection *const &c) {
-                if (! c->fixedWeight()) {
-                    r.push_back(c->weight());
-                }
-            });
-
-            return r;
-        }
-
-
-        void Individual::applyParameters(
-                const Individual &individual,
-                NeuralNetwork &neuralNetwork)
-        {
-            int i = 0;
-            neuralNetwork.eachConnection([&individual, &i](
-                    Connection *const &c) {
-                if (! c->fixedWeight()) {
-                    c->weight(individual.parameters.at(i++));
-                }
-            });
-        }
-
-
-        Vector &Individual::errorVector()
-        {
-            return restrictions;
-        }
-
-
-        REvolutionaryTrainingAlgorithm::REvolutionaryTrainingAlgorithm():
-                TrainingAlgorithm(),
-                REvol()
-        {
-        }
-
-
-        Algorithm::REvol::Population
-        REvolutionaryTrainingAlgorithm::generateInitialPopulation(
-                const NeuralNetwork &baseNetwork)
-        {
-            Individual baseIndividual(baseNetwork);
-            return REvol::generateInitialPopulation(baseIndividual);
-        }
-
-
-        void REvolutionaryTrainingAlgorithm::evaluateIndividual(
-                Algorithm::detail::Individual &individual,
-                NeuralNetwork &ann,
-                const TrainingSet &trainingSet)
-        {
-            size_t errorPos = 0;
-            qreal totalMSE  = 0.0;
-            individual.restrictions.resize(1);
-            Individual::applyParameters(individual, ann);
-
-
-            for (const auto &item: trainingSet.trainingItems) {
-                const auto output = ann.calculate(item.input());
-                LOG4CXX_DEBUG(
-                        TrainingAlgorithm::logger,
-                        "Calculated " << item.input() << " => " << output);
-
-                if (! item.outputRelevant()) {
-                    LOG4CXX_DEBUG(
-                            TrainingAlgorithm::logger,
-                            "Output is not relevant.");
-                    continue;
-                }
-
-                qreal sampleMSE = calculateMeanSquaredError(
-                        output,
-                        item.expectedOutput());
-
-                totalMSE += sampleMSE;
-                errorPos += 1;
+namespace wzann {
+    void REvolutionaryTrainingAlgorithm::getWeights(
+            NeuralNetwork const& ann,
+            wzalgorithm::vector_t& parameters)
+    {
+        for (auto const& c : make_iterator_range(ann.connections())) {
+            if (c->fixedWeight()) {
+                continue;
             }
 
-            individual.restrictions[0] =
-                    totalMSE / static_cast<qreal>(errorPos);
+            parameters.push_back(c->weight());
+        }
+    }
+
+
+    void REvolutionaryTrainingAlgorithm::applyParameters(
+            wzalgorithm::vector_t const& parameters,
+            NeuralNetwork& ann)
+    {
+        auto pit = parameters.begin();
+        auto connectionsRange = ann.connections();
+        auto cit = connectionsRange.first;
+
+        while (pit != parameters.end() && cit != connectionsRange.second) {
+            if ((*cit)->fixedWeight()) {
+                cit++;
+                continue;
+            }
+
+            (*cit)->weight(*pit);
+            cit++;
+            pit++;
         }
 
+        assert(pit == parameters.end());
+        assert(cit == connectionsRange.second);
+    }
 
-        void REvolutionaryTrainingAlgorithm::train(
-                NeuralNetwork &ann,
-                TrainingSet &trainingSet)
-        {
-            maxEpochs(trainingSet.maxEpochs());
 
-            Individual origin(ann);
-            auto result = REvol::run(
-                    origin,
-                    [this, &trainingSet, &ann](
-                        Algorithm::detail::Individual &individual) {
-                evaluateIndividual(individual, ann, trainingSet);
-                return individual.restrictions.at(0)
-                    <= trainingSet.targetError();
-            });
+    REvolutionaryTrainingAlgorithm::REvolutionaryTrainingAlgorithm():
+            TrainingAlgorithm(),
+            REvol()
+    {
+    }
 
-            Individual::applyParameters(result.bestIndividual, ann);
-            setFinalNumEpochs(
-                    trainingSet,
-                    result.iterationsUsed);
-            setFinalError(
-                    trainingSet,
-                    result.bestIndividual.restrictions.at(0));
+
+    bool REvolutionaryTrainingAlgorithm::individualSucceeds(
+            REvol::Individual& individual,
+            NeuralNetwork& ann,
+            TrainingSet const& trainingSet)
+    {
+        applyParameters(individual.parameters, ann);
+
+        double error = 0.0;
+        size_t numRelevantItems = 0;
+
+        for (auto const& ti : trainingSet.trainingItems) {
+
+            // First step: Feed forward and compare the network's
+            // output with the ideal teaching output:
+
+            const auto actual = ann.calculate(ti.input());
+            if (! ti.outputRelevant()) {
+                continue;
+            }
+            numRelevantItems++;
+            auto const& expected = ti.expectedOutput();
+
+            double lerror = 0.0;
+            for (auto ait = actual.begin(), eit = expected.begin();
+                    ait != actual.end() && eit != expected.end();
+                    ait++, eit++) {
+                lerror += std::pow(*eit - *ait, 2);
+            }
+
+            error += lerror / 2.0;
         }
-    } // namespace ANN
-} // namespace Winzent
+
+        error /= static_cast<double>(numRelevantItems);
+        individual.restrictions[0] = error;
+        return error <= trainingSet.targetError();
+    }
+
+
+    void REvolutionaryTrainingAlgorithm::train(
+            NeuralNetwork& ann,
+            TrainingSet& trainingSet)
+    {
+        maxEpochs(trainingSet.maxEpochs());
+
+        wzalgorithm::REvol::Individual origin;
+        getWeights(ann, origin.parameters);
+        origin.scatter.reserve(origin.parameters.size());
+        for (wzalgorithm::vector_t::size_type i = 0;
+                i != origin.parameters.size(); ++i) {
+            origin.scatter.push_back(0.2);
+        }
+
+        auto result = REvol::run(
+                origin,
+                [this, &trainingSet, &ann](
+                    wzalgorithm::REvol::Individual &individual) {
+            return individualSucceeds(individual, ann, trainingSet);
+        });
+
+        applyParameters(result.bestIndividual.parameters, ann);
+        setFinalNumEpochs(
+                trainingSet,
+                result.iterationsUsed);
+        setFinalError(
+                trainingSet,
+                result.bestIndividual.restrictions.at(0));
+    }
+} // namespace wzann
 
 
 namespace std {
     ostream &operator<<(
             ostream &os,
-            const Winzent::ANN::REvolutionaryTrainingAlgorithm &algorithm)
+            wzann::REvolutionaryTrainingAlgorithm const& algorithm)
     {
         os
                 << "REvolutionaryTrainingAlgorithm("

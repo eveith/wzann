@@ -13,8 +13,6 @@ set(test-wzann_SOURCES
     SimpleWeightRandomizerTest.cpp
     NguyenWidrowWeightRandomizerTest.cpp
 
-    #PsoTrainingAlgorithmTest.cpp
-    #REvolutionaryTrainingAlgorithmTest.cpp
     TrainingSetTest.cpp
     RpropTrainingAlgorithmTest.cpp
     BackpropagationTrainingAlgorithmTest.cpp
@@ -39,6 +37,12 @@ set(test-wzann_HEADERS
     RpropTrainingAlgorithmTest.h
     SimulatedAnnealingTrainingAlgorithmTest.h
     TrainingSetTest.h)
+
+if (${libwzalgorithm_FOUND})
+    list(APPEND test-wzann_SOURCES
+        #PsoTrainingAlgorithmTest.cpp
+        REvolutionaryTrainingAlgorithmTest.cpp)
+endif()
 
 
 set(WZANN_TEST_SCHEMA_PATH "${wzann_SOURCE_DIR}/lib/schema")
