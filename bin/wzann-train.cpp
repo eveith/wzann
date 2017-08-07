@@ -15,7 +15,8 @@
 #include "TrainingAlgorithm.h"
 
 
-#define EXIT_TRAINING_FAILURE (EXIT_FAILURE+1)
+#define EXIT_TRAINING_FAILURE (128+1)
+#define EXIT_VERIFICYTION_FAILURE (EXIT_TRAINING_FAILURE+1)
 
 
 using std::cout;
@@ -100,6 +101,43 @@ unique_ptr<NeuralNetwork> readNeuralNetwork(string const& path)
 }
 
 
+void writeAnn(NeuralNetwork const& ann, string const& path)
+{
+    if (path != "-") {
+        std::ofstream(path) << to_json(ann);
+    } else {
+        cout << to_json(ann);
+    }
+}
+
+
+double runVerificationSet(NeuralNetwork& ann, TrainingSet const& vs)
+{
+    double error = 0.0;
+    size_t numRelevantItems = 0;
+
+    for (auto const& vi : vs.trainingItems) {
+        const auto actual = ann.calculate(vi.input());
+        if (! vi.outputRelevant()) {
+            continue;
+        }
+        numRelevantItems++;
+        auto const& expected = vi.expectedOutput();
+
+        double lerror = 0.0;
+        for (auto ait = actual.begin(), eit = expected.begin();
+                ait != actual.end() && eit != expected.end();
+                ait++, eit++) {
+            lerror += std::pow(*eit - *ait, 2);
+        }
+
+        error += lerror / 2.0;
+    }
+
+    return error / static_cast<double>(numRelevantItems);
+}
+
+
 int main (int argc, char* argv[])
 {
     po::variables_map vm;
@@ -133,33 +171,41 @@ int main (int argc, char* argv[])
             "Lists all available training algorithms")
         ("help,h", "Produces this help message")
         ("version,v", "Prints \"wzann-train " WZANN_VERSION "\"");
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-
-
-    if (vm.count("help")) {
-        std::cout
-                << desc
-                << "\nReturns " << EXIT_SUCCESS << " on success, "
-                << EXIT_FAILURE << " on errors caused by malformed input, "
-                << "and " << EXIT_TRAINING_FAILURE << " if the training was "
-                    "unsuccessful.\n";
-        return EXIT_SUCCESS;
-    }
-
-    if (vm.count("version")) {
-        std::cout << "wzann-train " << WZANN_VERSION << "\n";
-        return EXIT_SUCCESS;
-    }
-
-    if (vm.count("list-training-algorithms")) {
-        listTrainingAlgorithms();
-        return EXIT_SUCCESS;
-    }
-
 
     try {
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+
+
+        if (vm.count("help")) {
+            std::cout
+                    << desc
+                    << "\nReturns "
+                    << EXIT_SUCCESS
+                    << " on success, "
+                    << EXIT_FAILURE
+                    << " on errors caused by malformed input, "
+                    << EXIT_TRAINING_FAILURE
+                    <<  ", if the training was unsuccessful, and "
+                    << EXIT_VERIFICYTION_FAILURE
+                    << " if the training was successful, but the error "
+                        "obtained by the verification data set exceeded the "
+                        "desired target error.\n";
+            return EXIT_SUCCESS;
+        }
+
+        if (vm.count("version")) {
+            std::cout << "wzann-train " << WZANN_VERSION << "\n";
+            return EXIT_SUCCESS;
+        }
+
+        if (vm.count("list-training-algorithms")) {
+            listTrainingAlgorithms();
+            return EXIT_SUCCESS;
+        }
+
+
         po::notify(vm); // Will raise on errors.
-    } catch (po::required_option& e) {
+    } catch (po::error const& e) {
         cerr
                 << "ERROR: " << e.what() << ".\n"
                 << "Run \"" << argv[0]
@@ -169,6 +215,7 @@ int main (int argc, char* argv[])
 
 
     unique_ptr<TrainingSet> trainingSet;
+    unique_ptr<TrainingSet> verificationSet;
     unique_ptr<NeuralNetwork> neuralNetwork;
     unique_ptr<TrainingAlgorithm> trainingAlgorithm;
 
@@ -179,6 +226,10 @@ int main (int argc, char* argv[])
                 vm.at("training-set-input").as<string>());
         neuralNetwork = readNeuralNetwork(
                 vm.at("ann-input").as<string>());
+
+        if (vm.count("verify-input")) {
+            verificationSet = readTrainingSet(vm.at("").as<string>());
+        }
     } catch (std::exception& e) {
         cerr << "ERROR: " << e.what() << ".\n";
         return EXIT_FAILURE;
@@ -186,15 +237,29 @@ int main (int argc, char* argv[])
 
 
     trainingAlgorithm->train(*neuralNetwork, *trainingSet);
-
-
     cerr
             << "Training ended. Final error: "
             << trainingSet->error() << "/" << trainingSet->targetError()
             << ", number of epochs taken: "
             << trainingSet->epochs() << "/" << trainingSet->maxEpochs();
 
-    return trainingSet->error() <= trainingSet->targetError()
-            ? EXIT_SUCCESS
-            : EXIT_TRAINING_FAILURE;
+
+    writeAnn(*neuralNetwork, vm.at("ann-output").as<string>());
+
+
+    if (verificationSet) {
+        auto verror = runVerificationSet(*neuralNetwork, *verificationSet);
+        cerr
+                << "Verification set error: "
+                << verificationSet->error()
+                << "/"
+                << verror
+                << "\n";
+        if (verror > verificationSet->targetError()) {
+            return EXIT_VERIFICYTION_FAILURE;
+        }
+    } else if (trainingSet->error() > trainingSet->targetError()) {
+        return EXIT_TRAINING_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
