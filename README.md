@@ -50,6 +50,26 @@ API, and only fix bugs or add functionality in a backwards-compatible manner.
   * Freeze C++ API
   * Freeze CLI invocation API
 
+## Installation and Requirements
+
+wzAnn requires the following tools and libraries to be present:
+
+  * CMake
+  * A modern C++ compiler that understands C++14
+  * wzalgorithm >= 0.8
+  * LibVariant >= 1.0.0
+  * Boost >= 1.54.0
+  * (Optional) GTest, the Google Unit Testing framework
+  * (Optional) Bats, to test the CLI utilities
+
+Building wzAnn is very straightforwards:
+
+    mkdir Build && cd Build
+    cmake ..
+    make && make test && make install
+
+You should check for additional cmake command flags, though.
+
 ## License
 
 wzAnn is licensed under GNU GPLv3. See the file `COPYING` for details.
