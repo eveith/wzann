@@ -15,6 +15,8 @@
 #include "TrainingSet.h"
 #include "TrainingAlgorithm.h"
 
+#include "ClassRegistry.h"
+
 #include "REvolutionaryTrainingAlgorithm.h"
 
 
@@ -70,6 +72,9 @@ namespace wzann {
             TrainingAlgorithm(),
             REvol()
     {
+        // Try some default parameters
+
+        populationSize(30).eliteSize(3).startTTL(5 * populationSize());
     }
 
 
@@ -164,3 +169,7 @@ namespace std {
     }
 }
 
+
+WZANN_REGISTER_CLASS(
+        wzann::REvolutionaryTrainingAlgorithm,
+        wzann::TrainingAlgorithm)
