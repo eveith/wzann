@@ -194,9 +194,9 @@ namespace wzann {
         libvariant::Variant v;
 
         v["epochs"] = ts.epochs();
+        v["targetError"] = ts.targetError();
         v["maxEpochs"] = ts.maxEpochs();
         v["error"] = ts.error();
-        v["targetError"] = ts.targetError();
 
         libvariant::Variant::List trainingItems;
         for (auto const& i: ts.trainingItems) {
@@ -213,11 +213,15 @@ namespace wzann {
     {
         TrainingSet ts;
 
-        ts.m_epochs = static_cast<size_t>(
-                variant["epochs"].AsUnsigned());
+        ts.m_epochs = variant.Contains("epochs")
+                ? static_cast<size_t>(variant["epochs"].AsUnsigned())
+                : 0u;
         ts.maxEpochs(static_cast<size_t>(
                 variant["maxEpochs"].AsUnsigned()));
-        ts.m_error = variant["error"].AsDouble();
+
+        ts.m_error = variant.Contains("error")
+                ? variant["error"].AsDouble()
+                : std::numeric_limits<double>::max();
         ts.targetError(variant["targetError"].AsDouble());
 
         for (const auto &i: variant["trainingItems"].AsList()) {
@@ -233,11 +237,14 @@ namespace wzann {
     {
         TrainingSet* ts = new TrainingSet();
 
-        ts->m_epochs = static_cast<size_t>(
-                variant["epochs"].AsUnsigned());
+        ts->m_epochs = variant.Contains("epochs")
+                ? static_cast<size_t>(variant["epochs"].AsUnsigned())
+                : 0u;
         ts->maxEpochs(static_cast<size_t>(
                 variant["maxEpochs"].AsUnsigned()));
-        ts->m_error = variant["error"].AsDouble();
+        ts->m_error = variant.Contains("error")
+                ? variant["error"].AsDouble()
+                : std::numeric_limits<double>::max();
         ts->targetError(variant["targetError"].AsDouble());
 
         for (const auto& i : variant["trainingItems"].AsList()) {
