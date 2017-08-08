@@ -1,0 +1,19 @@
+{
+    "targetError": 0.001,
+    "maxEpochs": 20000,
+    "trainingItems": [{
+            "input": [1, 0, 0, 1],
+            "expectedOutput": [1]
+        }, {
+            "input": [1, 1, 1, 1],
+            "expectedOutput": [1]
+        }, {
+            "input": [0, 1, 1, 1],
+            "expectedOutput": [0]
+        }, {
+            "input": [0, 0, 0, 1],
+            "expectedOutput": [0]
+        }
+    ]
+}
+

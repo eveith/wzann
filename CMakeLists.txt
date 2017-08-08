@@ -12,6 +12,7 @@ find_package(Boost 1.56.0 REQUIRED
     COMPONENTS program_options filesystem system)
 find_package(LibVariant 1.0.0 REQUIRED)
 pkg_check_modules(LIBWZALGORITHM libwzalgorithm>=0.8.0)
+find_program(BATS bats)
 
 
 set(WZANN_SCHEMA_PATH
@@ -38,15 +39,9 @@ add_custom_target(srctar
 
 add_subdirectory(lib)
 add_subdirectory(bin)
+enable_testing()
+add_subdirectory(test)
 
 if (${DOXYGEN_FOUND})
     add_subdirectory(doc)
-endif()
-
-if (${GTEST_FOUND})
-    enable_testing()
-    add_subdirectory(test)
-else()
-    message(AUTHOR_WARNING,
-        "GTest was not found; no unit tests will be available and `make check' will not work.")
 endif()

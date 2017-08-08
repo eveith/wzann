@@ -46,27 +46,45 @@ endif()
 
 
 set(WZANN_TEST_SCHEMA_PATH "${wzann_SOURCE_DIR}/lib/schema")
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/TestSchemaPath.h.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/TestSchemaPath.h")
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/TestSchemaPath.h.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/TestSchemaPath.h")
 
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+    if (${GTEST_FOUND})
+
+    add_executable(tst_ann ${test-wzann_SOURCES})
+    add_test(tst_ann tst_ann)
+
+    target_include_directories(tst_ann
+        PUBLIC ${wzann_SOURCE_DIR}/lib
+        PUBLIC ${wzann_BINARY_DIR}/lib
+        PUBLIC ${Boost_INCLUDE_DIRS})
+
+    target_link_libraries(tst_ann
+        stdc++
+        gtest
+        pthread
+        wzann)
+
+    set_property(TARGET tst_ann PROPERTY CXX_STANDARD 14)
+else()
+    message(WARNING "GTest was not found; no unit tests will be available "
+        "and `make check' will not work.")
+endif()
 
 
-add_executable(tst_ann ${test-wzann_SOURCES})
-add_test(tst_ann tst_ann)
-
-target_include_directories(tst_ann
-    PUBLIC ${wzann_SOURCE_DIR}/lib
-    PUBLIC ${wzann_BINARY_DIR}/lib
-    PUBLIC ${Boost_INCLUDE_DIRS})
-
-target_link_libraries(tst_ann
-    stdc++
-    gtest
-    pthread
-    wzann)
-
-
-set_property(TARGET tst_ann PROPERTY CXX_STANDARD 14)
+if (EXISTS ${BATS})
+    configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_FourBitParity.bats"
+        "${CMAKE_CURRENT_BINARY_DIR}/test_FourBitParity.bats"
+        @ONLY)
+    add_test(
+        NAME FourBitParity
+        COMMAND bats "${CMAKE_CURRENT_BINARY_DIR}/test_FourBitParity.bats"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+else()
+    message(WARNING "BATS was not found; will not test CLI tools.")
+endif()

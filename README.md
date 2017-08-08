@@ -1,9 +1,10 @@
 # wzAnn
 
 A library and command-line tools for artificial neural networks, providing
-perceptrons and simple recurring neural networks.
+perceptrons and simple recurring neural networks. Its purpose is to showcase
+some of the unusal network architectures and training algorithms.
 
-## State
+## State and Development
 
 This library is currently usable, but missing interesting features except for
 the usage of REvol, the multi-part evolutionary training algorithm.
@@ -12,6 +13,15 @@ There is currently no API stability promise. Expect that for version 1.0.
 Until this milestone is reached, i.e., for every 0.MINOR release, expect a
 breaking change. Patchlevel increments (i.e., 0.MINOR.PATCH) do not break the
 API, and only fix bugs or add functionality in a backwards-compatible manner.
+
+Development happens in Github. Here, the `master` branch tracks the stable
+development (which you can check out, which will compile, and where all tests
+will pass). Releases are made from the `master` branch. Current development
+commits will be made to `devel`.  This is the top of development, and no
+stability whatsoever is guranteed. The source code in this branch may not even
+compile!
+
+Patches and pull requests are always welcome.
 
 ## Roadmap
 
@@ -36,8 +46,8 @@ API, and only fix bugs or add functionality in a backwards-compatible manner.
 ### 0.8
 
   * Add the Nadam gradient descent algorithm
-  * Refactors training algorithms for one common evaluation loop that can
-    be parallelized
+  * Provide a common training loop
+  * Provide logging templates to emit information objects during training
   * Add multi-threading functionality
 
 ### 0.9
