@@ -12,7 +12,9 @@
 #include "WzannGlobal.h"
 #include "TrainingSet.h"
 #include "ClassRegistry.h"
+
 #include "TrainingAlgorithm.h"
+#include "REvolutionaryTrainingAlgorithm.h"
 
 
 #define EXIT_TRAINING_FAILURE (128+1)
@@ -34,6 +36,81 @@ namespace po = boost::program_options;
 
 
 
+po::options_description buildCliOptions()
+{
+    po::options_description desc("Allowed options");
+
+    desc.add_options()
+        ("ann-input,i",
+                po::value<string>()->required(),
+                "The input ANN to train.")
+        ("training-set-input,I",
+                po::value<string>()->required(),
+                "Input training set")
+        ("ann-output,o",
+                po::value<string>()->default_value("-"),
+                "Where to output the trained ANN to. "
+                    "Defaults to STDOUT ('-').")
+        ("verify-input,V",
+                po::value<string>(),
+                "The path of the training set used for verification.")
+        ("target-error,e",
+                po::value<double>(),
+                "The desired training error; taken from the training set "
+                    "if not specified")
+        ("max-epochs,E",
+                po::value<wzann::TrainingAlgorithm::epoch_t>(),
+                "The maximum number of iterations to run the training; "
+                    "taken from the training set if not specified")
+        ("training-algorithm,t",
+                po::value<string>()->required(),
+                "Chooses the appropriate training algorithm")
+        ("list-training-algorithms,T",
+            "Lists all available training algorithms")
+        ("revol-population-size",
+                po::value<size_t>()->default_value(30),
+                "REvol: Size of the general population")
+        ("revol-elite-size",
+                po::value<size_t>()->default_value(3),
+                "REvol: The size of the elite (contained in the population)")
+        ("revol-gradient-weight",
+                po::value<double>()->default_value(1.0),
+                "REvol: Weight of the implicit gradient information")
+        ("revol-success-weight",
+                po::value<double>()->default_value(1.0),
+                "REvol: Weight of population success rate")
+        ("revol-measurement-epochs",
+                po::value<wzalgorithm::REvol::epoch_t>()->default_value(
+                    REvolutionaryTrainingAlgorithm().measurementEpochs()),
+                "REvol: Time period of the pt1 function used for measuring "
+                    "overall population success")
+        ("revol-max-no-success-epochs",
+                po::value<wzalgorithm::REvol::epoch_t>()->default_value(
+                    std::numeric_limits<wzalgorithm::REvol::epoch_t>::max()),
+                "REvol: Maximum number of epochs without a global success")
+        ("revol-startttl",
+                po::value<std::ptrdiff_t>()->default_value(5 * 30),
+                "REvol: Initial Time To Live of a new individual")
+        ("revol-eamin",
+                po::value<double>()->default_value(
+                    REvolutionaryTrainingAlgorithm().eamin()),
+                "REvol: Absolute minimum value of a change")
+        ("revol-ebmin",
+                po::value<double>()->default_value(
+                    REvolutionaryTrainingAlgorithm().ebmin()),
+                "REvol: Relative minimum value of a change")
+        ("revol-ebmax",
+                po::value<double>()->default_value(
+                    REvolutionaryTrainingAlgorithm().ebmax()),
+                "REvol: Relative maximum value of a change")
+        ("help,h", "Produces this help message")
+        ("version,v", "Prints \"wzann-train " WZANN_VERSION "\"");
+
+    return desc;
+}
+
+
+
 void listTrainingAlgorithms()
 {
     cout << "Available training algorithms:\n";
@@ -44,13 +121,51 @@ void listTrainingAlgorithms()
 }
 
 
-unique_ptr<TrainingAlgorithm> createTrainingAlgorithm(string const& name)
+template <class T>
+void configureTrainingAlgorithm(
+        T&,
+        po::variables_map const& = po::variables_map())
+{
+}
+
+
+template <>
+void configureTrainingAlgorithm(
+        REvolutionaryTrainingAlgorithm& trainingAlgorithm,
+        boost::program_options::variables_map const& vm)
+{
+    trainingAlgorithm
+            .successWeight(vm["revol-success-weight"].as<double>())
+            .measurementEpochs(vm["revol-measurement-epochs"].as<
+                wzalgorithm::REvol::epoch_t>())
+            .gradientWeight(vm["revol-gradient-weight"].as<double>())
+            .populationSize(vm["revol-population-size"].as<size_t>())
+            .eliteSize(vm["revol-elite-size"].as<size_t>())
+            .startTTL(vm["revol-startttl"].as<std::ptrdiff_t>())
+            .eamin(vm["revol-eamin"].as<double>())
+            .ebmin(vm["revol-ebmin"].as<double>())
+            .ebmax(vm["revol-ebmax"].as<double>())
+            .maxNoSuccessEpochs(vm["revol-max-no-success-epochs"].as<
+                wzalgorithm::REvol::epoch_t>());
+}
+
+
+unique_ptr<TrainingAlgorithm> createTrainingAlgorithm(
+        string const& name,
+        po::variables_map const& commandLineArguments = po::variables_map())
 {
     unique_ptr<TrainingAlgorithm> trainingAlgorithm(nullptr);
     auto* cr = ClassRegistry<TrainingAlgorithm>::instance();
 
     if (cr->isRegistered(name)) {
         trainingAlgorithm.reset(cr->create(name));
+
+        if (name == "wzann::REvolutionaryTrainingAlgorithm") {
+            configureTrainingAlgorithm<REvolutionaryTrainingAlgorithm>(
+                    dynamic_cast<REvolutionaryTrainingAlgorithm&>(
+                        *trainingAlgorithm),
+                    commandLineArguments);
+        }
     } else {
         throw std::runtime_error("Unknown training algorithm");
     }
@@ -59,7 +174,9 @@ unique_ptr<TrainingAlgorithm> createTrainingAlgorithm(string const& name)
 }
 
 
-unique_ptr<TrainingSet> readTrainingSet(string const& path)
+unique_ptr<TrainingSet> readTrainingSet(
+        string const& path,
+        po::variables_map const& options)
 {
     fs::path tsp(path);
     unique_ptr<TrainingSet> trainingSet(nullptr);
@@ -75,6 +192,13 @@ unique_ptr<TrainingSet> readTrainingSet(string const& path)
     auto jsonString = static_cast<std::stringstream const&>(
             std::stringstream() << infs.rdbuf()).str();
     trainingSet.reset(new_from_json<TrainingSet>(jsonString));
+
+    if (options.count("target-error")) {
+        trainingSet->targetError(options.at("target-error").as<double>());
+    }
+    if (options.count("max-epochs")) {
+        trainingSet->maxEpochs(options.at("max-epochs").as<size_t>());
+    }
 
     return trainingSet;
 }
@@ -141,36 +265,8 @@ double runVerificationSet(NeuralNetwork& ann, TrainingSet const& vs)
 int main (int argc, char* argv[])
 {
     po::variables_map vm;
-    po::options_description desc("Allowed options");
-    desc.add_options()
-        ("ann-input,i",
-                po::value<string>()->required(),
-                "The input ANN to train.")
-        ("training-set-input,I",
-                po::value<string>()->required(),
-                "Input training set")
-        ("ann-output,o",
-                po::value<string>()->default_value("-"),
-                "Where to output the trained ANN to. "
-                    "Defaults to STDOUT ('-').")
-        ("verify-input,V",
-                po::value<string>(),
-                "The path of the training set used for verification.")
-        ("target-error,e",
-                po::value<double>(),
-                "The desired training error; taken from the training set "
-                    "if not specified")
-        ("max-epochs,E",
-                po::value<wzann::TrainingAlgorithm::epoch_t>(),
-                "The maximum number of iterations to run the training; "
-                    "taken from the training set if not specified")
-        ("training-algorithm,t",
-                po::value<string>()->required(),
-                "Chooses the appropriate training algorithm")
-        ("list-training-algorithms,T",
-            "Lists all available training algorithms")
-        ("help,h", "Produces this help message")
-        ("version,v", "Prints \"wzann-train " WZANN_VERSION "\"");
+    auto desc{ buildCliOptions() };
+
 
     try {
         po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -179,17 +275,18 @@ int main (int argc, char* argv[])
         if (vm.count("help")) {
             std::cout
                     << desc
-                    << "\nReturns "
+                    << "\n"
+                    << "Returns   "
                     << EXIT_SUCCESS
-                    << " on success, "
+                    << " on success,\n          "
                     << EXIT_FAILURE
-                    << " on errors caused by malformed input, "
+                    << " on errors caused by malformed input,\n        "
                     << EXIT_TRAINING_FAILURE
-                    <<  ", if the training was unsuccessful, and "
+                    <<  " if the training was unsuccessful, and\n        "
                     << EXIT_VERIFICYTION_FAILURE
                     << " if the training was successful, but the error "
-                        "obtained by the verification data set exceeded the "
-                        "desired target error.\n";
+                        "obtained\n            by the verification data set "
+                        "exceeded the desired target error.\n";
             return EXIT_SUCCESS;
         }
 
@@ -221,14 +318,17 @@ int main (int argc, char* argv[])
 
     try {
         trainingAlgorithm = createTrainingAlgorithm(vm.at(
-                "training-algorithm").as<string>());
+                "training-algorithm").as<string>(), vm);
         trainingSet = readTrainingSet(
-                vm.at("training-set-input").as<string>());
+                vm.at("training-set-input").as<string>(),
+                vm);
         neuralNetwork = readNeuralNetwork(
                 vm.at("ann-input").as<string>());
 
         if (vm.count("verify-input")) {
-            verificationSet = readTrainingSet(vm.at("").as<string>());
+            verificationSet = readTrainingSet(
+                    vm.at("verify-input").as<string>(),
+                    vm);
         }
     } catch (std::exception& e) {
         cerr << "ERROR: " << e.what() << ".\n";
@@ -241,7 +341,8 @@ int main (int argc, char* argv[])
             << "Training ended. Final error: "
             << trainingSet->error() << "/" << trainingSet->targetError()
             << ", number of epochs taken: "
-            << trainingSet->epochs() << "/" << trainingSet->maxEpochs();
+            << trainingSet->epochs() << "/" << trainingSet->maxEpochs()
+            << "\n";
 
 
     writeAnn(*neuralNetwork, vm.at("ann-output").as<string>());
@@ -251,9 +352,9 @@ int main (int argc, char* argv[])
         auto verror = runVerificationSet(*neuralNetwork, *verificationSet);
         cerr
                 << "Verification set error: "
-                << verificationSet->error()
-                << "/"
                 << verror
+                << "/"
+                << verificationSet->targetError()
                 << "\n";
         if (verror > verificationSet->targetError()) {
             return EXIT_VERIFICYTION_FAILURE;

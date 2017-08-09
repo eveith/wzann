@@ -72,9 +72,12 @@ namespace wzann {
             TrainingAlgorithm(),
             REvol()
     {
-        // Try some default parameters
-
-        populationSize(30).eliteSize(3).startTTL(5 * populationSize());
+        eamin(1e-30);
+        ebmin(1e-7);
+        ebmax(1e-1);
+        eliteSize(3);
+        populationSize(30);
+        startTTL(5 * populationSize());
     }
 
 
