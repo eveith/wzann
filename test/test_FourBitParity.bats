@@ -14,7 +14,7 @@ vrfy_in="${SRCDIR}/mock/FourBitParity-Verify.json"
     "$mkann" \
         -p wzann::PerceptronNetworkPattern \
         -l 4:ReLU \
-        -l 100:Logistic \
+        -l 12:Logistic \
         -l 1:Logistic \
         > FourBitParityAnn.in.json
     "$train" \
@@ -22,7 +22,6 @@ vrfy_in="${SRCDIR}/mock/FourBitParity-Verify.json"
         -o FourBitParityAnn.out.json \
         -I "$train_in" \
         -V "$vrfy_in" \
-        -E 500000 \
         -t wzann::RpropTrainingAlgorithm
 }
 
