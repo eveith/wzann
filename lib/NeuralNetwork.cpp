@@ -7,9 +7,6 @@
 #include <boost/range.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include <log4cxx/logger.h>
-#include <log4cxx/logmanager.h>
-
 #include <ClassRegistry.h>
 #include <JsonSerializable.h>
 
