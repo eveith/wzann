@@ -15,8 +15,12 @@ pkg_check_modules(LIBWZALGORITHM libwzalgorithm>=0.8.0)
 find_program(BATS bats)
 
 
-set(WZANN_SCHEMA_PATH
+set(WZANN_DATADIR
     "${CMAKE_INSTALL_FULL_DATADIR}/wzann"
+    CACHE FILEPATH
+    "General data director for wzann")
+set(WZANN_SCHEMA_PATH
+    "${WZANN_DATADIR}/schema"
     CACHE FILEPATH
     "Path to the JSON schema for serialized ANNs")
 

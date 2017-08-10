@@ -259,7 +259,7 @@ namespace wzann {
     struct JsonSchema<wzann::TrainingSet>
     {
         static constexpr const char schemaURI[] = WZANN_SCHEMA_PATH
-                "/schema/TrainingSetSchema.json";
+                "/TrainingSetSchema.json";
     };
 } // namespace wzann
 
