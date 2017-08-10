@@ -25,3 +25,5 @@ target_link_libraries(wzann-mkann
 target_link_libraries(wzann-train
     wzann
     ${Boost_LIBRARIES})
+
+install(TARGETS wzann-mkann wzann-train DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -29,12 +29,12 @@ configure_file(
 add_custom_target(srctar
     COMMAND tar
         "-C" "${CMAKE_CURRENT_SOURCE_DIR}"
-        "-vcJf" "wzann-${wzann_VERSION}.tar.xz"
+        "-vczf" "wzann-${wzann_VERSION}.tar.gz"
         "--xform='s,^,${PROJECT_NAME}-${wzann_VERSION}/,'"
         "--exclude-vcs" "--exclude-backups"
         "--exclude=Makefile" "--exclude='*.so*'"
-        "src" "test" "CMakeLists.txt"
-        "README" "COPYING" "VERSION.in" "wzann.spec.in")
+        "lib" "bin" "test" "CMakeLists.txt"
+        "README.md" "VERSION.in" "COPYING")
 
 
 add_subdirectory(lib)

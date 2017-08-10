@@ -35,7 +35,7 @@ set(wzann_wzalgorithm_SOURCES
    REvolutionaryTrainingAlgorithm.cpp)
 
 set(wzann_HEADERS
-    WzannGlobal.h
+    ${CMAKE_CURRENT_BINARY_DIR}/WzannGlobal.h
     enum.h
 
     ClassRegistry.h
@@ -72,6 +72,8 @@ set(wzann_HEADERS
     REvolutionaryTrainingAlgorithm.h
     BackpropagationTrainingAlgorithm.h)
 
+file(GLOB wzann_SCHEMATA schema/*.json)
+
 
 if (${LIBWZALGORITHM_FOUND})
     list(APPEND wzann_SOURCES ${wzann_wzalgorithm_SOURCES})
@@ -92,6 +94,16 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/WzannGlobal.h")
 
 
+SET(PKG_CONFIG_LIBDIR "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+SET(PKG_CONFIG_INCLUDEDIR "\${prefix}/include")
+SET(PKG_CONFIG_LIBS "-L\${libdir} ${wzann_LIBRARIES} -lwzann")
+SET(PKG_CONFIG_CFLAGS "-I\${includedir}")
+
+CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/libwzann.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/libwzann.pc)
+
+
 add_library(wzann SHARED ${wzann_SOURCES})
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -103,7 +115,8 @@ target_include_directories(wzann
     PUBLIC ${LIBVARIANT_INCLUDE_DIRS})
 
 target_link_libraries(wzann
-    PUBLIC ${LIBVARIANT_LIBRARIES})
+    PUBLIC ${LIBVARIANT_LIBRARIES}
+    PUBLIC ${LIBWZALGORITHM_LIBRARIES})
 
 set_target_properties(wzann
     PROPERTIES SOVERSION "${wzann_VERSION_MAJOR}.${wzann_VERSION_MINOR}"
@@ -119,4 +132,8 @@ endif()
 install(TARGETS wzann
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${wzann_HEADERS} DESTINATION include/winzent/ann)
+install(FILES ${wzann_HEADERS} DESTINATION include/wzann)
+install(FILES ${wzann_SCHEMATA} DESTINATION ${WZANN_SCHEMA_PATH})
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/libwzann.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)

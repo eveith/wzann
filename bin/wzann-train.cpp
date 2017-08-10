@@ -111,6 +111,28 @@ po::options_description buildCliOptions()
 
 
 
+void printHelp(
+        po::options_description const& desc,
+        std::ostream& os = std::cout)
+{
+    os
+            << desc
+            << "\n"
+            << "Returns   "
+            << EXIT_SUCCESS
+            << " on success,\n          "
+            << EXIT_FAILURE
+            << " on errors caused by malformed input,\n        "
+            << EXIT_TRAINING_FAILURE
+            <<  " if the training was unsuccessful, and\n        "
+            << EXIT_VERIFICYTION_FAILURE
+            << " if the training was successful, but the error "
+                "obtained\n            by the verification data set "
+                "exceeded the desired target error.\n";
+}
+
+
+
 void listTrainingAlgorithms()
 {
     cout << "Available training algorithms:\n";
@@ -265,28 +287,14 @@ double runVerificationSet(NeuralNetwork& ann, TrainingSet const& vs)
 int main (int argc, char* argv[])
 {
     po::variables_map vm;
-    auto desc{ buildCliOptions() };
+    auto desc(buildCliOptions());
 
 
     try {
         po::store(po::parse_command_line(argc, argv, desc), vm);
 
-
         if (vm.count("help")) {
-            std::cout
-                    << desc
-                    << "\n"
-                    << "Returns   "
-                    << EXIT_SUCCESS
-                    << " on success,\n          "
-                    << EXIT_FAILURE
-                    << " on errors caused by malformed input,\n        "
-                    << EXIT_TRAINING_FAILURE
-                    <<  " if the training was unsuccessful, and\n        "
-                    << EXIT_VERIFICYTION_FAILURE
-                    << " if the training was successful, but the error "
-                        "obtained\n            by the verification data set "
-                        "exceeded the desired target error.\n";
+            printHelp(desc);
             return EXIT_SUCCESS;
         }
 
@@ -300,8 +308,7 @@ int main (int argc, char* argv[])
             return EXIT_SUCCESS;
         }
 
-
-        po::notify(vm); // Will raise on errors.
+        po::notify(vm);
     } catch (po::error const& e) {
         cerr
                 << "ERROR: " << e.what() << ".\n"
