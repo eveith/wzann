@@ -13,6 +13,7 @@ find_package(Boost 1.56.0 REQUIRED
 find_package(LibVariant 1.0.0 REQUIRED)
 pkg_check_modules(LIBWZALGORITHM libwzalgorithm>=0.8.0)
 find_program(BATS bats)
+find_program(A2X a2x)
 
 
 set(WZANN_DATADIR
@@ -48,4 +49,10 @@ add_subdirectory(test)
 
 if (${DOXYGEN_FOUND})
     add_subdirectory(doc)
+endif()
+
+if (EXISTS ${A2X})
+    add_subdirectory(man)
+else()
+    message(WARNING "asciidoc not found, cannot build manpages.")
 endif()
