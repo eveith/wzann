@@ -1,0 +1,81 @@
+WZANN-MKANN(1)
+==============
+:doctype: manpage
+
+NAME
+----
+
+wzann-mkann - Creates a JSON-serialized Artificial Neural Network definition
+
+SYNOPSIS
+--------
+
+*wzann-mkann* *-p* 'PATTERN' *-l* 'LAYER' [*-l* 'LAYER' ...]
+
+DESCRIPTION
+-----------
+
+*wzann-mkann* creates a JSON-serialized Artificial Neural Network (ANN). The
+definition is compatible with all tools that use the wzann library, such as
+*wzann-train*.
+
+*wzann-mkann* can only create ANN definitions for which a pattern exists. The
+command line option *-P*|*--list-patterns* lists all available patterns. The
+patterns define the general structure of the ANN as well as how a value is
+calculated. How many layers and neurons an ANN contains and what activation
+functions are used is determined by repeatedly supplying the
+*-l*|*--add-layer* flag.
+
+The resulting ANN is written to STDOUT.
+
+OPTIONS
+-------
+
+*-p*, *--pattern*='PATTERN'::
+    Defines the pattern that, in turn, defines the general structure of the
+    ANN. See *-P*.
+
+*-l*, *-add-layer*='LAYER'::
+    Adds a layer to the ANN. All layer definitions must be simple layer
+    definitions, which follow the form 'NUM-NEURONS'*:*'ACTIVATION-FUNCTION'.
+    The number of neurons in the layer ('NUM-NEURONS') must be an unsigned
+    integer (> 0); the name of the activation function ('ACTIVATION-FUNCTION')
+    one of the known activation functions. This option may be supplied
+    multiple time; each new occurrence adds a new layer. How layers are
+    arranged or how many layers an ANN may hold depends on the pattern used.
+    See *-A*.
+
+*-P*, *--list-patterns*::
+    Prints a list of all available patterns, each being a suitable argument
+    for *-p*.
+
+*-A*, *--list-activation-functions*::
+    Prints a list of all recognized activation functions, suitable for usage
+    in the simple layer definition supplied by giving the *-l* flag.
+
+*-h*, *--help*::
+    Prints a usage summary and exits the program.
+
+*-v*, *--version*::
+    Prints the current version of the program.
+
+EXIT STATUS
+-----------
+
+0 on success, 1 on failure (mostly due to malformatted input).
+
+EXAMPLE
+-------
+
+    wzann-mkann -p wzann::ElmanNetworkPattern -l 1:ReLU -l 5:Logistic
+        -l 2:Logistic
+
+AUTHORS
+-------
+
+Copyright \(C) 2011-2017 Eric MSP Veith <eveith@veith-m.de>
+
+SEE ALSO
+--------
+
+*wzann-train*(1)
