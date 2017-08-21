@@ -35,7 +35,7 @@ OPTIONS
     Defines the pattern that, in turn, defines the general structure of the
     ANN. See *-P*.
 
-*-l*, *-add-layer*='LAYER'::
+*-l*, *--add-layer*='LAYER'::
     Adds a layer to the ANN. All layer definitions must be simple layer
     definitions, which follow the form 'NUM-NEURONS'*:*'ACTIVATION-FUNCTION'.
     The number of neurons in the layer ('NUM-NEURONS') must be an unsigned
@@ -78,4 +78,4 @@ Copyright \(C) 2011-2017 Eric MSP Veith <eveith@veith-m.de>
 SEE ALSO
 --------
 
-*wzann-train*(1)
+*wzann-train*(1), *wzann-repl*(1)

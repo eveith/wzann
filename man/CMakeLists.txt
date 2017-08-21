@@ -4,6 +4,12 @@ set(wzann_MANPAGE_SOURCES
 set(a2x_common_options
     -d manpage -f manpage --asciidoc-opts='-o ${CMAKE_CURRENT_BINARY_DIR}')
 
+
+if (EXISTS ${readline_LIBRARY} AND ${readline_HEADER})
+    LIST(APPEND wzann_MANPAGE_SOURCES wzann-repl.1.txt)
+endif()
+
+
 foreach (man_src ${wzann_MANPAGE_SOURCES})
     string(REGEX REPLACE "\\.[^.]*$" "" man_dst ${man_src})
     list(APPEND wzann_MANPAGES ${man_dst})
