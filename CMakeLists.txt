@@ -5,6 +5,7 @@ project(wzann VERSION 0.6.0 LANGUAGES CXX)
 include(CTest)
 include(FindPkgConfig)
 include(GNUInstallDirs)
+include(CheckIncludeFileCXX)
 
 
 find_package(GTest)

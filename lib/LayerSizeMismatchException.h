@@ -28,7 +28,7 @@ namespace wzann {
          */
         LayerSizeMismatchException(size_t expected, size_t actual):
                 std::invalid_argument("Supplied Vector argument has "
-                    " the wrong number of elements"),
+                    "the wrong number of elements"),
                 m_expected(expected),
                 m_actual(actual)
         {

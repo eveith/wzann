@@ -247,7 +247,7 @@ unique_ptr<NeuralNetwork> readNeuralNetwork(string const& path)
 }
 
 
-void writeAnn(NeuralNetwork const& ann, string const& path)
+void writeNeuralNetwork(NeuralNetwork const& ann, string const& path)
 {
     if (path != "-") {
         std::ofstream(path) << to_json(ann);
@@ -352,7 +352,7 @@ int main (int argc, char* argv[])
             << "\n";
 
 
-    writeAnn(*neuralNetwork, vm.at("ann-output").as<string>());
+    writeNeuralNetwork(*neuralNetwork, vm.at("ann-output").as<string>());
 
 
     if (verificationSet) {
