@@ -1,0 +1,194 @@
+WZANN-TRAIN(1)
+==============
+:doctype: manpage
+
+NAME
+----
+
+wzann-train - Trains an Artificial Neural Network
+
+SYNOPSIS
+--------
+
+*wzann-train* *-i* 'ANN-IN' *-I* 'TRAININGSET-IN' -t 'TRAINING-ALGORITHM'
+    [*-o* 'ANN-OUT'] [*-V* 'VERIFY-IN'] [*-e* 'TARGET-ERROR'] 
+    [*-E* 'MAX-EPOCHS'] [...]
+
+*wzann-train* *-T*
+
+DESCRIPTION
+-----------
+
+*wzann-train* reads an Artificial Neural Network (ANN) from the path given by
+*-i* and trains it using the training algorithm specified by *-t* with the
+training data read from the file at the path supplied by *-I*.
+
+You can use *-T* to list all training algorithms known to *wzann-train*.
+
+*wzann-train* reads most of its information from the training set definition,
+which gives, beside the actual training data, the target training error and
+the maxmimum number of epochs the training should run for. The user can
+override these two values using the *-e* (for training error) and *-E* (for
+the maxmimum number of epochs) flags.
+
+After the training finishes, *wzann-train* writes the trained ANN to the file
+the path specified by the *-o* flag points to. If *-o* is not given, or its
+value is *-*, the ANN will simply be printed to STDOUT.
+
+Usually, the training data will be partitioned into a training set and a
+verification set. For *wzann-mkann*, these are two separate training set
+files. If *-V* 'VERIFY-IN' is specified, the verification set is read from
+'VERIFY-IN'. Training error and verification error are calculated separately
+for both sets, but always using the same formula:
+
+    error = 1/(2 * n_samples) * sum((expected-actual)^2)
+
+This is the error metric stemming from the backpropagation of error family of
+training algorithms.
+
+OPTIONS
+-------
+
+*-i*, *--ann-input*='ANN-IN'::
+    Specifies from which path to read the serialized ANN that should be
+    trained.
+
+*-I*, *--training-set-input*='TRAININGSET-IN'::
+    Reads the training set from the file pointed to by 'TRAININGSET-IN'. This
+    will also initialize the target training error and the target maximum
+    number of epochs, unless overwritten by *-e* and *-E*, respectively.
+
+*-o*, *--ann-output*='ANN-OUT'::
+    Writes the resulting ANN to the file pointed to by 'ANN-OUT', regardeless
+    of the success of the training. If 'ANN-OUT' is not given or equals *-*,
+    the ANN is written to STDOUT.
+
+*-V*, *--verify-input*='VERIFY-IN'::
+    *wzann-train* allows to test the trained ANN against another training set
+    to verify the training success. *wzann-train* does not automatically
+    partition the training data; this is the task of the user, who can supply
+    the second partition via this option switch. The error in the verification
+    set is calculated in the same manner as the error in the training set, and
+    output separately.
+
+*-e*, *--target-error*='TARGET-ERROR'::
+    Sets the target error for the training to 'TARGET-ERROR'. This value then
+    takes precendence over the target error value given in the training set.
+
+*-E*, *--max-epochs*='MAX-EPOCHS'::
+    Specifies the maximum number of iterations (epochs) a training algorithm
+    should run. If given, this value overrides the *maxEpochs* specification
+    in the training set.
+
+*-t*, *--training-algorithm*='TRAINING-ALGORITHM'::
+    Chooses the given algorithm for the training. This parameter is mandatory;
+    *wzann-train* needs to know which algorithm should be used to train the 
+    given ANN. See *-T*.
+
+*-T*, *--list-training-algorithms*::
+    Prints a list of all training algorithms known to *wzann-train*.
+
+*-h*, *--help*::
+    Prints a usage summary and exits the program.
+
+*-v*, *--version*::
+    Prints the current version of the program.
+
+OPTIONS SPECIFIC TO TRAINING ALGORITHMS
++++++++++++++++++++++++++++++++++++++++
+
+OPTIONS SPECIFIC TO THE REVOLUTIONARY TRAINING ALGORITHM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These options are specific to the REvolutionary Training Algorithm, "REvol"
+for short.
+
+*--revol-population-size*='POPULATION-SIZE'::
+    Specifies the number of individuals in the population. The population
+    includes the elite. The default value is *30*.
+
+*--revol-elite-size*='ELITE-SIZE'::
+    The top individuals in the population are considered to be the elite.
+    The number of elite individuals is fixed at set by this paramter. The
+    default value is *3*. It is in general a good idea to set this to 1/10 of
+    the population size, rounded up (i.e., ceil('ELITE-SIZE' / 10)).
+
+*--revol-gradient-weight*='GRADIENT-WEIGHT'::
+    REvol uses the implicit gradient information available from the position
+    of the two parent individuals when creating the offspring, so that the
+    osition of the new individual is located towards the current minimum. The
+    'GRADIENT-WEIGHT' parameter specifies the influence of the implicit
+    gradient information. Sensible values range from *1.0* to *3.0*;
+    specifying *0.0* disables this feature. The default value is *1.0*.
+
+*--revol-success-weight*='SUCCESS-WEIGHT'::
+    The success rate of the overall population is the second metric REvol uses
+    during the creation of a new individual. In the context of REvol, "success"
+    is defined as a new individual replacing the currently worst one, if that
+    still lives (i.e., its time to live counter is greater than 0). REvol
+    modifies the spread for new individuals (the area in the error landscape
+    in which a new individual is born) based on the population's overall
+    success: on a high success rate, the population is drawn together; the
+    spread is increased when the current success rate is below the target 
+    success rate. Setting 'SUCCESS-WEIGHT' to 0.0 disables this feature.
+
+*--revol-measurement-epochs*='T'::
+    REvol measures the current success rate over a number of epochs, averaged
+    using a pt1 function. The time interval 'T' of the pt1 function is given
+    with this flag. The default value is *5000* epochs.
+
+*--revol-max-no-success-epochs*='EPOCHS'::
+    REvol can end when a certain number of epochs has gone by without a global
+    success, i.e., without a new individual replacing the currently best elite
+    object in the population. Defaults to *ULONG_MAX*, i.e., the training
+    should go on until the target error or the maximum number of training
+    epochs is reached and not end earlier. However, setting this to the half 
+    of the maximum number of training epochs is a sensible way to end an 
+    unsuccessful training early.
+
+*--revol-start-ttl*='TTL'::
+    Sets the initial Time To Live (TTL) for new individuals. Setting 'TTL' =
+    'POPULATION_SIZE' * 5 is a sensible approach; 'TTL' > 'POPULATION-SIZE' *
+    2 should be the case in any time. Otherwise, new individuals only replace
+    dead individuals in the population, which says nothing about the overall 
+    success of the population. The TTL defaults to *150* (= 5 * 30).
+
+*--revol-eamin*='EAMIN'::
+*--revol-ebmin*='EBMIN'::
+*--revol-ebmax*='EBMAX'::
+    The 'EAMIN', 'EBMIN', and 'EBMAX' paramters control the absolute and
+    relative mutation rate. 'EAMIN' represents the absolute minimum change for
+    a scatter vector element of an individual. It defaults to *1e-32*. 'EBMIN'
+    specifies the relative lower boundary of a mutation; it must be a value
+    such that 1.0 + 'EBMIN' > 1.0. The default value for 'EBMIN' is *1e-7*.
+    'EBMAX' controls the relative upper bound of a mutation. It ensures that
+    the influence exerted by the reproduction probability density function
+    (fueled from the population's success rate) does not become too great.
+    A sensible value for 'EBMAX' is 0.1 < 'EBMAX' 10.0. The default value for
+    'EBMAX' is *10.0*.
+
+EXIT STATUS
+-----------
+
+0:: on success
+1:: on errors caused by malformed input
+129:: if the training was unsuccessful
+130:: if the training was successful, but the error obtained
+    by the verification data set exceeded the desired target error.
+
+
+EXAMPLE
+-------
+
+    wzann-train -i ann.in.json -I wzann-trainingset.json 
+        -o ann.out.json -E 50000 -t wzann::REvolutionaryTrainingAlgorithm
+
+AUTHORS
+-------
+
+Copyright \(C) 2011-2017 Eric MSP Veith <eveith@veith-m.de>
+
+SEE ALSO
+--------
+
+*wzann-train*(1), *wzann-repl*(1)

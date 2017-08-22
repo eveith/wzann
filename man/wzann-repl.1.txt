@@ -1,0 +1,62 @@
+WZANN-REPL(1)
+=============
+:doctype: manpage
+
+NAME
+----
+
+wzann-repl - Prove a Read-Execute-Print Loop for artificial neural networks
+
+SYNOPSIS
+--------
+
+*wzann-repl* *-i* 'ANN-IN' [*-o* 'ANN-OUT' ...]
+
+DESCRIPTION
+-----------
+
+*wzann-repl* provides a Read-Execute-Print Loop (REPL) for artificial neural
+networks (ANNs) that adhere to the wzann serialization schema. It reads the
+ANN from the path given by the *-i* parameter, deserializes it, and feeds
+every input read from STDIN to the ANN. It prints the result to STDOUT.
+
+Since the state of the ANN changes with every value run, *wzann-repl* can
+optionally write the new state of the ANN to the path given by *-o*.
+
+OPTIONS
+-------
+
+*-i*, *--ann-input*='ANN-IN'::
+    Reads the serialized artificial neural network from this path.
+
+*-o*, *--ann-output*='ANN-OUT'::
+    After running the given input data through the ANN, *wzann-repl* can
+    serialize the new state of the ANN to the path given by this flag. This
+    parameter is optional; the new ANN state will only then be serialized when
+    this flag is given.
+
+*-h*, *--help*::
+    Prints a usage summary and exits the program.
+
+*-v*, *--version*::
+    Prints the current version of the program.
+
+EXIT STATUS
+-----------
+
+0 on success, 1 on failure (mostly due to malformatted input).
+
+EXAMPLE
+-------
+
+    wzann-repl -i my-ann.json
+
+AUTHORS
+-------
+
+Copyright \(C) 2011-2017 Eric MSP Veith <eveith@veith-m.de>
+
+SEE ALSO
+--------
+
+*wzann-mkann*(1), *wzann-train*(1)
