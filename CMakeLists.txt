@@ -41,7 +41,7 @@ add_custom_target(srctar
         "--xform='s,^,${PROJECT_NAME}-${wzann_VERSION}/,'"
         "--exclude-vcs" "--exclude-backups"
         "--exclude=Makefile" "--exclude='*.so*'"
-        "lib" "bin" "test" "CMakeLists.txt"
+        "lib" "bin" "man" "test" "CMakeLists.txt"
         "README.md" "VERSION.in" "COPYING")
 
 
