@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
-project(wzann VERSION 0.6.0 LANGUAGES CXX)
+project(wzann VERSION 0.6.1 LANGUAGES CXX)
 
 
 include(CTest)
