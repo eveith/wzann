@@ -5,6 +5,7 @@ SRCDIR="@CMAKE_CURRENT_SOURCE_DIR@"
 
 mkann="${BINDIR}/../bin/wzann-mkann"
 train="${BINDIR}/../bin/wzann-train"
+repl="${BINDIR}/../bin/wzann-repl"
 
 train_in="${SRCDIR}/mock/FourBitParity-Train.json"
 vrfy_in="${SRCDIR}/mock/FourBitParity-Verify.json"
@@ -23,6 +24,10 @@ vrfy_in="${SRCDIR}/mock/FourBitParity-Verify.json"
         -I "$train_in" \
         -V "$vrfy_in" \
         -t wzann::RpropTrainingAlgorithm
+    
+    parity=$(echo "1 1 0.0 0.0" | "$repl" \
+        -i  FourBitParityAnn.out.json)
+    [[ "$parity" =~ ^\(0\.9 ]]
 }
 
 # vim:ft=sh
