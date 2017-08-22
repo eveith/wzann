@@ -6,6 +6,8 @@ include(CTest)
 include(FindPkgConfig)
 include(GNUInstallDirs)
 include(CheckIncludeFileCXX)
+find_library(readline_LIBRARY readline)
+CHECK_INCLUDE_FILE_CXX("readline/readline.h" readline_HEADER)
 
 
 find_package(GTest)
