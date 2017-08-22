@@ -30,7 +30,7 @@ target_link_libraries(wzann-train
 install(TARGETS wzann-mkann wzann-train DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 
-if (EXISTS ${readline_LIBRARY} AND ${readline_HEADER})
+if (readline_LIBRARY AND readline_HEADER)
     add_executable(wzann-repl
         wzann-repl.cpp)
     set_target_properties(wzann-repl PROPERTIES CXX_STANDARD 14)

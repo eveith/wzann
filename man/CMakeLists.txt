@@ -5,7 +5,7 @@ set(a2x_common_options
     -d manpage -f manpage --asciidoc-opts='-o ${CMAKE_CURRENT_BINARY_DIR}')
 
 
-if (EXISTS ${readline_LIBRARY} AND ${readline_HEADER})
+if (readline_LIBRARY AND readline_HEADER)
     LIST(APPEND wzann_MANPAGE_SOURCES wzann-repl.1.txt)
 endif()
 
