@@ -164,8 +164,9 @@ for short.
     'EBMAX' controls the relative upper bound of a mutation. It ensures that
     the influence exerted by the reproduction probability density function
     (fueled from the population's success rate) does not become too great.
-    A sensible value for 'EBMAX' is 0.1 < 'EBMAX' 10.0. The default value for
-    'EBMAX' is *10.0*.
+    A sensible value for 'EBMAX' is 0.1, to avoid overfitting, but with
+    big datasets, setting 'EBMAX' <= 10.0 might still be reasonable.
+    The default value for 'EBMAX' is *0.1*.
 
 EXIT STATUS
 -----------

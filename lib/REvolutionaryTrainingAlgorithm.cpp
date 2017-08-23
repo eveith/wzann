@@ -74,7 +74,7 @@ namespace wzann {
     {
         eamin(1e-32);
         ebmin(1e-7);
-        ebmax(10.0);
+        ebmax(1e-1);
         eliteSize(3);
         populationSize(30);
         startTTL(5 * populationSize());
