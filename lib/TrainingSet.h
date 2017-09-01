@@ -155,7 +155,7 @@ namespace wzann {
          *
          * \return `*this`
          */
-        TrainingSet &operator <<(TrainingItem&& item);
+        TrainingSet& operator <<(TrainingItem&& item);
 
 
         /*!
@@ -165,7 +165,7 @@ namespace wzann {
          *
          * \return `*this`
          */
-        TrainingSet &operator =(const TrainingSet &rhs);
+        TrainingSet& operator =(const TrainingSet &rhs);
 
 
     private:

@@ -221,6 +221,73 @@ TEST_F(REvolutionaryTrainingAlgorithmTest, testParametersSettingAndRetrieval)
 }
 
 
+TEST_F(REvolutionaryTrainingAlgorithmTest, testApplyParametersSmallAnn)
+{
+    auto* ann = new NeuralNetwork();
+
+    ElmanNetworkPattern pattern;
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
+
+    ann->configure(pattern);
+
+    Individual individual;
+    REvolutionaryTrainingAlgorithm::getWeights(
+            *ann,
+            individual.parameters);
+
+    for (wzalgorithm::vector_t::size_type i = 0;
+            i != individual.parameters.size(); ++i) {
+        individual.parameters[i] = static_cast<double>(i);
+    }
+
+    REvolutionaryTrainingAlgorithm::applyParameters(
+            individual.parameters,
+            *ann);
+    auto connectionsRange = ann->connections();
+
+    size_t i = 0;
+    for (auto const* c : boost::make_iterator_range(connectionsRange)) {
+        if (c->fixedWeight()) {
+            continue;
+        }
+
+        ASSERT_EQ(i, c->weight());
+        i += 1;
+    }
+
+    delete ann;
+}
+
+
+TEST_F(REvolutionaryTrainingAlgorithmTest, testTrainSmallAnn)
+{
+    auto* ann = new NeuralNetwork();
+
+    ElmanNetworkPattern pattern;
+    pattern.addLayer({ 3, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
+    pattern.addLayer({ 1, ActivationFunction::Logistic });
+
+    ann->configure(pattern);
+
+    TrainingSet ts;
+    ts.maxEpochs(50000).targetError(0.007)
+            << TrainingItem({ 1.0, 0.5, 0.3 }, { 0.6 })
+            << TrainingItem({ 0.6, 0.1, 0.8 }, { 0.5 })
+            << TrainingItem({ 0.0, 0.0, 0.0 }, { 0.0 })
+            << TrainingItem({ 0.5, 1.0, 0.3 }, { 0.6 })
+            << TrainingItem({ 0.8, 0.5, 0.1 }, { 0.46 })
+            << TrainingItem({ 0.9, 0.8, 0.9 }, { 0.86 });
+    REvolutionaryTrainingAlgorithm().train(*ann, ts);
+
+    ASSERT_TRUE(ts.error() <= ts.targetError());
+
+    delete ann;
+}
+
+
 TEST_F(REvolutionaryTrainingAlgorithmTest, testTrainXOR)
 {
     NeuralNetwork network;
